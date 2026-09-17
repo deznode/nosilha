@@ -10,6 +10,7 @@ import {
   getTownStatusSummary,
 } from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import { belongsToSettlement } from "@/lib/place-path";
 import { isReservedSlug } from "@/lib/reserved-slugs";
 
 /**
@@ -39,7 +40,7 @@ export async function generateMetadata({
   // would be indexed under the record's own name.
   const summaries = await getTownStatusSummary().catch(() => []);
   const town = summaries.find((item) => item.slug === townSlug);
-  if (!town || !belongsTo(entry, town)) return {};
+  if (!town || !belongsToSettlement(entry, town)) return {};
 
   return generatePageMetadata({
     title: entry.name,
@@ -78,7 +79,7 @@ async function cachedPlaceRecord(townSlug: string, entrySlug: string) {
 
   // One record has one settlement. Serving it under a second URL would split its
   // links and its search ranking between two addresses for the same thing.
-  if (!belongsTo(entry, town)) notFound();
+  if (!belongsToSettlement(entry, town)) notFound();
 
   // Not caught: a failed read here would print "None yet" over a record that has
   // photographs, which is the one thing this page must never say wrongly.
@@ -99,20 +100,4 @@ async function cachedPlaceRecord(townSlug: string, entrySlug: string) {
       )}
     />
   );
-}
-
-/**
- * Whether this record belongs to this settlement.
- *
- * `townId` is the canonical answer; the name comparison is the fallback for records
- * whose settlement has not resolved yet, and it fails closed — a differently spelled
- * name 404s rather than rendering at an address that is not the record's own.
- */
-function belongsTo(
-  entry: { townId?: string | null; town: string },
-  town: { id: string | null; name: string }
-): boolean {
-  return entry.townId
-    ? entry.townId === town.id
-    : entry.town?.trim().toLowerCase() === town.name.trim().toLowerCase();
 }

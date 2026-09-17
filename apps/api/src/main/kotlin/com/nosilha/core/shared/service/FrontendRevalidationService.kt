@@ -38,57 +38,30 @@ class FrontendRevalidationService(
         .build()
 
     /**
-     * Triggers revalidation for a directory entry page.
+     * Triggers revalidation for every page that shows directory entries.
      *
-     * Constructs the path as /directory/{category}/{slug} and sends an async
-     * POST request to the frontend's revalidation endpoint.
-     *
-     * @param category The entry category (e.g., "Hotel", "Restaurant")
-     * @param slug The entry slug (e.g., "pensao-paulo")
+     * A record's page lives at `/<town>/<entry>` and the settlement, Stay and home
+     * pages list records too (spec 034 FR-015); all of them carry the `directory`
+     * cache tag, so one tag reaches every copy of the record.
      */
-    fun revalidateDirectoryEntry(
-        category: String,
-        slug: String
-    ) {
-        val categoryPath = CATEGORY_TO_SLUG[category]
-            ?: run {
-                logger.warn { "Unknown category '$category', skipping revalidation" }
-                return
-            }
-        val path = "/directory/$categoryPath/$slug"
-        revalidatePath(path)
-    }
-
-    companion object {
-        /**
-         * Maps backend category names to frontend URL slugs.
-         * Must stay in sync with apps/web/src/lib/directory-utils.ts CATEGORIES.
-         */
-        private val CATEGORY_TO_SLUG = mapOf(
-            "Restaurant" to "restaurants",
-            "Hotel" to "hotels",
-            "Beach" to "beaches",
-            "Heritage" to "heritage",
-            "Nature" to "nature",
-        )
+    fun revalidateDirectoryEntries() {
+        revalidate("""{"tag": "$DIRECTORY_TAG"}""", "tag $DIRECTORY_TAG")
     }
 
     /**
-     * Triggers revalidation for an arbitrary path.
-     *
      * Sends an async HTTP POST request to the frontend's /api/revalidate endpoint.
      * Failures are logged but do not throw exceptions (fire-and-forget pattern).
-     *
-     * @param path The path to revalidate (e.g., "/directory/hotels/pensao-paulo")
      */
-    fun revalidatePath(path: String) {
+    private fun revalidate(
+        requestBody: String,
+        target: String,
+    ) {
         if (revalidateSecret.isBlank()) {
             logger.warn { "Skipping revalidation - REVALIDATE_SECRET not configured" }
             return
         }
 
         val endpoint = "$frontendUrl/api/revalidate"
-        val requestBody = """{"path": "$path"}"""
 
         try {
             val request = HttpRequest
@@ -105,21 +78,26 @@ class FrontendRevalidationService(
                 .sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenAccept { response ->
                     if (response.statusCode() == 200) {
-                        logger.info { "Successfully revalidated path: $path" }
+                        logger.info { "Successfully revalidated $target" }
                     } else {
                         logger.warn {
-                            "Revalidation returned non-200 status: ${response.statusCode()} for path: $path"
+                            "Revalidation returned non-200 status: ${response.statusCode()} for $target"
                         }
                     }
                 }.exceptionally { throwable ->
-                    logger.error(throwable) { "Failed to revalidate path: $path" }
+                    logger.error(throwable) { "Failed to revalidate $target" }
                     null
                 }
 
-            logger.debug { "Sent revalidation request for path: $path" }
+            logger.debug { "Sent revalidation request for $target" }
         } catch (e: Exception) {
             // Don't let revalidation failures affect the main operation
-            logger.error(e) { "Error sending revalidation request for path: $path" }
+            logger.error(e) { "Error sending revalidation request for $target" }
         }
+    }
+
+    private companion object {
+        /** The cache tag every page listing directory entries carries. */
+        const val DIRECTORY_TAG = "directory"
     }
 }

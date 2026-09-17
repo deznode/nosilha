@@ -1,17 +1,32 @@
 import { MetadataRoute } from "next";
-import { getEntriesByCategory } from "@/lib/api";
+import { cacheLife, cacheTag } from "next/cache";
+import { getEntriesByCategory, getTownStatusSummary } from "@/lib/api";
 import { siteConfig } from "@/lib/metadata";
-import { getEntryUrl } from "@/lib/directory-utils";
+import { placeRecordPath } from "@/lib/place-path";
 import { pages } from "@/.velite";
 
 /**
  * Generate sitemap for Nos Ilha Cultural Heritage Platform
  *
- * Includes static pages and dynamic directory entries for optimal SEO coverage
- * supporting Cape Verdean diaspora discovery through search engines.
+ * Includes static pages, every settlement and every place record at its archive
+ * address (spec 034 FR-015) for Cape Verdean diaspora discovery through search engines.
  */
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  return buildSitemap();
+}
+
+/**
+ * The whole sitemap, cached like the archive pages it lists. Under Cache Components
+ * both the timestamp and the `no-store` settlement read would otherwise end the
+ * prerender before the entries were fetched.
+ */
+async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
+  "use cache";
+  cacheLife("content");
+  cacheTag("directory");
+  cacheTag("towns");
+
   const baseUrl = siteConfig.url;
   const currentDate = new Date().toISOString();
 
@@ -36,31 +51,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/directory/all`,
+      url: `${baseUrl}/settlements`,
       lastModified: currentDate,
-      changeFrequency: "daily" as const,
+      changeFrequency: "weekly" as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/directory/restaurant`,
-      lastModified: currentDate,
-      changeFrequency: "daily" as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/directory/hotel`,
-      lastModified: currentDate,
-      changeFrequency: "daily" as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/directory/heritage`,
+      url: `${baseUrl}/photographs`,
       lastModified: currentDate,
       changeFrequency: "weekly" as const,
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/directory/nature`,
+      url: `${baseUrl}/stay`,
       lastModified: currentDate,
       changeFrequency: "weekly" as const,
       priority: 0.8,
@@ -110,16 +113,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    // Fetch all directory entries for dynamic pages
-    const { items: allEntries } = await getEntriesByCategory("all");
+    const [{ items: allEntries }, towns] = await Promise.all([
+      getEntriesByCategory("all", 0, 100),
+      getTownStatusSummary(),
+    ]);
 
-    // Generate sitemap entries for each directory item
-    const dynamicPages = allEntries.map((entry) => ({
-      url: `${baseUrl}${getEntryUrl(entry.slug, entry.category)}`,
-      lastModified: entry.updatedAt || currentDate,
+    const settlementPages = towns.map((town) => ({
+      url: `${baseUrl}/${town.slug}`,
+      lastModified: currentDate,
       changeFrequency: "weekly" as const,
-      priority: getDynamicPagePriority(entry.category, entry.rating),
+      priority: 0.7,
     }));
+
+    // A record no settlement owns has no page, so it has no sitemap entry either.
+    const dynamicPages = allEntries.flatMap((entry) => {
+      const path = placeRecordPath(entry, towns);
+      if (!path) return [];
+
+      return [
+        {
+          url: `${baseUrl}${path}`,
+          lastModified: entry.updatedAt || currentDate,
+          changeFrequency: "weekly" as const,
+          priority: getDynamicPagePriority(entry.category, entry.rating),
+        },
+      ];
+    });
 
     // Generate sitemap entries for MDX pages (multilingual)
     const mdxPages: MetadataRoute.Sitemap = pages.map((page) => ({
@@ -129,7 +148,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-    return [...staticPages, ...dynamicPages, ...mdxPages];
+    return [...staticPages, ...settlementPages, ...dynamicPages, ...mdxPages];
   } catch (error) {
     console.error("Error generating sitemap:", error);
     // Return static pages if dynamic content fails

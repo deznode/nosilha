@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { Film } from "lucide-react";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FeaturedVideoHero } from "@/components/gallery/featured-video-hero";
@@ -179,12 +180,12 @@ export function VideoSection({
             Share videos celebrating Brava&apos;s culture, landscapes, and
             community stories.
           </p>
-          <a
+          <Link
             href="/contribute/media"
             className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 rounded-button inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
           >
             Be the first to share
-          </a>
+          </Link>
         </div>
       )}
     </div>

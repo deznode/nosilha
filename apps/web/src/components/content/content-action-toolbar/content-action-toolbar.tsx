@@ -34,7 +34,7 @@ import { getReactionCounts } from "@/lib/api";
  * <ContentActionToolbar
  *   contentSlug="faja-dagua-beach"
  *   contentTitle="Fajã d'Água Beach"
- *   contentUrl="https://nosilha.com/directory/beaches/faja-dagua-beach"
+ *   contentUrl="https://nosilha.com/faja-d-agua/faja-dagua-beach"
  *   reactions={[
  *     { id: 'heart', emoji: '❤️', count: 42, isSelected: false, ariaLabel: 'React with heart' }
  *   ]}

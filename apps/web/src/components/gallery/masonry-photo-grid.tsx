@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ZoomIn, Play, Camera, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
@@ -252,12 +253,12 @@ export const MasonryPhotoGrid = React.forwardRef<
                 : "Help preserve Brava\u2019s visual heritage by sharing your photographs with the community."}
             </p>
             {!searchQuery && (
-              <a
+              <Link
                 href="/contribute/media"
                 className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
               >
                 Be the first to share
-              </a>
+              </Link>
             )}
           </div>
         )}

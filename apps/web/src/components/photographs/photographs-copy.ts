@@ -11,7 +11,7 @@ import type { TownStatusSummary } from "@/types/town";
 /**
  * The photographs screen's filters and prose. Spec 034 FR-009, FR-018.
  *
- * Every count here comes from `/gallery/facets` — the whole archive — never from the
+ * Every count here comes from `/api/v1/gallery/facets` — the whole archive — never from the
  * page that happens to be loaded. A chip counting its own results would say "No place
  * 6" while fifteen records have no place, which is the exact misreading the redesign
  * exists to prevent.

@@ -4,8 +4,12 @@ import { useState } from "react";
 import { MapPin, Trash2, Bookmark, AlertCircle, Star } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { getEntryUrl } from "@/lib/directory-utils";
 import { useBookmarks, useToggleBookmark } from "@/hooks/queries/use-bookmarks";
+import {
+  UNADDRESSED_RECORD_HREF,
+  useTownSummaries,
+} from "@/hooks/queries/useTownSummaries";
+import { placeRecordPath } from "@/lib/place-path";
 import { Pagination, fromPaginatedResult } from "@/components/ui/pagination";
 
 function SavedPlaceSkeleton() {
@@ -27,6 +31,7 @@ export function SavedPlacesTab() {
   const [page, setPage] = useState(0);
   const { data: bookmarksData, isLoading, error } = useBookmarks(page, 20);
   const toggleBookmark = useToggleBookmark();
+  const { data: towns = [] } = useTownSummaries();
 
   const handleRemoveBookmark = (entryId: string) => {
     toggleBookmark.mutate({
@@ -91,7 +96,9 @@ export function SavedPlacesTab() {
           className="group border-hairline bg-surface hover:border-ocean-blue flex items-center justify-between rounded-lg border p-4 transition-colors"
         >
           <Link
-            href={getEntryUrl(bookmark.entry.slug, bookmark.entry.category)}
+            href={
+              placeRecordPath(bookmark.entry, towns) ?? UNADDRESSED_RECORD_HREF
+            }
             className="flex flex-1 items-center gap-4"
           >
             {bookmark.entry.thumbnailUrl ? (

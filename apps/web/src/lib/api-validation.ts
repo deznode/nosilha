@@ -52,7 +52,6 @@ export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
       "Beach",
       "Heritage",
       "Nature",
-      "Town",
       "Viewpoint",
       "Trail",
       "Church",

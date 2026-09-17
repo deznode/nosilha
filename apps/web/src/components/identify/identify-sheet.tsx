@@ -110,7 +110,9 @@ export function IdentifySheet() {
   }, [close]);
 
   useEffect(() => {
-    if (!context) return;
+    // While sign-in is open, Escape belongs to that dialog: closing the sheet under
+    // it would discard the answers the sign-in was meant to carry.
+    if (!context || signInOpen) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") handleClose();
@@ -118,7 +120,7 @@ export function IdentifySheet() {
 
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [context, handleClose]);
+  }, [context, handleClose, signInOpen]);
 
   const send = useCallback(
     async (current: Record<string, string>) => {

@@ -52,7 +52,6 @@ type DirectoryCategory =
   | "Beach"
   | "Heritage"
   | "Nature"
-  | "Town"
   | "Viewpoint"
   | "Trail"
   | "Church"
@@ -313,7 +312,7 @@ export function DirectoryEntryForm({
   };
 
   const handleBack = () => {
-    router.push("/directory");
+    router.push("/settlements");
   };
 
   // Success screen (only for full-page create mode)

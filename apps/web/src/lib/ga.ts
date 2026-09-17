@@ -25,7 +25,7 @@ declare global {
  * @param url - The page URL to track (e.g., "/about" or "/about?tab=history")
  *
  * @example
- * trackPageview('/directory/restaurants')
+ * trackPageview('/settlements')
  */
 export function trackPageview(url: string) {
   if (!GA_MEASUREMENT_ID) return;

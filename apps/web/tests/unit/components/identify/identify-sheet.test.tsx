@@ -232,6 +232,23 @@ describe("IdentifySheet", () => {
       expect(submitSuggestion).not.toHaveBeenCalled();
     });
 
+    it("keeps the sheet and its answers when Escape dismisses sign-in", async () => {
+      const user = userEvent.setup();
+      openSheet();
+
+      await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
+      await user.click(
+        screen.getByRole("button", { name: "Send to the curators" })
+      );
+      await user.keyboard("{Escape}");
+
+      // The dialog owns Escape while it is open; the sheet must not close under it.
+      expect(screen.getByText("Help identify")).toBeInTheDocument();
+      expect(screen.getByLabelText("Who took it?")).toHaveValue(
+        "Maria Tavares"
+      );
+    });
+
     it("posts the held submission once after sign-in", async () => {
       const user = userEvent.setup();
       openSheet();

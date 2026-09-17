@@ -391,10 +391,7 @@ class DirectoryEntryService(
             return
         }
 
-        revalidationService.revalidateDirectoryEntry(
-            category = entry.getCategoryValue(),
-            slug = entry.slug,
-        )
+        revalidationService.revalidateDirectoryEntries()
     }
 
     // =====================================================
@@ -666,10 +663,7 @@ class DirectoryEntryService(
         val saved = repository.save(entry)
 
         if (status == DirectoryEntryStatus.PUBLISHED) {
-            revalidationService.revalidateDirectoryEntry(
-                category = saved.getCategoryValue(),
-                slug = saved.slug,
-            )
+            revalidationService.revalidateDirectoryEntries()
         }
 
         return saved.toAdminDto()

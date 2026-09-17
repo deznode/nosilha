@@ -74,6 +74,12 @@ export interface BookmarkEntryDetails {
   town: string | null;
 
   /**
+   * The settlement that owns the place (nullable until resolved); the record's
+   * address is built from it (spec 034 FR-015)
+   */
+  townId: string | null;
+
+  /**
    * URL to the thumbnail image (nullable)
    */
   thumbnailUrl: string | null;

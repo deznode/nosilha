@@ -69,6 +69,7 @@ data class BookmarkWithEntryDto(
  * @property slug URL-friendly identifier
  * @property description Short description of the entry (null if not set)
  * @property town Town where the entry is located
+ * @property townId The settlement that owns the entry; the frontend builds the record's address from it (spec 034 FR-015)
  * @property averageRating Average rating (null if no ratings yet)
  * @property thumbnailUrl Thumbnail image URL for the entry (null if no image)
  */
@@ -79,6 +80,7 @@ data class DirectoryEntrySummaryDto(
     val slug: String,
     val description: String?,
     val town: String?,
+    val townId: UUID?,
     val averageRating: Double?,
     val thumbnailUrl: String?,
 )
@@ -145,6 +147,7 @@ fun DirectoryEntry.toSummaryDto(thumbnailUrl: String?) =
         slug = this.slug,
         description = this.description,
         town = this.town,
+        townId = this.townId,
         averageRating = this.rating,
         thumbnailUrl = thumbnailUrl,
     )

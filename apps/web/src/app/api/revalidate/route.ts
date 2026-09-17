@@ -19,9 +19,9 @@ import { NextRequest, NextResponse } from "next/server";
  * Usage:
  * POST /api/revalidate
  * Headers: { "X-Revalidate-Secret": "your-secret" }
- * Body: { "path": "/directory/hotels/pensao-paulo" }
+ * Body: { "path": "/nova-sintra/pensao-paulo" }
  *   or: { "tag": "gallery" }
- *   or: { "path": "/directory/hotels", "tag": "category:hotels" }
+ *   or: { "path": "/stay", "tag": "directory" }
  */
 export async function POST(request: NextRequest) {
   // Validate secret token

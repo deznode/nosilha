@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 import { BookmarkButton } from "./bookmark-button";
-import { getEntryUrl } from "@/lib/directory-utils";
+import { usePlaceRecordHref } from "@/hooks/queries/useTownSummaries";
 import type { DirectoryEntry } from "@/types/directory";
 
 interface ListViewCardProps {
@@ -17,11 +17,10 @@ export function ListViewCard({
   entry,
   showBookmark = true,
 }: ListViewCardProps) {
+  const href = usePlaceRecordHref(entry);
+
   return (
-    <Link
-      href={getEntryUrl(entry.slug, entry.category)}
-      className="group block"
-    >
+    <Link href={href} className="group block">
       <div className="border-hairline bg-surface rounded-card shadow-subtle ease-calm hover:shadow-medium flex h-48 flex-row overflow-hidden border transition-shadow duration-200">
         {/* Image */}
         <div className="relative w-1/3 overflow-hidden">

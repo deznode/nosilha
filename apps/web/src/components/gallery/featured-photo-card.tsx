@@ -29,7 +29,7 @@ export function FeaturedPhotoCard({ photo }: FeaturedPhotoCardProps) {
 
   return (
     <Link
-      href={`/gallery/photo/${photo.id}`}
+      href={`/photographs/${photo.id}`}
       className="group rounded-card relative block h-48 overflow-hidden sm:h-64 lg:h-72"
     >
       <Image

@@ -914,6 +914,7 @@ export class MockApiClient implements ApiClient {
           slug: entry.slug,
           description: entry.description,
           town: entry.town,
+          townId: entry.townId ?? null,
           thumbnailUrl: entry.imageUrl ?? null,
           averageRating: entry.rating ?? null,
         },
@@ -1829,13 +1830,6 @@ ${story.content
   > {
     await this.simulateDelay(200);
     return [];
-  }
-
-  async getGalleryTimeline(): Promise<
-    import("@/types/gallery").TimelineResponse
-  > {
-    await this.simulateDelay(200);
-    return { groups: [], totalCount: 0 };
   }
 
   async submitExternalMedia(): Promise<{ id: string; message: string }> {

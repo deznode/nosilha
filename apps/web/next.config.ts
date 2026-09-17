@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { LEGACY_REDIRECTS } from "./src/lib/legacy-redirects";
+
 const isDev = process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
@@ -61,18 +63,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    return [
-      {
-        source: "/directory/landmark",
-        destination: "/directory/heritage",
-        permanent: true, // 301 redirect for SEO after Landmark → Heritage split
-      },
-      {
-        source: "/directory/entry/:slug",
-        destination: "/api/redirect/entry/:slug",
-        permanent: false, // Use temporary redirect to API handler
-      },
-    ];
+    return [...LEGACY_REDIRECTS];
   },
   async headers() {
     return [

@@ -4,7 +4,7 @@
  */
 
 import type { DirectoryEntry } from "./directory";
-import { getEntryUrl } from "@/lib/directory-utils";
+import { placeRecordPath, type SettlementRef } from "@/lib/place-path";
 
 /** Result types for unified search */
 export type SearchResultType = "directory" | "article";
@@ -16,7 +16,6 @@ export type DirectoryCategory =
   | "Beach"
   | "Heritage"
   | "Nature"
-  | "Town"
   | "Viewpoint"
   | "Trail"
   | "Church"
@@ -82,16 +81,21 @@ export interface PagefindUI {
 }
 
 /**
- * Convert a DirectoryEntry to a DirectorySearchResult
+ * Convert a DirectoryEntry to a DirectorySearchResult, or null when no settlement
+ * owns the record — it has no page, so search must not offer a link to one.
  */
 export function toDirectorySearchResult(
-  entry: DirectoryEntry
-): DirectorySearchResult {
+  entry: DirectoryEntry,
+  towns: readonly SettlementRef[]
+): DirectorySearchResult | null {
+  const url = placeRecordPath(entry, towns);
+  if (!url) return null;
+
   return {
     id: entry.id,
     type: "directory",
     title: entry.name,
-    url: getEntryUrl(entry.slug, entry.category),
+    url,
     excerpt: entry.description,
     category: entry.category,
     town: entry.town,

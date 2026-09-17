@@ -2005,7 +2005,6 @@ export class BackendApiClient implements ApiClient {
       BEACH: "Beach",
       HERITAGE: "Heritage",
       NATURE: "Nature",
-      TOWN: "Town",
       VIEWPOINT: "Viewpoint",
       TRAIL: "Trail",
       CHURCH: "Church",
@@ -2016,7 +2015,6 @@ export class BackendApiClient implements ApiClient {
       Beach: "Beach",
       Heritage: "Heritage",
       Nature: "Nature",
-      Town: "Town",
       Viewpoint: "Viewpoint",
       Trail: "Trail",
       Church: "Church",
@@ -2728,22 +2726,6 @@ export class BackendApiClient implements ApiClient {
     }
     const payload = await response.json();
     return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
-  }
-
-  async getGalleryTimeline(): Promise<
-    import("@/types/gallery").TimelineResponse
-  > {
-    const endpoint = `${env.apiUrl}/api/v1/gallery/timeline`;
-    const response = await fetch(endpoint, {
-      next: CacheConfig.GALLERY,
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to fetch gallery timeline: ${response.status}`);
-    }
-    const payload = await response.json();
-    return this.unwrapApiResponse<import("@/types/gallery").TimelineResponse>(
-      payload
-    );
   }
 
   /**

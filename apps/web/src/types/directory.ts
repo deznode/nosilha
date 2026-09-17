@@ -48,7 +48,6 @@ export interface BaseDirectoryEntry {
     | "Beach"
     | "Heritage"
     | "Nature"
-    | "Town"
     | "Viewpoint"
     | "Trail"
     | "Church"
@@ -132,10 +131,6 @@ export type DirectoryEntry =
   | (BaseDirectoryEntry & {
       category: "Nature";
       details: null; // Nature sites have no specific details yet
-    })
-  | (BaseDirectoryEntry & {
-      category: "Town";
-      details: null;
     })
   | (BaseDirectoryEntry & {
       category: "Viewpoint";

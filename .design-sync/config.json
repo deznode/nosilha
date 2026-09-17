@@ -49,10 +49,6 @@
       "cardMode": "column",
       "viewport": "1000x1000"
     },
-    "TimelineView": {
-      "cardMode": "column",
-      "viewport": "1400x820"
-    },
     "VideoGrid": {
       "cardMode": "column",
       "viewport": "1000x900"
@@ -98,7 +94,6 @@
     "Textarea": "src/components/ui/textarea.tsx",
     "MasonryPhotoGrid": "src/components/gallery/masonry-photo-grid.tsx",
     "MasonryPhotoGridSkeleton": "src/components/gallery/masonry-photo-grid.tsx",
-    "TimelineView": "src/components/gallery/timeline-view.tsx",
     "FeaturedPhotoCard": "src/components/gallery/featured-photo-card.tsx",
     "MetadataBadges": "src/components/gallery/metadata-badges.tsx",
     "CompactVideoCard": "src/components/gallery/compact-video-card.tsx",

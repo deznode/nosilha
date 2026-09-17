@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
-import { getEntryUrl } from "@/lib/directory-utils";
+import { placeRecordPath } from "@/lib/place-path";
+import { useTownSummaries } from "@/hooks/queries/useTownSummaries";
 import { DirectoryCard } from "@/components/directory/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { NosilhaLogo } from "@/components/ui/logo";
@@ -64,11 +65,13 @@ export default function TestPage() {
     };
   }, []);
 
+  const { data: towns = [] } = useTownSummaries();
   const showcaseEntry = entries[0];
+  const showcasePath = showcaseEntry
+    ? placeRecordPath(showcaseEntry, towns)
+    : null;
   const showcaseContentId = showcaseEntry?.id ?? "demo-content-id";
-  const showcaseUrl = showcaseEntry
-    ? `https://nosilha.com${getEntryUrl(showcaseEntry.slug, showcaseEntry.category)}`
-    : "https://nosilha.com/directory/heritage/demo-entry";
+  const showcaseUrl = `https://nosilha.com${showcasePath ?? "/nova-sintra/demo-entry"}`;
   const showcaseTitle = showcaseEntry?.name ?? "Eugénio Tavares Monument";
   const showcaseDescription =
     showcaseEntry?.description ??
@@ -81,7 +84,7 @@ export default function TestPage() {
         <Banner
           title="Nos Ilha 2025"
           message="Discover the cultural heritage of Brava Island - explore landmarks, local businesses, and traditions"
-          linkUrl="/directory/all"
+          linkUrl="/settlements"
         />
         <NosilhaLogo />
         <Logo2 />

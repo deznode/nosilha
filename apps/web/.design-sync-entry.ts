@@ -62,7 +62,6 @@ export {
   MasonryPhotoGrid,
   MasonryPhotoGridSkeleton,
 } from "@/components/gallery/masonry-photo-grid";
-export { TimelineView } from "@/components/gallery/timeline-view";
 export { FeaturedPhotoCard } from "@/components/gallery/featured-photo-card";
 export { MetadataBadges } from "@/components/gallery/metadata-badges";
 export { CompactVideoCard } from "@/components/gallery/compact-video-card";
