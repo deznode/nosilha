@@ -32,10 +32,6 @@ export async function generateMetadata({
   const { town: townSlug, entry: slug } = await params;
   if (isReservedSlug(townSlug)) return {};
 
-  // Independent reads, so they go together. The summaries are fetched even when the
-  // record turns out to be missing; they are a cached, shared read, so that costs a
-  // cache hit rather than a round trip.
-  //
   // The summaries apply the same ownership test the page does. Without it a record
   // served under the wrong settlement would still emit its title and its OG image,
   // so a URL that 404s would be indexed under the record's own name.

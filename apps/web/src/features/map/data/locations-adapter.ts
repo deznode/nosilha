@@ -11,8 +11,8 @@ import {
   photoIsIdentifiablePerson,
   photoIsLocated,
   photoTitle,
-  trimmed as text,
 } from "@/lib/photo-facts";
+import { trimmed } from "@/lib/text";
 import {
   getEntryStatus,
   getTownStatus,
@@ -115,7 +115,7 @@ export function photoItems(
     const lat = record.latitude as number;
     const lng = record.longitude as number;
     const image =
-      !photoIsIdentifiablePerson(record) && text(record.publicUrl)
+      !photoIsIdentifiablePerson(record) && trimmed(record.publicUrl)
         ? (record.publicUrl as string)
         : undefined;
 
@@ -124,7 +124,7 @@ export function photoItems(
       kind: "photo",
       name: photoTitle(record).text,
       eyebrow: "Photograph",
-      description: text(record.description) ?? "",
+      description: trimmed(record.description) ?? "",
       coordinates: { lat, lng },
       // A pin from a file's coordinates: records a point, not a documented place.
       status: "partial",
@@ -133,7 +133,7 @@ export function photoItems(
       regionSlug: nearestSlug(lat, lng, towns),
       image,
       filename: photoFilename(record),
-      placeName: text(record.locationName),
+      placeName: trimmed(record.locationName),
       credit: photoCredit(record),
     });
   }

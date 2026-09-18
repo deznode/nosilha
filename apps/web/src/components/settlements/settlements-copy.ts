@@ -79,7 +79,7 @@ export function settlementStandfirst(towns: TownStatusSummary[]): string {
 
   const split = [
     `${capitalise(toWords(documented))} ${plural(documented, "is", "are")} documented`,
-    `${toWords(partial)} ${partial === 1 ? "holds" : "hold"} records without a photograph`,
+    `${toWords(partial)} ${plural(partial, "holds", "hold")} records without a photograph`,
     `and ${toWords(nameOnly)} ${plural(nameOnly, "is", "are")} a name and a coordinate`,
   ].join(", ");
 

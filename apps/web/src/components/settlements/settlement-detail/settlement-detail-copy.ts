@@ -1,4 +1,4 @@
-import { countSentence } from "@/lib/copy/number-words";
+import { countSentence, plural } from "@/lib/copy/number-words";
 import type { Town, TownStatusSummary } from "@/types/town";
 
 /**
@@ -68,7 +68,7 @@ export function photographPanel(summary: TownStatusSummary): PhotographPanel {
   if (entryCount === 0) {
     sentences.push("No record sits in this town yet.");
   } else if (photographCount === 0) {
-    const sit = entryCount === 1 ? "sits" : "sit";
+    const sit = plural(entryCount, "sits", "sit");
     const carries =
       entryCount === 1
         ? "it does not carry a photograph"
@@ -78,21 +78,22 @@ export function photographPanel(summary: TownStatusSummary): PhotographPanel {
     );
   } else {
     sentences.push(
-      `${records(entryCount)} ${entryCount === 1 ? "sits" : "sit"} in this town.`
+      `${records(entryCount)} ${plural(entryCount, "sits", "sit")} in this town.`
     );
   }
 
   if (unconfirmedPhotographCount > 0) {
-    const one = unconfirmedPhotographCount === 1;
     const opening = countSentence(unconfirmedPhotographCount, {
       one: `{n} photograph in the archive has coordinates that fall inside ${name}`,
       many: `{n} photographs in the archive have coordinates that fall inside ${name}`,
       zero: "",
     });
     sentences.push(
-      `${opening}, but nobody has confirmed the place, so ${
-        one ? "it is" : "they are"
-      } not attached here.`
+      `${opening}, but nobody has confirmed the place, so ${plural(
+        unconfirmedPhotographCount,
+        "it is",
+        "they are"
+      )} not attached here.`
     );
   }
 

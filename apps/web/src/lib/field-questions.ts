@@ -1,6 +1,7 @@
 import { categoryLabel } from "@/lib/category-label";
 import { formatCoordinates } from "@/lib/coordinates";
-import { toWords } from "@/lib/copy/number-words";
+import { plural, toWords } from "@/lib/copy/number-words";
+import { trimmed } from "@/lib/text";
 import type { DirectoryEntry } from "@/types/directory";
 
 /**
@@ -95,9 +96,7 @@ const LABELS: Record<string, string> = {
 
 function text(value: unknown): string | null {
   if (typeof value === "number") return String(value);
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed ? trimmed : null;
+  return typeof value === "string" ? trimmed(value) : null;
 }
 
 function list(value: unknown): string | null {
@@ -240,9 +239,11 @@ export function completenessSentence(entry: DirectoryEntry): string {
 
   if (documented === 0) return "nothing recorded yet";
 
-  return `${toWords(documented)} of ${toWords(total)} ${
-    total === 1 ? "field" : "fields"
-  } recorded`;
+  return `${toWords(documented)} of ${toWords(total)} ${plural(
+    total,
+    "field",
+    "fields"
+  )} recorded`;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { countSentence, toWords } from "@/lib/copy/number-words";
+import { countSentence, plural, toWords } from "@/lib/copy/number-words";
 import type { DirectoryEntry } from "@/types/directory";
 
 /**
@@ -29,9 +29,11 @@ export function stayStandfirst(stays: DirectoryEntry[]): string {
   } else if (rated === 0) {
     ratings = `none of the ${toWords(total)} has been rated yet`;
   } else {
-    ratings = `${toWords(rated)} of the ${toWords(total)} ${
-      rated === 1 ? "has" : "have"
-    } been rated`;
+    ratings = `${toWords(rated)} of the ${toWords(total)} ${plural(
+      rated,
+      "has",
+      "have"
+    )} been rated`;
   }
 
   return `${opening}. This is the only part of the archive where a rating belongs, and ${ratings}.`;

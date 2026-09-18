@@ -1,10 +1,6 @@
 import { formatCoordinates } from "@/lib/coordinates";
-import {
-  photoCredit,
-  photoDateLabel,
-  photoIsLocated,
-  trimmed,
-} from "@/lib/photo-facts";
+import { photoCredit, photoDateLabel, photoIsLocated } from "@/lib/photo-facts";
+import { trimmed } from "@/lib/text";
 import {
   isPublicUserUploadMedia,
   type PhotoSequence,

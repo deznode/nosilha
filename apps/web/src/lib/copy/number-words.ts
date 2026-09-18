@@ -54,17 +54,17 @@ export function toWords(n: number): string {
   return ones === 0 ? tens : `${tens}-${ONES[ones]}`;
 }
 
-/** Upper-cases the first character only. */
 /**
  * The form that agrees with `n` — "photograph"/"photographs", "is"/"are", "holds"/"hold".
  *
  * Here rather than in each screen's copy module: agreement is a formatting primitive,
- * not a per-screen editorial choice, and it was being rewritten in seven shapes.
+ * not a per-screen editorial choice, and every copy module was rewriting it inline.
  */
 export function plural(n: number, one: string, many: string): string {
   return n === 1 ? one : many;
 }
 
+/** Upper-cases the first character only. */
 export function capitalise(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -85,6 +85,6 @@ export interface CountForms {
 export function countSentence(n: number, forms: CountForms): string {
   if (n === 0) return forms.zero;
 
-  const template = n === 1 ? forms.one : forms.many;
+  const template = plural(n, forms.one, forms.many);
   return capitalise(template.replace(/\{n\}/g, toWords(n)));
 }

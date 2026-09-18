@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
+import { statusVar } from "@/lib/status";
 import type { DirectoryEntry } from "@/types/directory";
 
 import { stayRating, stayStandfirst } from "./stay-copy";
@@ -158,9 +159,7 @@ function StayCard({
           <span
             style={{
               fontSize: "13px",
-              color: rating.ochre
-                ? "var(--brand-sobrado-ochre)"
-                : "var(--foreground)",
+              color: rating.ochre ? statusVar("name") : "var(--foreground)",
             }}
           >
             {rating.text}

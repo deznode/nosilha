@@ -46,9 +46,6 @@ async function cachedPhoto(id: string) {
   cacheLife("entry");
   cacheTag("gallery");
 
-  // Independent reads on the same id, so they go together: this page renders
-  // blocking (`instant = false`), which makes their latency TTFB.
-  //
   // The sequence is not caught: without one the position line reads "This one has
   // no place recorded", which is a statement about the record rather than about the
   // request that failed — and `use cache` would keep saying it for half an hour.

@@ -581,12 +581,6 @@ export class MockApiClient implements ApiClient {
     }));
   }
 
-  async getTownsForMap(): Promise<Town[]> {
-    console.log(`Mock API: Fetching towns for map`);
-    await this.simulateDelay(150);
-    return MOCK_TOWNS;
-  }
-
   // ================================
   // REACTION OPERATIONS (User Story 2) - Mock Implementation
   // ================================

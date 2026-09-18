@@ -18,8 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 /**
  * The whole sitemap, cached like the archive pages it lists. Under Cache Components
- * both the timestamp and the `no-store` settlement read would otherwise end the
- * prerender before the entries were fetched.
+ * the timestamp would otherwise end the prerender before the entries were fetched.
  */
 async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
   "use cache";

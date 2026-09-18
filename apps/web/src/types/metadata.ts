@@ -1,5 +1,3 @@
-import type { DirectoryEntry } from "./directory";
-
 /**
  * SEO Metadata Types for Nos Ilha Cultural Heritage Platform
  *
@@ -270,22 +268,11 @@ export interface ImageObjectSchema extends BaseSchema {
 }
 
 /**
- * Utility functions for generating metadata
+ * What a page supplies to `generatePageMetadata`. Everything site-wide — the base URL,
+ * the site name, the Twitter handle — is read from `siteConfig` there, so a page only
+ * describes itself.
  */
-export interface MetadataGeneratorOptions {
-  /** Defaults to `siteConfig.url`; pages only pass this to override it. */
-  baseUrl?: string;
-  /** Defaults to `siteConfig.name`; pages only pass this to override it. */
-  siteName?: string;
-  twitterHandle?: string;
-}
-
-export interface DirectoryEntryMetadataOptions extends MetadataGeneratorOptions {
-  entry: DirectoryEntry;
-  images?: OpenGraphImage[];
-}
-
-export interface PageMetadataOptions extends MetadataGeneratorOptions {
+export interface PageMetadataOptions {
   title: string;
   description: string;
   path: string;

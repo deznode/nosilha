@@ -145,8 +145,6 @@ export interface ApiClient {
 
   getTownBySlug(slug: string): Promise<Town | undefined>;
 
-  getTownsForMap(): Promise<Town[]>;
-
   /** Every settlement with its derived documentation status and coordinates. */
   getTownStatusSummary(): Promise<TownStatusSummary[]>;
 
@@ -1194,9 +1192,7 @@ export const CacheConfig = {
   // Settlement status - one shared entry behind the `towns` tag. Every archive page
   // reads this, and the answer is identical for all of them, so it must not vary per
   // cache key the way `no-store` made it.
-  // `tags` is widened because `as const` would make it a readonly tuple, which
-  // `NextFetchRequestConfig` does not accept.
-  TOWN_STATUS: { revalidate: 1800, tags: ["towns"] as string[] }, // 30 minutes
+  TOWN_STATUS: { revalidate: 1800, tags: ["towns"] } as NextFetchRequestConfig, // 30 minutes
 
   // Reaction counts - cached for 5 minutes (per spec.md FR-015)
   REACTION_COUNTS: { revalidate: 300 }, // 5 minutes

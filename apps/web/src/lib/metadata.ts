@@ -52,10 +52,9 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
     keywords = [],
     images = [],
     structuredData = [],
-    baseUrl = siteConfig.url,
-    siteName = siteConfig.name,
   } = options;
 
+  const { url: baseUrl, name: siteName } = siteConfig;
   const url = `${baseUrl}${path}`;
   // Don't append siteName here - let Next.js title template handle it
   const fullTitle = title;

@@ -264,7 +264,7 @@ export function PlaceRecord({
                       color:
                         field.value !== null
                           ? "var(--foreground)"
-                          : "var(--brand-sobrado-ochre)",
+                          : statusVar("name"),
                     }}
                   >
                     {field.value ?? "not recorded"}

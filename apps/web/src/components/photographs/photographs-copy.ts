@@ -1,4 +1,9 @@
-import { capitalise, countSentence, toWords } from "@/lib/copy/number-words";
+import {
+  capitalise,
+  countSentence,
+  plural,
+  toWords,
+} from "@/lib/copy/number-words";
 import {
   isPublicExternalMedia,
   type GalleryFacets,
@@ -135,20 +140,26 @@ export function photographsStandfirst(facets: GalleryFacets): string {
     many: "{n} records",
     zero: "",
   });
-  const split = `${toWords(facets.photographs)} ${
-    facets.photographs === 1 ? "photograph" : "photographs"
-  } and ${toWords(facets.films)} ${facets.films === 1 ? "film" : "films"}`;
+  const split = `${toWords(facets.photographs)} ${plural(
+    facets.photographs,
+    "photograph",
+    "photographs"
+  )} and ${toWords(facets.films)} ${plural(facets.films, "film", "films")}`;
 
-  const located = `${capitalise(toWords(facets.withPlace))} ${
-    facets.withPlace === 1 ? "carries" : "carry"
-  } coordinates read from the file.`;
+  const located = `${capitalise(toWords(facets.withPlace))} ${plural(
+    facets.withPlace,
+    "carries",
+    "carry"
+  )} coordinates read from the file.`;
 
   const credited =
     facets.uncredited === facets.total
       ? "None carries a photographer."
-      : `${capitalise(toWords(facets.uncredited))} ${
-          facets.uncredited === 1 ? "carries" : "carry"
-        } no photographer.`;
+      : `${capitalise(toWords(facets.uncredited))} ${plural(
+          facets.uncredited,
+          "carries",
+          "carry"
+        )} no photographer.`;
 
   return `${total}: ${split}. ${located} ${credited}`;
 }
@@ -195,9 +206,11 @@ export function unlocatedTray(
   // count standing alone would read as a fact about the archive.
   const body =
     shown < facets.withoutPlace
-      ? `${capitalise(toWords(shown))} of them ${
-          shown === 1 ? "is" : "are"
-        } shown below. None can appear on the map. If you recognise one, tell us where it was taken and it joins the island.`
+      ? `${capitalise(toWords(shown))} of them ${plural(
+          shown,
+          "is",
+          "are"
+        )} shown below. None can appear on the map. If you recognise one, tell us where it was taken and it joins the island.`
       : "None of them can appear on the map. If you recognise one, tell us where it was taken and it joins the island.";
 
   return { heading, body };
@@ -220,9 +233,11 @@ export function filmsNote(
   const lengths =
     timed === 0
       ? "None records a length."
-      : `${capitalise(toWords(timed))} of them ${
-          timed === 1 ? "records" : "record"
-        } a length.`;
+      : `${capitalise(toWords(timed))} of them ${plural(
+          timed,
+          "records",
+          "record"
+        )} a length.`;
 
   return `${capitalise(toWords(total))}, synced from YouTube. ${lengths}`;
 }

@@ -1,3 +1,4 @@
+import { trimmed } from "@/lib/text";
 import {
   isPublicUserUploadMedia,
   type PublicGalleryMedia,
@@ -21,15 +22,6 @@ export const ASPECT_FALLBACK = "388 / 300";
 
 /** A credit that answers the question without naming anyone. */
 const CREDIT_NOT_KNOWN = "not known";
-
-/**
- * A non-empty trimmed string, or null. Exported because the photograph row builder
- * and the map adapter both need exactly this rule and each had its own copy.
- */
-export function trimmed(value: string | null | undefined): string | null {
-  const text = value?.trim();
-  return text ? text : null;
-}
 
 export interface PhotoTitle {
   text: string;

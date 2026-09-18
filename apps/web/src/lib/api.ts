@@ -208,15 +208,6 @@ export async function getTownBySlug(slug: string): Promise<Town | undefined> {
 }
 
 /**
- * Fetches towns for real-time interactive features like maps.
- * Automatically uses the configured API implementation (backend or mock).
- * @returns A promise that resolves to an array of towns.
- */
-export async function getTownsForMap(): Promise<Town[]> {
-  return apiClient.getTownsForMap();
-}
-
-/**
  * Fetches every settlement with its derived documentation status and coordinates.
  * Automatically uses the configured API implementation (backend or mock).
  * @returns A promise that resolves to an array of settlement status summaries.
