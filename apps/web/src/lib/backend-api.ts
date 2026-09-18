@@ -695,12 +695,21 @@ export class BackendApiClient implements ApiClient {
    * Status is derived from live counts, but the answer is the same for every caller,
    * and nine of them are archive pages whose `use cache` keys vary by filter and
    * region. `no-store` re-hit this endpoint — the heaviest read in the API — once per
-   * variant, so it is cached for 30 minutes behind the `towns` tag those pages already
-   * declare.
+   * variant, so on the server it is cached for 30 minutes behind the `directory` tag
+   * the backend flushes when an entry changes.
+   *
+   * The map store and the client link hooks call this from the browser, where Next
+   * does not patch `fetch` and `next` is an ignored init property. They keep the
+   * explicit `no-store` they had before, and dedupe in their own layer (TanStack
+   * Query's `staleTime`, one load per map visit) rather than in the HTTP cache.
    */
   async getTownStatusSummary(): Promise<TownStatusSummary[]> {
     const endpoint = `${env.apiUrl}/api/v1/towns/status-summary`;
-    const response = await fetch(endpoint, { next: CacheConfig.TOWN_STATUS });
+    const init: RequestInit =
+      typeof window === "undefined"
+        ? { next: CacheConfig.TOWN_STATUS }
+        : { cache: "no-store" };
+    const response = await fetch(endpoint, init);
 
     if (!response.ok) {
       throw new Error(`API call failed with status: ${response.status}`);

@@ -46,14 +46,22 @@ async function cachedPhoto(id: string) {
   cacheLife("entry");
   cacheTag("gallery");
 
+  // Both requests start together, but the 404 is settled on the media alone: for an
+  // id the archive does not hold, a sequence request that fails for any reason other
+  // than 404 must not pre-empt `notFound()` with a 500.
+  const mediaPromise = getGalleryMediaById(id);
+  const sequencePromise = getPhotoSequence(id);
+  // `notFound()` leaves this scope before the sequence is awaited, so give the
+  // rejection a handler now rather than letting it surface as unhandled.
+  sequencePromise.catch(() => undefined);
+
+  const media = await mediaPromise;
+  if (!media) notFound();
+
   // The sequence is not caught: without one the position line reads "This one has
   // no place recorded", which is a statement about the record rather than about the
   // request that failed — and `use cache` would keep saying it for half an hour.
-  const [media, sequence] = await Promise.all([
-    getGalleryMediaById(id),
-    getPhotoSequence(id),
-  ]);
-  if (!media) notFound();
+  const sequence = await sequencePromise;
 
   return <PhotoDetail media={media} sequence={sequence ?? null} />;
 }

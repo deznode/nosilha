@@ -1189,10 +1189,15 @@ export const CacheConfig = {
   // Map data - needs to be dynamic
   MAP_DATA: { cache: "no-store" as const },
 
-  // Settlement status - one shared entry behind the `towns` tag. Every archive page
-  // reads this, and the answer is identical for all of them, so it must not vary per
-  // cache key the way `no-store` made it.
-  TOWN_STATUS: { revalidate: 1800, tags: ["towns"] } as NextFetchRequestConfig, // 30 minutes
+  // Settlement status - one shared entry every archive page reads, so it must not
+  // vary per cache key the way `no-store` made it. The counts are derived from
+  // directory entries, and `directory` is the tag the backend flushes when one
+  // changes (FrontendRevalidationService), so the entry carries it: without it the
+  // pages would re-render around a settlement summary up to 30 minutes stale.
+  TOWN_STATUS: {
+    revalidate: 1800, // 30 minutes
+    tags: ["directory", "towns"],
+  } as NextFetchRequestConfig,
 
   // Reaction counts - cached for 5 minutes (per spec.md FR-015)
   REACTION_COUNTS: { revalidate: 300 }, // 5 minutes
