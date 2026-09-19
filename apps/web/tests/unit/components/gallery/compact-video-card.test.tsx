@@ -74,3 +74,30 @@ describe("CompactVideoCard", () => {
     expect(card.className).toContain("ring-bougainvillea-pink");
   });
 });
+
+describe("CompactVideoCard placeholder", () => {
+  it("draws one placeholder frame per theme when no thumbnail is recorded", () => {
+    render(
+      <CompactVideoCard item={{ ...mockVideoItem, thumbnailUrl: undefined }} />
+    );
+
+    const frames = screen.getAllByAltText("No thumbnail recorded");
+    expect(frames).toHaveLength(2);
+    expect(frames[0]).toHaveAttribute(
+      "src",
+      expect.stringContaining("/images/video-placeholder.jpg")
+    );
+    expect(frames[0].className).toContain("dark:hidden");
+    expect(frames[1]).toHaveAttribute(
+      "src",
+      expect.stringContaining("/images/video-placeholder-dark.jpg")
+    );
+    expect(frames[1].className).toContain("dark:block");
+  });
+
+  it("shows the recorded thumbnail and no placeholder", () => {
+    render(<CompactVideoCard item={mockVideoItem} />);
+
+    expect(screen.queryByAltText("No thumbnail recorded")).toBeNull();
+  });
+});

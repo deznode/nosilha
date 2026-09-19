@@ -1,6 +1,7 @@
+import Link from "next/link";
+
 import { MissingPills } from "@/components/ui/missing-pills";
 import { formatDuration } from "@/lib/format-duration";
-import { resolveExternalWatchUrl } from "@/lib/gallery-mappers";
 import { photoFacts } from "@/lib/photo-facts";
 import type { PublicExternalMedia } from "@/types/gallery";
 
@@ -12,6 +13,9 @@ import { filmsNote } from "./photographs-copy";
  * Films are titles until YouTube gives us more. Nothing here synthesises a thumbnail
  * or a duration: a length that is not recorded says so, and joins the metadata row
  * the day the sync fills it in.
+ *
+ * A card opens the film's own page, where it plays in place; it never links out to
+ * its host (spec 035 FR-007).
  */
 export function FilmsList({
   films,
@@ -71,19 +75,9 @@ function FilmCard({ film }: { film: PublicExternalMedia }) {
     ? formatDuration(film.durationSeconds)
     : null;
 
-  const watchUrl = resolveExternalWatchUrl(
-    film.url,
-    film.platform,
-    film.externalId,
-    film.embedUrl
-  );
-  const Card = watchUrl ? "a" : "div";
-
   return (
-    <Card
-      {...(watchUrl
-        ? { href: watchUrl, target: "_blank", rel: "noopener noreferrer" }
-        : {})}
+    <Link
+      href={`/films/${film.id}`}
       className="flex flex-col gap-[9px] rounded-xl border transition-colors hover:border-[var(--border-strong)]"
       style={{
         padding: "14px",
@@ -123,6 +117,6 @@ function FilmCard({ film }: { film: PublicExternalMedia }) {
           <MissingPills missing={["length not recorded"]} />
         )}
       </div>
-    </Card>
+    </Link>
   );
 }

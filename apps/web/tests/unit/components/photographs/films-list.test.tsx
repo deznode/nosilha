@@ -7,9 +7,9 @@ import type { PublicExternalMedia } from "@/types/gallery";
 /**
  * The films section. Spec 034 FR-009, FR-018.
  *
- * A film card has to reach its film. The YouTube sync records `embedUrl`,
- * `thumbnailUrl` and `externalId` but leaves `url` null, so a card keyed on `url`
- * alone renders as a dead div — which is what shipped.
+ * A film card opens the film's own page, where it plays in place. Spec 035 FR-007
+ * replaced the link out to the host, so a record with no host address is still
+ * reachable.
  */
 function film(
   overrides: Partial<PublicExternalMedia> = {}
@@ -35,40 +35,26 @@ function film(
 }
 
 describe("FilmsList", () => {
-  it("opens the film from its externalId when url is null", () => {
+  it("opens the film's own page, never its host (spec 035 FR-007)", () => {
     render(<FilmsList films={[film()]} />);
 
     const link = screen.getByRole("link", {
       name: /Brava Island, Furna Port/,
     });
-    expect(link).toHaveAttribute(
-      "href",
-      "https://www.youtube.com/watch?v=e9bsJlvXK4I"
+    expect(link).toHaveAttribute("href", "/films/film-1");
+    expect(link).not.toHaveAttribute("target");
+  });
+
+  it("routes a film with no host address to its page too", () => {
+    render(
+      <FilmsList
+        films={[film({ id: "film-9", externalId: null, embedUrl: null })]}
+      />
     );
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener noreferrer");
-  });
-
-  it("prefers a recorded url over the derived one", () => {
-    render(<FilmsList films={[film({ url: "https://vimeo.com/12345" })]} />);
 
     expect(
       screen.getByRole("link", { name: /Brava Island, Furna Port/ })
-    ).toHaveAttribute("href", "https://vimeo.com/12345");
-  });
-
-  it("falls back to the embed url when there is no externalId", () => {
-    render(<FilmsList films={[film({ externalId: null })]} />);
-
-    expect(
-      screen.getByRole("link", { name: /Brava Island, Furna Port/ })
-    ).toHaveAttribute("href", "https://www.youtube.com/embed/e9bsJlvXK4I");
-  });
-
-  it("stays a plain card when nothing can reach the film", () => {
-    render(<FilmsList films={[film({ externalId: null, embedUrl: null })]} />);
-
-    expect(screen.queryByRole("link")).toBeNull();
+    ).toHaveAttribute("href", "/films/film-9");
   });
 
   it("counts the whole archive's films, not the loaded page (FR-018)", () => {

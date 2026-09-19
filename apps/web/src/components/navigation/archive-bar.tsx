@@ -12,7 +12,7 @@ import { useUiStore } from "@/stores/uiStore";
  * screens. Spec 034 FR-003.
  *
  * The prototype lists its demo-only screens (a settlement, a photo, a place) as pills
- * too; production carries only the five real destinations. A settlement or entry route
+ * too; production carries only the six real destinations. A settlement or entry route
  * therefore activates no pill, which is the honest answer — those pages are reached
  * from a list, not from the bar.
  *
@@ -32,6 +32,7 @@ const NAV_PILLS: NavPill[] = [
   { label: "Home", href: "/" },
   { label: "Settlements", href: "/settlements", activePrefix: "/settlements/" },
   { label: "Photographs", href: "/photographs", activePrefix: "/photographs/" },
+  { label: "Films", href: "/films", activePrefix: "/films/" },
   { label: "Map", href: "/map" },
   { label: "Stay", href: "/stay" },
 ];

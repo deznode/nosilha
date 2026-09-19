@@ -13,6 +13,7 @@ import {
   getGalleryMedia,
   getTownStatusSummary,
 } from "@/lib/api";
+import { FILMS_FETCH_SIZE, toFilms } from "@/lib/films";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { PlaceSchema } from "@/types/metadata";
 
@@ -77,14 +78,18 @@ export default async function HomePage() {
   // degrade it — it would change "twenty-five settlements" into "no settlement" and
   // then `use cache` would hold that lie for an hour. An error the next request
   // retries is better than a confident wrong number nobody can see is wrong.
-  const [towns, allEntries, facets, stays, featured, pool] = await Promise.all([
-    getTownStatusSummary(),
-    getEntriesByCategory("all", 0, 1),
-    getGalleryFacets(),
-    getEntriesByCategory("Hotel", 0, 100),
-    getFeaturedPhoto(),
-    getGalleryMedia({ mediaType: "IMAGE", size: ROW_POOL_SIZE }),
-  ]);
+  const [towns, allEntries, facets, stays, featured, pool, films] =
+    await Promise.all([
+      getTownStatusSummary(),
+      getEntriesByCategory("all", 0, 1),
+      getGalleryFacets(),
+      getEntriesByCategory("Hotel", 0, 100),
+      getFeaturedPhoto(),
+      getGalleryMedia({ mediaType: "IMAGE", size: ROW_POOL_SIZE }),
+      // Every film, not just the three the strip shows: its sub-line counts titles
+      // across the whole archive.
+      getGalleryMedia({ mediaType: "VIDEO", size: FILMS_FETCH_SIZE }),
+    ]);
 
   return (
     <ArchiveHome
@@ -99,6 +104,7 @@ export default async function HomePage() {
       }
       hero={pickHero(featured)}
       photographRow={pickPhotographRow(pool.items)}
+      films={toFilms(films.items)}
     />
   );
 }

@@ -1,9 +1,33 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { ArchiveHome } from "@/components/archive-home/archive-home";
+import type { Film } from "@/lib/films";
 import type { GalleryFacets, PublicUserUploadMedia } from "@/types/gallery";
 import type { TownStatusSummary } from "@/types/town";
+
+const push = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+vi.mock("framer-motion", async () => {
+  const { createFramerMotionMock } =
+    await import("../../../setup/framer-motion-mock");
+  return createFramerMotionMock();
+});
+
+function film(id: string, title: string | null): Film {
+  return {
+    id,
+    title,
+    source: "YouTube",
+    thumbnailUrl: null,
+    durationSeconds: null,
+    place: null,
+    filmmaker: null,
+    featured: false,
+    playback: { kind: "youtube", id },
+    watchUrl: null,
+  };
+}
 
 function town(overrides: Partial<TownStatusSummary> = {}): TownStatusSummary {
   return {
@@ -91,6 +115,7 @@ function renderHome(
         upload({ id: "p1" }),
         upload({ id: "p2", title: "Lomba Tantun", category: "Landscape" }),
       ]}
+      films={[]}
       {...overrides}
     />
   );
@@ -204,5 +229,56 @@ describe("ArchiveHome", () => {
     expect(
       screen.queryByRole("link", { name: "Nova Sintra" })
     ).not.toBeInTheDocument();
+  });
+
+  describe("films strip (spec 035 FR-006)", () => {
+    const FILMS = [
+      film("a", "Explorando Furna"),
+      film("b", "Nova Sintra em Agosto"),
+      film("c", null),
+      film("d", "Brava"),
+    ];
+
+    it("shows three films that open their pages, with live counts", () => {
+      renderHome({ films: FILMS, facets: { ...FACETS, films: 4 } });
+
+      const strip = screen
+        .getByRole("heading", { name: "Films" })
+        .closest("section")!;
+      expect(within(strip).getByText("4 in the archive")).toBeInTheDocument();
+      expect(
+        within(strip).getByText(
+          "Footage contributed to the archive. Three carry a title; the rest are waiting on the sync."
+        )
+      ).toBeInTheDocument();
+      expect(
+        within(strip).getByRole("link", { name: "See all films →" })
+      ).toHaveAttribute("href", "/films");
+
+      const cards = within(strip).getAllByRole("button", {
+        name: /play explorando furna/i,
+      });
+      expect(
+        within(strip).queryAllByRole("button", { name: /play brava/i })
+      ).toHaveLength(0);
+      cards[0].click();
+      expect(push).toHaveBeenCalledWith("/films/a");
+      expect(strip.querySelector("[target=_blank]")).toBeNull();
+      expect(strip.querySelector("iframe")).toBeNull();
+    });
+
+    it("counts no titles when the list is shorter than the archive", () => {
+      renderHome({ films: FILMS });
+
+      expect(
+        screen.getByText("Footage contributed to the archive.")
+      ).toBeInTheDocument();
+      expect(screen.getByText("9 in the archive")).toBeInTheDocument();
+    });
+
+    it("is absent when the archive holds no film", () => {
+      renderHome({ films: [] });
+      expect(screen.queryByRole("heading", { name: "Films" })).toBeNull();
+    });
   });
 });

@@ -20,6 +20,7 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   "contribute",
   "design-system",
   "directory",
+  "films",
   "gallery",
   "history",
   "login",
