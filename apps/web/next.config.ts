@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
       revalidate: 7200,
       expire: 604800,
     },
+    // The Instagram feed. `expire` is short because the tiles hot-link signed
+    // Instagram CDN URLs, which stop resolving well before a day is out.
+    instagram: {
+      stale: 300,
+      revalidate: 1800,
+      expire: 7200,
+    },
   },
   reactCompiler: true,
   output: "standalone",

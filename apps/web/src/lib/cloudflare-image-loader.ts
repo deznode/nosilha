@@ -37,6 +37,12 @@ export default function cloudflareLoader({
     return src;
   }
 
+  // Instagram blocks the /cdn-cgi/image/ fetch with a 403 (ADR 0013), and its signed
+  // URLs rotate on every refresh, so a transform cache key would never be reused.
+  if (src.includes(".cdninstagram.com/")) {
+    return src;
+  }
+
   // External images (R2, Unsplash, Wikimedia, etc.) — route through Cloudflare Image Resizing
   const params = [`width=${width}`, `quality=${q}`, "format=auto"];
   return `/cdn-cgi/image/${params.join(",")}/${src}`;

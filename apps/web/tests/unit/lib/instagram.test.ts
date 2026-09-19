@@ -1,11 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchInstagramPosts } from "@/lib/instagram";
+import {
+  badgeLabel,
+  fetchInstagramPosts,
+  fittingCaption,
+  relativeAge,
+  tileAccessibleName,
+  tileImageUrl,
+  type InstagramPost,
+} from "@/lib/instagram";
 
-const mockPosts = [
+const mockPosts: InstagramPost[] = [
   {
     id: "1",
     caption: "Beautiful sunset in Brava",
-    media_type: "IMAGE" as const,
+    media_type: "IMAGE",
     media_url: "https://scontent.cdninstagram.com/image1.jpg",
     timestamp: "2026-03-01T12:00:00+0000",
     permalink: "https://instagram.com/p/abc123",
@@ -13,7 +21,7 @@ const mockPosts = [
   {
     id: "2",
     caption: "Morna music session",
-    media_type: "VIDEO" as const,
+    media_type: "VIDEO",
     media_url: "https://scontent.cdninstagram.com/video1.mp4",
     thumbnail_url: "https://scontent.cdninstagram.com/thumb1.jpg",
     timestamp: "2026-03-02T12:00:00+0000",
@@ -21,64 +29,61 @@ const mockPosts = [
   },
   {
     id: "3",
-    media_type: "CAROUSEL_ALBUM" as const,
+    media_type: "CAROUSEL_ALBUM",
     media_url: "https://scontent.cdninstagram.com/image2.jpg",
     timestamp: "2026-03-03T12:00:00+0000",
     permalink: "https://instagram.com/p/ghi789",
   },
 ];
 
+const post = (overrides: Partial<InstagramPost> = {}): InstagramPost => ({
+  ...mockPosts[0],
+  ...overrides,
+});
+
 describe("fetchInstagramPosts", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("returns empty array when token is missing", async () => {
+  it("is unavailable when the token is missing", async () => {
     delete process.env.INSTAGRAM_ACCESS_TOKEN;
-    const posts = await fetchInstagramPosts();
-    expect(posts).toEqual([]);
+    expect(await fetchInstagramPosts()).toEqual({ status: "unavailable" });
   });
 
   it("fetches posts successfully with token", async () => {
     process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ data: mockPosts }),
+      })
+    );
 
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ data: mockPosts }),
-    });
-    vi.stubGlobal("fetch", mockFetch);
+    const feed = await fetchInstagramPosts();
 
-    const posts = await fetchInstagramPosts();
-
-    expect(posts).toHaveLength(3);
-    expect(posts[0].id).toBe("1");
-    expect(posts[0].media_type).toBe("IMAGE");
-    expect(posts[1].media_type).toBe("VIDEO");
-    expect(posts[1].thumbnail_url).toBeDefined();
-    expect(posts[2].media_type).toBe("CAROUSEL_ALBUM");
+    expect(feed.status).toBe("ok");
+    if (feed.status !== "ok") return;
+    expect(feed.posts).toHaveLength(3);
+    expect(feed.posts[1].thumbnail_url).toBeDefined();
   });
 
-  it("passes correct fields and limit to API", async () => {
+  it("is ok and empty when the account has no posts", async () => {
     process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ data: [] }),
+      })
+    );
 
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ data: [] }),
-    });
-    vi.stubGlobal("fetch", mockFetch);
-
-    await fetchInstagramPosts(6);
-
-    const url = mockFetch.mock.calls[0][0] as string;
-    expect(url).toContain("graph.instagram.com/v22.0/me/media");
-    expect(url).toContain("limit=6");
-    expect(url).toContain("id,caption,media_type,media_url,thumbnail_url");
-    expect(url).toContain("access_token=test-token");
+    expect(await fetchInstagramPosts()).toEqual({ status: "ok", posts: [] });
   });
 
-  it("uses ISR revalidation option", async () => {
+  it("asks the API for four posts, with the fields the tiles need", async () => {
     process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
-
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ data: [] }),
@@ -87,58 +92,150 @@ describe("fetchInstagramPosts", () => {
 
     await fetchInstagramPosts();
 
-    const options = mockFetch.mock.calls[0][1] as RequestInit;
-    expect(options.next).toEqual({ revalidate: 1800 });
-  });
-
-  it("returns empty array on non-OK response", async () => {
-    process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: false, status: 401 })
+    const defaultUrl = mockFetch.mock.calls[0][0] as string;
+    expect(defaultUrl).toContain("graph.instagram.com/v22.0/me/media");
+    expect(defaultUrl).toContain("limit=4");
+    expect(defaultUrl).toContain(
+      "id,caption,media_type,media_url,thumbnail_url"
     );
-
-    const posts = await fetchInstagramPosts();
-    expect(posts).toEqual([]);
+    expect(defaultUrl).toContain("access_token=test-token");
   });
 
-  it("returns empty array on network error", async () => {
+  it("leaves caching to the caller's cache scope", async () => {
     process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: [] }),
+    });
+    vi.stubGlobal("fetch", mockFetch);
 
+    await fetchInstagramPosts();
+
+    expect(mockFetch.mock.calls[0][1]).toBeUndefined();
+  });
+
+  it.each([401, 500])("is unavailable on a %i response", async (status) => {
+    process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status }));
+
+    expect(await fetchInstagramPosts()).toEqual({ status: "unavailable" });
+  });
+
+  it("is unavailable on a network error", async () => {
+    process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
     vi.stubGlobal(
       "fetch",
       vi.fn().mockRejectedValue(new Error("Network error"))
     );
 
-    const posts = await fetchInstagramPosts();
-    expect(posts).toEqual([]);
+    expect(await fetchInstagramPosts()).toEqual({ status: "unavailable" });
+  });
+});
+
+describe("tileImageUrl", () => {
+  it("uses the poster frame for a video", () => {
+    expect(tileImageUrl(mockPosts[1])).toBe(mockPosts[1].thumbnail_url);
   });
 
-  it("returns empty array when API returns 500", async () => {
-    process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: false, status: 500 })
+  it("falls back to media_url for a video without a thumbnail", () => {
+    expect(tileImageUrl({ ...mockPosts[1], thumbnail_url: undefined })).toBe(
+      mockPosts[1].media_url
     );
-
-    const posts = await fetchInstagramPosts();
-    expect(posts).toEqual([]);
   });
 
-  it("defaults to limit of 9", async () => {
-    process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
+  it("uses media_url for images and albums", () => {
+    expect(tileImageUrl(mockPosts[0])).toBe(mockPosts[0].media_url);
+    expect(tileImageUrl(mockPosts[2])).toBe(mockPosts[2].media_url);
+  });
+});
 
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ data: [] }),
-    });
-    vi.stubGlobal("fetch", mockFetch);
+describe("badgeLabel", () => {
+  it("labels videos and albums, not images", () => {
+    expect(badgeLabel(mockPosts[0])).toBeNull();
+    expect(badgeLabel(mockPosts[1])).toBe("Video");
+    expect(badgeLabel(mockPosts[2])).toBe("Album");
+  });
+});
 
-    await fetchInstagramPosts();
+describe("fittingCaption", () => {
+  it("keeps a first line of 44 characters or fewer", () => {
+    expect(
+      fittingCaption(
+        post({ caption: "Praça de Nova Sintra, domingo de manhã" })
+      )
+    ).toBe("Praça de Nova Sintra, domingo de manhã");
+    expect(fittingCaption(post({ caption: "x".repeat(44) }))).toBe(
+      "x".repeat(44)
+    );
+  });
 
-    const url = mockFetch.mock.calls[0][0] as string;
-    expect(url).toContain("limit=9");
+  it("drops a longer first line rather than cutting it", () => {
+    expect(
+      fittingCaption(
+        post({
+          caption: "Furna at first light. Barco di Praia ta txiga 7 hora.",
+        })
+      )
+    ).toBeNull();
+  });
+
+  it("judges only the first line", () => {
+    expect(
+      fittingCaption(
+        post({
+          caption: "Fajã d’Água.\n\n#brava #caboverde #nosilha #nosterra",
+        })
+      )
+    ).toBe("Fajã d’Água.");
+  });
+
+  it("counts an emoji as one character", () => {
+    expect(fittingCaption(post({ caption: `${"x".repeat(43)}🌺` }))).toBe(
+      `${"x".repeat(43)}🌺`
+    );
+  });
+
+  it("is null without a caption", () => {
+    expect(fittingCaption(post({ caption: undefined }))).toBeNull();
+    expect(fittingCaption(post({ caption: "  \nsecond" }))).toBeNull();
+  });
+});
+
+describe("relativeAge", () => {
+  const now = Date.parse("2026-09-19T12:00:00Z");
+
+  it.each([
+    ["2026-09-19T11:59:40+0000", "just now"],
+    ["2026-09-19T11:55:00+0000", "5 minutes ago"],
+    ["2026-09-19T09:00:00+0000", "3 hours ago"],
+    ["2026-09-16T12:00:00+0000", "3 days ago"],
+    ["2026-09-12T12:00:00+0000", "1 week ago"],
+    ["2026-09-05T12:00:00+0000", "2 weeks ago"],
+    ["2026-07-19T12:00:00+0000", "2 months ago"],
+    ["2025-03-01T12:00:00+0000", "1 year ago"],
+  ])("%s → %s", (timestamp, expected) => {
+    expect(relativeAge(timestamp, now)).toBe(expected);
+  });
+
+  it("does not go negative for a clock-skewed future timestamp", () => {
+    expect(relativeAge("2026-09-19T12:05:00+0000", now)).toBe("just now");
+  });
+});
+
+describe("tileAccessibleName", () => {
+  const now = Date.parse("2026-09-19T12:00:00Z");
+  const timestamp = "2026-09-16T12:00:00+0000";
+
+  it("names the post by date and the first 80 characters of its caption", () => {
+    const caption = `${"a".repeat(78)}\n\nbcdef`;
+    expect(tileAccessibleName(post({ caption, timestamp }), now)).toBe(
+      `Instagram post, 3 days ago: ${"a".repeat(78)} b`
+    );
+  });
+
+  it("falls back to the date alone without a caption", () => {
+    expect(
+      tileAccessibleName(post({ caption: undefined, timestamp }), now)
+    ).toBe("Instagram post, 3 days ago");
   });
 });

@@ -21,9 +21,3 @@ export {
 } from "./announcement-pill";
 
 export { HeroSection } from "./hero-section";
-
-// Section Components
-export { CommunityStatsSection } from "./community-stats-section";
-export { MapTeaserSection } from "./map-teaser-section";
-export { NewsletterCtaSection } from "./newsletter-cta-section";
-export { InstagramFeedSection } from "./instagram-feed-section";

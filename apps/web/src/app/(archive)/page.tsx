@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
+import { Suspense, type ReactNode } from "react";
 
 import { ArchiveHome } from "@/components/archive-home/archive-home";
 import {
   pickHero,
   pickPhotographRow,
 } from "@/components/archive-home/archive-home-copy";
+import {
+  InstagramSection,
+  InstagramSectionLoading,
+} from "@/components/archive-home/instagram-section";
 import {
   getEntriesByCategory,
   getFeaturedPhoto,
@@ -66,7 +71,24 @@ export const metadata: Metadata = generatePageMetadata({
   ],
 });
 
-export default async function HomePage() {
+export default function HomePage() {
+  return (
+    <ArchiveHomeContent
+      instagram={
+        <Suspense fallback={<InstagramSectionLoading />}>
+          <InstagramSection />
+        </Suspense>
+      }
+    />
+  );
+}
+
+/**
+ * Everything on the home but Instagram, cached for the page's hour. The Instagram
+ * section arrives as a slot: a slot passes through a cache scope without joining its
+ * entry, so a dead token is held for minutes in its own scope, not for this hour.
+ */
+async function ArchiveHomeContent({ instagram }: { instagram: ReactNode }) {
   "use cache";
   cacheLife("content");
   cacheTag("towns");
@@ -105,6 +127,7 @@ export default async function HomePage() {
       hero={pickHero(featured)}
       photographRow={pickPhotographRow(pool.items)}
       films={toFilms(films.items)}
+      instagram={instagram}
     />
   );
 }

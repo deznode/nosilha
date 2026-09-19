@@ -115,6 +115,7 @@ function renderHome(
         upload({ id: "p2", title: "Lomba Tantun", category: "Landscape" }),
       ]}
       films={[]}
+      instagram={null}
       {...overrides}
     />
   );

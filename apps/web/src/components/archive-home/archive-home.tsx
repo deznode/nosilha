@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { FilmsStrip } from "@/components/films/films-strip";
 import { MissingPills } from "@/components/ui/missing-pills";
@@ -24,7 +25,8 @@ import {
  * The archive's front door. Spec 034 FR-006.
  *
  * A hero, four ways in, four photographs with their gaps named, the films (spec 035
- * FR-006), and every settlement the archive holds nothing about. Metrics and copy are the prototype's; the numbers
+ * FR-006), the Instagram account (spec 036), and every settlement the archive holds
+ * nothing about. Metrics and copy are the prototype's; the numbers
  * inside the copy are not.
  */
 
@@ -39,6 +41,11 @@ export interface ArchiveHomeProps {
   photographRow: PublicGalleryMedia[];
   /** Every film in the archive; the strip shows three. */
   films: Film[];
+  /**
+   * The "From Instagram" section, passed through rather than rendered here so it
+   * keeps its own cache scope instead of living for this page's hour.
+   */
+  instagram: ReactNode;
 }
 
 export function ArchiveHome({
@@ -50,6 +57,7 @@ export function ArchiveHome({
   hero,
   photographRow,
   films,
+  instagram,
 }: ArchiveHomeProps) {
   const heroUrl = (hero && resolvePublicImageUrl(hero)) || SHIPPED_HERO.url;
   const heroAlt = hero?.altText?.trim() || SHIPPED_HERO.alt;
@@ -218,6 +226,8 @@ export function ArchiveHome({
         )}
 
         <FilmsStrip films={films} total={facets.films} />
+
+        {instagram}
 
         <section>
           <h2
