@@ -15,7 +15,8 @@ vi.mock("next/navigation", () => ({
 
 /**
  * Spec 034 T-22 / FR-003 — the prototype's single sticky bar. The pills are the
- * five production screens; the demo-only screens in the prototype are not ported.
+ * six production screens; the demo-only screens in the prototype are not ported.
+ * Spec 035 FR-009 added Films after Photographs.
  */
 describe("ArchiveBar", () => {
   let media: ReturnType<typeof mockMatchMedia>;
@@ -42,13 +43,14 @@ describe("ArchiveBar", () => {
   });
 
   describe("navigation pills", () => {
-    it("routes the five screens to their paths", () => {
+    it("routes the six screens to their paths", () => {
       render(<ArchiveBar />);
 
       const expected: [string, string][] = [
         ["Home", "/"],
         ["Settlements", "/settlements"],
         ["Photographs", "/photographs"],
+        ["Films", "/films"],
         ["Map", "/map"],
         ["Stay", "/stay"],
       ];
@@ -65,6 +67,7 @@ describe("ArchiveBar", () => {
       ["/", "Home"],
       ["/settlements", "Settlements"],
       ["/photographs", "Photographs"],
+      ["/films", "Films"],
       ["/map", "Map"],
       ["/stay", "Stay"],
     ])("marks the pill for %s as the current page", (pathname, label) => {
@@ -85,6 +88,20 @@ describe("ArchiveBar", () => {
         "aria-current",
         "page"
       );
+    });
+
+    it("activates Films on a film page and keeps the pills in order", () => {
+      mockPathname.mockReturnValue("/films/abc-123");
+      render(<ArchiveBar />);
+
+      expect(screen.getByRole("link", { name: "Films" })).toHaveAttribute(
+        "aria-current",
+        "page"
+      );
+      const labels = screen
+        .getAllByRole("link")
+        .map((link) => link.textContent);
+      expect(labels.indexOf("Films")).toBe(labels.indexOf("Photographs") + 1);
     });
 
     it.each(["/nova-sintra", "/nova-sintra/casa-eugenio-tavares"])(

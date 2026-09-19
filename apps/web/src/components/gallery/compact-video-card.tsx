@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
 import { Film, Mic, Play } from "lucide-react";
@@ -10,14 +11,24 @@ import type { MediaItem } from "@/types/media";
 
 function isPodcast(item: MediaItem): boolean {
   if (item.category === "Interview") return true;
+  // A film card says "Film"; a title that mentions an interview does not make it a podcast.
+  if (item.category === "Film") return false;
   const title = item.title.toLowerCase();
   return title.includes("podcast") || title.includes("interview");
 }
+
+const THUMBNAIL_SIZES =
+  "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw";
 
 interface CompactVideoCardProps {
   item: MediaItem;
   /** Called when the card is clicked to promote this video to the hero player */
   onSelect?: (item: MediaItem) => void;
+  /**
+   * Makes the card a link to this address instead of a button, so it can be crawled,
+   * opened in a new tab and prefetched. Takes precedence over `onSelect`.
+   */
+  href?: string;
   /** When true, shows a bougainvillea-pink ring highlight */
   isActive?: boolean;
 }
@@ -25,22 +36,43 @@ interface CompactVideoCardProps {
 export function CompactVideoCard({
   item,
   onSelect,
+  href,
   isActive,
 }: CompactVideoCardProps) {
   const podcast = isPodcast(item);
-  const thumbnailUrl = item.thumbnailUrl || "/images/video-placeholder.jpg";
 
   const cardContent = (
     <>
       {/* Thumbnail */}
       <div className="group/card relative aspect-video w-full overflow-hidden">
-        <Image
-          src={thumbnailUrl}
-          alt={item.title || "Video thumbnail"}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover"
-        />
+        {item.thumbnailUrl ? (
+          <Image
+            src={item.thumbnailUrl}
+            alt={item.title || "Video thumbnail"}
+            fill
+            sizes={THUMBNAIL_SIZES}
+            className="object-cover"
+          />
+        ) : (
+          // The drawn absence, one frame per theme. Chosen in CSS rather than from the
+          // resolved theme so the server and client render the same markup.
+          <>
+            <Image
+              src="/images/video-placeholder.jpg"
+              alt="No thumbnail recorded"
+              fill
+              sizes={THUMBNAIL_SIZES}
+              className="object-cover dark:hidden"
+            />
+            <Image
+              src="/images/video-placeholder-dark.jpg"
+              alt="No thumbnail recorded"
+              fill
+              sizes={THUMBNAIL_SIZES}
+              className="hidden object-cover dark:block"
+            />
+          </>
+        )}
 
         {/* Play icon overlay */}
         <div className="ease-calm absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover/card:bg-black/40">
@@ -104,7 +136,15 @@ export function CompactVideoCard({
         isActive && "ring-bougainvillea-pink ring-2"
       )}
     >
-      {onSelect ? (
+      {href ? (
+        <Link
+          href={href}
+          className="focus-ring block w-full text-left"
+          aria-label={item.title}
+        >
+          {cardContent}
+        </Link>
+      ) : onSelect ? (
         <button
           type="button"
           onClick={() => onSelect(item)}

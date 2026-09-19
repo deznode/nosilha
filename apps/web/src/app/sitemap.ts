@@ -62,6 +62,12 @@ async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/films`,
+      lastModified: currentDate,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/stay`,
       lastModified: currentDate,
       changeFrequency: "weekly" as const,

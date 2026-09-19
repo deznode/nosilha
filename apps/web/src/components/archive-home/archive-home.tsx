@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { FilmsStrip } from "@/components/films/films-strip";
 import { MissingPills } from "@/components/ui/missing-pills";
+import type { Film } from "@/lib/films";
 import { photoFacts } from "@/lib/photo-facts";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import type { GalleryFacets, PublicGalleryMedia } from "@/types/gallery";
@@ -21,8 +23,8 @@ import {
 /**
  * The archive's front door. Spec 034 FR-006.
  *
- * A hero, four ways in, four photographs with their gaps named, and every settlement
- * the archive holds nothing about. Metrics and copy are the prototype's; the numbers
+ * A hero, four ways in, four photographs with their gaps named, the films (spec 035
+ * FR-006), and every settlement the archive holds nothing about. Metrics and copy are the prototype's; the numbers
  * inside the copy are not.
  */
 
@@ -35,6 +37,8 @@ export interface ArchiveHomeProps {
   /** An archive photograph standing in as the hero, or null for the shipped one. */
   hero: PublicGalleryMedia | null;
   photographRow: PublicGalleryMedia[];
+  /** Every film in the archive; the strip shows three. */
+  films: Film[];
 }
 
 export function ArchiveHome({
@@ -45,6 +49,7 @@ export function ArchiveHome({
   ratedStayCount,
   hero,
   photographRow,
+  films,
 }: ArchiveHomeProps) {
   const heroUrl = (hero && resolvePublicImageUrl(hero)) || SHIPPED_HERO.url;
   const heroAlt = hero?.altText?.trim() || SHIPPED_HERO.alt;
@@ -211,6 +216,8 @@ export function ArchiveHome({
             </div>
           </section>
         )}
+
+        <FilmsStrip films={films} total={facets.films} />
 
         <section>
           <h2

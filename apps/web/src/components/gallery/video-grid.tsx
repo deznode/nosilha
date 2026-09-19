@@ -43,6 +43,8 @@ function InlineYouTubeCard({ item }: { item: MediaItem }) {
   );
 }
 
+const MOBILE_SLOT = "w-[min(18rem,_80vw)] flex-shrink-0 snap-start";
+
 interface VideoGridProps {
   items: MediaItem[];
   categoryFilter: string | null;
@@ -50,8 +52,19 @@ interface VideoGridProps {
   featuredVideoId?: string | null;
   /** ID of the currently promoted/selected video */
   selectedVideoId?: string | null;
-  /** Called when a video card is selected (desktop only) */
+  /** Called when a video card is selected (desktop, and mobile in `cards` layout) */
   onVideoSelect?: (item: MediaItem) => void;
+  /**
+   * Makes every card a link to the address it returns, in place of `onVideoSelect`.
+   * Surfaces where a card opens a page (the films section) use it.
+   */
+  videoHref?: (item: MediaItem) => string;
+  /**
+   * Below `md`: `inline-embed` plays each video in its own iframe; `cards` renders the
+   * same cards as the desktop grid, so a card selects or links as it does there.
+   * Surfaces where a card must navigate (the films section) use `cards`.
+   */
+  mobileLayout?: "inline-embed" | "cards";
 }
 
 export function VideoGrid({
@@ -60,6 +73,8 @@ export function VideoGrid({
   featuredVideoId,
   selectedVideoId,
   onVideoSelect,
+  videoHref,
+  mobileLayout = "inline-embed",
 }: VideoGridProps) {
   const shouldReduceMotion = useReducedMotion();
 
@@ -69,6 +84,19 @@ export function VideoGrid({
       featuredVideoId ? items.filter((v) => v.id !== featuredVideoId) : items,
     [items, featuredVideoId]
   );
+
+  const card = (item: MediaItem) => (
+    <CompactVideoCard
+      key={item.id}
+      item={item}
+      isActive={item.id === selectedVideoId}
+      onSelect={onVideoSelect}
+      href={videoHref?.(item)}
+    />
+  );
+
+  const mobileCard = (item: MediaItem) =>
+    mobileLayout === "cards" ? card(item) : <InlineYouTubeCard item={item} />;
 
   if (items.length === 0) {
     return (
@@ -83,23 +111,13 @@ export function VideoGrid({
       <>
         {/* Desktop/tablet grid */}
         <div className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
-          {desktopItems.map((item) => (
-            <CompactVideoCard
-              key={item.id}
-              item={item}
-              isActive={item.id === selectedVideoId}
-              onSelect={onVideoSelect}
-            />
-          ))}
+          {desktopItems.map(card)}
         </div>
-        {/* Mobile carousel — inline YouTube iframes for 1-tap play */}
+        {/* Mobile carousel — inline iframes for 1-tap play, or cards */}
         <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:hidden">
           {items.map((item) => (
-            <div
-              key={item.id}
-              className="w-[min(18rem,_80vw)] flex-shrink-0 snap-start"
-            >
-              <InlineYouTubeCard item={item} />
+            <div key={item.id} className={MOBILE_SLOT}>
+              {mobileCard(item)}
             </div>
           ))}
         </div>
@@ -117,17 +135,10 @@ export function VideoGrid({
         animate="show"
         className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3"
       >
-        {desktopItems.map((item) => (
-          <CompactVideoCard
-            key={item.id}
-            item={item}
-            isActive={item.id === selectedVideoId}
-            onSelect={onVideoSelect}
-          />
-        ))}
+        {desktopItems.map(card)}
       </motion.div>
 
-      {/* Mobile carousel — inline YouTube iframes for 1-tap play */}
+      {/* Mobile carousel — inline iframes for 1-tap play, or cards */}
       <motion.div
         key={`mobile-${categoryFilter ?? "all"}`}
         variants={listStagger}
@@ -136,12 +147,14 @@ export function VideoGrid({
         className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:hidden"
       >
         {items.map((item) => (
+          // CompactVideoCard carries its own `listItem` entrance; a second one on the
+          // wrapper would run the same fade and lift twice.
           <motion.div
             key={item.id}
-            variants={listItem}
-            className="w-[min(18rem,_80vw)] flex-shrink-0 snap-start"
+            variants={mobileLayout === "cards" ? undefined : listItem}
+            className={MOBILE_SLOT}
           >
-            <InlineYouTubeCard item={item} />
+            {mobileCard(item)}
           </motion.div>
         ))}
       </motion.div>
