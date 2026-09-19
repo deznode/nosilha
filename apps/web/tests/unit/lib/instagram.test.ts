@@ -44,6 +44,9 @@ const post = (overrides: Partial<InstagramPost> = {}): InstagramPost => ({
 describe("fetchInstagramPosts", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    // `restoreAllMocks` does not undo `stubGlobal`, so without this a stubbed
+    // `fetch` outlives the test that installed it.
+    vi.unstubAllGlobals();
   });
 
   it("is unavailable when the token is missing", async () => {
@@ -101,7 +104,7 @@ describe("fetchInstagramPosts", () => {
     expect(defaultUrl).toContain("access_token=test-token");
   });
 
-  it("leaves caching to the caller's cache scope", async () => {
+  it("leaves caching to the caller's cache scope, but bounds the request", async () => {
     process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -111,7 +114,25 @@ describe("fetchInstagramPosts", () => {
 
     await fetchInstagramPosts();
 
-    expect(mockFetch.mock.calls[0][1]).toBeUndefined();
+    const options = mockFetch.mock.calls[0][1] as {
+      next?: unknown;
+      signal?: AbortSignal;
+    };
+    expect(options.next).toBeUndefined();
+    expect(options.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("is unavailable when the API answers with something other than a list", async () => {
+    process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ data: { error: "nope" } }),
+      })
+    );
+
+    expect(await fetchInstagramPosts()).toEqual({ status: "unavailable" });
   });
 
   it.each([401, 500])("is unavailable on a %i response", async (status) => {
@@ -119,6 +140,37 @@ describe("fetchInstagramPosts", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status }));
 
     expect(await fetchInstagramPosts()).toEqual({ status: "unavailable" });
+  });
+
+  it("drops a post Meta sent no image for", async () => {
+    process.env.INSTAGRAM_ACCESS_TOKEN = "test-token";
+    // A Reel with licensed audio: a poster frame, no media_url. Seen live on
+    // @nosilha, 2026-09-19 — and one with neither would reach `<Image>` as
+    // undefined, so it never leaves the fetch.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [
+              { ...mockPosts[1], media_url: undefined },
+              {
+                ...mockPosts[2],
+                id: "4",
+                media_url: undefined,
+                thumbnail_url: undefined,
+              },
+            ],
+          }),
+      })
+    );
+
+    const feed = await fetchInstagramPosts();
+
+    expect(feed.status).toBe("ok");
+    if (feed.status !== "ok") return;
+    expect(feed.posts.map((p) => p.id)).toEqual(["2"]);
   });
 
   it("is unavailable on a network error", async () => {
@@ -146,6 +198,26 @@ describe("tileImageUrl", () => {
   it("uses media_url for images and albums", () => {
     expect(tileImageUrl(mockPosts[0])).toBe(mockPosts[0].media_url);
     expect(tileImageUrl(mockPosts[2])).toBe(mockPosts[2].media_url);
+  });
+
+  it("is null when Meta sent neither a poster frame nor media", () => {
+    expect(
+      tileImageUrl({
+        ...mockPosts[0],
+        media_url: undefined,
+        thumbnail_url: undefined,
+      })
+    ).toBeNull();
+  });
+
+  it("uses the poster frame of a video-led album, not its .mp4", () => {
+    expect(
+      tileImageUrl({
+        ...mockPosts[2],
+        media_url: "https://scontent.cdninstagram.com/album-video.mp4",
+        thumbnail_url: "https://scontent.cdninstagram.com/album-thumb.jpg",
+      })
+    ).toBe("https://scontent.cdninstagram.com/album-thumb.jpg");
   });
 });
 

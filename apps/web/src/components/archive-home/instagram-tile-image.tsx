@@ -16,8 +16,11 @@ export function InstagramTileImage({
   src: string;
   sizes: string;
 }) {
-  const [failed, setFailed] = useState(false);
-  if (failed) return null;
+  // The failed URL, not a flag: `cacheComponents` keeps this route mounted inside
+  // React's `<Activity>`, so a bare boolean would survive navigation and leave the
+  // tile blank for the rest of the session even once a fresh URL arrives.
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  if (failedSrc === src) return null;
 
   return (
     <Image
@@ -26,7 +29,7 @@ export function InstagramTileImage({
       aria-hidden
       fill
       sizes={sizes}
-      onError={() => setFailed(true)}
+      onError={() => setFailedSrc(src)}
       className="ease-calm object-cover transition-transform duration-200 group-hover:scale-[1.02] group-focus-visible:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-focus-visible:scale-100"
     />
   );

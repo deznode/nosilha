@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import {
+  INSTAGRAM_FEED_SIZE,
   INSTAGRAM_PROFILE_URL,
   badgeLabel,
   fittingCaption,
@@ -34,9 +35,9 @@ export async function InstagramSection() {
 const TILE_GRID =
   "grid grid-cols-2 gap-[12px] min-[700px]:grid-cols-3 min-[700px]:gap-[20px]";
 
-/** The fourth post fills the mobile 2×2; three columns have no room for it. */
-const fourthTileOnly = (index: number) =>
-  clsx(index === 3 && "min-[700px]:hidden");
+/** The last post fills the mobile 2×2; three columns have no room for it. */
+const lastTileOnly = (index: number) =>
+  clsx(index === INSTAGRAM_FEED_SIZE - 1 && "min-[700px]:hidden");
 
 export function InstagramSectionView({
   feed,
@@ -54,12 +55,12 @@ export function InstagramSectionView({
       <SinglePost post={posts[0]} now={now} />
     ) : (
       <div className={TILE_GRID}>
-        {posts.slice(0, 4).map((post, index) => (
+        {posts.slice(0, INSTAGRAM_FEED_SIZE).map((post, index) => (
           <InstagramTile
             key={post.id}
             post={post}
             now={now}
-            className={fourthTileOnly(index)}
+            className={lastTileOnly(index)}
           />
         ))}
       </div>
@@ -101,8 +102,8 @@ export function InstagramSectionLoading() {
         The account, not the archive.
       </SecondLine>
       <div aria-hidden className={TILE_GRID}>
-        {[0, 1, 2, 3].map((index) => (
-          <div key={index} className={fourthTileOnly(index)}>
+        {Array.from({ length: INSTAGRAM_FEED_SIZE }, (_, index) => (
+          <div key={index} className={lastTileOnly(index)}>
             <div
               className="animate-pulse-subtle aspect-[4/5] rounded-[9px] border min-[700px]:rounded-[10px]"
               style={{
@@ -379,6 +380,9 @@ function TileImage({
   compact?: boolean;
 }) {
   const badge = badgeLabel(post);
+  // `fetchInstagramPosts` drops the imageless, but the view is also rendered
+  // directly in tests: without an image the frame stands in for the tile.
+  const src = tileImageUrl(post);
 
   return (
     <div
@@ -388,7 +392,7 @@ function TileImage({
         borderColor: "var(--border-subtle)",
       }}
     >
-      <InstagramTileImage src={tileImageUrl(post)} sizes={sizes} />
+      {src && <InstagramTileImage src={src} sizes={sizes} />}
       {badge && (
         <span
           id={badgeElementId(post)}

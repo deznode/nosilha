@@ -10,7 +10,12 @@ export interface InstagramPost {
   id: string;
   caption?: string;
   media_type: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
-  media_url: string;
+  /**
+   * Optional, despite being requested: Meta withholds it on media it will not
+   * hand out — a Reel with licensed audio comes back with a `thumbnail_url` and
+   * no `media_url` at all. Observed on the live @nosilha feed, 2026-09-19.
+   */
+  media_url?: string;
   thumbnail_url?: string;
   timestamp: string;
   permalink: string;
@@ -36,6 +41,9 @@ export const INSTAGRAM_FEED_SIZE = 4;
 
 export const INSTAGRAM_PROFILE_URL = "https://instagram.com/nosilha";
 
+/** Long enough for a slow Graph API, short enough not to hold a build hostage. */
+const INSTAGRAM_TIMEOUT_MS = 8000;
+
 /**
  * Fetch the latest posts from the Instagram Graph API.
  * Server-only — the token is never exposed to the client. Not cached here:
@@ -52,7 +60,11 @@ export async function fetchInstagramPosts(): Promise<InstagramFeed> {
   try {
     const url = `https://graph.instagram.com/v22.0/me/media?fields=${INSTAGRAM_FIELDS}&limit=${INSTAGRAM_FEED_SIZE}&access_token=${token}`;
 
-    const response = await fetch(url);
+    // A hung upstream would otherwise stall the cache fill — and with it the home's
+    // static generation at build time — for as long as the socket stays open.
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(INSTAGRAM_TIMEOUT_MS),
+    });
 
     if (!response.ok) {
       // Production went months on an expired token because this was a warning
@@ -67,7 +79,17 @@ export async function fetchInstagramPosts(): Promise<InstagramFeed> {
     }
 
     const data: InstagramApiResponse = await response.json();
-    return { status: "ok", posts: data.data ?? [] };
+    // The declared shape is a promise, not a guarantee: a 200 carrying anything but a
+    // list would otherwise reach the section and throw where nothing catches it.
+    if (!Array.isArray(data?.data)) {
+      log.error("Instagram API returned an unexpected body", undefined, {
+        received: typeof data?.data,
+      });
+      return { status: "unavailable" };
+    }
+    // A post we cannot show an image for is not a post this section can render,
+    // so it never reaches the tiles. Four requested may therefore yield fewer.
+    return { status: "ok", posts: data.data.filter(hasTileImage) };
   } catch (error) {
     log.error(
       "Failed to fetch Instagram posts",
@@ -101,11 +123,19 @@ export async function getInstagramFeed(): Promise<{
   return { feed, fetchedAt: Date.now() };
 }
 
-/** The image a tile shows: a video's poster frame, otherwise the media itself. */
-export function tileImageUrl(post: InstagramPost): string {
-  return post.media_type === "VIDEO"
-    ? post.thumbnail_url || post.media_url
-    : post.media_url;
+/**
+ * The image a tile shows: the poster frame when there is one, otherwise the media
+ * itself. Not keyed on `media_type` — a carousel whose first child is a video also
+ * carries a poster frame, and its `media_url` is the `.mp4`, which an `<img>` would
+ * download in full and then fail to decode. Null when Meta sent neither.
+ */
+export function tileImageUrl(post: InstagramPost): string | null {
+  return post.thumbnail_url || post.media_url || null;
+}
+
+/** `tileImageUrl` as a predicate, for dropping posts the tiles cannot show. */
+function hasTileImage(post: InstagramPost): boolean {
+  return tileImageUrl(post) !== null;
 }
 
 /** Text badge, never an icon, so it is announced. Plain images get none. */
