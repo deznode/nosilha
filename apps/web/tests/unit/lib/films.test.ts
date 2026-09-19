@@ -13,7 +13,6 @@ import {
   pickFeatured,
   playerNote,
   searchFilms,
-  showingLine,
   sortFilms,
   sourceDotColor,
   toFilm,
@@ -354,7 +353,6 @@ describe("filmsStripNote", () => {
 
 describe("count lines", () => {
   it("formats the prototype's count lines", () => {
-    expect(showingLine(8, 9)).toBe("Showing 8 of 9");
     expect(othersLine(8)).toBe("8 others in the archive");
     expect(othersLine(1)).toBe("1 other in the archive");
     expect(archiveCountLine(9)).toBe("9 in the archive");

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { MissingPills } from "@/components/ui/missing-pills";
-import { formatDuration } from "@/lib/format-duration";
+import { formatFilmLength } from "@/lib/films";
 import { photoFacts } from "@/lib/photo-facts";
 import type { PublicExternalMedia } from "@/types/gallery";
 
@@ -71,9 +71,7 @@ export function FilmsList({
 
 function FilmCard({ film }: { film: PublicExternalMedia }) {
   const facts = photoFacts(film);
-  const duration = film.durationSeconds
-    ? formatDuration(film.durationSeconds)
-    : null;
+  const duration = formatFilmLength(film.durationSeconds ?? null);
 
   return (
     <Link

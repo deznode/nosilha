@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/catalyst-ui/input";
-import { VideoGrid } from "@/components/gallery/video-grid";
+import { showingLine } from "@/components/photographs/photographs-copy";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Pagination } from "@/components/ui/pagination";
 import { Select } from "@/components/ui/select";
@@ -16,18 +15,15 @@ import {
   facetCounts,
   filmFacet,
   filmsIntro,
-  filmToMediaItem,
   pickFeatured,
   searchFilms,
-  showingLine,
   sortFilms,
   type Film,
   type FilmFacetKey,
   type FilmSortKey,
 } from "@/lib/films";
-import type { MediaItem } from "@/types/media";
-
 import { CountedHeading, FilmsPanel } from "./film-chrome";
+import { FilmGrid } from "./film-grid";
 import { FilmHero } from "./film-hero";
 
 /**
@@ -38,7 +34,6 @@ import { FilmHero } from "./film-hero";
  * are over the whole archive; the grid shows one facet of it.
  */
 export function FilmsIndex({ films }: { films: Film[] }) {
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const [facetKey, setFacetKey] = useState<FilmFacetKey>("all");
   const [sort, setSort] = useState<FilmSortKey>("title");
@@ -57,14 +52,12 @@ export function FilmsIndex({ films }: { films: Film[] }) {
 
   const totalPages = Math.ceil(matches.length / FILMS_PAGE_SIZE);
   const currentPage = Math.min(page, Math.max(totalPages - 1, 0));
-  const items = useMemo(
+  const pageFilms = useMemo(
     () =>
-      matches
-        .slice(
-          currentPage * FILMS_PAGE_SIZE,
-          (currentPage + 1) * FILMS_PAGE_SIZE
-        )
-        .map(filmToMediaItem),
+      matches.slice(
+        currentPage * FILMS_PAGE_SIZE,
+        (currentPage + 1) * FILMS_PAGE_SIZE
+      ),
     [matches, currentPage]
   );
 
@@ -77,14 +70,6 @@ export function FilmsIndex({ films }: { films: Film[] }) {
   // that does not. With neither — a large archive narrowed to one page — no footer.
   const fitsOnePage = films.length <= FILMS_PAGE_SIZE;
   const paged = totalPages > 1;
-
-  const open = (item: MediaItem) => router.push(`/films/${item.id}`);
-  const refine =
-    <T,>(set: (value: T) => void) =>
-    (value: T) => {
-      set(value);
-      setPage(0);
-    };
 
   return (
     <FilmsPanel>
@@ -124,7 +109,10 @@ export function FilmsIndex({ films }: { films: Film[] }) {
               placeholder="Search films"
               aria-label="Search films"
               value={query}
-              onChange={(e) => refine(setQuery)(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(0);
+              }}
             />
           </div>
           {FILM_FACETS.map((facet) => (
@@ -135,7 +123,10 @@ export function FilmsIndex({ films }: { films: Film[] }) {
               showZero
               active={facet.key === facetKey}
               aria-pressed={facet.key === facetKey}
-              onClick={() => refine(setFacetKey)(facet.key)}
+              onClick={() => {
+                setFacetKey(facet.key);
+                setPage(0);
+              }}
               colorScheme="ocean"
             />
           ))}
@@ -143,7 +134,10 @@ export function FilmsIndex({ films }: { films: Film[] }) {
             <Select
               options={[...FILM_SORT_OPTIONS]}
               value={sort}
-              onChange={(value) => refine(setSort)(value as FilmSortKey)}
+              onChange={(value) => {
+                setSort(value as FilmSortKey);
+                setPage(0);
+              }}
             />
           </div>
         </div>
@@ -158,16 +152,14 @@ export function FilmsIndex({ films }: { films: Film[] }) {
       >
         <CountedHeading
           title="All films"
-          count={showingLine(matches.length, films.length)}
+          count={showingLine(matches.length, films.length, null)}
           marginBottom="18px"
         />
-        <VideoGrid
-          items={items}
-          categoryFilter={facetKey}
-          featuredVideoId={gridFeaturedId}
-          selectedVideoId={featured?.id ?? null}
-          onVideoSelect={open}
-          mobileLayout="cards"
+        <FilmGrid
+          films={pageFilms}
+          animationKey={facetKey}
+          featuredId={gridFeaturedId}
+          selectedId={featured?.id ?? null}
         />
         {(fitsOnePage || paged) && (
           <div

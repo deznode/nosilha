@@ -1,21 +1,14 @@
-"use client";
-
-import { useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-import { VideoGrid } from "@/components/gallery/video-grid";
 import {
   filmTitleLabel,
-  filmToMediaItem,
   othersLine,
   playerNote,
   sortFilms,
   type Film,
 } from "@/lib/films";
-import type { MediaItem } from "@/types/media";
-
 import { CountedHeading, FilmsPanel, filmTitleStyle } from "./film-chrome";
+import { FilmGrid } from "./film-grid";
 import { FilmMetadata } from "./film-metadata";
 import { FilmPlayer } from "./film-player";
 
@@ -26,12 +19,6 @@ import { FilmPlayer } from "./film-player";
  * — which outlives the video if the host ever drops it — and the rest of the films.
  */
 export function FilmPage({ film, others }: { film: Film; others: Film[] }) {
-  const router = useRouter();
-  const items = useMemo(
-    () => sortFilms(others, "title").map(filmToMediaItem),
-    [others]
-  );
-  const open = (item: MediaItem) => router.push(`/films/${item.id}`);
   const downloadUrl = film.playback?.kind === "file" ? film.playback.url : null;
 
   return (
@@ -139,12 +126,7 @@ export function FilmPage({ film, others }: { film: Film; others: Film[] }) {
               count={othersLine(others.length)}
               marginBottom="16px"
             />
-            <VideoGrid
-              items={items}
-              categoryFilter="all"
-              onVideoSelect={open}
-              mobileLayout="cards"
-            />
+            <FilmGrid films={sortFilms(others, "title")} />
           </section>
         )}
       </div>

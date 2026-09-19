@@ -1,17 +1,8 @@
-"use client";
-
-import { useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-import { VideoGrid } from "@/components/gallery/video-grid";
-import {
-  archiveCountLine,
-  filmsStripNote,
-  filmToMediaItem,
-  type Film,
-} from "@/lib/films";
-import type { MediaItem } from "@/types/media";
+import { archiveCountLine, filmsStripNote, type Film } from "@/lib/films";
+
+import { FilmGrid } from "./film-grid";
 
 /** How many films the home strip shows. */
 const STRIP_SIZE = 3;
@@ -21,7 +12,8 @@ const STRIP_SIZE = 3;
  *
  * Each card opens the film's page, where it plays in place; nothing here leaves the
  * archive. The sub-line reads the whole list, so a clause about titles appears only
- * while some film lacks one.
+ * while some film lacks one. It renders on the server, so only the shown films reach
+ * the browser.
  */
 export function FilmsStrip({
   films,
@@ -32,15 +24,7 @@ export function FilmsStrip({
   /** The archive's film count, from the facets. */
   total: number;
 }) {
-  const router = useRouter();
-  const items = useMemo(
-    () => films.slice(0, STRIP_SIZE).map(filmToMediaItem),
-    [films]
-  );
-
   if (films.length === 0) return null;
-
-  const open = (item: MediaItem) => router.push(`/films/${item.id}`);
 
   return (
     <section
@@ -92,12 +76,7 @@ export function FilmsStrip({
       >
         {filmsStripNote(films, total)}
       </p>
-      <VideoGrid
-        items={items}
-        categoryFilter="all"
-        onVideoSelect={open}
-        mobileLayout="cards"
-      />
+      <FilmGrid films={films.slice(0, STRIP_SIZE)} />
     </section>
   );
 }

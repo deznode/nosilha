@@ -9,6 +9,7 @@ import {
   resolveExternalThumbnail,
   resolveExternalWatchUrl,
 } from "@/lib/gallery-mappers";
+import { trimmed } from "@/lib/text";
 import {
   isPublicExternalMedia,
   type PublicGalleryMedia,
@@ -48,8 +49,8 @@ export interface Film {
   watchUrl: string | null;
 }
 
-export const UNTITLED_LABEL = "Title not recorded";
-export const UNKNOWN_SOURCE_LABEL = "Source not recorded";
+const UNTITLED_LABEL = "Title not recorded";
+const UNKNOWN_SOURCE_LABEL = "Source not recorded";
 export const NOT_RECORDED = "Not recorded";
 
 /** Grid page size. The footer promises pagination at exactly this count. */
@@ -87,25 +88,25 @@ export function toFilm(media: PublicGalleryMedia): Film | null {
   if (!isPublicExternalMedia(media) || media.mediaType !== "VIDEO") return null;
 
   const source = SOURCE_BY_PLATFORM[media.platform] ?? null;
-  const externalId = media.externalId?.trim() || null;
+  const idPattern =
+    source === "YouTube" ? YOUTUBE_ID : source === "Vimeo" ? VIMEO_ID : null;
+  const hostId = idPattern
+    ? (trimmed(media.externalId) ??
+      firstMatch(idPattern, media.embedUrl, media.url))
+    : null;
+  const fileUrl = source === "Archive file" ? trimmed(media.url) : null;
 
   let playback: FilmPlayback = null;
   let watchUrl: string | null = null;
 
-  if (source === "YouTube") {
-    const id = externalId ?? firstMatch(YOUTUBE_ID, media.embedUrl, media.url);
-    if (id) {
-      playback = { kind: "youtube", id };
-      watchUrl = `https://www.youtube.com/watch?v=${id}`;
-    }
-  } else if (source === "Vimeo") {
-    const id = externalId ?? firstMatch(VIMEO_ID, media.embedUrl, media.url);
-    if (id) {
-      playback = { kind: "vimeo", id };
-      watchUrl = `https://vimeo.com/${id}`;
-    }
-  } else if (source === "Archive file" && media.url?.trim()) {
-    playback = { kind: "file", url: media.url };
+  if (hostId && source === "YouTube") {
+    playback = { kind: "youtube", id: hostId };
+    watchUrl = `https://www.youtube.com/watch?v=${hostId}`;
+  } else if (hostId && source === "Vimeo") {
+    playback = { kind: "vimeo", id: hostId };
+    watchUrl = `https://vimeo.com/${hostId}`;
+  } else if (fileUrl) {
+    playback = { kind: "file", url: fileUrl };
   }
 
   // A host whose id could not be read (or an unknown host) still gets whatever the
@@ -119,12 +120,12 @@ export function toFilm(media: PublicGalleryMedia): Film | null {
 
   return {
     id: media.id,
-    title: media.title?.trim() || null,
+    title: trimmed(media.title),
     source,
     thumbnailUrl: resolveExternalThumbnail(
       media.thumbnailUrl,
       media.platform,
-      media.externalId
+      hostId ?? media.externalId
     ),
     durationSeconds: media.durationSeconds ?? null,
     // The public external record carries no place or maker. They join here when the
@@ -149,7 +150,7 @@ export function filmTitleLabel(film: Film): string {
   return film.title ?? UNTITLED_LABEL;
 }
 
-export function filmSourceLabel(film: Film): string {
+function filmSourceLabel(film: Film): string {
   return film.source ?? UNKNOWN_SOURCE_LABEL;
 }
 
@@ -239,7 +240,7 @@ const untitled = (f: Film) => (f.title === null ? 1 : 0);
  * Orders the archive can actually answer. No film carries a date, so date sorts would
  * be inert controls.
  */
-export const FILM_SORTS: Record<FilmSortKey, (a: Film, b: Film) => number> = {
+const FILM_SORTS: Record<FilmSortKey, (a: Film, b: Film) => number> = {
   title: (a, b) => untitled(a) - untitled(b) || byTitle(a, b),
   needs: (a, b) => untitled(b) - untitled(a) || byTitle(a, b),
   source: (a, b) =>
@@ -338,16 +339,12 @@ export function filmsStripNote(
   total: number = films.length
 ): string {
   const base = "Footage contributed to the archive.";
-  const titled = films.filter((f) => f.title !== null).length;
   // A partial list cannot say how many carry a title; saying nothing is true.
-  if (films.length < total) return base;
-  if (films.length === 0 || titled === films.length) return base;
+  if (films.length < total || films.length === 0) return base;
+  const titled = films.filter((f) => f.title !== null).length;
+  if (titled === films.length) return base;
   if (titled === 0) return `${base} None carries a title yet.`;
   return `${base} ${capitalise(titledClause(titled))}; the rest are waiting on the sync.`;
-}
-
-export function showingLine(shown: number, total: number): string {
-  return `Showing ${shown} of ${total}`;
 }
 
 export function othersLine(others: number): string {

@@ -112,9 +112,7 @@ export function FilmPlayer({
 
   const { circle, glyph } = SIZES[size];
   const frameState: PlayerFrameState | null =
-    state === "loading" || state === "blocked" || state === "removed"
-      ? state
-      : null;
+    state === "idle" || state === "playing" ? null : state;
 
   return (
     <div
