@@ -52,6 +52,37 @@ describe("CompactVideoCard", () => {
     expect(screen.getByText("30:45")).toBeInTheDocument();
   });
 
+  it("keeps a film card a film even when its title mentions an interview", () => {
+    render(
+      <CompactVideoCard
+        item={{
+          ...mockVideoItem,
+          title: "An interview in Furna",
+          category: "Film",
+        }}
+      />
+    );
+
+    expect(screen.queryByText("Podcast")).toBeNull();
+    expect(screen.getByText("Film")).toBeInTheDocument();
+  });
+
+  it("links to href instead of selecting when given one", () => {
+    const handleSelect = vi.fn();
+    render(
+      <CompactVideoCard
+        item={mockVideoItem}
+        href="/films/video-1"
+        onSelect={handleSelect}
+      />
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Morna de Brava Performance" })
+    ).toHaveAttribute("href", "/films/video-1");
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
   it("triggers onSelect callback when promoted", () => {
     const handleSelect = vi.fn();
     render(<CompactVideoCard item={mockVideoItem} onSelect={handleSelect} />);

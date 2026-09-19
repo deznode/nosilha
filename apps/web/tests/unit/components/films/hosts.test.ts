@@ -140,6 +140,23 @@ describe("mountVimeo", () => {
     handle.destroy();
   });
 
+  it("reads a password as blocked and any other load failure as removed", () => {
+    const { cb, iframe, handle } = mount();
+    message(iframe, { event: "error", data: { name: "PasswordError" } });
+    expect(cb.onBlocked).toHaveBeenCalledTimes(1);
+
+    // A playback hiccup after load is not a verdict on the film.
+    message(iframe, { event: "error", data: { name: "SomeError" } });
+    expect(cb.onRemoved).not.toHaveBeenCalled();
+
+    message(iframe, {
+      event: "error",
+      data: { name: "UnsupportedViewerError", method: "ready" },
+    });
+    expect(cb.onRemoved).toHaveBeenCalledTimes(1);
+    handle.destroy();
+  });
+
   it("ignores messages from other origins and after destroy", () => {
     const { cb, iframe, handle, container } = mount();
     message(iframe, { event: "loaded" }, "https://evil.example");

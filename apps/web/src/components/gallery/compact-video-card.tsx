@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
 import { Film, Mic, Play } from "lucide-react";
@@ -10,6 +11,8 @@ import type { MediaItem } from "@/types/media";
 
 function isPodcast(item: MediaItem): boolean {
   if (item.category === "Interview") return true;
+  // A film card says "Film"; a title that mentions an interview does not make it a podcast.
+  if (item.category === "Film") return false;
   const title = item.title.toLowerCase();
   return title.includes("podcast") || title.includes("interview");
 }
@@ -21,6 +24,11 @@ interface CompactVideoCardProps {
   item: MediaItem;
   /** Called when the card is clicked to promote this video to the hero player */
   onSelect?: (item: MediaItem) => void;
+  /**
+   * Makes the card a link to this address instead of a button, so it can be crawled,
+   * opened in a new tab and prefetched. Takes precedence over `onSelect`.
+   */
+  href?: string;
   /** When true, shows a bougainvillea-pink ring highlight */
   isActive?: boolean;
 }
@@ -28,6 +36,7 @@ interface CompactVideoCardProps {
 export function CompactVideoCard({
   item,
   onSelect,
+  href,
   isActive,
 }: CompactVideoCardProps) {
   const podcast = isPodcast(item);
@@ -127,7 +136,15 @@ export function CompactVideoCard({
         isActive && "ring-bougainvillea-pink ring-2"
       )}
     >
-      {onSelect ? (
+      {href ? (
+        <Link
+          href={href}
+          className="focus-ring block w-full text-left"
+          aria-label={item.title}
+        >
+          {cardContent}
+        </Link>
+      ) : onSelect ? (
         <button
           type="button"
           onClick={() => onSelect(item)}

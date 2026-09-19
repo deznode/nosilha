@@ -1,13 +1,11 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { FilmsIndex } from "@/components/films/films-index";
 import type { Film } from "@/lib/films";
 
 /** Spec 035 FR-002 – FR-004 — the films index. */
 
-const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 vi.mock("framer-motion", async () => {
   const { createFramerMotionMock } =
     await import("../../../setup/framer-motion-mock");
@@ -24,6 +22,7 @@ function film(id: string, overrides: Partial<Film> = {}): Film {
     place: null,
     filmmaker: null,
     featured: false,
+    identifiablePerson: false,
     playback: { kind: "youtube", id },
     watchUrl: null,
     ...overrides,
@@ -41,13 +40,11 @@ const NINE = [
 /** Cards in the desktop grid (the mobile carousel repeats them). */
 function desktopCards() {
   return screen
-    .getAllByRole("button", {
-      name: /^Play Film|^Play Brava|^Play Explorando|^Play Nova/,
+    .getAllByRole("link", {
+      name: /^Film|^Brava|^Explorando|^Nova/,
     })
     .filter((b) => b.closest(".md\\:grid"));
 }
-
-beforeEach(() => push.mockClear());
 
 describe("FilmsIndex", () => {
   it("states the archive from its own counts", () => {
@@ -102,6 +99,22 @@ describe("FilmsIndex", () => {
     expect(desktopCards()).toHaveLength(1);
   });
 
+  it("keeps the hero's film in the grid when a facet holds nothing else", () => {
+    const films = [
+      film("a"),
+      film("v", {
+        source: "Vimeo",
+        playback: { kind: "vimeo", id: "1" },
+        featured: true,
+      }),
+    ];
+    render(<FilmsIndex films={films} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /^Vimeo/ }));
+    expect(screen.getByText("Showing 1 of 2")).toBeInTheDocument();
+    expect(desktopCards()).toHaveLength(1);
+  });
+
   it("shows the grid's own empty state for an empty facet", () => {
     render(<FilmsIndex films={NINE} />);
 
@@ -113,8 +126,7 @@ describe("FilmsIndex", () => {
   it("opens a card's film page instead of leaving the archive", () => {
     const { container } = render(<FilmsIndex films={NINE} />);
 
-    fireEvent.click(desktopCards()[0]);
-    expect(push).toHaveBeenCalledWith("/films/a");
+    expect(desktopCards()[0]).toHaveAttribute("href", "/films/a");
     expect(container.querySelector("[target=_blank]")).toBeNull();
     expect(container.querySelector("iframe")).toBeNull();
   });
@@ -123,7 +135,7 @@ describe("FilmsIndex", () => {
     const { unmount } = render(<FilmsIndex films={NINE} />);
     expect(
       screen.getByText(
-        "Every film fits on one page today. Pagination appears at twenty-four."
+        "Every film fits on one page today. Pagination starts past twenty-four."
       )
     ).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Pagination" })).toBeNull();

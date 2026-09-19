@@ -4,16 +4,21 @@ import type { HostCallbacks, HostHandle } from "./types";
  * Vimeo, through the player's documented postMessage API. Spec 035 FR-008.
  *
  * The player announces `ready`; we then subscribe to `loaded` (the film can play) and
- * `error`. A `PrivacyError` is Vimeo's refusal to embed here; `NotFoundError` means the
- * film is gone.
+ * `error`. A `PrivacyError` or `PasswordError` is Vimeo's refusal to embed here;
+ * `NotFoundError`, or any other error that stops the player loading, means the film
+ * cannot be reached.
  */
 
 const ORIGIN = "https://player.vimeo.com";
 
 interface VimeoMessage {
   event?: string;
-  data?: { name?: string };
+  /** `method: "ready"` marks an error that stopped the player from loading at all. */
+  data?: { name?: string; method?: string };
 }
+
+/** Vimeo's refusals to play here: a private or password-protected film. */
+const BLOCKED_ERRORS = new Set(["PrivacyError", "PasswordError"]);
 
 function parse(data: unknown): VimeoMessage | null {
   if (typeof data === "object" && data !== null) return data as VimeoMessage;
@@ -57,10 +62,16 @@ export function mountVimeo(
       case "loaded":
         callbacks.onPlaying();
         break;
-      case "error":
-        if (message.data?.name === "PrivacyError") callbacks.onBlocked();
-        else if (message.data?.name === "NotFoundError") callbacks.onRemoved();
+      case "error": {
+        const name = message.data?.name ?? "";
+        if (BLOCKED_ERRORS.has(name)) callbacks.onBlocked();
+        // Any other error that kept the player from loading would otherwise leave the
+        // frame on "Loading" forever, covering Vimeo's own message.
+        else if (name === "NotFoundError" || message.data?.method === "ready") {
+          callbacks.onRemoved();
+        }
         break;
+      }
     }
   };
 

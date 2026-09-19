@@ -6,7 +6,6 @@ import type { Film } from "@/lib/films";
 
 /** Spec 035 FR-005 — the film page. */
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("framer-motion", async () => {
   const { createFramerMotionMock } =
     await import("../../../setup/framer-motion-mock");
@@ -23,6 +22,7 @@ function film(id: string, overrides: Partial<Film> = {}): Film {
     place: null,
     filmmaker: null,
     featured: false,
+    identifiablePerson: false,
     playback: { kind: "youtube", id },
     watchUrl: null,
     ...overrides,

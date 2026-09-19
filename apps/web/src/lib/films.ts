@@ -5,10 +5,7 @@ import {
   toWords,
 } from "@/lib/copy/number-words";
 import { formatDuration } from "@/lib/format-duration";
-import {
-  resolveExternalThumbnail,
-  resolveExternalWatchUrl,
-} from "@/lib/gallery-mappers";
+import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { trimmed } from "@/lib/text";
 import {
   isPublicExternalMedia,
@@ -44,6 +41,11 @@ export interface Film {
   place: string | null;
   filmmaker: string | null;
   featured: boolean;
+  /**
+   * Shows an identifiable person nobody has vouched for (spec 034 FR-022): listed,
+   * but kept out of the featured slot and the home strip.
+   */
+  identifiablePerson: boolean;
   playback: FilmPlayback;
   /** The host's own page — only offered when the embed refuses to play. */
   watchUrl: string | null;
@@ -109,15 +111,6 @@ export function toFilm(media: PublicGalleryMedia): Film | null {
     playback = { kind: "file", url: fileUrl };
   }
 
-  // A host whose id could not be read (or an unknown host) still gets whatever the
-  // shared resolver can reach — a recorded `url` or the embed address.
-  watchUrl ??= resolveExternalWatchUrl(
-    media.url,
-    media.platform,
-    media.externalId,
-    media.embedUrl
-  );
-
   return {
     id: media.id,
     title: trimmed(media.title),
@@ -133,6 +126,7 @@ export function toFilm(media: PublicGalleryMedia): Film | null {
     place: null,
     filmmaker: null,
     featured: media.featured === true,
+    identifiablePerson: media.identifiablePerson === true,
     playback,
     watchUrl,
   };
@@ -251,12 +245,23 @@ export function sortFilms(films: readonly Film[], sort: FilmSortKey): Film[] {
   return [...films].sort(FILM_SORTS[sort]);
 }
 
+/**
+ * The films a promotional slot (the featured player, the home strip) may show: never
+ * one flagged as showing an unvouched-for person (spec 034 FR-022).
+ */
+export function promotableFilms(films: readonly Film[]): Film[] {
+  return films.filter((f) => !f.identifiablePerson);
+}
+
 /** The film the index plays on arrival: the curated one, else the first in `sort`. */
 export function pickFeatured(
   films: readonly Film[],
   sort: FilmSortKey = "title"
 ): Film | null {
-  return films.find((f) => f.featured) ?? sortFilms(films, sort)[0] ?? null;
+  const candidates = promotableFilms(films);
+  return (
+    candidates.find((f) => f.featured) ?? sortFilms(candidates, sort)[0] ?? null
+  );
 }
 
 // ─── Display values ─────────────────────────────────────────────────────────
@@ -356,4 +361,4 @@ export function archiveCountLine(total: number): string {
 }
 
 /** Shown under the grid only while every film fits on one page. */
-export const ONE_PAGE_LINE = `Every film fits on one page today. Pagination appears at ${toWords(FILMS_PAGE_SIZE)}.`;
+export const ONE_PAGE_LINE = `Every film fits on one page today. Pagination starts past ${toWords(FILMS_PAGE_SIZE)}.`;

@@ -15,6 +15,7 @@ function film(overrides: Partial<Film> = {}): Film {
     place: null,
     filmmaker: null,
     featured: false,
+    identifiablePerson: false,
     playback: null,
     watchUrl: null,
     ...overrides,

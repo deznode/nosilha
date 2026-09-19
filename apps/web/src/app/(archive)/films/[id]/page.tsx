@@ -54,20 +54,21 @@ async function cachedFilm(id: string) {
   cacheLife("entry");
   cacheTag("gallery");
 
-  // Both requests start together, but the 404 is settled on the film alone: a list
-  // request that fails for another reason must not pre-empt `notFound()` with a 500.
+  // Both requests start together, but the 404 is settled on the film alone. "More
+  // films" is optional, so a failed list request drops the section instead of
+  // turning a film that exists into a 500.
   const filmPromise = findFilm(id);
-  const listPromise = getGalleryMedia({
+  const othersPromise = getGalleryMedia({
     mediaType: "VIDEO",
     size: FILMS_FETCH_SIZE,
-  });
-  listPromise.catch(() => undefined);
+  })
+    .then((list) => toFilms(list.items))
+    .catch(() => []);
 
   const film = await filmPromise;
   if (!film) notFound();
 
-  const list = await listPromise;
-  const others = toFilms(list.items).filter((f) => f.id !== film.id);
+  const others = (await othersPromise).filter((f) => f.id !== film.id);
 
   return (
     <FilmsScreen>

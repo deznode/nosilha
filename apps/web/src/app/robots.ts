@@ -15,6 +15,7 @@ const ALLOWED_PATHS = [
   "/map",
   "/settlements",
   "/photographs",
+  "/films",
   "/stay",
   "/history",
   "/people",

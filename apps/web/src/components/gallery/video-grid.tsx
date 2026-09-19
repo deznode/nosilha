@@ -55,9 +55,14 @@ interface VideoGridProps {
   /** Called when a video card is selected (desktop, and mobile in `cards` layout) */
   onVideoSelect?: (item: MediaItem) => void;
   /**
+   * Makes every card a link to the address it returns, in place of `onVideoSelect`.
+   * Surfaces where a card opens a page (the films section) use it.
+   */
+  videoHref?: (item: MediaItem) => string;
+  /**
    * Below `md`: `inline-embed` plays each video in its own iframe; `cards` renders the
-   * same cards as the desktop grid, so selecting one calls `onVideoSelect`. Surfaces
-   * where a card must navigate (the films section) use `cards`.
+   * same cards as the desktop grid, so a card selects or links as it does there.
+   * Surfaces where a card must navigate (the films section) use `cards`.
    */
   mobileLayout?: "inline-embed" | "cards";
 }
@@ -68,6 +73,7 @@ export function VideoGrid({
   featuredVideoId,
   selectedVideoId,
   onVideoSelect,
+  videoHref,
   mobileLayout = "inline-embed",
 }: VideoGridProps) {
   const shouldReduceMotion = useReducedMotion();
@@ -79,16 +85,18 @@ export function VideoGrid({
     [items, featuredVideoId]
   );
 
+  const card = (item: MediaItem) => (
+    <CompactVideoCard
+      key={item.id}
+      item={item}
+      isActive={item.id === selectedVideoId}
+      onSelect={onVideoSelect}
+      href={videoHref?.(item)}
+    />
+  );
+
   const mobileCard = (item: MediaItem) =>
-    mobileLayout === "cards" ? (
-      <CompactVideoCard
-        item={item}
-        isActive={item.id === selectedVideoId}
-        onSelect={onVideoSelect}
-      />
-    ) : (
-      <InlineYouTubeCard item={item} />
-    );
+    mobileLayout === "cards" ? card(item) : <InlineYouTubeCard item={item} />;
 
   if (items.length === 0) {
     return (
@@ -103,14 +111,7 @@ export function VideoGrid({
       <>
         {/* Desktop/tablet grid */}
         <div className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
-          {desktopItems.map((item) => (
-            <CompactVideoCard
-              key={item.id}
-              item={item}
-              isActive={item.id === selectedVideoId}
-              onSelect={onVideoSelect}
-            />
-          ))}
+          {desktopItems.map(card)}
         </div>
         {/* Mobile carousel — inline iframes for 1-tap play, or cards */}
         <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:hidden">
@@ -134,14 +135,7 @@ export function VideoGrid({
         animate="show"
         className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3"
       >
-        {desktopItems.map((item) => (
-          <CompactVideoCard
-            key={item.id}
-            item={item}
-            isActive={item.id === selectedVideoId}
-            onSelect={onVideoSelect}
-          />
-        ))}
+        {desktopItems.map(card)}
       </motion.div>
 
       {/* Mobile carousel — inline iframes for 1-tap play, or cards */}

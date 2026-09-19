@@ -62,9 +62,13 @@ export function FilmsIndex({ films }: { films: Film[] }) {
   );
 
   // While searching, the hero's film stays in the results — otherwise a query that
-  // matches only the featured film would leave an empty grid beneath it.
+  // matches only the featured film would leave an empty grid beneath it. A facet or a
+  // page holding nothing but the hero's film keeps it for the same reason.
   const searching = query.trim() !== "";
-  const gridFeaturedId = searching ? null : (featured?.id ?? null);
+  const gridFeaturedId =
+    featured && !searching && pageFilms.some((f) => f.id !== featured.id)
+      ? featured.id
+      : null;
 
   // The sentence belongs to an archive that fits on one page; the control, to a result
   // that does not. With neither — a large archive narrowed to one page — no footer.

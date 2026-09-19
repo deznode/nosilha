@@ -1,6 +1,11 @@
 import Link from "next/link";
 
-import { archiveCountLine, filmsStripNote, type Film } from "@/lib/films";
+import {
+  archiveCountLine,
+  filmsStripNote,
+  promotableFilms,
+  type Film,
+} from "@/lib/films";
 
 import { FilmGrid } from "./film-grid";
 
@@ -24,7 +29,10 @@ export function FilmsStrip({
   /** The archive's film count, from the facets. */
   total: number;
 }) {
-  if (films.length === 0) return null;
+  // A promotional slot: a film flagged as showing an unvouched-for person is left out
+  // (spec 034 FR-022). With nothing showable the strip is absent, as with no films.
+  const shown = promotableFilms(films).slice(0, STRIP_SIZE);
+  if (shown.length === 0) return null;
 
   return (
     <section
@@ -76,7 +84,7 @@ export function FilmsStrip({
       >
         {filmsStripNote(films, total)}
       </p>
-      <FilmGrid films={films.slice(0, STRIP_SIZE)} />
+      <FilmGrid films={shown} />
     </section>
   );
 }

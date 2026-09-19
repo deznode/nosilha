@@ -14,6 +14,7 @@ const defaultNavigation = {
   community: [
     { name: "Settlements", href: "/settlements" },
     { name: "Photographs", href: "/photographs" },
+    { name: "Films", href: "/films" },
     { name: "Share a Memory", href: "/contribute/story" },
   ],
   legal: [

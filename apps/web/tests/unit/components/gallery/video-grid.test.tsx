@@ -61,4 +61,20 @@ describe.each([
     fireEvent.click(buttons[1]);
     expect(onSelect).toHaveBeenCalledWith(items[1]);
   });
+
+  it("renders every card as a link when given videoHref", () => {
+    render(
+      <VideoGrid
+        items={items}
+        categoryFilter={null}
+        videoHref={(item) => `/films/${item.id}`}
+        mobileLayout="cards"
+      />
+    );
+
+    const links = screen.getAllByRole("link", { name: "Film b" });
+    expect(links).toHaveLength(2);
+    for (const link of links) expect(link).toHaveAttribute("href", "/films/b");
+    expect(screen.queryByRole("button")).toBeNull();
+  });
 });

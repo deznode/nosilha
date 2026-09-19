@@ -100,11 +100,11 @@ export function mountYouTube(
   let fallback: HTMLIFrameElement | null = null;
   let done = false;
 
-  const useFallback = () => {
+  const startFallback = () => {
     if (done || player || fallback) return;
     fallback = plainIframe(container, id, title, callbacks.onPlaying);
   };
-  const timer = window.setTimeout(useFallback, YOUTUBE_API_TIMEOUT_MS);
+  const timer = window.setTimeout(startFallback, YOUTUBE_API_TIMEOUT_MS);
 
   loadApi()
     .then((YT) => {
@@ -131,7 +131,7 @@ export function mountYouTube(
     })
     .catch(() => {
       window.clearTimeout(timer);
-      useFallback();
+      startFallback();
     });
 
   return {

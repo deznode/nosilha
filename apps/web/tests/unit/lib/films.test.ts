@@ -64,6 +64,7 @@ function film(overrides: Partial<Film> = {}): Film {
     place: null,
     filmmaker: null,
     featured: false,
+    identifiablePerson: false,
     playback: { kind: "youtube", id: `id${seq}` },
     watchUrl: null,
     ...overrides,
@@ -103,6 +104,7 @@ describe("toFilm", () => {
       place: null,
       filmmaker: null,
       featured: false,
+      identifiablePerson: false,
     });
     expect(f?.playback).toEqual({ kind: "youtube", id: expect.any(String) });
     expect(f?.thumbnailUrl).toMatch(/i\.ytimg\.com/);
@@ -260,6 +262,16 @@ describe("pickFeatured", () => {
     expect(pickFeatured(HANDOFF, "needs")?.title).toBeNull();
     expect(pickFeatured([])).toBeNull();
   });
+
+  it("never features a film flagged as showing an identifiable person", () => {
+    const films = [
+      film({ title: "A", identifiablePerson: true }),
+      film({ title: "B" }),
+      film({ title: "Z", featured: true, identifiablePerson: true }),
+    ];
+    expect(pickFeatured(films)?.title).toBe("B");
+    expect(pickFeatured([films[0]])).toBeNull();
+  });
 });
 
 // ─── Display values ──────────────────────────────────────────────────────────
@@ -357,7 +369,7 @@ describe("count lines", () => {
     expect(othersLine(1)).toBe("1 other in the archive");
     expect(archiveCountLine(9)).toBe("9 in the archive");
     expect(ONE_PAGE_LINE).toBe(
-      "Every film fits on one page today. Pagination appears at twenty-four."
+      "Every film fits on one page today. Pagination starts past twenty-four."
     );
   });
 });

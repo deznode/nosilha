@@ -48,6 +48,7 @@ function film(overrides: Partial<Film> = {}): Film {
     place: null,
     filmmaker: null,
     featured: false,
+    identifiablePerson: false,
     playback: { kind: "youtube", id: "abc" },
     watchUrl: "https://www.youtube.com/watch?v=abc",
     ...overrides,

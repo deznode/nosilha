@@ -46,6 +46,7 @@ export const navigation: NavItem[] = [
   },
   { name: "Settlements", href: "/settlements" },
   { name: "Photographs", href: "/photographs" },
+  { name: "Films", href: "/films" },
   { name: "Map", href: "/map" },
 ];
 

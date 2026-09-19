@@ -6,8 +6,6 @@ import type { Film } from "@/lib/films";
 import type { GalleryFacets, PublicUserUploadMedia } from "@/types/gallery";
 import type { TownStatusSummary } from "@/types/town";
 
-const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 vi.mock("framer-motion", async () => {
   const { createFramerMotionMock } =
     await import("../../../setup/framer-motion-mock");
@@ -24,6 +22,7 @@ function film(id: string, title: string | null): Film {
     place: null,
     filmmaker: null,
     featured: false,
+    identifiablePerson: false,
     playback: { kind: "youtube", id },
     watchUrl: null,
   };
@@ -255,14 +254,13 @@ describe("ArchiveHome", () => {
         within(strip).getByRole("link", { name: "See all films →" })
       ).toHaveAttribute("href", "/films");
 
-      const cards = within(strip).getAllByRole("button", {
-        name: /play explorando furna/i,
+      const cards = within(strip).getAllByRole("link", {
+        name: "Explorando Furna",
       });
       expect(
-        within(strip).queryAllByRole("button", { name: /play brava/i })
+        within(strip).queryAllByRole("link", { name: "Brava" })
       ).toHaveLength(0);
-      cards[0].click();
-      expect(push).toHaveBeenCalledWith("/films/a");
+      expect(cards[0]).toHaveAttribute("href", "/films/a");
       expect(strip.querySelector("[target=_blank]")).toBeNull();
       expect(strip.querySelector("iframe")).toBeNull();
     });
@@ -279,6 +277,22 @@ describe("ArchiveHome", () => {
     it("is absent when the archive holds no film", () => {
       renderHome({ films: [] });
       expect(screen.queryByRole("heading", { name: "Films" })).toBeNull();
+    });
+
+    it("keeps a film showing an identifiable person out of the strip", () => {
+      renderHome({
+        films: [
+          { ...film("a", "Explorando Furna"), identifiablePerson: true },
+          ...FILMS.slice(1),
+        ],
+        facets: { ...FACETS, films: 4 },
+      });
+
+      const strip = screen
+        .getByRole("heading", { name: "Films" })
+        .closest("section")!;
+      expect(within(strip).queryByText("Explorando Furna")).toBeNull();
+      expect(within(strip).getAllByText("Brava").length).toBeGreaterThan(0);
     });
   });
 });
