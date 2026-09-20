@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { DirectoryEntry } from "@/types/directory";
 import { getRelatedContent } from "@/lib/api";
-import { getEntryUrl } from "@/lib/directory-utils";
+import { usePlaceRecordHref } from "@/hooks/queries/useTownSummaries";
 
 interface RelatedEntriesProps {
   /**
@@ -192,10 +192,11 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
     entry.description.length > 80
       ? `${entry.description.slice(0, 77)}…`
       : entry.description;
+  const href = usePlaceRecordHref(entry);
 
   return (
     <Link
-      href={getEntryUrl(entry.slug, entry.category)}
+      href={href}
       aria-label={`View details for ${entry.name}`}
       className="block h-full"
     >

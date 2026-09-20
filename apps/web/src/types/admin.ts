@@ -83,7 +83,6 @@ export interface DirectorySubmission {
     | "Beach"
     | "Heritage"
     | "Nature"
-    | "Town"
     | "Viewpoint"
     | "Trail"
     | "Church"

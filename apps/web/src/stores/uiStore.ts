@@ -38,8 +38,9 @@ export const useUiStore = create<UiState>()(
   devtools(
     persist(
       (set, _get) => ({
-        // Initial state
-        theme: "system",
+        // Initial state — light is the default (spec 034 FR-001), not the OS
+        // preference. A persisted choice still wins once the store rehydrates.
+        theme: "light",
         activeModal: null,
         filterPanelOpen: false,
         sidebarOpen: false,

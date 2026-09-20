@@ -52,6 +52,37 @@ describe("CompactVideoCard", () => {
     expect(screen.getByText("30:45")).toBeInTheDocument();
   });
 
+  it("keeps a film card a film even when its title mentions an interview", () => {
+    render(
+      <CompactVideoCard
+        item={{
+          ...mockVideoItem,
+          title: "An interview in Furna",
+          category: "Film",
+        }}
+      />
+    );
+
+    expect(screen.queryByText("Podcast")).toBeNull();
+    expect(screen.getByText("Film")).toBeInTheDocument();
+  });
+
+  it("links to href instead of selecting when given one", () => {
+    const handleSelect = vi.fn();
+    render(
+      <CompactVideoCard
+        item={mockVideoItem}
+        href="/films/video-1"
+        onSelect={handleSelect}
+      />
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Morna de Brava Performance" })
+    ).toHaveAttribute("href", "/films/video-1");
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
   it("triggers onSelect callback when promoted", () => {
     const handleSelect = vi.fn();
     render(<CompactVideoCard item={mockVideoItem} onSelect={handleSelect} />);
@@ -72,5 +103,32 @@ describe("CompactVideoCard", () => {
 
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain("ring-bougainvillea-pink");
+  });
+});
+
+describe("CompactVideoCard placeholder", () => {
+  it("draws one placeholder frame per theme when no thumbnail is recorded", () => {
+    render(
+      <CompactVideoCard item={{ ...mockVideoItem, thumbnailUrl: undefined }} />
+    );
+
+    const frames = screen.getAllByAltText("No thumbnail recorded");
+    expect(frames).toHaveLength(2);
+    expect(frames[0]).toHaveAttribute(
+      "src",
+      expect.stringContaining("/images/video-placeholder.jpg")
+    );
+    expect(frames[0].className).toContain("dark:hidden");
+    expect(frames[1]).toHaveAttribute(
+      "src",
+      expect.stringContaining("/images/video-placeholder-dark.jpg")
+    );
+    expect(frames[1].className).toContain("dark:block");
+  });
+
+  it("shows the recorded thumbnail and no placeholder", () => {
+    render(<CompactVideoCard item={mockVideoItem} />);
+
+    expect(screen.queryByAltText("No thumbnail recorded")).toBeNull();
   });
 });

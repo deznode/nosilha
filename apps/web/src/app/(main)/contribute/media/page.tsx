@@ -281,10 +281,10 @@ export default function MediaContributionPage() {
             pending verification by our team.
           </p>
           <Link
-            href="/gallery"
+            href="/photographs"
             className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-button block w-full py-4 font-bold transition-colors"
           >
-            Return to Gallery
+            Return to Photographs
           </Link>
         </div>
       </div>
@@ -499,6 +499,13 @@ export default function MediaContributionPage() {
                 onChange={(e) => void handleFile(e.target.files?.[0])}
               />
             </label>
+          )}
+
+          {!isFilm && (
+            <div className={columnClass}>
+              original_name · the file&apos;s name is published with the
+              photograph
+            </div>
           )}
 
           <button

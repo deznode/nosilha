@@ -4,6 +4,7 @@ import com.nosilha.core.gallery.domain.ExternalMedia
 import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
+import com.nosilha.core.gallery.domain.MediaRole
 import com.nosilha.core.gallery.domain.UserUploadedMedia
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -34,21 +35,6 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun findByStatus(status: GalleryMediaStatus): List<GalleryMedia>
 
     /**
-     * Finds media by status with pagination, ordered by display order ascending.
-     *
-     * Used for public gallery display (ACTIVE status).
-     * Polymorphic query returns both UserUploadedMedia and ExternalMedia.
-     *
-     * @param status The media status to filter by
-     * @param pageable Pagination parameters
-     * @return Page of gallery media entities with the specified status
-     */
-    fun findByStatusOrderByDisplayOrderAsc(
-        status: GalleryMediaStatus,
-        pageable: Pageable,
-    ): Page<GalleryMedia>
-
-    /**
      * Finds media by status with pagination, ordered by creation date descending.
      *
      * Used for admin moderation queue (PENDING_REVIEW status).
@@ -64,28 +50,18 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     ): Page<GalleryMedia>
 
     /**
-     * Finds media by status where showInGallery is true, with pagination and display order.
-     *
-     * Used for public gallery display (ACTIVE + gallery-visible only).
-     *
-     * @param status The media status to filter by
-     * @param pageable Pagination parameters
-     * @return Page of gallery-visible media entities
-     */
-    fun findByStatusAndShowInGalleryTrueOrderByDisplayOrderAsc(
-        status: GalleryMediaStatus,
-        pageable: Pageable,
-    ): Page<GalleryMedia>
-
-    /**
      * Finds all media by status where showInGallery is true.
      *
      * Used for category extraction from gallery-visible items.
      *
      * @param status The media status to filter by
+     * @param role The record's role; a hero heads its entry and is never a gallery item
      * @return List of gallery-visible media entities
      */
-    fun findByStatusAndShowInGalleryTrue(status: GalleryMediaStatus): List<GalleryMedia>
+    fun findByStatusAndRoleAndShowInGalleryTrue(
+        status: GalleryMediaStatus,
+        role: MediaRole,
+    ): List<GalleryMedia>
 
     /**
      * Finds all media in a specific category.
@@ -113,34 +89,63 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      *
      * @param entryId The UUID of the directory entry
      * @param status The media status (typically ACTIVE)
+     * @param role The record's role; an entry's photographs are its archive records, not its hero
      * @return List of user uploaded media entities sorted by displayOrder ascending
      */
-    @Query("SELECT m FROM UserUploadedMedia m WHERE m.entryId = :entryId AND m.status = :status ORDER BY m.displayOrder ASC")
-    fun findByEntryIdAndStatusOrderByDisplayOrderAsc(
+    @Query(
+        "SELECT m FROM UserUploadedMedia m WHERE m.entryId = :entryId AND m.status = :status AND m.role = :role " +
+            "ORDER BY m.displayOrder ASC",
+    )
+    fun findByEntryIdAndStatusAndRoleOrderByDisplayOrderAsc(
         entryId: UUID,
         status: GalleryMediaStatus,
+        role: MediaRole,
     ): List<UserUploadedMedia>
 
     /**
-     * Returns which of the given directory entries have at least one media record in
-     * the given status.
+     * Counts media per directory entry in the given status and role, as (entryId, count) rows.
      *
-     * <p>Batched deliberately: the settlements index asks this once for every entry on
-     * the island rather than once per settlement. Only UserUploadedMedia carries an
-     * entryId association.</p>
-     *
-     * @param entryIds directory entry ids to test
-     * @param status the media status (typically ACTIVE)
-     * @return the distinct entry ids having at least one matching media record
+     * <p>Batched deliberately: the settlements index asks this once for every entry on the
+     * island rather than once per settlement. Only UserUploadedMedia carries an entryId
+     * association, and entries with no matching media are absent from the result.</p>
      */
     @Query(
-        "SELECT DISTINCT m.entryId FROM UserUploadedMedia m " +
-            "WHERE m.entryId IN :entryIds AND m.status = :status",
+        "SELECT m.entryId, COUNT(m) FROM UserUploadedMedia m " +
+            "WHERE m.entryId IN :entryIds AND m.status = :status AND m.role = :role GROUP BY m.entryId",
     )
-    fun findDistinctEntryIdsByEntryIdInAndStatus(
+    fun countByEntryIdInAndStatusAndRoleGroupByEntryId(
         @Param("entryIds") entryIds: Collection<UUID>,
         @Param("status") status: GalleryMediaStatus,
-    ): List<UUID>
+        @Param("role") role: MediaRole,
+    ): List<Array<Any>>
+
+    /**
+     * Finds the hero rows of the given entries in the given statuses, in one query (spec 034 FR-023).
+     */
+    @Query("SELECT m FROM UserUploadedMedia m WHERE m.entryId IN :entryIds AND m.role = :role AND m.status IN :statuses")
+    fun findByEntryIdInAndRoleAndStatusIn(
+        @Param("entryIds") entryIds: Collection<UUID>,
+        @Param("role") role: MediaRole,
+        @Param("statuses") statuses: Collection<GalleryMediaStatus>,
+    ): List<UserUploadedMedia>
+
+    /** An entry's uploads in [role], whatever their status. An entry has at most one hero. */
+    @Query("SELECT m FROM UserUploadedMedia m WHERE m.entryId = :entryId AND m.role = :role")
+    fun findUploadsByEntryIdAndRole(
+        @Param("entryId") entryId: UUID,
+        @Param("role") role: MediaRole,
+    ): List<UserUploadedMedia>
+
+    /** An entry's uploads served from [publicUrl] in the given statuses, oldest first. */
+    @Query(
+        "SELECT m FROM UserUploadedMedia m WHERE m.entryId = :entryId AND m.publicUrl = :publicUrl " +
+            "AND m.status IN :statuses ORDER BY m.createdAt ASC",
+    )
+    fun findUploadsByEntryIdAndPublicUrl(
+        @Param("entryId") entryId: UUID,
+        @Param("publicUrl") publicUrl: String,
+        @Param("statuses") statuses: Collection<GalleryMediaStatus>,
+    ): List<UserUploadedMedia>
 
     /**
      * Finds all media associated with a directory entry, ordered by display order.
@@ -174,26 +179,6 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      */
     @Query("SELECT m FROM UserUploadedMedia m WHERE m.contentType LIKE CONCAT(:contentTypePrefix, '%')")
     fun findByContentTypeStartingWith(contentTypePrefix: String): List<UserUploadedMedia>
-
-    /**
-     * Finds media by status and content type prefix with pagination.
-     *
-     * Used for gallery display with media type filtering (e.g., "image/").
-     * Only returns UserUploadedMedia since ExternalMedia doesn't have contentType.
-     *
-     * @param status The media status to filter by
-     * @param contentTypePrefix The content type prefix (e.g., "image/")
-     * @param pageable Pagination parameters
-     * @return Page of user uploaded media entities matching the criteria
-     */
-    @Query(
-        "SELECT m FROM UserUploadedMedia m WHERE m.status = :status AND m.contentType LIKE CONCAT(:contentTypePrefix, '%') ORDER BY m.displayOrder ASC"
-    )
-    fun findByStatusAndContentTypeStartingWithOrderByDisplayOrderAsc(
-        status: GalleryMediaStatus,
-        contentTypePrefix: String,
-        pageable: Pageable,
-    ): Page<UserUploadedMedia>
 
     /**
      * Finds a user-uploaded media item by its R2 storage key.
@@ -317,11 +302,13 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      * full entity graphs into memory. Only returns the UUID primary key.
      *
      * @param status The media status to filter by (typically ACTIVE)
+     * @param role The record's role; a hero heads its entry and is never offered as a gallery item
      * @return List of media UUIDs matching the criteria
      */
-    @Query("SELECT gm.id FROM GalleryMedia gm WHERE gm.status = :status AND gm.showInGallery = true")
-    fun findIdsByStatusAndShowInGalleryTrue(
+    @Query("SELECT gm.id FROM GalleryMedia gm WHERE gm.status = :status AND gm.role = :role AND gm.showInGallery = true")
+    fun findIdsByStatusAndRoleAndShowInGalleryTrue(
         @Param("status") status: GalleryMediaStatus,
+        @Param("role") role: MediaRole,
     ): List<UUID>
 
     /**
@@ -381,31 +368,6 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun findByAiModerationStatus(
         @Param("status") status: String?,
         @Param("aiModerationStatus") aiModerationStatus: String,
-        pageable: Pageable,
-    ): Page<GalleryMedia>
-
-    /**
-     * Full-text search across gallery media using Portuguese text search config.
-     * Searches title (weight A), description (B), and location_name (C).
-     * Results ranked by ts_rank relevance score.
-     * Only returns ACTIVE, gallery-visible items.
-     */
-    @Query(
-        value = """
-        SELECT * FROM gallery_media
-        WHERE search_vector @@ plainto_tsquery('portuguese', :query)
-        AND status = 'ACTIVE' AND show_in_gallery = true
-        ORDER BY ts_rank(search_vector, plainto_tsquery('portuguese', :query)) DESC
-        """,
-        countQuery = """
-        SELECT COUNT(*) FROM gallery_media
-        WHERE search_vector @@ plainto_tsquery('portuguese', :query)
-        AND status = 'ACTIVE' AND show_in_gallery = true
-        """,
-        nativeQuery = true,
-    )
-    fun searchGallery(
-        @Param("query") query: String,
         pageable: Pageable,
     ): Page<GalleryMedia>
 }

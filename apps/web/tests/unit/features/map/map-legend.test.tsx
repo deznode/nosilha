@@ -1,26 +1,17 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import { MapPin } from "lucide-react";
-import { MapLegend } from "@/features/map/components/map-legend";
-import { STATUS_PIN_COLOR } from "@/features/map/data/locations-adapter";
-import type { Location } from "@/features/map/data/types";
-import type { DocumentationStatus } from "@/lib/documentation-status";
-
-function loc(id: string, status: DocumentationStatus): Location {
-  return {
-    id,
-    name: id,
-    namePortuguese: id,
-    category: "Town",
-    description: "",
-    coordinates: { lat: 14.86, lng: -24.7 },
-    elevation: 0,
-    tags: [],
-    icon: MapPin,
-    color: STATUS_PIN_COLOR[status],
-    status: { status, label: status },
-  };
-}
+import {
+  MapLegend,
+  PhotographsNote,
+} from "@/features/map/components/map-legend";
+import {
+  recordItems,
+  settlementItems,
+  statusCounts,
+} from "@/features/map/data/locations-adapter";
+import { legendRows } from "@/features/map/data/map-copy";
+import type { DirectoryEntry } from "@/types/directory";
+import type { TownStatusSummary } from "@/types/town";
 
 function rows() {
   return within(
@@ -28,68 +19,137 @@ function rows() {
   ).getAllByRole("listitem");
 }
 
-function expectRows(expected: [string, string][]) {
-  const found = rows();
-  expect(found).toHaveLength(expected.length);
-  expected.forEach(([label, count], i) => {
-    expect(within(found[i]).getByText(label)).toBeInTheDocument();
-    expect(within(found[i]).getByText(count)).toBeInTheDocument();
-  });
+function dotColours() {
+  return rows().map(
+    (row) =>
+      (row.querySelector("[data-legend-dot]") as HTMLElement).style.background
+  );
+}
+
+function town(slug: string, status: TownStatusSummary["status"]) {
+  return {
+    id: slug,
+    slug,
+    name: slug,
+    description: "",
+    latitude: 14.86,
+    longitude: -24.7,
+    entryCount: status === "NAME_ONLY" ? 0 : 1,
+    hasPhotograph: status === "DOCUMENTED",
+    status,
+    population: null,
+    elevation: null,
+    photographCount: 0,
+    unconfirmedPhotographCount: 0,
+  } satisfies TownStatusSummary;
+}
+
+function entry(slug: string, imageUrl: string | null) {
+  return {
+    id: slug,
+    slug,
+    name: slug,
+    category: "Heritage",
+    imageUrl,
+    town: "Nova Sintra",
+    townId: "nova",
+    latitude: 14.86,
+    longitude: -24.7,
+    description: "",
+    tags: [],
+  } as unknown as DirectoryEntry;
 }
 
 describe("MapLegend", () => {
-  it("keys settlements by documentation status, with live counts", () => {
+  it("keys settlements by the status table, with live counts", () => {
+    const items = settlementItems([
+      town("a", "DOCUMENTED"),
+      town("b", "PARTIAL"),
+      town("c", "NAME_ONLY"),
+      town("d", "NAME_ONLY"),
+    ]);
     render(
       <MapLegend
-        mode="settlements"
-        locations={[
-          loc("a", "documented"),
-          loc("b", "partial"),
-          loc("c", "gap"),
-          loc("d", "gap"),
-        ]}
+        rows={legendRows("settlements", statusCounts(items), [], 0)}
+        bottom={14}
       />
     );
 
-    expectRows([
-      ["documented", "1 settlement"],
-      ["records, no photograph", "1 settlement"],
-      ["name only", "2 settlements"],
+    expect(rows().map((row) => row.textContent)).toEqual([
+      "documented 1",
+      "records, no photograph 1",
+      "name only 2",
     ]);
   });
 
-  it("keys place records by whether they carry a photograph", () => {
+  it("colours each key from the token its pins read, not a resolved hex", () => {
     render(
       <MapLegend
-        mode="places"
-        locations={[loc("a", "documented"), loc("b", "gap"), loc("c", "gap")]}
+        rows={legendRows(
+          "settlements",
+          { documented: 0, partial: 0, name: 0 },
+          [],
+          0
+        )}
+        bottom={14}
+      />
+    );
+    expect(dotColours()).toEqual([
+      "var(--brand-valley-green)",
+      "var(--brand-ocean-blue)",
+      "var(--brand-sobrado-ochre)",
+    ]);
+  });
+
+  it("agrees with the adapter about records, zero name-only included", () => {
+    // Built through the adapter, so the legend fails if the two ever disagree about
+    // what state a record is in.
+    const items = recordItems(
+      [
+        entry("igreja", "https://r2.example/igreja.jpg"),
+        entry("nos-raiz", null),
+        entry("furna-pools", null),
+      ],
+      { nova: "nova-sintra" }
+    );
+    render(
+      <MapLegend
+        rows={legendRows("records", statusCounts(items), [], 0)}
+        bottom={14}
       />
     );
 
-    expectRows([
-      ["has a photograph", "1 record"],
-      ["no photograph", "2 records"],
+    expect(rows().map((row) => row.textContent)).toEqual([
+      "documented 1",
+      "records, no photograph 2",
+      "name only 0",
     ]);
   });
 
-  it("states a zero count rather than hiding the key", () => {
-    render(<MapLegend mode="settlements" locations={[]} />);
-
-    expectRows([
-      ["documented", "0 settlements"],
-      ["records, no photograph", "0 settlements"],
-      ["name only", "0 settlements"],
-    ]);
+  it("sits at the offset it is given", () => {
+    render(<MapLegend rows={[]} bottom={146} />);
+    expect(
+      screen.getByRole("list", { name: "Pin colour key" }).style.bottom
+    ).toBe("146px");
   });
+});
 
-  it("paints each key dot with the colour its pins use", () => {
-    render(<MapLegend mode="settlements" locations={[]} />);
+describe("PhotographsNote", () => {
+  it("states the count and links to the no-place tray", () => {
+    render(
+      <PhotographsNote
+        note="Six photographs carry no coordinates and cannot appear here."
+        bottom={62}
+      />
+    );
 
-    const dots = rows().map((row) => row.querySelector("[data-legend-dot]"));
-    expect(dots[0]).toHaveStyle({
-      backgroundColor: STATUS_PIN_COLOR.documented,
-    });
-    expect(dots[1]).toHaveStyle({ backgroundColor: STATUS_PIN_COLOR.partial });
-    expect(dots[2]).toHaveStyle({ backgroundColor: STATUS_PIN_COLOR.gap });
+    expect(
+      screen.getByText(
+        "Six photographs carry no coordinates and cannot appear here."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Open the no-place tray" })
+    ).toHaveAttribute("href", "/photographs?filter=noplace");
   });
 });

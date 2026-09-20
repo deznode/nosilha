@@ -145,6 +145,12 @@ export interface PublicGalleryMediaBase {
   mediaSource: GalleryMediaSource;
   altText: string | null;
   createdAt: string;
+  /**
+   * Shows an identifiable person whose provenance nobody has confirmed. Such a record
+   * is listed where it can be identified and kept out of every promotional slot.
+   * Spec 034 FR-022.
+   */
+  identifiablePerson?: boolean;
 }
 
 /**
@@ -154,6 +160,14 @@ export interface PublicGalleryMediaBase {
 export interface PublicUserUploadMedia extends PublicGalleryMediaBase {
   mediaSource: "USER_UPLOAD";
   publicUrl: string | null;
+  /**
+   * The name the file arrived under. Since spec 034 FR-019 the upload no longer
+   * copies this into `title`, so an untitled record shows "Untitled" and this.
+   */
+  originalName?: string;
+  /** Pixel dimensions, recorded at upload; absent for rows that predate the backfill. */
+  width?: number | null;
+  height?: number | null;
   entryId?: string;
   uploaderDisplayName?: string;
   latitude?: number;
@@ -215,21 +229,62 @@ export interface PublicGalleryMediaPageResponse {
 }
 
 /**
- * A single decade group in the timeline aggregation.
+ * Whole-archive counts for chips, standfirsts and home copy.
+ *
+ * Matches `GalleryFacetsDto` from `GET /api/v1/gallery/facets`. Every count on
+ * `/photographs`, the home page and the map reads from here or from a list total,
+ * never from a loaded page. Spec 034 FR-018.
  */
-export interface DecadeGroup {
-  decade: string;
-  label: string;
-  count: number;
-  samplePhotos: PublicGalleryMedia[];
+export interface GalleryFacets {
+  total: number;
+  photographs: number;
+  films: number;
+  withPlace: number;
+  withoutPlace: number;
+  withoutDate: number;
+  uncredited: number;
 }
 
 /**
- * Response for the gallery timeline aggregation endpoint.
+ * Where a located photograph sits among all located archive photographs.
+ *
+ * Matches `PhotoSequenceDto` from `GET /api/v1/gallery/{id}/sequence`. A record with
+ * no coordinates has a null `position` and no neighbours. Neighbours wrap at the
+ * ends. Spec 034 FR-021.
  */
-export interface TimelineResponse {
-  groups: DecadeGroup[];
-  totalCount: number;
+export interface PhotoSequence {
+  id: string;
+  position: number | null;
+  total: number;
+  previousId: string | null;
+  nextId: string | null;
+}
+
+/**
+ * Query parameters for the public gallery list. Spec 034 T-12.
+ *
+ * `nearLat` and `nearLng` are a pair — sending one without the other is a 400.
+ */
+export interface GalleryQueryParams {
+  category?: string;
+  decade?: string;
+  q?: string;
+  hasGeo?: boolean;
+  /** true = located (has coordinates), false = unlocated. */
+  hasPlace?: boolean;
+  /** false = neither a date taken nor an approximate date. */
+  hasDate?: boolean;
+  /**
+   * Photographs or films. Narrower than {@link MediaType} on purpose: the API
+   * rejects `AUDIO` with a 400, so the invalid call is not expressible here.
+   */
+  mediaType?: Extract<MediaType, "IMAGE" | "VIDEO">;
+  nearLat?: number;
+  nearLng?: number;
+  /** Only records attached to no entry — the unconfirmed tray. */
+  unplaced?: boolean;
+  page?: number;
+  size?: number;
 }
 
 /**
@@ -238,7 +293,7 @@ export interface TimelineResponse {
 export type DecadeFilter =
   "all" | "pre-1975" | "1975-1990" | "1990-2010" | "2010-plus";
 
-export type GalleryView = "grid" | "timeline" | "map";
+export type GalleryView = "grid" | "map";
 
 /**
  * Query parameters for gallery API calls

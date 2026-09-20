@@ -12,8 +12,9 @@ const COPYRIGHT_YEAR = new Date().getFullYear();
 // Navigation links - Ideate-style grouping
 const defaultNavigation = {
   community: [
-    { name: "Directory", href: "/directory" },
-    { name: "Media Gallery", href: "/gallery" },
+    { name: "Settlements", href: "/settlements" },
+    { name: "Photographs", href: "/photographs" },
+    { name: "Films", href: "/films" },
     { name: "Share a Memory", href: "/contribute/story" },
   ],
   legal: [

@@ -1,12 +1,15 @@
 package com.nosilha.core.places.domain
 
+import com.nosilha.core.gallery.api.HeroMediaRef
 import com.nosilha.core.shared.api.BeachDto
 import com.nosilha.core.shared.api.ChurchDto
 import com.nosilha.core.shared.api.CoincidentRefDto
 import com.nosilha.core.shared.api.CompletenessDto
 import com.nosilha.core.shared.api.ContentActionSettingsDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
+import com.nosilha.core.shared.api.HeritageDetailsDto
 import com.nosilha.core.shared.api.HeritageDto
+import com.nosilha.core.shared.api.HeroImageDto
 import com.nosilha.core.shared.api.HotelDetailsDto
 import com.nosilha.core.shared.api.HotelDto
 import com.nosilha.core.shared.api.NatureDto
@@ -31,12 +34,17 @@ private val logger = KotlinLogging.logger {}
  * DTO representation (RestaurantDto, HotelDto, etc.).
  *
  * @receiver The DirectoryEntry entity instance to map.
+ * @param hero the entry's resolved hero image, or null when it has none. Callers resolve heroes
+ *   for the whole set they map, so mapping never queries (spec 034 FR-023).
  * @param coincidentWith another record at byte-identical coordinates, when one is known.
  *   Supplied only on the detail path — list views do not pay for the lookup. See spec 033 FR-007.
  * @return The corresponding DirectoryEntryDto for the entity.
  * @throws IllegalStateException if the entity's ID is null, as DTOs are meant for persisted entities.
  */
-fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEntryDto {
+fun DirectoryEntry.toDto(
+    hero: HeroMediaRef?,
+    coincidentWith: CoincidentRefDto? = null,
+): DirectoryEntryDto {
     val entityId = this.id ?: throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")
     val tagList = this.parseTags()
     val contentActionSettings = this.parseContentActions()
@@ -52,7 +60,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             town = town,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl,
+            imageUrl = hero?.url,
             rating = guardedRating(),
             reviewCount = guardedReviewCount(),
             phoneNumber = guardedPhoneNumber(),
@@ -61,8 +69,9 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            heroImage = hero?.toHeroImageDto(),
             details = RestaurantDetailsDto(
                 phoneNumber = phoneNumber ?: "",
                 openingHours = openingHours ?: "",
@@ -80,7 +89,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             town = town,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl,
+            imageUrl = hero?.url,
             rating = guardedRating(),
             reviewCount = guardedReviewCount(),
             phoneNumber = guardedPhoneNumber(),
@@ -89,9 +98,13 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
-            details = HotelDetailsDto(amenities = amenities.parseCommaSeparated()),
+            heroImage = hero?.toHeroImageDto(),
+            details = HotelDetailsDto(
+                amenities = amenities.parseCommaSeparated(),
+                openingHours = openingHours.takeIf { shows(PracticalField.OPENING_HOURS) },
+            ),
         )
 
         is Beach -> BeachDto(
@@ -104,7 +117,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             town = town,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl,
+            imageUrl = hero?.url,
             rating = guardedRating(),
             reviewCount = guardedReviewCount(),
             phoneNumber = guardedPhoneNumber(),
@@ -113,8 +126,9 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            heroImage = hero?.toHeroImageDto(),
         )
 
         is Heritage -> HeritageDto(
@@ -127,7 +141,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             town = town,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl,
+            imageUrl = hero?.url,
             rating = guardedRating(),
             reviewCount = guardedReviewCount(),
             phoneNumber = guardedPhoneNumber(),
@@ -136,8 +150,10 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            heroImage = hero?.toHeroImageDto(),
+            details = toHeritageDetails(),
         )
 
         is Nature -> NatureDto(
@@ -150,7 +166,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             town = town,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl,
+            imageUrl = hero?.url,
             rating = guardedRating(),
             reviewCount = guardedReviewCount(),
             phoneNumber = guardedPhoneNumber(),
@@ -159,8 +175,9 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            heroImage = hero?.toHeroImageDto(),
         )
 
         is Viewpoint -> ViewpointDto(
@@ -173,7 +190,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             town = town,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl,
+            imageUrl = hero?.url,
             rating = guardedRating(),
             reviewCount = guardedReviewCount(),
             phoneNumber = guardedPhoneNumber(),
@@ -182,8 +199,9 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            heroImage = hero?.toHeroImageDto(),
         )
 
         is Trail -> TrailDto(
@@ -196,7 +214,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             town = town,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl,
+            imageUrl = hero?.url,
             rating = guardedRating(),
             reviewCount = guardedReviewCount(),
             phoneNumber = guardedPhoneNumber(),
@@ -205,8 +223,9 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            heroImage = hero?.toHeroImageDto(),
         )
 
         is Church -> ChurchDto(
@@ -219,7 +238,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             town = town,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl,
+            imageUrl = hero?.url,
             rating = guardedRating(),
             reviewCount = guardedReviewCount(),
             phoneNumber = guardedPhoneNumber(),
@@ -228,8 +247,10 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            heroImage = hero?.toHeroImageDto(),
+            details = toHeritageDetails(),
         )
 
         is Port -> PortDto(
@@ -242,7 +263,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             town = town,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl,
+            imageUrl = hero?.url,
             rating = guardedRating(),
             reviewCount = guardedReviewCount(),
             phoneNumber = guardedPhoneNumber(),
@@ -251,13 +272,31 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            heroImage = hero?.toHeroImageDto(),
         )
 
         else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
     }
 }
+
+/** What completeness needs from a resolved hero: its recorded credit. */
+private fun HeroMediaRef.toHeroFacts(): HeroFacts = HeroFacts(photographerCredit = photographerCredit)
+
+/** Maps a resolved hero onto the credit-carrying DTO the place record reads. */
+fun HeroMediaRef.toHeroImageDto(): HeroImageDto =
+    HeroImageDto(mediaId = mediaId, url = url, photographerCredit = photographerCredit, archiveSource = archiveSource)
+
+/** Heritage and church details, each field exposed only where the guard shows it. */
+private fun DirectoryEntry.toHeritageDetails(): HeritageDetailsDto =
+    HeritageDetailsDto(
+        established = established.takeIf { shows(PracticalField.ESTABLISHED) },
+        conditionStatus = conditionStatus.takeIf { shows(PracticalField.CONDITION_STATUS) },
+        festival = festival.takeIf { shows(PracticalField.FESTIVAL) },
+        architect = architect.takeIf { shows(PracticalField.ARCHITECT) },
+        openingHours = openingHours.takeIf { shows(PracticalField.OPENING_HOURS) },
+    )
 
 /**
  * Parses a comma-separated string into a trimmed list, filtering empty entries.
@@ -279,8 +318,7 @@ private fun DirectoryEntry.parseContentActions(): ContentActionSettingsDto? {
 /**
  * Maps a Town JPA entity to its corresponding public-facing DTO.
  *
- * This extension function handles JSON parsing for highlights and gallery arrays,
- * ensuring proper conversion from stored JSON strings to List<String> for the DTO.
+ * This extension function parses the stored highlights JSON array into a List<String>.
  *
  * @receiver The Town entity instance to map.
  * @return The corresponding TownDto for the entity.
@@ -300,8 +338,6 @@ fun Town.toDto(): TownDto {
         elevation = this.elevation,
         founded = this.founded,
         highlights = parseJsonList(this.highlights, "highlights", this.name),
-        heroImage = this.heroImage,
-        gallery = parseJsonList(this.gallery, "gallery", this.name),
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
     )

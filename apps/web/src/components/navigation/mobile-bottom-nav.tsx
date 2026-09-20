@@ -40,10 +40,10 @@ const navItems: NavItem[] = [
     activeMatch: "exact",
   },
   {
-    label: "Directory",
+    label: "Settlements",
     icon: Grid3X3,
-    href: "/directory",
-    activeMatch: ["/directory"],
+    href: "/settlements",
+    activeMatch: ["/settlements"],
   },
   {
     label: "Culture",
@@ -66,11 +66,12 @@ const navItems: NavItem[] = [
 ];
 
 /** Additional items shown in the "More" menu */
-const moreMenuItems = [{ label: "Media", href: "/gallery", icon: Film }];
+const moreMenuItems = [
+  { label: "Photographs", href: "/photographs", icon: Film },
+];
 
 /** Routes where bottom nav should be hidden (detail pages) */
 const HIDDEN_ROUTES = [
-  /^\/directory\/[^/]+\/[^/]+$/, // /directory/[category]/[slug]
   /^\/people\/[^/]+$/, // /people/[slug]
 ];
 

@@ -51,6 +51,29 @@ export function resolveExternalThumbnail(
 }
 
 /**
+ * The address that plays an external film.
+ *
+ * The YouTube sync records `embedUrl`, `thumbnailUrl` and `externalId` but leaves
+ * `url` null, so a card that trusts `url` alone can never reach its film. Prefer a
+ * recorded `url`, then build the watch address from the platform's own id, and only
+ * then fall back to the embed player. Null means nothing can reach it.
+ */
+export function resolveExternalWatchUrl(
+  url: string | null | undefined,
+  platform: string | null | undefined,
+  externalId: string | null | undefined,
+  embedUrl: string | null | undefined
+): string | null {
+  if (url?.trim()) return url;
+
+  if (platform === "YOUTUBE" && externalId?.trim()) {
+    return `https://www.youtube.com/watch?v=${externalId}`;
+  }
+
+  return embedUrl?.trim() || null;
+}
+
+/**
  * Resolves the best available image URL for any PublicGalleryMedia item.
  *
  * Handles all media source + type combinations:
@@ -100,17 +123,6 @@ export function isRawFilename(title: string): boolean {
   return RAW_FILENAME_PATTERNS.some((pattern) => pattern.test(title));
 }
 
-function humanizeTitle(
-  category: MediaCategory | undefined,
-  createdAt: string
-): string {
-  const date = new Date(createdAt);
-  const month = date.toLocaleDateString("en-US", { month: "long" });
-  const year = date.getFullYear();
-  const prefix = category ?? "Brava Island";
-  return `${prefix} — ${month} ${year}`;
-}
-
 export function mapGalleryMediaToMediaItem(
   media: PublicGalleryMedia
 ): MediaItem {
@@ -120,10 +132,11 @@ export function mapGalleryMediaToMediaItem(
     month: "short",
   });
 
+  // FR-019: the upload no longer copies the filename into `title`, and rows where it
+  // did were untitled by the same migration. A record without one reads "Untitled";
+  // the filename it arrived under is shown separately, as provenance, not as a name.
   const rawTitle = media.title || "";
-  const title = isRawFilename(rawTitle)
-    ? humanizeTitle(category, media.createdAt)
-    : rawTitle || "Untitled";
+  const title = isRawFilename(rawTitle) ? "Untitled" : rawTitle || "Untitled";
 
   const base = {
     id: media.id,

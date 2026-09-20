@@ -5,19 +5,25 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.core.io.ClassPathResource
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import javax.sql.DataSource
 
 /**
  * Verifies the category guard and completeness reach the API response
- * (spec 033, FR-002, FR-003, FR-007).
+ * (spec 033 FR-002, FR-003, FR-007; spec 034 FR-016).
  *
  * <p>[FieldGuardTest] proves the rules in isolation. These assertions prove they
  * survive the mapper and serialization — the guard is only useful if a template
  * genuinely cannot see a field it should not render.</p>
+ *
+ * <p>Completeness counts the record's field grid: settlement, category and coordinates,
+ * the category's eligible fields, and the photographer once a hero exists.</p>
  */
 @ActiveProfiles("test")
 @SpringBootTest
@@ -27,14 +33,18 @@ class DirectoryEntryGuardIntegrationTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
+    @Autowired
+    private lateinit var dataSource: DataSource
+
     @Test
-    fun `a heritage record counts only description and photograph`() {
-        // A public square is not incomplete for lacking a phone number or opening hours.
+    fun `a heritage record counts its grid rows, not contact fields`() {
+        // A public square is not incomplete for lacking a phone number: settlement,
+        // category, coordinates, established, status, festival, architect, opening hours.
         mockMvc
             .perform(get("/api/v1/directory/slug/praca-eugenio-tavares"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.completeness.total").value(2))
-            .andExpect(jsonPath("$.data.completeness.missingFields").isArray)
+            .andExpect(jsonPath("$.data.completeness.total").value(8))
+            .andExpect(jsonPath("$.data.completeness.missingFields[?(@ == 'phoneNumber')]").isEmpty)
     }
 
     @Test
@@ -44,7 +54,7 @@ class DirectoryEntryGuardIntegrationTest {
             .perform(get("/api/v1/directory/slug/pousada-nova-sintra"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.category").value("Hotel"))
-            .andExpect(jsonPath("$.data.completeness.total").value(8))
+            .andExpect(jsonPath("$.data.completeness.total").value(9))
     }
 
     @Test
@@ -57,8 +67,8 @@ class DirectoryEntryGuardIntegrationTest {
             .andExpect(jsonPath("$.data.category").value("Heritage"))
             .andExpect(jsonPath("$.data.phoneNumber").value("+238 2623385"))
             .andExpect(jsonPath("$.data.website").value("http://www.eugeniotavares.org"))
-            // Still counted as a two-field record: display did not widen the denominator.
-            .andExpect(jsonPath("$.data.completeness.total").value(2))
+            // Display did not widen the denominator: still the eight heritage grid rows.
+            .andExpect(jsonPath("$.data.completeness.total").value(8))
     }
 
     @Test
@@ -71,13 +81,26 @@ class DirectoryEntryGuardIntegrationTest {
     }
 
     @Test
-    fun `a record documented with a photograph reports it`() {
-        // The one directory photograph in the archive.
+    fun `the church record reads seven of nine once its hero carries the recorded credit`() {
+        // Its hero lives in gallery_media, which other test classes empty, so restore it.
+        // Established, status and festival come from the entry seed; the hero seed records
+        // the photographer (Torbenbrinker, spec 034 FR-023), which the prototype's "six of
+        // nine" predates. Opening hours and architect are not recorded. FieldGuardTest keeps
+        // the uncredited six-of-nine case.
+        ResourceDatabasePopulator(
+            ClassPathResource("db/seed/R__seed_directory_entries.sql"),
+            ClassPathResource("db/seed/R__seed_gallery_heroes.sql"),
+        ).execute(dataSource)
+
         mockMvc
             .perform(get("/api/v1/directory/slug/igreja-nossa-senhora-do-monte"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.completeness.documented").value(2))
-            .andExpect(jsonPath("$.data.completeness.total").value(2))
+            .andExpect(jsonPath("$.data.heroImage.photographerCredit").value("Torbenbrinker"))
+            .andExpect(jsonPath("$.data.completeness.documented").value(7))
+            .andExpect(jsonPath("$.data.completeness.total").value(9))
+            .andExpect(jsonPath("$.data.completeness.missingFields.length()").value(2))
+            .andExpect(jsonPath("$.data.completeness.missingFields[0]").value("openingHours"))
+            .andExpect(jsonPath("$.data.completeness.missingFields[1]").value("architect"))
     }
 
     @Test

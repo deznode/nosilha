@@ -4,14 +4,18 @@ import com.nosilha.core.gallery.api.dto.AnalysisTriggerResponse
 import com.nosilha.core.gallery.api.dto.AnalyzeBatchRequest
 import com.nosilha.core.gallery.api.dto.BatchAnalysisTriggerResponse
 import com.nosilha.core.gallery.api.dto.BatchErrorDto
+import com.nosilha.core.gallery.api.dto.BrokenObjectDto
 import com.nosilha.core.gallery.api.dto.BulkConfirmRequest
 import com.nosilha.core.gallery.api.dto.BulkConfirmResponse
 import com.nosilha.core.gallery.api.dto.BulkPresignRequest
 import com.nosilha.core.gallery.api.dto.BulkPresignResponse
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.CreditBackfillResponse
 import com.nosilha.core.gallery.api.dto.DeleteOrphanRequest
+import com.nosilha.core.gallery.api.dto.DimensionBackfillResponse
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.LinkOrphanRequest
+import com.nosilha.core.gallery.api.dto.MediaSelectionRequest
 import com.nosilha.core.gallery.api.dto.ModerationActionRequest
 import com.nosilha.core.gallery.api.dto.OrphanDetectionResponse
 import com.nosilha.core.gallery.api.dto.R2BucketListResponse
@@ -27,6 +31,7 @@ import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.GalleryModerationService
+import com.nosilha.core.gallery.domain.HeroMediaService
 import com.nosilha.core.gallery.domain.R2AdminService
 import com.nosilha.core.gallery.domain.YouTubeSyncConfigService
 import com.nosilha.core.gallery.domain.YouTubeSyncPlaylistService
@@ -84,6 +89,7 @@ private val logger = KotlinLogging.logger {}
 @PreAuthorize("hasRole('ADMIN')")
 class AdminGalleryController(
     private val moderationService: GalleryModerationService,
+    private val heroMediaService: HeroMediaService,
     private val galleryMediaRepository: GalleryMediaRepository,
     private val r2AdminService: R2AdminService?,
     private val youTubeSyncService: YouTubeSyncService?,
@@ -334,9 +340,8 @@ class AdminGalleryController(
      * - Media must be linked to a directory entry (entryId not null)
      * - Media must have a public URL
      *
-     * The update is performed via event-driven communication: this endpoint
-     * publishes a HeroImagePromotedEvent that the Places module consumes
-     * to update the directory entry's imageUrl field.
+     * The upload becomes the entry's hero record (spec 034 FR-023); any previous
+     * hero returns to the archive in the same transaction.
      *
      * Example:
      * PATCH /api/v1/admin/gallery/{mediaId}/promote-hero
@@ -353,9 +358,31 @@ class AdminGalleryController(
         val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId promoting media $mediaId to hero image" }
 
-        moderationService.promoteToHeroImage(mediaId, adminId)
+        heroMediaService.promote(mediaId, adminId)
 
         return ResponseEntity.ok(ApiResult(data = Unit))
+    }
+
+    /**
+     * Removes a hero image: the record returns to the archive and its directory entry
+     * has no hero (spec 034 FR-023).
+     *
+     * Example:
+     * DELETE /api/v1/admin/gallery/{mediaId}/hero
+     *
+     * @param mediaId UUID of the hero media item
+     * @param authentication Current admin user
+     */
+    @DeleteMapping("/{mediaId}/hero")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun removeHeroImage(
+        @PathVariable mediaId: UUID,
+        authentication: Authentication,
+    ) {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId removing hero image $mediaId" }
+
+        heroMediaService.removeHero(mediaId, adminId)
     }
 
     /**
@@ -532,6 +559,49 @@ class AdminGalleryController(
         val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId deleting orphan: ${request.storageKey}" }
         requireR2Admin().deleteOrphan(request.storageKey)
+    }
+
+    /**
+     * List records whose storage object is missing from R2 (spec 034 FR-026).
+     *
+     * Records without a storage key are skipped.
+     */
+    @GetMapping("/r2/broken")
+    fun detectBrokenR2Objects(authentication: Authentication): ApiResult<List<BrokenObjectDto>> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId scanning for broken R2 objects" }
+        return ApiResult(data = requireR2Admin().detectBroken())
+    }
+
+    /**
+     * Fill width and height from stored image headers (spec 034 FR-019).
+     *
+     * With no body or no ids, fills every image upload missing a dimension.
+     */
+    @PostMapping("/dimensions/backfill")
+    fun backfillDimensions(
+        @Valid @RequestBody(required = false) request: MediaSelectionRequest?,
+        authentication: Authentication,
+    ): ApiResult<DimensionBackfillResponse> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId backfilling dimensions (${request?.mediaIds?.size ?: "all"} records)" }
+        return ApiResult(data = requireR2Admin().backfillDimensions(request?.mediaIds))
+    }
+
+    /**
+     * Stamp "not known" on uncredited records, skipping records flagged as showing an
+     * identifiable person (spec 034 FR-022, FR-024).
+     *
+     * With no body or no ids, considers every archive record.
+     */
+    @PostMapping("/credits/not-known")
+    fun markCreditsNotKnown(
+        @Valid @RequestBody(required = false) request: MediaSelectionRequest?,
+        authentication: Authentication,
+    ): ApiResult<CreditBackfillResponse> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId stamping 'not known' credits (${request?.mediaIds?.size ?: "all"} records)" }
+        return ApiResult(data = moderationService.markCreditsNotKnown(request?.mediaIds, adminId))
     }
 
     // --- YouTube Sync ---

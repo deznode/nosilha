@@ -319,7 +319,7 @@ export function ToolbarSpecimen() {
             {`contentTitle="Fajã d'Água Beach"`}
           </code>
           <code className="text-muted block pl-4 text-sm">
-            {`contentUrl="https://nosilha.com/directory/beaches/faja-dagua"`}
+            {`contentUrl="https://nosilha.com/faja-d-agua/praia-de-faja"`}
           </code>
           <code className="text-muted block pl-4 text-sm">
             {`contentType="DIRECTORY_ENTRY"`}

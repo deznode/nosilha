@@ -1,126 +1,155 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type {
-  Location,
-  MapMode,
-  ViewMode,
-  LayerVisibility,
-} from "@/features/map/data/types";
-import type { CategoryType } from "@/features/map/data/categories";
-import { getEntriesForMap, getTownStatusSummary } from "@/lib/api";
+import type { MapItem, MapMode, StatusFilter } from "@/features/map/data/types";
 import {
-  transformEntries,
-  transformSettlements,
+  getEntriesForMap,
+  getGalleryFacets,
+  getGalleryMedia,
+  getTownStatusSummary,
+} from "@/lib/api";
+import {
+  photoItems,
+  recordItems,
+  settlementItems,
 } from "@/features/map/data/locations-adapter";
+import { townSlugsById } from "@/lib/place-path";
 
 /**
- * Zustand store for shared map state.
- * Owns state that flows between two or more extracted BravaMap components.
- * Does not persist — map state is ephemeral.
+ * The map explorer's state. Spec 034 FR-011, FR-012.
+ *
+ * The store is the source of truth; the URL mirrors `mode`, `status`, `query` and
+ * `selectedKey` one way (`useMapUrlSync`). Not persisted — a returning visitor's
+ * state comes from the link they followed, not from their last visit.
  */
 
-interface MapState {
-  // State
-  mapMode: MapMode;
-  locations: Location[];
-  settlements: Location[];
-  isLoadingLocations: boolean;
-  locationsFetchError: string | null;
-  activeCategory: CategoryType;
-  searchQuery: string;
-  layerVisibility: LayerVisibility;
-  selectedLocation: Location | null;
-  isPulsing: boolean;
-  is3D: boolean;
-  viewMode: ViewMode;
-  isOrbiting: boolean;
-  showSidebar: boolean;
+/** The public gallery's page cap. The archive's located photographs fit in one. */
+const PHOTO_PAGE_SIZE = 100;
 
-  // Actions
-  setMapMode: (mode: MapMode) => void;
-  setLocations: (locations: Location[]) => void;
-  setIsLoadingLocations: (loading: boolean) => void;
-  setActiveCategory: (category: CategoryType) => void;
-  setSearchQuery: (query: string) => void;
-  setLayerVisibility: (visibility: LayerVisibility) => void;
-  setSelectedLocation: (location: Location | null) => void;
-  setIsPulsing: (pulsing: boolean) => void;
-  setIs3D: (is3D: boolean) => void;
-  setViewMode: (mode: ViewMode) => void;
-  setIsOrbiting: (orbiting: boolean) => void;
-  setShowSidebar: (show: boolean) => void;
-
-  // Convenience actions
-  toggleSidebar: () => void;
-  clearSelection: () => void;
-  toggleOrbit: () => void;
-  fetchLocations: () => Promise<void>;
+export interface MapQueryState {
+  mode: MapMode;
+  status: StatusFilter;
+  query: string;
+  /** `s:` / `r:` / `p:` key of the selected pin. */
+  selectedKey: string | null;
 }
+
+interface MapState extends MapQueryState {
+  /** The coincident group whose records are fanned out. */
+  expandedGroupKey: string | null;
+  satellite: boolean;
+  is3D: boolean;
+  /** Narrow layout only: whether the bottom sheet is expanded. */
+  sheetOpen: boolean;
+
+  settlements: MapItem[];
+  records: MapItem[];
+  photos: MapItem[];
+  /** Archive photographs with no coordinates, which the map cannot show. */
+  unlocatedCount: number;
+  isLoading: boolean;
+  fetchError: string | null;
+
+  /** The selection belongs to the mode it was made in, so switching clears it. */
+  setMode: (mode: MapMode) => void;
+  setStatus: (status: StatusFilter) => void;
+  setQuery: (query: string) => void;
+  select: (key: string) => void;
+  clearSelection: () => void;
+  setExpandedGroup: (key: string | null) => void;
+  toggleSatellite: () => void;
+  toggle3D: () => void;
+  toggleSheet: () => void;
+  /** Applies a deep link in one step; `setMode` would clear its selection. */
+  hydrate: (state: MapQueryState) => void;
+  /** Closes what an Activity restore should not bring back open. */
+  resetTransient: () => void;
+  fetchData: () => Promise<void>;
+}
+
+export const initialMapState = {
+  mode: "settlements" as MapMode,
+  status: "all" as StatusFilter,
+  query: "",
+  selectedKey: null,
+  expandedGroupKey: null,
+  satellite: false,
+  // Terrain stays available but opt-in. Spec 033 FR-012.
+  is3D: false,
+  sheetOpen: false,
+  settlements: [],
+  records: [],
+  photos: [],
+  unlocatedCount: 0,
+  isLoading: true,
+  fetchError: null,
+} satisfies Partial<MapState>;
+
+/** Identifies the newest `fetchData` call. */
+let latestRequest = 0;
 
 export const useMapStore = create<MapState>()(
   devtools(
     (set) => ({
-      // Initial state
-      mapMode: "settlements",
-      locations: [],
-      settlements: [],
-      isLoadingLocations: true,
-      locationsFetchError: null,
-      activeCategory: "All",
-      searchQuery: "",
-      layerVisibility: "all",
-      selectedLocation: null,
-      isPulsing: false,
-      // Terrain stays available but opt-in. Spec 033 FR-012.
-      is3D: false,
-      viewMode: "satellite",
-      isOrbiting: false,
-      showSidebar: true,
+      ...initialMapState,
 
-      // Simple setters
-      // The selection belongs to the mode it was made in, so switching clears it.
-      setMapMode: (mode) => set({ mapMode: mode, selectedLocation: null }),
-      setLocations: (locations) => set({ locations }),
-      setIsLoadingLocations: (loading) => set({ isLoadingLocations: loading }),
-      setActiveCategory: (category) => set({ activeCategory: category }),
-      setSearchQuery: (query) => set({ searchQuery: query }),
-      setLayerVisibility: (visibility) => set({ layerVisibility: visibility }),
-      setSelectedLocation: (location) => set({ selectedLocation: location }),
-      setIsPulsing: (pulsing) => set({ isPulsing: pulsing }),
-      setIs3D: (is3D) => set({ is3D }),
-      setViewMode: (mode) => set({ viewMode: mode }),
-      setIsOrbiting: (orbiting) => set({ isOrbiting: orbiting }),
-      setShowSidebar: (show) => set({ showSidebar: show }),
+      setMode: (mode) =>
+        set({ mode, selectedKey: null, expandedGroupKey: null }),
+      setStatus: (status) => set({ status, selectedKey: null }),
+      setQuery: (query) => set({ query }),
+      select: (key) => set({ selectedKey: key }),
+      clearSelection: () => set({ selectedKey: null, expandedGroupKey: null }),
+      setExpandedGroup: (key) => set({ expandedGroupKey: key }),
+      toggleSatellite: () => set((s) => ({ satellite: !s.satellite })),
+      toggle3D: () => set((s) => ({ is3D: !s.is3D })),
+      toggleSheet: () => set((s) => ({ sheetOpen: !s.sheetOpen })),
+      hydrate: ({ mode, status, query, selectedKey }) =>
+        set({ mode, status, query, selectedKey, expandedGroupKey: null }),
+      resetTransient: () => set({ sheetOpen: false, expandedGroupKey: null }),
 
-      // Convenience actions
-      toggleSidebar: () =>
-        set((state) => ({ showSidebar: !state.showSidebar })),
-      clearSelection: () => set({ selectedLocation: null }),
-      toggleOrbit: () => set((state) => ({ isOrbiting: !state.isOrbiting })),
-
-      fetchLocations: async () => {
+      fetchData: async () => {
+        // Under Activity every return to `/map` loads again. Say so, so nothing that
+        // waits for data acts on the previous visit's items, and let only the newest
+        // load write: a slow earlier answer must not replace a later one.
+        const request = ++latestRequest;
+        set({ isLoading: true, fetchError: null });
         try {
-          const [result, towns] = await Promise.all([
+          // All or nothing: a mode that failed to load would otherwise render as an
+          // empty archive, and its footer would state that emptiness as fact.
+          const [entries, towns, media, facets] = await Promise.all([
             getEntriesForMap("all"),
             getTownStatusSummary(),
+            getGalleryMedia({ hasPlace: true, size: PHOTO_PAGE_SIZE }),
+            getGalleryFacets(),
           ]);
-          if (result.pagination && result.pagination.totalPages > 1) {
+
+          if (entries.pagination && entries.pagination.totalPages > 1) {
             console.warn(
-              `[MapStore] Only fetched page 1 of ${result.pagination.totalPages} — ${result.pagination.totalElements} total entries exist. Increase page size.`
+              `[MapStore] Only fetched page 1 of ${entries.pagination.totalPages} — ${entries.pagination.totalElements} entries exist.`
             );
           }
+          if (media.totalPages > 1) {
+            console.warn(
+              `[MapStore] Only fetched page 1 of ${media.totalPages} — ${media.totalItems} located photographs exist.`
+            );
+          }
+
+          if (request !== latestRequest) return;
+
           set({
-            locations: transformEntries(result.items),
-            settlements: transformSettlements(towns),
-            isLoadingLocations: false,
-            locationsFetchError: null,
+            settlements: settlementItems(towns),
+            records: recordItems(entries.items, townSlugsById(towns)),
+            photos: photoItems(media.items, towns),
+            unlocatedCount: facets.withoutPlace,
+            isLoading: false,
+            fetchError: null,
           });
         } catch (err) {
-          console.error("Failed to fetch map locations:", err);
+          if (request !== latestRequest) return;
+          console.error("Failed to fetch map data:", err);
           set({
-            isLoadingLocations: false,
-            locationsFetchError:
-              "Failed to load map data. Please try refreshing the page.",
+            isLoading: false,
+            fetchError:
+              "The map could not load the archive. Try refreshing the page.",
           });
         }
       },
@@ -129,24 +158,20 @@ export const useMapStore = create<MapState>()(
   )
 );
 
-// Selectors for optimized re-renders
-export const useMapMode = () => useMapStore((state) => state.mapMode);
-export const useLocations = () => useMapStore((state) => state.locations);
-export const useSettlements = () => useMapStore((state) => state.settlements);
-export const useIsLoadingLocations = () =>
-  useMapStore((state) => state.isLoadingLocations);
-export const useLocationsFetchError = () =>
-  useMapStore((state) => state.locationsFetchError);
-export const useActiveCategory = () =>
-  useMapStore((state) => state.activeCategory);
-export const useMapSearchQuery = () =>
-  useMapStore((state) => state.searchQuery);
-export const useLayerVisibility = () =>
-  useMapStore((state) => state.layerVisibility);
-export const useSelectedLocation = () =>
-  useMapStore((state) => state.selectedLocation);
-export const useIsPulsing = () => useMapStore((state) => state.isPulsing);
-export const useIs3D = () => useMapStore((state) => state.is3D);
-export const useViewMode = () => useMapStore((state) => state.viewMode);
-export const useIsOrbiting = () => useMapStore((state) => state.isOrbiting);
-export const useShowSidebar = () => useMapStore((state) => state.showSidebar);
+/** The unfiltered items of the active mode. */
+export function selectModeItems(state: MapState): MapItem[] {
+  switch (state.mode) {
+    case "settlements":
+      return state.settlements;
+    case "records":
+      return state.records;
+    case "photographs":
+      return state.photos;
+  }
+}
+
+export const useMapMode = () => useMapStore((state) => state.mode);
+export const useMapStatus = () => useMapStore((state) => state.status);
+export const useMapQuery = () => useMapStore((state) => state.query);
+export const useSelectedKey = () => useMapStore((state) => state.selectedKey);
+export const useModeItems = () => useMapStore(selectModeItems);

@@ -130,3 +130,22 @@ data class DeleteOrphanRequest(
     @field:Size(max = 512, message = "Storage key must be at most 512 characters")
     val storageKey: String,
 )
+
+// --- Broken Objects (spec 034 FR-026) ---
+
+/** A record whose storage object is missing from the bucket. */
+data class BrokenObjectDto(
+    val mediaId: UUID,
+    val storageKey: String,
+    val title: String?,
+)
+
+// --- Dimension Backfill (spec 034 FR-019) ---
+
+/** Batch result in the shape of [BulkConfirmResponse]: counts, affected ids, per-item errors. */
+data class DimensionBackfillResponse(
+    val accepted: Int,
+    val rejected: Int,
+    val updated: List<UUID>,
+    val errors: List<BatchErrorDto>,
+)

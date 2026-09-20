@@ -62,7 +62,6 @@ export {
   MasonryPhotoGrid,
   MasonryPhotoGridSkeleton,
 } from "@/components/gallery/masonry-photo-grid";
-export { TimelineView } from "@/components/gallery/timeline-view";
 export { FeaturedPhotoCard } from "@/components/gallery/featured-photo-card";
 export { MetadataBadges } from "@/components/gallery/metadata-badges";
 export { CompactVideoCard } from "@/components/gallery/compact-video-card";
@@ -75,9 +74,7 @@ export { VideoGrid } from "@/components/gallery/video-grid";
 export { LocationCard } from "@/features/map/components/location-card";
 export { LocationDetailCard } from "@/features/map/components/location-detail-card";
 export { LocationBottomSheet } from "@/features/map/components/location-bottom-sheet";
-export { CategoryPill } from "@/features/map/components/category-pill";
 export { MapControls } from "@/features/map/components/map-controls";
-export { MapHeader } from "@/features/map/components/map-header";
 
 /* ── The app's own primitives ───────────────────────────────────────────
  * AnimatedButton — not Catalyst's Button — is what the specimen gallery and

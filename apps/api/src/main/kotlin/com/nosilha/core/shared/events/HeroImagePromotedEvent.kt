@@ -4,36 +4,26 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Event published when a gallery image is promoted to hero image for a directory entry.
+ * Event published when an admin promotes a gallery image to be a directory entry's hero.
  *
- * <p>This event is triggered when an admin promotes an approved user-uploaded gallery image
- * to become the hero image for its associated directory entry. The Places module listens
- * to this event and updates the directory entry's imageUrl field.</p>
+ * <p>The hero lives in the gallery module as the entry's `gallery_media` row with role HERO
+ * (spec 034 FR-023, ADR-001), so promotion changes no places data. Places listens only to
+ * refresh the entry's cached pages.</p>
  *
- * <p><strong>Published by:</strong> {@code GalleryModerationService.promoteToHeroImage()} in the Gallery module</p>
+ * <p><strong>Published by:</strong> {@code HeroMediaService.promote()} in the Gallery module</p>
  *
  * <p><strong>Consumed by:</strong></p>
  * <ul>
- *   <li>Places module - Updates directory entry's imageUrl to the promoted image</li>
+ *   <li>Places module - Revalidates the entry's frontend pages</li>
  * </ul>
  *
- * <p><strong>Prerequisites for Publishing:</strong></p>
- * <ul>
- *   <li>Media must be a UserUploadedMedia (not ExternalMedia)</li>
- *   <li>Media must have ACTIVE status (approved)</li>
- *   <li>Media must have an entryId (linked to a directory entry)</li>
- *   <li>Media must have a publicUrl (accessible via CDN)</li>
- * </ul>
- *
- * @property entryId The unique identifier of the directory entry to update
- * @property imageUrl The public URL of the image to set as hero
- * @property mediaId The unique identifier of the promoted gallery media
+ * @property entryId The directory entry whose hero changed
+ * @property mediaId The gallery media now serving as its hero
  * @property promotedBy The admin user who performed the promotion
  * @property occurredAt Timestamp when the promotion occurred
  */
 data class HeroImagePromotedEvent(
     val entryId: UUID,
-    val imageUrl: String,
     val mediaId: UUID,
     val promotedBy: UUID,
     override val occurredAt: Instant = Instant.now(),

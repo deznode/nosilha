@@ -11,8 +11,7 @@ export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "";
 
 declare global {
   interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    gtag: (...args: any[]) => void;
+    gtag: (...args: unknown[]) => void;
   }
 }
 
@@ -25,7 +24,7 @@ declare global {
  * @param url - The page URL to track (e.g., "/about" or "/about?tab=history")
  *
  * @example
- * trackPageview('/directory/restaurants')
+ * trackPageview('/settlements')
  */
 export function trackPageview(url: string) {
   if (!GA_MEASUREMENT_ID) return;

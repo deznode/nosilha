@@ -2,47 +2,40 @@
 
 import {
   Component,
-  useState,
-  useRef,
-  useMemo,
   useCallback,
   useEffect,
+  useMemo,
+  useState,
   type ReactNode,
   type RefObject,
 } from "react";
 import {
   Marker,
   NavigationControl,
-  GeolocateControl,
   Source,
-  Layer,
   type MapRef,
-  type MarkerEvent,
-  type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
-import maplibregl from "maplibre-gl";
-import { BaseMap, useMapClustering } from "../shared";
-import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { clsx } from "clsx";
+import type maplibregl from "maplibre-gl";
+import { useResolvedTheme } from "@/hooks/use-resolved-theme";
+import { useMapStore, useSelectedKey } from "@/stores/mapStore";
+import { BaseMap } from "../shared";
+import { groupCoincident } from "../shared/use-map-clustering";
 import {
-  useViewMode,
-  useSelectedLocation,
-  useIsPulsing,
-  useIsOrbiting,
-  useIs3D,
-  useMapStore,
-} from "@/stores/mapStore";
-import { useFilteredLocations } from "../hooks/useFilteredLocations";
-import {
+  EXPLORER_VIEW,
   MAP_CONFIG,
   MAP_STYLES,
+  SATELLITE_STYLE,
   TERRAIN_DEM,
-  ILLUSTRATION_BOUNDS,
-  ILLUSTRATION_URL,
 } from "../data/constants";
-import type { Location } from "../data/types";
-import { CoincidentFan } from "./coincident-fan";
+import type { MapItem } from "../data/types";
+import {
+  useLabelDeclutter,
+  type LabelPriority,
+} from "../hooks/use-label-declutter";
+import { useFilteredLocations } from "../hooks/useFilteredLocations";
+import { CoincidentRing, fanOffsets } from "./coincident-fan";
+import { MapHoverPopup } from "./map-hover-popup";
+import { MapPin, pinSize } from "./map-pin";
 
 // ---------------------------------------------------------------------------
 // MapRecoveryBoundary — catches Activity-reconnect crashes from react-map-gl
@@ -99,484 +92,295 @@ class MapRecoveryBoundary extends Component<
 
 // ---------------------------------------------------------------------------
 
-interface MapCanvasProps {
-  mapRef: RefObject<MapRef | null>;
-  onFlyTo: (location: Location) => void;
+/**
+ * Which pins carry a label, and how hard each holds on to it (SPECS §3a): none below
+ * the zoom floor except the selected pin; above it, documented pins and settlements
+ * holding records.
+ */
+export function labelPriority(
+  item: MapItem,
+  selected: boolean,
+  aboveFloor: boolean
+): LabelPriority | null {
+  if (selected) return 3;
+  if (!aboveFloor) return null;
+  if (item.status === "documented") return 2;
+  if (item.hasRecords) return 1;
+  return null;
 }
 
-export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
-  // --- Local state (lifecycle-scoped, not shared) ---
+function Overlay({ children }: { children: ReactNode }) {
+  return (
+    <div
+      className="absolute inset-0 z-40 flex items-center justify-center p-8 text-center"
+      style={{ background: "var(--muted)" }}
+    >
+      {children}
+    </div>
+  );
+}
+
+const loadingOverlay = (
+  <Overlay>
+    <p
+      className="animate-pulse font-serif text-lg"
+      style={{ color: "var(--foreground-secondary)" }}
+    >
+      Loading Brava…
+    </p>
+  </Overlay>
+);
+
+interface MapCanvasProps {
+  mapRef: RefObject<MapRef | null>;
+  onSelect: (item: MapItem) => void;
+  onLoad: () => void;
+  userLocation: { lat: number; lng: number } | null;
+}
+
+export function MapCanvas({
+  mapRef,
+  onSelect,
+  onLoad,
+  userLocation,
+}: MapCanvasProps) {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [zoom, setZoom] = useState<number>(MAP_CONFIG.DEFAULT_ZOOM);
-  const [bounds, setBounds] = useState<
-    [number, number, number, number] | undefined
-  >(undefined);
-  const [cursor, setCursor] = useState<string>("auto");
-  // The coincident group whose records are fanned out, if any.
-  const [expandedGroupKey, setExpandedGroupKey] = useState<string | null>(null);
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
+  const [aboveFloor, setAboveFloor] = useState(
+    EXPLORER_VIEW.ZOOM > EXPLORER_VIEW.LABEL_ZOOM
+  );
 
-  // --- Local refs ---
-  const orbitAnimationRef = useRef<number>(0);
-  const isOrbitMovingRef = useRef<boolean>(false);
+  const resolvedTheme = useResolvedTheme();
+  const satellite = useMapStore((s) => s.satellite);
+  const is3D = useMapStore((s) => s.is3D);
+  const expandedGroupKey = useMapStore((s) => s.expandedGroupKey);
+  const setExpandedGroup = useMapStore((s) => s.setExpandedGroup);
+  const clearSelection = useMapStore((s) => s.clearSelection);
+  const selectedKey = useSelectedKey();
+  const visible = useFilteredLocations();
 
-  // --- Store selectors ---
-  const viewMode = useViewMode();
-  const selectedLocation = useSelectedLocation();
-  const isPulsing = useIsPulsing();
-  const isOrbiting = useIsOrbiting();
-  const is3D = useIs3D();
-  const setIsOrbiting = useMapStore((s) => s.setIsOrbiting);
-  const setSelectedLocation = useMapStore((s) => s.setSelectedLocation);
-
-  // --- Filtered locations for markers ---
-  const filteredLocations = useFilteredLocations();
+  const { registerLabel, scheduleDeclutter } = useLabelDeclutter();
 
   // --- Reset stale state on Activity restore ---
-  // Activity preserves useState across hide/show. This resets lifecycle
-  // state so the loading overlay shows while the new map instance loads.
-  // Note: this does NOT prevent the Marker/control crash during Activity
-  // reconnect — MapRecoveryBoundary handles that via error boundary + remount.
+  // Activity preserves useState across hide/show; the map instance does not survive.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setIsMapLoaded(false);
     setMapError(null);
-    setExpandedGroupKey(null);
+    setHoveredKey(null);
+    setAboveFloor(EXPLORER_VIEW.ZOOM > EXPLORER_VIEW.LABEL_ZOOM);
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // --- Desktop-only orbit animation ---
-  useEffect(() => {
-    if (!isOrbiting || !mapRef.current) {
-      isOrbitMovingRef.current = false;
-      return;
-    }
+  const basemap = satellite
+    ? SATELLITE_STYLE
+    : resolvedTheme === "dark"
+      ? MAP_STYLES.darkMatter
+      : MAP_STYLES.positron;
 
-    const map = mapRef.current.getMap();
-    isOrbitMovingRef.current = true;
-    let lastFrameTime = 0;
-
-    const rotateCamera = (timestamp: number) => {
-      if (timestamp - lastFrameTime < 33) {
-        orbitAnimationRef.current = requestAnimationFrame(rotateCamera);
-        return;
-      }
-
-      lastFrameTime = timestamp;
-      map.setBearing((map.getBearing() + 0.2) % 360);
-      orbitAnimationRef.current = requestAnimationFrame(rotateCamera);
-    };
-
-    orbitAnimationRef.current = requestAnimationFrame(rotateCamera);
-
-    return () => {
-      isOrbitMovingRef.current = false;
-      if (orbitAnimationRef.current) {
-        cancelAnimationFrame(orbitAnimationRef.current);
-      }
-    };
-  }, [isOrbiting, mapRef]);
-
-  // --- Stop orbiting on map interaction ---
-  const handleStopOrbit = useCallback(
-    (e: ViewStateChangeEvent) => {
-      // originalEvent is undefined for programmatic moves (flyTo/easeTo)
-      const original = (e as unknown as { originalEvent?: Event })
-        .originalEvent;
-      if (!original) return;
-      if (isOrbitMovingRef.current) return;
-
-      setIsOrbiting(false);
-    },
-    [setIsOrbiting]
-  );
-
-  // --- Handle zone clicks ---
   const handleMapClick = useCallback(
     (event: maplibregl.MapLayerMouseEvent) => {
-      if (event.defaultPrevented) return;
-
-      // A click on a marker bubbles to the map too. Pins stop it at the marker
-      // element, but the coincident fan cannot — that would also stop its own React
-      // handlers — so marker clicks are ignored here instead.
+      // A click on a marker bubbles to the map too, and a pin cannot stop it: MapLibre
+      // listens on its own container. Marker clicks are ignored here instead.
       const target = event.originalEvent?.target;
       if (target instanceof Element && target.closest(".maplibregl-marker")) {
         return;
       }
-
-      const feature = event.features?.[0];
-      if (feature?.layer?.id === "zone-fills") {
-        const geometry = feature.geometry as GeoJSON.Polygon;
-        if (geometry.type === "Polygon") {
-          setIsOrbiting(false);
-
-          const coordinates = geometry.coordinates[0];
-          const b = coordinates.reduce(
-            (acc, coord) => acc.extend(coord as [number, number]),
-            new maplibregl.LngLatBounds(
-              coordinates[0] as [number, number],
-              coordinates[0] as [number, number]
-            )
-          );
-
-          mapRef.current?.fitBounds(b, {
-            padding: 100,
-            pitch: 40,
-            duration: 1500,
-          });
-        }
-      } else {
-        setSelectedLocation(null);
-        setExpandedGroupKey(null);
-      }
+      clearSelection();
     },
-    [setIsOrbiting, setSelectedLocation, mapRef]
+    [clearSelection]
   );
 
-  // --- Cursor handlers for interactive zones ---
-  const onMouseEnterZone = useCallback(() => setCursor("pointer"), []);
-  const onMouseLeaveZone = useCallback(() => setCursor("auto"), []);
-
-  // --- Map viewport tracking ---
-  const syncViewport = useCallback((map: maplibregl.Map) => {
-    setZoom(map.getZoom());
-    const b = map.getBounds();
-    if (b) {
-      setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
-    }
-  }, []);
-
-  const onMove = useCallback(
-    (evt: { target: maplibregl.Map }) => syncViewport(evt.target),
-    [syncViewport]
-  );
-
-  // --- Clustering ---
-  const points = useMemo(
-    () =>
-      filteredLocations.map((l) => ({
-        type: "Feature" as const,
-        properties: {
-          cluster: false,
-          locationId: l.id,
-          category: l.category,
-        },
-        geometry: {
-          type: "Point" as const,
-          coordinates: [l.coordinates.lng, l.coordinates.lat],
-        },
-      })),
-    [filteredLocations]
-  );
-
-  const { grouped, expandCluster } = useMapClustering({
-    points,
-    zoom,
-    bounds,
-  });
-
-  const locationsById = useMemo(
-    () => new Map(filteredLocations.map((l) => [l.id, l])),
-    [filteredLocations]
-  );
-
-  const handleClusterClick = useCallback(
-    (clusterId: number, latitude: number, longitude: number) => {
-      setExpandedGroupKey(null);
-      const expansionZoom = expandCluster(clusterId);
-      if (expansionZoom != null) {
-        mapRef.current?.flyTo({
-          center: [longitude, latitude],
-          zoom: expansionZoom,
-          duration: 1000,
-        });
-      }
-    },
-    [expandCluster, mapRef]
-  );
-
-  const selectPin = useCallback(
-    (loc: Location) => {
-      setExpandedGroupKey(null);
-      onFlyTo(loc);
-    },
-    [onFlyTo]
-  );
-
-  // Clustering yields no markers until bounds are known, and a map that has not
-  // moved has fired no move event, so seed the viewport once the map loads.
-  const handleMapLoad = useCallback(() => {
+  const handleLoad = useCallback(() => {
     setIsMapLoaded(true);
     const map = mapRef.current?.getMap();
-    if (map) syncViewport(map);
-  }, [mapRef, syncViewport]);
+    if (map) setAboveFloor(map.getZoom() > EXPLORER_VIEW.LABEL_ZOOM);
+    onLoad();
+  }, [mapRef, onLoad]);
+
+  const handleZoomEnd = useCallback(
+    (event: { target: maplibregl.Map }) => {
+      setAboveFloor(event.target.getZoom() > EXPLORER_VIEW.LABEL_ZOOM);
+      scheduleDeclutter();
+    },
+    [scheduleDeclutter]
+  );
 
   const handleMapError = useCallback(
     (event: maplibregl.ErrorEvent) => {
       console.error("Map error:", event.error);
-      // Only show error screen for failures during initial load.
-      // Post-load errors (e.g. source cleanup during unmount) are harmless.
+      // Only a failure before the first load is fatal; later errors (a missing tile,
+      // source cleanup on unmount) are not.
       if (!isMapLoaded) {
         setMapError(
-          "Failed to load map. Please check your connection and try again."
+          "The map could not load. Check your connection and try again."
         );
       }
     },
     [isMapLoaded]
   );
 
-  // --- Sticker Markers, Clusters & Coincident Groups ---
-  const markers = useMemo(() => {
-    const clusterMarkers = grouped.clusters.map((cluster) => {
-      const [longitude, latitude] = cluster.geometry.coordinates;
-      const pointCount = cluster.properties.point_count;
-      return (
-        <Marker
-          key={`cluster-${cluster.id}`}
-          longitude={longitude}
-          latitude={latitude}
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
-            whileHover={{ scale: 1.1 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleClusterClick(cluster.id as number, latitude, longitude);
-            }}
-            className="bg-ocean-blue shadow-floating z-30 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-4 border-white text-sm font-bold text-white"
-          >
-            {pointCount}
-          </motion.div>
-        </Marker>
-      );
-    });
+  // Records at one exact point, which no zoom can separate.
+  const grouped = useMemo(
+    () =>
+      groupCoincident(
+        visible.map((item) => ({
+          type: "Feature" as const,
+          properties: { key: item.key },
+          geometry: {
+            type: "Point" as const,
+            coordinates: [item.coordinates.lng, item.coordinates.lat],
+          },
+        })),
+        () => []
+      ),
+    [visible]
+  );
 
-    const groupMarkers = grouped.groups.map((group) => {
-      const members = group.leaves
-        .map((leaf) => locationsById.get(leaf.properties.locationId))
-        .filter((loc): loc is Location => loc !== undefined);
-      if (members.length === 0) return null;
+  const byKey = useMemo(
+    () => new Map(visible.map((item) => [item.key, item])),
+    [visible]
+  );
 
-      // A selected member keeps the fan open, or the selection would be hidden.
-      const holdsSelection = members.some((m) => m.id === selectedLocation?.id);
-      const expanded = expandedGroupKey === group.key || holdsSelection;
-      const collapse = () => {
-        setExpandedGroupKey(null);
-        if (holdsSelection) setSelectedLocation(null);
-      };
+  const hovered = hoveredKey ? byKey.get(hoveredKey) : undefined;
+  const handleHover = useCallback(
+    (item: MapItem | null) => setHoveredKey(item?.key ?? null),
+    []
+  );
+
+  const renderPin = useCallback(
+    (item: MapItem, offset: [number, number] = [0, 0]) => {
+      const selected = item.key === selectedKey;
+      const priority = labelPriority(item, selected, aboveFloor);
+      const size = pinSize(item);
 
       return (
         <Marker
-          key={`group-${group.key}`}
-          longitude={group.longitude}
-          latitude={group.latitude}
-          style={{ zIndex: expanded ? 60 : 20 }}
+          key={item.key}
+          longitude={item.coordinates.lng}
+          latitude={item.coordinates.lat}
+          // Anchored at the dot, not the dot-and-label column, so a label appearing
+          // under a pin never moves the pin.
+          anchor="top"
+          offset={[offset[0], offset[1] - size / 2]}
+          style={{ zIndex: selected ? 3 : hoveredKey === item.key ? 2 : 1 }}
         >
-          <CoincidentFan
-            locations={members}
-            expanded={expanded}
-            selectedId={selectedLocation?.id ?? null}
-            onToggle={
-              expanded ? collapse : () => setExpandedGroupKey(group.key)
+          <MapPin
+            item={item}
+            selected={selected}
+            showLabel={priority !== null}
+            labelRef={
+              priority !== null ? registerLabel(item.key, priority) : undefined
             }
-            onSelect={(loc) => {
-              setExpandedGroupKey(group.key);
-              onFlyTo(loc);
-            }}
-            onCollapse={collapse}
+            onSelect={onSelect}
+            onHover={handleHover}
           />
         </Marker>
       );
+    },
+    [selectedKey, aboveFloor, hoveredKey, registerLabel, onSelect, handleHover]
+  );
+
+  const markers = useMemo(() => {
+    const pins = grouped.points.flatMap((point) => {
+      const item = byKey.get(point.properties.key);
+      return item ? [renderPin(item)] : [];
     });
 
-    const pinMarkers = grouped.points.map((point) => {
-      const loc = locationsById.get(point.properties.locationId);
-      if (!loc) return null;
+    const groups = grouped.groups.flatMap((group) => {
+      const members = group.leaves.flatMap((leaf) => {
+        const item = byKey.get(leaf.properties.key);
+        return item ? [item] : [];
+      });
+      if (members.length === 0) return [];
 
-      const isSelected = selectedLocation?.id === loc.id;
-      const Icon = loc.icon;
+      // A selected member keeps the fan open, or the selection would be hidden.
+      const expanded =
+        expandedGroupKey === group.key ||
+        members.some((member) => member.key === selectedKey);
 
-      return (
-        <Marker
-          key={loc.id}
-          longitude={loc.coordinates.lng}
-          latitude={loc.coordinates.lat}
-          anchor="bottom"
-          onClick={(e: MarkerEvent<MouseEvent>) => {
-            e.originalEvent?.stopPropagation();
-            selectPin(loc);
-          }}
-        >
-          <motion.div
-            className="group relative cursor-pointer"
-            initial={{ scale: 0, y: 0 }}
-            animate={{
-              scale: isSelected ? 1.2 : 1,
-              y: isSelected ? -10 : 0,
-              zIndex: isSelected ? 50 : 1,
-            }}
-            whileHover={{ scale: 1.15, zIndex: 40 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            onClick={() => selectPin(loc)}
-            tabIndex={0}
-            role="button"
-            aria-label={`${loc.name}, ${loc.category}. ${loc.description}`}
-            aria-pressed={isSelected}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                selectPin(loc);
-              }
-            }}
-            style={{ zIndex: isSelected ? 50 : 1 }}
+      if (!expanded) {
+        return [
+          <Marker
+            key={`group-${group.key}`}
+            longitude={group.longitude}
+            latitude={group.latitude}
           >
-            {/* 1. The Sticker Body */}
-            <div
-              className={clsx(
-                "relative flex h-11 w-11 items-center justify-center rounded-full border-[3px] border-white shadow-[0_8px_16px_rgba(0,0,0,0.3)] transition-shadow duration-300",
-                isSelected && "shadow-[0_12px_24px_rgba(0,0,0,0.5)]"
-              )}
-              style={{ backgroundColor: loc.color }}
-            >
-              <Icon
-                className="text-white drop-shadow-md"
-                size={20}
-                strokeWidth={2.5}
-              />
-              {/* Pulse Ring */}
-              {isSelected && isPulsing && (
-                <span
-                  className="absolute inset-0 rounded-full opacity-60"
-                  style={{
-                    backgroundColor: loc.color,
-                    animation:
-                      "marker-ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite",
-                  }}
-                />
-              )}
-            </div>
-
-            {/* 2. The Triangle "Nub" */}
-            <div className="absolute -bottom-1 left-1/2 h-0 w-0 -translate-x-1/2 border-t-[8px] border-r-[6px] border-l-[6px] border-white border-r-transparent border-l-transparent" />
-            <div
-              className="absolute -bottom-[3px] left-1/2 h-0 w-0 -translate-x-1/2 border-t-[6px] border-r-[4px] border-l-[4px] border-r-transparent border-l-transparent"
-              style={{ borderTopColor: loc.color }}
+            <CoincidentRing
+              count={members.length}
+              onExpand={() => setExpandedGroup(group.key)}
             />
+          </Marker>,
+        ];
+      }
 
-            {/* 3. Floating Label */}
-            <motion.div
-              className={clsx(
-                "text-basalt-800 shadow-floating pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold tracking-wider whitespace-nowrap uppercase backdrop-blur",
-                isSelected
-                  ? "opacity-100"
-                  : "opacity-0 transition-opacity group-hover:opacity-100"
-              )}
-              initial={false}
-            >
-              {loc.name}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white/95" />
-            </motion.div>
-          </motion.div>
-        </Marker>
-      );
+      const offsets = fanOffsets(members.length);
+      return members.map((member, index) => renderPin(member, offsets[index]));
     });
 
-    return [...clusterMarkers, ...pinMarkers, ...groupMarkers];
+    return [...pins, ...groups];
   }, [
     grouped,
-    locationsById,
-    selectedLocation,
-    isPulsing,
+    byKey,
     expandedGroupKey,
-    onFlyTo,
-    selectPin,
-    handleClusterClick,
-    setSelectedLocation,
+    selectedKey,
+    renderPin,
+    setExpandedGroup,
   ]);
+
+  // Labels have been added, removed or re-prioritised: place them again.
+  useEffect(() => {
+    if (isMapLoaded) scheduleDeclutter();
+  }, [isMapLoaded, markers, scheduleDeclutter]);
 
   return (
     <>
-      {/* Map Error State */}
       {mapError && (
-        <div className="bg-canvas absolute inset-0 z-50 flex items-center justify-center p-8">
-          <div className="max-w-md text-center">
-            <AlertCircle className="text-status-error mx-auto mb-4 h-12 w-12" />
-            <p className="text-status-error mb-4 font-bold">{mapError}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-xl px-6 py-3 font-bold text-white transition-colors"
+        <Overlay>
+          <div className="max-w-md">
+            <p
+              className="mb-4 text-sm"
+              style={{ color: "var(--brand-sobrado-ochre)" }}
             >
-              Reload Map
+              {mapError}
+            </p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="bg-primary text-primary-foreground rounded-lg px-4 py-[9px] text-[13px] font-medium"
+            >
+              Reload the map
             </button>
           </div>
-        </div>
+        </Overlay>
       )}
 
-      {/* Loading Overlay */}
-      <AnimatePresence>
-        {!isMapLoaded && !mapError && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="bg-surface-alt absolute inset-0 z-40 flex items-center justify-center"
-          >
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="text-brand h-10 w-10 animate-spin" />
-              <p className="text-brand animate-pulse font-serif text-lg font-bold">
-                Loading Brava...
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!isMapLoaded && !mapError && loadingOverlay}
 
-      {/* MapLibre GL Map — wrapped in error boundary for Activity restore crashes */}
-      <MapRecoveryBoundary
-        fallback={
-          <div className="bg-surface-alt absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="text-brand h-10 w-10 animate-spin" />
-              <p className="text-brand animate-pulse font-serif text-lg font-bold">
-                Loading Brava...
-              </p>
-            </div>
-          </div>
-        }
-      >
+      <MapRecoveryBoundary fallback={loadingOverlay}>
         <BaseMap
           ref={mapRef}
-          style={
-            viewMode === "satellite" ? MAP_STYLES.voyager : MAP_STYLES.positron
-          }
+          center={EXPLORER_VIEW.CENTER}
+          zoom={EXPLORER_VIEW.ZOOM}
+          style={basemap}
           onClick={handleMapClick}
-          onMove={onMove}
-          onLoad={handleMapLoad}
+          onLoad={handleLoad}
           onError={handleMapError}
-          interactiveLayerIds={["zone-fills"]}
           mapProps={{
             terrain:
-              viewMode === "satellite" && isMapLoaded && is3D
+              isMapLoaded && is3D
                 ? {
                     source: TERRAIN_DEM.SOURCE_ID,
                     exaggeration: MAP_CONFIG.TERRAIN_EXAGGERATION,
                   }
                 : undefined,
             maxPitch: MAP_CONFIG.MAX_PITCH,
-            style: {
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              cursor,
-            },
-            onDragStart: handleStopOrbit,
-            onZoomStart: handleStopOrbit,
-            onMouseEnter: onMouseEnterZone,
-            onMouseLeave: onMouseLeaveZone,
+            attributionControl: { compact: true },
+            onZoomEnd: handleZoomEnd,
+            onMoveEnd: scheduleDeclutter,
             "aria-label":
-              "Interactive map of Brava Island showing tourist destinations",
+              "Map of Brava showing its settlements, place records and located photographs",
           }}
         >
           {isMapLoaded && (
@@ -589,40 +393,31 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
                 tileSize={TERRAIN_DEM.TILE_SIZE}
                 maxzoom={TERRAIN_DEM.MAX_ZOOM}
               />
-
-              {/* Illustration Mode Layer */}
-              {viewMode === "illustration" && (
-                <Source
-                  id="brava-illustration"
-                  type="image"
-                  url={ILLUSTRATION_URL}
-                  coordinates={ILLUSTRATION_BOUNDS}
-                >
-                  <Layer
-                    id="brava-illustration-layer"
-                    type="raster"
-                    paint={{
-                      "raster-fade-duration": 0,
-                      "raster-opacity": 1,
-                    }}
-                    beforeId="waterway-label"
-                  />
-                </Source>
-              )}
-
               {markers}
-              <NavigationControl position="bottom-right" />
-              <GeolocateControl position="bottom-right" />
+              {userLocation && (
+                <Marker
+                  longitude={userLocation.lng}
+                  latitude={userLocation.lat}
+                >
+                  <span
+                    aria-label="Your location"
+                    role="img"
+                    className="block size-3.5 rounded-full"
+                    style={{
+                      background: "var(--foreground)",
+                      border: "3px solid var(--background)",
+                      boxShadow:
+                        "0 0 0 5px color-mix(in srgb, var(--foreground) 20%, transparent)",
+                    }}
+                  />
+                </Marker>
+              )}
+              {hovered && <MapHoverPopup item={hovered} />}
+              <NavigationControl position="bottom-right" showCompass={false} />
             </>
           )}
         </BaseMap>
       </MapRecoveryBoundary>
-
-      {/* Screen reader announcements */}
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {selectedLocation &&
-          `Selected ${selectedLocation.name}. ${selectedLocation.description}`}
-      </div>
     </>
   );
 }

@@ -15,7 +15,9 @@ export type MediaCategory =
   | "Culture"
   | "People"
   | "Event"
-  | "Interview";
+  | "Interview"
+  /** Card label for the films section (spec 035). Not a gallery filter category. */
+  | "Film";
 
 /** Canonical list of gallery categories for selectors and filters. */
 export const GALLERY_CATEGORIES: MediaCategory[] = [
@@ -156,6 +158,10 @@ export interface ConfirmRequestMetadata {
   cameraMake?: string;
   cameraModel?: string;
   orientation?: number;
+
+  // Natural size as displayed
+  width?: number;
+  height?: number;
 
   // Privacy tracking
   photoType?: PhotoType;

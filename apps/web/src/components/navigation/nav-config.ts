@@ -44,8 +44,9 @@ export const navigation: NavItem[] = [
       },
     ],
   },
-  { name: "Directory", href: "/directory" },
-  { name: "Media", href: "/gallery" },
+  { name: "Settlements", href: "/settlements" },
+  { name: "Photographs", href: "/photographs" },
+  { name: "Films", href: "/films" },
   { name: "Map", href: "/map" },
 ];
 

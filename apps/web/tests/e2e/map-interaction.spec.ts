@@ -1,523 +1,140 @@
 /**
- * E2E Test T020: Map Interaction Flow
+ * Map explorer interactions. Spec 034 FR-011, FR-012 (rewritten in T-41).
  *
- * This test verifies that users can interact with the interactive map of Brava Island
- * to explore cultural sites, landmarks, and points of interest.
+ * The map at `/map` sits under the archive bar and holds three modes, a status
+ * filter, a search, a list, a legend, a selection card and a control stack. On a
+ * narrow screen the list lives in a bottom sheet.
  *
- * Test Coverage:
- * - Map loads successfully with MapLibre integration
- * - Map displays Brava Island correctly
- * - Markers appear for directory entries
- * - Marker click opens popup with entry details
- * - Popup has link to full entry details
- * - Map controls (zoom, pan) work correctly
- * - Mobile touch interactions work properly
- *
- * Requirements:
- * - FR-001: Test execution time < 5 minutes
- * - MapLibre GL JS integration
- * - Mobile-first responsive design for island visitors
+ * MapLibre renders to a canvas, so pins are reached through their DOM markers and
+ * the list rather than by pixel.
  */
 
-import { test, expect } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-test.describe("Map Loading and Display", () => {
-  test("should load map page successfully", async ({ page }) => {
+import { escapeRegExp, settlements } from "../utils/archive-data";
+
+function sidebar(page: Page) {
+  return page.getByRole("complementary", { name: "Filters and list" });
+}
+
+function modeButton(page: Page, label: RegExp) {
+  return page.getByRole("group", { name: "Map mode" }).getByRole("button", {
+    name: label,
+  });
+}
+
+test.describe("Map explorer", () => {
+  test("loads the map under the archive bar", async ({ page }) => {
     await page.goto("/map");
-    await page.waitForLoadState("networkidle");
 
-    // Page should load without errors
-    const heading = page.locator("h1, h2").first();
-    await expect(heading).toBeVisible();
+    await expect(
+      page
+        .getByRole("navigation", { name: "Archive", exact: true })
+        .getByRole("link", {
+          name: "Map",
+        })
+    ).toHaveAttribute("aria-current", "page");
 
-    // Verify we're on the map page
-    expect(page.url()).toContain("/map");
+    const map = page.locator(".maplibregl-map").first();
+    await expect(map).toBeVisible();
+    await expect(map.locator("canvas").first()).toBeVisible();
+
+    // The page fills the viewport rather than scrolling past it.
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollHeight - window.innerHeight
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
   });
 
-  test("should initialize map container", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-
-    // Wait for map to initialize (MapLibre creates canvas element)
-    await page.waitForTimeout(2000);
-
-    // Map container should exist. CARTO basemaps need no access token, so
-    // there is no environment in which the map is legitimately absent.
-    const mapContainer = page.locator(".maplibregl-map").first();
-    await expect(mapContainer).toBeVisible();
-
-    // MapLibre GL JS renders to a canvas
-    await expect(mapContainer.locator("canvas").first()).toBeVisible();
-  });
-
-  test("should display map centered on Brava Island", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-
-    // Wait for map to load
-    await page.waitForTimeout(3000);
-
-    // Check if map loaded successfully
-    const canvas = page.locator("canvas").first();
-    const hasCanvas = await canvas.isVisible().catch(() => false);
-
-    if (hasCanvas) {
-      // Map should be visible
-      const canvasBox = await canvas.boundingBox();
-      expect(canvasBox).toBeTruthy();
-
-      if (canvasBox) {
-        // Canvas should have reasonable dimensions
-        expect(canvasBox.width).toBeGreaterThan(200);
-        expect(canvasBox.height).toBeGreaterThan(200);
-      }
-    }
-  });
-});
-
-test.describe("Map Markers and Popups", () => {
-  test("should display markers for directory entries", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-
-    // Wait for map and markers to load
-    await page.waitForTimeout(3000);
-
-    // MapLibre markers are rendered as divs with specific classes
-    const markers = page.locator('.maplibregl-marker, [class*="marker"]');
-    const markerCount = await markers.count();
-
-    // Should have at least one marker (if there are directory entries with coordinates)
-    // This is a soft check since markers depend on data
-    expect(markerCount).toBeGreaterThanOrEqual(0);
-  });
-
-  test("should open popup when marker is clicked", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
-
-    // Find first marker
-    const firstMarker = page
-      .locator('.maplibregl-marker, [class*="marker"]')
-      .first();
-    const hasMarker = await firstMarker.isVisible().catch(() => false);
-
-    if (hasMarker) {
-      // Click marker
-      await firstMarker.click();
-      await page.waitForTimeout(500);
-
-      // Popup should appear
-      const popup = page.locator('.maplibregl-popup, [class*="popup"]');
-      const hasPopup = await popup.isVisible().catch(() => false);
-
-      expect(hasPopup).toBeTruthy();
-
-      if (hasPopup) {
-        // Popup should have entry information
-        const popupContent = popup.locator(
-          '.maplibregl-popup-content, [class*="popup-content"]'
-        );
-        await expect(popupContent).toBeVisible();
-
-        // Popup should have entry name/title
-        const popupText = await popupContent.textContent();
-        expect(popupText).toBeTruthy();
-      }
-    }
-  });
-
-  test("should display entry details in popup", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
-
-    const firstMarker = page.locator(".maplibregl-marker").first();
-    const hasMarker = await firstMarker.isVisible().catch(() => false);
-
-    if (hasMarker) {
-      await firstMarker.click();
-      await page.waitForTimeout(500);
-
-      const popup = page.locator(".maplibregl-popup-content");
-      const hasPopup = await popup.isVisible().catch(() => false);
-
-      if (hasPopup) {
-        // Popup should contain:
-        // 1. Entry name
-        const entryName = popup
-          .locator('h2, h3, strong, [class*="title"]')
-          .first();
-        const hasName = await entryName.isVisible().catch(() => false);
-
-        // 2. Link to full details
-        const detailsLink = popup.locator('a[href*="/directory/entry/"]');
-        const hasLink = await detailsLink.isVisible().catch(() => false);
-
-        // Popup should have meaningful content
-        expect(hasName || hasLink).toBeTruthy();
-      }
-    }
-  });
-
-  test("should navigate to entry detail page from popup link", async ({
+  test("pins every settlement and counts each mode", async ({
     page,
+    request,
   }) => {
+    const towns = await settlements(request);
     await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
 
-    const firstMarker = page.locator(".maplibregl-marker").first();
-    const hasMarker = await firstMarker.isVisible().catch(() => false);
-
-    if (hasMarker) {
-      await firstMarker.click();
-      await page.waitForTimeout(500);
-
-      const popup = page.locator(".maplibregl-popup-content");
-      const hasPopup = await popup.isVisible().catch(() => false);
-
-      if (hasPopup) {
-        const detailsLink = popup
-          .locator('a[href*="/directory/entry/"]')
-          .first();
-        const hasLink = await detailsLink.isVisible().catch(() => false);
-
-        if (hasLink) {
-          // Click link to navigate to detail page
-          await detailsLink.click();
-          await page.waitForLoadState("networkidle");
-
-          // Should navigate to entry detail page
-          expect(page.url()).toContain("/directory/entry/");
-
-          // Detail page should load
-          const detailHeading = page.locator("h1").first();
-          await expect(detailHeading).toBeVisible();
-        }
-      }
-    }
-  });
-
-  test("should close popup when close button is clicked", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
-
-    const firstMarker = page.locator(".maplibregl-marker").first();
-    const hasMarker = await firstMarker.isVisible().catch(() => false);
-
-    if (hasMarker) {
-      await firstMarker.click();
-      await page.waitForTimeout(500);
-
-      const popup = page.locator(".maplibregl-popup");
-      const hasPopup = await popup.isVisible().catch(() => false);
-
-      if (hasPopup) {
-        // Find close button
-        const closeButton = popup.locator(
-          'button.maplibregl-popup-close-button, button:has-text("×")'
-        );
-        const hasCloseButton = await closeButton.isVisible().catch(() => false);
-
-        if (hasCloseButton) {
-          await closeButton.click();
-          await page.waitForTimeout(300);
-
-          // Popup should be closed
-          const isPopupClosed = !(await popup.isVisible().catch(() => false));
-          expect(isPopupClosed).toBeTruthy();
-        }
-      }
-    }
-  });
-});
-
-test.describe("Map Controls and Interaction", () => {
-  test("should have zoom controls", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    // Mapbox GL JS adds zoom controls
-    const zoomControls = page.locator(
-      ".maplibregl-ctrl-zoom-in, .maplibregl-ctrl-zoom-out"
+    await expect(modeButton(page, /^Settlements/)).toContainText(
+      String(towns.length)
     );
-    const _hasZoomControls = await zoomControls
-      .first()
-      .isVisible()
-      .catch(() => false);
-
-    // Zoom controls are optional but common
-    expect(true).toBeTruthy(); // Soft check
+    await expect(page.locator(".maplibregl-marker")).toHaveCount(towns.length);
   });
 
-  test("should support zoom in interaction", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    const zoomInButton = page.locator(
-      '.maplibregl-ctrl-zoom-in, button[aria-label*="Zoom in"]'
-    );
-    const hasZoomIn = await zoomInButton.isVisible().catch(() => false);
-
-    if (hasZoomIn) {
-      // Click zoom in
-      await zoomInButton.click();
-      await page.waitForTimeout(500);
-
-      // Map should still be visible and functional
-      const canvas = page.locator("canvas").first();
-      await expect(canvas).toBeVisible();
-    }
-  });
-
-  test("should support pan/drag interaction", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    const canvas = page.locator("canvas").first();
-    const hasCanvas = await canvas.isVisible().catch(() => false);
-
-    if (hasCanvas) {
-      const canvasBox = await canvas.boundingBox();
-
-      if (canvasBox) {
-        // Drag map to pan
-        await page.mouse.move(
-          canvasBox.x + canvasBox.width / 2,
-          canvasBox.y + canvasBox.height / 2
-        );
-        await page.mouse.down();
-        await page.mouse.move(
-          canvasBox.x + canvasBox.width / 2 + 50,
-          canvasBox.y + canvasBox.height / 2 + 50
-        );
-        await page.mouse.up();
-
-        // Map should still be visible after panning
-        await expect(canvas).toBeVisible();
-      }
-    }
-  });
-
-  test("should support mouse wheel zoom", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    const canvas = page.locator("canvas").first();
-    const hasCanvas = await canvas.isVisible().catch(() => false);
-
-    if (hasCanvas) {
-      const canvasBox = await canvas.boundingBox();
-
-      if (canvasBox) {
-        // Hover over map
-        await page.mouse.move(
-          canvasBox.x + canvasBox.width / 2,
-          canvasBox.y + canvasBox.height / 2
-        );
-
-        // Scroll to zoom
-        await page.mouse.wheel(0, -100); // Scroll up to zoom in
-
-        // Map should still be visible
-        await expect(canvas).toBeVisible();
-      }
-    }
-  });
-
-  test("should have geolocation control if enabled", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    // Geolocation control is optional
-    const geolocateButton = page.locator(
-      '.maplibregl-ctrl-geolocate, button[aria-label*="geolocate"]'
-    );
-    const _hasGeolocate = await geolocateButton.isVisible().catch(() => false);
-
-    // Just verify it doesn't crash if present
-    expect(true).toBeTruthy();
-  });
-});
-
-test.describe("Map Mobile Interactions", () => {
-  test("should work on mobile viewport", async ({ page }) => {
-    // Set mobile viewport (iPhone 12 Pro)
-    await page.setViewportSize({ width: 390, height: 844 });
-
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    // Map should be visible on mobile
-    const canvas = page.locator("canvas").first();
-    const hasCanvas = await canvas.isVisible().catch(() => false);
-
-    if (hasCanvas) {
-      const canvasBox = await canvas.boundingBox();
-
-      if (canvasBox) {
-        // Map should fit within viewport
-        expect(canvasBox.width).toBeLessThanOrEqual(390);
-
-        // Map should take up reasonable space
-        expect(canvasBox.height).toBeGreaterThan(200);
-      }
-    }
-  });
-
-  test("should support touch interactions on mobile", async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    const firstMarker = page.locator(".maplibregl-marker").first();
-    const hasMarker = await firstMarker.isVisible().catch(() => false);
-
-    if (hasMarker) {
-      // Tap marker (mobile tap)
-      await firstMarker.tap();
-      await page.waitForTimeout(500);
-
-      // Popup should open
-      const popup = page.locator(".maplibregl-popup");
-      const hasPopup = await popup.isVisible().catch(() => false);
-
-      expect(hasPopup).toBeTruthy();
-    }
-  });
-
-  test("should support pinch-to-zoom on mobile", async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    const canvas = page.locator("canvas").first();
-    const hasCanvas = await canvas.isVisible().catch(() => false);
-
-    if (hasCanvas) {
-      // Mapbox enables touch zoom by default
-      // Just verify map is still functional
-      await expect(canvas).toBeVisible();
-    }
-  });
-
-  test("should have mobile-optimized controls", async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    // Zoom controls should be visible and accessible on mobile
-    const zoomControls = page.locator(".maplibregl-ctrl-zoom-in");
-    const hasZoomControls = await zoomControls.isVisible().catch(() => false);
-
-    if (hasZoomControls) {
-      // Controls should be large enough to tap on mobile
-      const controlBox = await zoomControls.boundingBox();
-
-      if (controlBox) {
-        // Minimum touch target size should be ~44x44 pixels (iOS HIG)
-        expect(controlBox.width).toBeGreaterThanOrEqual(30);
-        expect(controlBox.height).toBeGreaterThanOrEqual(30);
-      }
-    }
-  });
-});
-
-test.describe("Map Performance", () => {
-  test("should load map in reasonable time", async ({ page }) => {
-    const startTime = Date.now();
-
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-
-    // Wait for map to initialize
-    await page.waitForTimeout(2000);
-
-    const loadTime = Date.now() - startTime;
-
-    // Should load in less than 5 seconds on localhost
-    expect(loadTime).toBeLessThan(5000);
-  });
-
-  test("should not have console errors during map initialization", async ({
+  test("search narrows the list, and a row opens its selection card", async ({
     page,
+    request,
   }) => {
-    const consoleErrors: string[] = [];
+    const [town] = await settlements(request);
+    test.skip(!town, "the seed holds no settlement");
 
-    page.on("console", (msg) => {
-      if (msg.type() === "error") {
-        consoleErrors.push(msg.text());
-      }
+    await page.goto("/map");
+    await page.getByRole("searchbox", { name: "Search Brava" }).fill(town.name);
+
+    const row = sidebar(page).getByRole("button", {
+      name: new RegExp(`^${escapeRegExp(town.name)}`),
     });
+    await expect(row).toBeVisible();
+    await row.click();
 
+    const card = page.getByRole("region", { name: `Selected: ${town.name}` });
+    await expect(card).toBeVisible();
+    await expect(page).toHaveURL(
+      new RegExp(`sel=s(%3A|:)${escapeRegExp(town.slug)}`)
+    );
+
+    await card.getByRole("button", { name: "Close" }).click();
+    await expect(card).toBeHidden();
+    await expect(page).not.toHaveURL(/sel=/);
+  });
+
+  test("a search that matches nothing says so", async ({ page }) => {
     await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
+    await page
+      .getByRole("searchbox", { name: "Search Brava" })
+      .fill("zzzz-not-a-place");
 
-    // Some errors might be acceptable in test environment
-    expect(consoleErrors.length).toBeLessThan(5);
+    await expect(sidebar(page)).toContainText(
+      "Nothing on the map matches that."
+    );
+  });
+
+  test("offers satellite, terrain and reset controls", async ({ page }) => {
+    await page.goto("/map");
+
+    const terrain = page.getByRole("button", { name: "3D terrain" });
+    await expect(page.getByRole("button", { name: "Satellite" })).toBeVisible();
+    await expect(terrain).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Reset view" })
+    ).toBeVisible();
+
+    await terrain.click();
+    await expect(terrain).toHaveAttribute("aria-pressed", "true");
+
+    await page.getByRole("button", { name: "Reset view" }).click();
+    await expect(terrain).toHaveAttribute("aria-pressed", "false");
   });
 });
 
-test.describe("Map Accessibility", () => {
-  test("should have accessible map container", async ({ page }) => {
+test.describe("Map explorer on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("keeps the list in a sheet that opens and closes", async ({ page }) => {
     await page.goto("/map");
-    await page.waitForLoadState("networkidle");
 
-    // Map container should have role or aria-label
-    const mapContainer = page
-      .locator('[role="application"], [aria-label*="map"]')
-      .first();
-    const _hasAccessibleMap = await mapContainer.isVisible().catch(() => false);
+    const sheet = page.getByTestId("map-sheet");
+    await expect(sheet).toBeVisible();
 
-    // Mapbox adds accessibility attributes
-    expect(true).toBeTruthy(); // Soft check
-  });
+    await page.getByRole("button", { name: "Filters and list" }).click();
+    await expect(
+      page.getByRole("button", { name: "Hide the list" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("searchbox", { name: "Search Brava" })
+    ).toBeVisible();
 
-  test("should support keyboard navigation for popups", async ({ page }) => {
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
-
-    const firstMarker = page.locator(".maplibregl-marker").first();
-    const hasMarker = await firstMarker.isVisible().catch(() => false);
-
-    if (hasMarker) {
-      await firstMarker.click();
-      await page.waitForTimeout(500);
-
-      const popup = page.locator(".maplibregl-popup-content");
-      const hasPopup = await popup.isVisible().catch(() => false);
-
-      if (hasPopup) {
-        // Tab to popup links
-        await page.keyboard.press("Tab");
-
-        const _activeElement = await page.evaluate(() => {
-          return {
-            tagName: document.activeElement?.tagName,
-            href: document.activeElement?.getAttribute("href"),
-          };
-        });
-
-        // Should be able to tab to links in popup
-        expect(true).toBeTruthy();
-      }
-    }
+    await page.getByRole("button", { name: "Hide the list" }).click();
+    await expect(
+      page.getByRole("button", { name: "Filters and list" })
+    ).toBeVisible();
   });
 });

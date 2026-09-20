@@ -109,7 +109,7 @@ export interface SuggestionSubmission {
  * <ContentActionToolbar
  *   contentSlug="brava-faja-d-agua-beach"
  *   contentTitle="Fajã d'Água Beach"
- *   contentUrl="https://nosilha.com/directory/entry/brava-faja-d-agua-beach"
+ *   contentUrl="https://nosilha.com/faja-d-agua/brava-faja-d-agua-beach"
  *   reactions={reactions}
  *   isAuthenticated={true}
  * />
@@ -201,7 +201,7 @@ export interface ReactionButtonsProps {
  * @example
  * <ShareButton
  *   title="Fajã d'Água Beach"
- *   url="https://nosilha.com/directory/entry/brava-faja-d-agua-beach"
+ *   url="https://nosilha.com/faja-d-agua/brava-faja-d-agua-beach"
  *   description="Discover Brava Island's hidden gem..."
  *   onShareSuccess={() => console.log('Shared successfully!')}
  * />
@@ -257,7 +257,7 @@ export interface SuggestImprovementModalProps {
  * <ContentActionFAB
  *   contentSlug="brava-faja-d-agua-beach"
  *   contentTitle="Fajã d'Água Beach"
- *   contentUrl="https://nosilha.com/directory/entry/brava-faja-d-agua-beach"
+ *   contentUrl="https://nosilha.com/faja-d-agua/brava-faja-d-agua-beach"
  *   reactions={reactions}
  *   isAuthenticated={true}
  * />
@@ -305,7 +305,7 @@ export interface ContentActionFABProps {
  * <ContentActionDesktop
  *   contentSlug="brava-faja-d-agua-beach"
  *   contentTitle="Fajã d'Água Beach"
- *   contentUrl="https://nosilha.com/directory/entry/brava-faja-d-agua-beach"
+ *   contentUrl="https://nosilha.com/faja-d-agua/brava-faja-d-agua-beach"
  *   reactions={reactions}
  *   isAuthenticated={true}
  * />
@@ -592,7 +592,7 @@ export function isValidShareOptionId(
  *
  * @example
  * <CopyLinkButton
- *   url="https://nosilha.com/directory/entry/brava-faja-d-agua-beach"
+ *   url="https://nosilha.com/faja-d-agua/brava-faja-d-agua-beach"
  *   variant="icon-with-label"
  *   onCopySuccess={() => console.log('Link copied!')}
  * />

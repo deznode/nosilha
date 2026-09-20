@@ -79,7 +79,7 @@ export function BadgeSpecimen() {
           <BadgeButton color="blue" onClick={() => {}}>
             Clickable Badge
           </BadgeButton>
-          <BadgeButton color="green" href="/directory">
+          <BadgeButton color="green" href="/settlements">
             Link Badge
           </BadgeButton>
           <BadgeButton color="zinc" onClick={() => {}}>

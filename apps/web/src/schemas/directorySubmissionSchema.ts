@@ -17,7 +17,6 @@ export const directorySubmissionSchema = z.object({
       "Beach",
       "Heritage",
       "Nature",
-      "Town",
       "Viewpoint",
       "Trail",
       "Church",

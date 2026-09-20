@@ -1,11 +1,14 @@
 package com.nosilha.core.gallery.domain
 
+import com.nosilha.core.gallery.api.dto.BatchErrorDto
 import com.nosilha.core.gallery.api.dto.BatchUploadError
+import com.nosilha.core.gallery.api.dto.BrokenObjectDto
 import com.nosilha.core.gallery.api.dto.BulkConfirmRequest
 import com.nosilha.core.gallery.api.dto.BulkConfirmResponse
 import com.nosilha.core.gallery.api.dto.BulkPresignItemResponse
 import com.nosilha.core.gallery.api.dto.BulkPresignRequest
 import com.nosilha.core.gallery.api.dto.BulkPresignResponse
+import com.nosilha.core.gallery.api.dto.DimensionBackfillResponse
 import com.nosilha.core.gallery.api.dto.OrphanDetectionResponse
 import com.nosilha.core.gallery.api.dto.OrphanObjectDto
 import com.nosilha.core.gallery.api.dto.R2BucketListResponse
@@ -37,6 +40,11 @@ class R2AdminService(
     private val r2StorageService: R2StorageService?,
     private val repository: GalleryMediaRepository,
 ) {
+    companion object {
+        /** Image headers sit near the start, though a JPEG's can follow an embedded EXIF thumbnail. */
+        const val HEADER_BYTES = 256 * 1024
+    }
+
     private fun requireR2(): R2StorageService = requireNotNull(r2StorageService) { "R2 storage is not configured" }
 
     /**
@@ -134,7 +142,7 @@ class R2AdminService(
             }
 
             val media = UserUploadedMedia().apply {
-                title = upload.originalName
+                title = upload.description?.ifBlank { null }
                 description = upload.description
                 category = upload.category
                 status = GalleryMediaStatus.ACTIVE
@@ -240,7 +248,7 @@ class R2AdminService(
         val fileName = storageKey.substringAfterLast('/')
 
         val media = UserUploadedMedia().apply {
-            title = fileName
+            title = description?.ifBlank { null }
             this.description = description
             this.category = category
             status = GalleryMediaStatus.ACTIVE
@@ -265,6 +273,87 @@ class R2AdminService(
         }
         logger.info { "Admin $adminId linked orphan $storageKey as media ${saved.id}" }
         return saved
+    }
+
+    /**
+     * Lists records whose storage object is missing from R2 (spec 034 FR-026).
+     *
+     * Checks every upload's object with HeadObject. Records without a storage key, such
+     * as static heroes, are skipped: they have no object to lose.
+     *
+     * Deliberately not @Transactional: no database connection is held across the HeadObject calls.
+     */
+    fun detectBroken(): List<BrokenObjectDto> {
+        val r2 = requireR2()
+        val broken = repository
+            .findAllUserUploads()
+            .filter { !it.storageKey.isNullOrBlank() && !r2.objectExists(it.storageKey!!) }
+            .sortedBy { it.createdAt }
+            .map { BrokenObjectDto(mediaId = it.id!!, storageKey = it.storageKey!!, title = it.title) }
+
+        logger.info { "Broken object detection: ${broken.size} records point at missing objects" }
+        return broken
+    }
+
+    /**
+     * Fills width and height from each image's stored header (spec 034 FR-019).
+     *
+     * Reads at most [HEADER_BYTES] of each object and records the size as displayed, so
+     * backfilled records agree with sizes browsers report at upload.
+     *
+     * Deliberately not @Transactional: each record is saved in its own repository
+     * transaction, so no database connection is held across the R2 reads, and records
+     * already filled stay filled if a later read fails.
+     *
+     * @param mediaIds Records to fill; null fills every image upload missing a dimension
+     */
+    fun backfillDimensions(mediaIds: List<UUID>?): DimensionBackfillResponse {
+        val r2 = requireR2()
+        val candidates: List<Pair<UUID, GalleryMedia?>> =
+            if (mediaIds == null) {
+                repository
+                    .findAllUserUploads()
+                    .filter { (it.width == null || it.height == null) && it.contentType?.startsWith("image/") == true }
+                    .map { it.id!! to it }
+            } else {
+                mediaIds.distinct().map { id -> id to repository.findById(id).orElse(null) }
+            }
+
+        val updated = mutableListOf<UUID>()
+        val errors = mutableListOf<BatchErrorDto>()
+
+        for ((id, media) in candidates) {
+            val reason = when {
+                media == null -> "Media not found"
+                media !is UserUploadedMedia -> "Only user uploads have a stored image"
+                media.storageKey.isNullOrBlank() -> "Media has no storage key"
+                media.contentType?.startsWith("image/") != true -> "Media is not an image"
+                else -> fillDimensions(r2, media)
+            }
+            if (reason == null) updated += id else errors += BatchErrorDto(mediaId = id, reason = reason)
+        }
+
+        logger.info { "Dimension backfill: ${updated.size} filled, ${errors.size} rejected" }
+        return DimensionBackfillResponse(
+            accepted = updated.size,
+            rejected = errors.size,
+            updated = updated,
+            errors = errors,
+        )
+    }
+
+    /** Reads and stores one upload's dimensions; returns the reason it could not, or null. */
+    private fun fillDimensions(
+        r2: R2StorageService,
+        media: UserUploadedMedia,
+    ): String? {
+        val bytes = r2.readObjectPrefix(media.storageKey!!, HEADER_BYTES) ?: return "Object not found in R2"
+        val stored = ImageDimensions.read(bytes) ?: return "Could not read image dimensions from the file header"
+        val shown = ImageDimensions.displayed(stored, media.orientation)
+        media.width = shown.width
+        media.height = shown.height
+        repository.save(media)
+        return null
     }
 
     /**

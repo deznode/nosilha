@@ -8,6 +8,7 @@ import type {
 import type { ApprovedMediaPageResponse } from "@/types/api";
 import type {
   PaginatedResult,
+  DirectoryQueryParams,
   StorySubmitRequest,
   StorySubmittedResponse,
   StoryModerationAction,
@@ -40,6 +41,24 @@ const apiClient = getApiClient();
 // ================================
 // DIRECTORY ENTRY OPERATIONS
 // ================================
+
+/**
+ * Queries directory entries.
+ * Automatically uses the configured API implementation (backend or mock).
+ * Preferred over the positional `getEntriesByCategory` for new callers, and the only
+ * way to filter by canonical settlement (`townId`). Spec 034 T-21.
+ *
+ * The API applies exactly one filter, in this order: a non-blank `searchQuery` wins
+ * outright, then `townId`, then `category` + `town`, then `category`, then `town`.
+ * So `{ townId, category }` returns the whole settlement, not its Heritage records.
+ * @param params Query parameters (category, townId, town, searchQuery, sort, page, size).
+ * @returns A promise that resolves to a page of directory entries.
+ */
+export async function getEntries(
+  params?: DirectoryQueryParams
+): Promise<PaginatedResult<DirectoryEntry>> {
+  return apiClient.getEntries(params);
+}
 
 /**
  * Fetches all directory entries or entries for a specific category.
@@ -186,15 +205,6 @@ export async function getTowns(): Promise<Town[]> {
  */
 export async function getTownBySlug(slug: string): Promise<Town | undefined> {
   return apiClient.getTownBySlug(slug);
-}
-
-/**
- * Fetches towns for real-time interactive features like maps.
- * Automatically uses the configured API implementation (backend or mock).
- * @returns A promise that resolves to an array of towns.
- */
-export async function getTownsForMap(): Promise<Town[]> {
-  return apiClient.getTownsForMap();
 }
 
 /**
@@ -699,15 +709,39 @@ export async function updateProfile(
  * @returns A promise that resolves to paginated gallery items
  * @throws Error if API call fails
  */
-export async function getGalleryMedia(options?: {
-  category?: string;
-  decade?: string;
-  q?: string;
-  hasGeo?: boolean;
-  page?: number;
-  size?: number;
-}): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse> {
+export async function getGalleryMedia(
+  options?: import("@/types/gallery").GalleryQueryParams
+): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse> {
   return apiClient.getGalleryMedia(options);
+}
+
+/**
+ * Fetches the whole-archive facet counts.
+ * Public endpoint - no authentication required.
+ * Every number rendered in prose comes from here or a list total, never from a
+ * loaded page. Spec 034 FR-018.
+ * @returns A promise that resolves to the seven counts
+ * @throws Error if API call fails or the payload is malformed
+ */
+export async function getGalleryFacets(): Promise<
+  import("@/types/gallery").GalleryFacets
+> {
+  return apiClient.getGalleryFacets();
+}
+
+/**
+ * Fetches a photograph's position among all located archive photographs.
+ * Public endpoint - no authentication required.
+ * Neighbours wrap at the ends; a record with no coordinates comes back with a null
+ * position and no neighbours. Spec 034 FR-021.
+ * @param id UUID of the gallery media item
+ * @returns A promise that resolves to the sequence, or undefined when the id is unknown
+ * @throws Error if API call fails or the payload is malformed
+ */
+export async function getPhotoSequence(
+  id: string
+): Promise<import("@/types/gallery").PhotoSequence | undefined> {
+  return apiClient.getPhotoSequence(id);
 }
 
 /**
@@ -759,12 +793,6 @@ export async function getWeeklyDiscovery(): Promise<
   import("@/types/gallery").PublicGalleryMedia[]
 > {
   return apiClient.getWeeklyDiscovery();
-}
-
-export async function getGalleryTimeline(): Promise<
-  import("@/types/gallery").TimelineResponse
-> {
-  return apiClient.getGalleryTimeline();
 }
 
 /**

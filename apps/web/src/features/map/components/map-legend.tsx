@@ -1,77 +1,87 @@
 "use client";
 
-import { clsx } from "clsx";
-import type { DocumentationStatus } from "@/lib/documentation-status";
-import { STATUS_PIN_COLOR } from "../data/locations-adapter";
-import type { Location, MapMode } from "../data/types";
+import Link from "next/link";
+import { statusVar } from "@/lib/status";
+import type { LegendRow } from "../data/map-copy";
 
-// Settlements and place records share the colours but word them differently, matching
-// `getTownStatus` and `getEntryStatus`. Place records have no partial state.
-const KEYS: Record<MapMode, { status: DocumentationStatus; label: string }[]> =
-  {
-    settlements: [
-      { status: "documented", label: "documented" },
-      { status: "partial", label: "records, no photograph" },
-      { status: "gap", label: "name only" },
-    ],
-    places: [
-      { status: "documented", label: "has a photograph" },
-      { status: "gap", label: "no photograph" },
-    ],
-  };
-
-const NOUN: Record<MapMode, [singular: string, plural: string]> = {
-  settlements: ["settlement", "settlements"],
-  places: ["record", "records"],
-};
+const OVERLAY_GROUND = "color-mix(in srgb, var(--background) 88%, transparent)";
 
 interface MapLegendProps {
-  mode: MapMode;
-  /** Every location in the current mode, unfiltered, so the counts are the archive's. */
-  locations: Location[];
-  className?: string;
+  rows: LegendRow[];
+  /** Distance from the canvas bottom, in pixels; lifts above a peeking sheet. */
+  bottom: number;
 }
 
 /**
- * The pin colour key, in its own strip below the map above a hairline rule, so it
- * never covers a pin. Counts are live. Spec 033 FR-012.
+ * The pin colour key, floating over the canvas's bottom-left. Counts are live and
+ * describe the whole mode, not the filtered list. Spec 034 FR-011.
  */
-export function MapLegend({ mode, locations, className }: MapLegendProps) {
-  const [singular, plural] = NOUN[mode];
+export function MapLegend({ rows, bottom }: MapLegendProps) {
+  return (
+    <ul
+      aria-label="Pin colour key"
+      className="absolute left-3.5 z-[5] flex flex-wrap gap-3.5 rounded-[10px] border px-[13px] py-[9px] backdrop-blur-[8px] transition-[bottom] duration-[260ms] ease-[cubic-bezier(.4,.14,.3,1)]"
+      style={{
+        bottom,
+        background: OVERLAY_GROUND,
+        borderColor: "var(--border-subtle)",
+      }}
+    >
+      {rows.map((row) => (
+        <li
+          key={`${row.status}-${row.label}`}
+          className="flex items-center gap-[7px] text-[11px] whitespace-nowrap"
+          style={{ color: "var(--foreground-secondary)" }}
+        >
+          <span
+            data-legend-dot
+            aria-hidden
+            className="size-2 rounded-full"
+            style={{ background: statusVar(row.status) }}
+          />
+          {row.label}{" "}
+          <span className="tabular-nums" style={{ color: "var(--foreground)" }}>
+            {row.count}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
+interface PhotographsNoteProps {
+  note: string;
+  bottom: number;
+}
+
+/**
+ * Photographs mode's dashed ochre note: how many photographs the map cannot show, and
+ * the way to them.
+ */
+export function PhotographsNote({ note, bottom }: PhotographsNoteProps) {
   return (
     <div
-      className={clsx(
-        "border-hairline bg-surface shrink-0 border-t px-4 py-3",
-        className
-      )}
+      className="absolute right-3.5 z-[5] max-w-[260px] rounded-[10px] border border-dashed px-3.5 py-3 backdrop-blur-[8px] transition-[bottom] duration-[260ms] ease-[cubic-bezier(.4,.14,.3,1)]"
+      style={{
+        bottom,
+        background: "color-mix(in srgb, var(--background) 90%, transparent)",
+        borderColor:
+          "color-mix(in srgb, var(--brand-sobrado-ochre) 50%, transparent)",
+      }}
     >
-      <ul
-        aria-label="Pin colour key"
-        className="flex flex-wrap items-center gap-x-5 gap-y-1.5"
+      <p
+        className="text-xs leading-normal"
+        style={{ color: "var(--brand-sobrado-ochre)" }}
       >
-        {KEYS[mode].map(({ status, label }) => {
-          const count = locations.filter(
-            (location) => location.status.status === status
-          ).length;
-
-          return (
-            <li
-              key={status}
-              className="text-body flex items-center gap-2 text-xs"
-            >
-              <span
-                data-legend-dot
-                aria-hidden="true"
-                className="size-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: STATUS_PIN_COLOR[status] }}
-              />
-              <span>{label}</span>
-              <span className="text-muted">{`${count} ${count === 1 ? singular : plural}`}</span>
-            </li>
-          );
-        })}
-      </ul>
+        {note}
+      </p>
+      <Link
+        href="/photographs?filter=noplace"
+        className="mt-2 inline-block text-xs underline underline-offset-[3px]"
+        style={{ color: "var(--foreground)" }}
+      >
+        Open the no-place tray
+      </Link>
     </div>
   );
 }

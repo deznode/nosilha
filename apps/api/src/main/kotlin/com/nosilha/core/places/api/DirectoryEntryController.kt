@@ -3,7 +3,6 @@ package com.nosilha.core.places.api
 import com.nosilha.core.engagement.api.BookmarkStatusDto
 import com.nosilha.core.engagement.services.BookmarkService
 import com.nosilha.core.places.domain.DirectoryEntryService
-import com.nosilha.core.places.domain.toDto
 import com.nosilha.core.places.services.SearchService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.CreateEntryRequestDto
@@ -131,7 +130,7 @@ class DirectoryEntryController(
                 } else {
                     // For search, we sort by relevance (handled in repository query)
                     val pageable = PageRequest.of(page, size)
-                    searchService.search(q, category, town, pageable).map { it.toDto() }
+                    service.toDtoPage(searchService.search(q, category, town, pageable))
                 }
             } else {
                 // No search query - use existing filter logic with sorting

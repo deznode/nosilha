@@ -1,3 +1,5 @@
+import type { StyleSpecification } from "maplibre-gl";
+
 // --- Basemap Styles (CARTO, open / no API key) ---
 // Any host added here must also be allowed by the CSP in `next.config.ts`.
 export const MAP_STYLES = {
@@ -6,6 +8,26 @@ export const MAP_STYLES = {
   darkMatter:
     "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
 } as const;
+
+/**
+ * Esri World Imagery as a raster style, for the explorer's satellite toggle. One
+ * module-level object, so the map sees the same reference on every render and never
+ * restyles for nothing.
+ */
+export const SATELLITE_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    satellite: {
+      type: "raster",
+      tiles: [
+        "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      ],
+      tileSize: 256,
+      attribution: "Esri",
+    },
+  },
+  layers: [{ id: "satellite", type: "raster", source: "satellite" }],
+};
 
 // --- Terrain DEM Source (AWS Terrarium tiles, open / no API key) ---
 export const TERRAIN_DEM = {
@@ -23,49 +45,26 @@ export const MAP_CONFIG = {
   DEFAULT_CENTER: { lng: -24.7, lat: 14.86 },
   DEFAULT_ZOOM: 12.5,
   LOCATION_ZOOM: 15,
-  PITCH_3D: 60,
   PITCH_2D: 0,
   DEFAULT_BEARING: 0,
   TERRAIN_EXAGGERATION: 1.5,
   ANIMATION_DURATION: 2000,
-  RESET_DURATION: 1500,
   EASE_DURATION: 500,
   MAX_PITCH: 85,
 } as const;
 
-// --- Illustration Mode Configuration ---
-export const ILLUSTRATION_BOUNDS: [
-  [number, number],
-  [number, number],
-  [number, number],
-  [number, number],
-] = [
-  [-24.75, 14.89],
-  [-24.66, 14.89],
-  [-24.66, 14.83],
-  [-24.75, 14.83],
-];
-
-export const ILLUSTRATION_URL = "/brava-illustration.jpg";
-
-export const ENABLE_ILLUSTRATION_MODE = false;
-
-// --- Utility: Calculate Bearing Between Two Points ---
-export function calculateBearing(
-  from: { lng: number; lat: number },
-  to: { lng: number; lat: number }
-): number {
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const toDeg = (rad: number) => (rad * 180) / Math.PI;
-
-  const dLng = toRad(to.lng - from.lng);
-  const lat1 = toRad(from.lat);
-  const lat2 = toRad(to.lat);
-
-  const y = Math.sin(dLng) * Math.cos(lat2);
-  const x =
-    Math.cos(lat1) * Math.sin(lat2) -
-    Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
-
-  return (toDeg(Math.atan2(y, x)) + 360) % 360;
-}
+/** The map explorer's view, as prototyped. Spec 034 FR-011. */
+export const EXPLORER_VIEW = {
+  CENTER: { lng: -24.718, lat: 14.859 },
+  ZOOM: 12.1,
+  /** Where a list row eases to. */
+  SELECT_ZOOM: 14.2,
+  SELECT_DURATION: 900,
+  RESET_DURATION: 800,
+  PITCH_3D: 58,
+  PITCH_DURATION: 700,
+  /** Where "my location" eases to. */
+  LOCATE_ZOOM: 14,
+  /** Labels appear above this zoom (SPECS §3a). */
+  LABEL_ZOOM: 13,
+} as const;

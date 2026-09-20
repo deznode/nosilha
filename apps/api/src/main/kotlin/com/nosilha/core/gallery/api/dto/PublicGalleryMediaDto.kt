@@ -44,9 +44,11 @@ sealed class PublicGalleryMediaDto {
     /**
      * Public DTO for user-uploaded media.
      *
-     * Excludes: storageKey, fileName, originalName, contentType, fileSize,
+     * Excludes: storageKey, fileName, contentType, fileSize,
      * uploadedBy UUID, source, status, AI fields, gpsPrivacyLevel, photoType,
      * orientation, altitude.
+     *
+     * `originalName` is public, and the upload form says so (spec 034 FR-019).
      */
     data class UserUpload(
         override val id: UUID,
@@ -57,7 +59,19 @@ sealed class PublicGalleryMediaDto {
         override val mediaSource: String = "USER_UPLOAD",
         override val altText: String?,
         override val createdAt: Instant?,
+        /**
+         * Shows an identifiable person whose provenance nobody has confirmed
+         * (spec 034 FR-022). Public so the archive screens can keep such a record out
+         * of a promotional slot while still listing it where it can be identified.
+         */
+        val identifiablePerson: Boolean = false,
         val publicUrl: String?,
+        /** The file's name as given by the contributor. */
+        val originalName: String?,
+        /** Pixel width, so a tile holds its shape before the image loads. */
+        val width: Int?,
+        /** Pixel height. */
+        val height: Int?,
         val entryId: UUID?,
         val uploaderDisplayName: String? = null,
         // EXIF metadata (public-safe)
@@ -90,6 +104,12 @@ sealed class PublicGalleryMediaDto {
         override val mediaSource: String = "EXTERNAL",
         override val altText: String?,
         override val createdAt: Instant?,
+        /**
+         * Shows an identifiable person whose provenance nobody has confirmed
+         * (spec 034 FR-022). Public so the archive screens can keep such a record out
+         * of a promotional slot while still listing it where it can be identified.
+         */
+        val identifiablePerson: Boolean = false,
         val mediaType: MediaType,
         val platform: ExternalPlatform,
         val externalId: String?,
@@ -119,7 +139,11 @@ sealed class PublicGalleryMediaDto {
                 displayOrder = media.displayOrder,
                 altText = media.altText,
                 createdAt = media.createdAt,
+                identifiablePerson = media.identifiablePerson,
                 publicUrl = media.publicUrl,
+                originalName = media.originalName,
+                width = media.width,
+                height = media.height,
                 entryId = media.entryId,
                 uploaderDisplayName = uploaderDisplayName,
                 latitude = media.latitude?.toDouble(),
@@ -147,6 +171,7 @@ sealed class PublicGalleryMediaDto {
                 displayOrder = media.displayOrder,
                 altText = media.altText,
                 createdAt = media.createdAt,
+                identifiablePerson = media.identifiablePerson,
                 mediaType = media.mediaType,
                 platform = media.platform,
                 externalId = media.externalId,

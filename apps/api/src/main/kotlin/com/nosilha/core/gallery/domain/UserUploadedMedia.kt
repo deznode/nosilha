@@ -60,6 +60,14 @@ class UserUploadedMedia : GalleryMedia() {
     @Column(name = "file_size")
     var fileSize: Long? = null
 
+    /** Pixel width, so a tile holds its shape before the image loads (spec 034 FR-019). */
+    @Column(name = "width")
+    var width: Int? = null
+
+    /** Pixel height, so a tile holds its shape before the image loads (spec 034 FR-019). */
+    @Column(name = "height")
+    var height: Int? = null
+
     /** Optional association with a directory entry. */
     @Column(name = "entry_id")
     var entryId: UUID? = null

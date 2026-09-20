@@ -26,11 +26,11 @@ export default function NotFound() {
             Homepage
           </Link>
           <Link
-            href="/directory"
+            href="/settlements"
             className="border-hairline bg-canvas text-body hover:bg-surface inline-flex items-center justify-center gap-2 rounded-lg border px-5 py-2.5 font-semibold transition-colors"
           >
             <Search className="h-4 w-4" />
-            Explore directory
+            Explore settlements
           </Link>
           <Link
             href="/map"

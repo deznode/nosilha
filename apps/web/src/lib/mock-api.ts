@@ -3,6 +3,7 @@ import type { Town, TownStatusSummary } from "@/types/town";
 import type {
   ApiClient,
   PaginatedResult,
+  DirectoryQueryParams,
   PaginationMetadata,
   StorySubmitRequest,
   StorySubmittedResponse,
@@ -276,6 +277,23 @@ export class MockApiClient implements ApiClient {
    * Fetches all directory entries or entries for a specific category.
    * Simulates ISR caching behavior with realistic delays.
    */
+  /**
+   * Object-parameter entry query. The mock has no canonical settlement ids, so
+   * `townId` is accepted and ignored rather than silently returning nothing.
+   */
+  async getEntries(
+    params: DirectoryQueryParams = {}
+  ): Promise<PaginatedResult<DirectoryEntry>> {
+    return this.getEntriesByCategory(
+      params.category ?? "all",
+      params.page ?? 0,
+      params.size ?? 20,
+      params.searchQuery,
+      params.town,
+      params.sort
+    );
+  }
+
   async getEntriesByCategory(
     category: string,
     page: number = 0,
@@ -556,13 +574,11 @@ export class MockApiClient implements ApiClient {
       entryCount: 0,
       hasPhotograph: false,
       status: "NAME_ONLY",
+      population: town.population,
+      elevation: town.elevation,
+      photographCount: 0,
+      unconfirmedPhotographCount: 0,
     }));
-  }
-
-  async getTownsForMap(): Promise<Town[]> {
-    console.log(`Mock API: Fetching towns for map`);
-    await this.simulateDelay(150);
-    return MOCK_TOWNS;
   }
 
   // ================================
@@ -892,6 +908,7 @@ export class MockApiClient implements ApiClient {
           slug: entry.slug,
           description: entry.description,
           town: entry.town,
+          townId: entry.townId ?? null,
           thumbnailUrl: entry.imageUrl ?? null,
           averageRating: entry.rating ?? null,
         },
@@ -1741,6 +1758,34 @@ ${story.content
     return { items: [], totalItems: 0, totalPages: 0, currentPage: 0 };
   }
 
+  /**
+   * Whole-archive facet counts. The mock holds no gallery records, so every count
+   * is zero — a shape the validators accept, not a fabricated archive.
+   */
+  async getGalleryFacets(): Promise<import("@/types/gallery").GalleryFacets> {
+    await this.simulateDelay(150);
+    return {
+      total: 0,
+      photographs: 0,
+      films: 0,
+      withPlace: 0,
+      withoutPlace: 0,
+      withoutDate: 0,
+      uncredited: 0,
+    };
+  }
+
+  /**
+   * The mock has no located photographs, so every record reads as unlocated: a null
+   * position and no neighbours, which is the same answer the API gives.
+   */
+  async getPhotoSequence(
+    id: string
+  ): Promise<import("@/types/gallery").PhotoSequence | undefined> {
+    await this.simulateDelay(150);
+    return { id, position: null, total: 0, previousId: null, nextId: null };
+  }
+
   async getGalleryMediaById(): Promise<
     import("@/types/gallery").PublicGalleryMedia | undefined
   > {
@@ -1779,13 +1824,6 @@ ${story.content
   > {
     await this.simulateDelay(200);
     return [];
-  }
-
-  async getGalleryTimeline(): Promise<
-    import("@/types/gallery").TimelineResponse
-  > {
-    await this.simulateDelay(200);
-    return { groups: [], totalCount: 0 };
   }
 
   async submitExternalMedia(): Promise<{ id: string; message: string }> {
@@ -2198,12 +2236,6 @@ const MOCK_TOWNS: Town[] = [
       "Colonial sobrados",
       "Eugénio Tavares Museum",
     ],
-    heroImage: "/images/towns/nova-sintra-hero.jpg",
-    gallery: [
-      "/images/towns/nova-sintra-1.jpg",
-      "/images/towns/nova-sintra-2.jpg",
-      "/images/towns/nova-sintra-3.jpg",
-    ],
     createdAt: "2024-01-01T10:00:00Z",
     updatedAt: "2024-01-01T10:00:00Z",
   },
@@ -2223,12 +2255,6 @@ const MOCK_TOWNS: Town[] = [
       "Fishing fleet",
       "Maritime festivals",
       "Nossa Senhora dos Navegantes",
-    ],
-    heroImage: "/images/towns/furna-hero.jpg",
-    gallery: [
-      "/images/towns/furna-1.jpg",
-      "/images/towns/furna-2.jpg",
-      "/images/towns/furna-3.jpg",
     ],
     createdAt: "2024-01-01T10:00:00Z",
     updatedAt: "2024-01-01T10:00:00Z",
@@ -2250,12 +2276,6 @@ const MOCK_TOWNS: Town[] = [
       "Abandoned airport",
       "Emigrant monument",
     ],
-    heroImage: "/images/towns/faja-de-agua-hero.jpg",
-    gallery: [
-      "/images/towns/faja-de-agua-1.jpg",
-      "/images/towns/faja-de-agua-2.jpg",
-      "/images/towns/faja-de-agua-3.jpg",
-    ],
     createdAt: "2024-01-01T10:00:00Z",
     updatedAt: "2024-01-01T10:00:00Z",
   },
@@ -2275,12 +2295,6 @@ const MOCK_TOWNS: Town[] = [
       "August 15th festival",
       "Monte Fontainhas views",
       "Religious processions",
-    ],
-    heroImage: "/images/towns/nossa-senhora-do-monte-hero.jpg",
-    gallery: [
-      "/images/towns/nossa-senhora-do-monte-1.jpg",
-      "/images/towns/nossa-senhora-do-monte-2.jpg",
-      "/images/towns/nossa-senhora-do-monte-3.jpg",
     ],
     createdAt: "2024-01-01T10:00:00Z",
     updatedAt: "2024-01-01T10:00:00Z",
@@ -2302,12 +2316,6 @@ const MOCK_TOWNS: Town[] = [
       "Traditional cheese making",
       "Mountain isolation",
     ],
-    heroImage: "/images/towns/cachaco-hero.jpg",
-    gallery: [
-      "/images/towns/cachaco-1.jpg",
-      "/images/towns/cachaco-2.jpg",
-      "/images/towns/cachaco-3.jpg",
-    ],
     createdAt: "2024-01-01T10:00:00Z",
     updatedAt: "2024-01-01T10:00:00Z",
   },
@@ -2327,12 +2335,6 @@ const MOCK_TOWNS: Town[] = [
       "Colonial sobrados",
       "Hibiscus hedges",
       "Mountain tranquility",
-    ],
-    heroImage: "/images/towns/cova-joana-hero.jpg",
-    gallery: [
-      "/images/towns/cova-joana-1.jpg",
-      "/images/towns/cova-joana-2.jpg",
-      "/images/towns/cova-joana-3.jpg",
     ],
     createdAt: "2024-01-01T10:00:00Z",
     updatedAt: "2024-01-01T10:00:00Z",

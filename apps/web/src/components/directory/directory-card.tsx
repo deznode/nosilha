@@ -1,12 +1,14 @@
+"use client";
+
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { DirectoryEntry } from "@/types/directory";
 import { BookmarkButton } from "@/components/directory/bookmark-button";
-import { getEntryUrl } from "@/lib/directory-utils";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 import { getCategoryIcon } from "@/lib/category-icons";
+import { usePlaceRecordHref } from "@/hooks/queries/useTownSummaries";
 
 interface DirectoryCardProps {
   entry: DirectoryEntry;
@@ -36,9 +38,11 @@ export function DirectoryCard({
   showBookmark = true,
   isPriority = false,
 }: DirectoryCardProps) {
+  const href = usePlaceRecordHref(entry);
+
   return (
     <Link
-      href={getEntryUrl(entry.slug, entry.category)}
+      href={href}
       aria-label={`View details for ${entry.name}`}
       className="group block h-full"
     >

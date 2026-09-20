@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getEntriesByCategory } from "@/lib/api";
+import { useTownSummaries } from "./useTownSummaries";
 import type { DirectoryEntry } from "@/types/directory";
 import type {
   GroupedSearchResults,
@@ -112,6 +113,7 @@ export function useUnifiedSearch(
     gcTime: 30 * 60 * 1000, // 30 minutes
     enabled: shouldLoadDirectory, // Only load when requested
   });
+  const { data: towns } = useTownSummaries({ enabled: shouldLoadDirectory });
 
   // Load directory entries (call this on input focus)
   const loadDirectory = useCallback(() => {
@@ -152,17 +154,21 @@ export function useUnifiedSearch(
       try {
         // Search directory entries (client-side filter)
         const directoryResults: DirectorySearchResult[] = [];
-        if (directoryData && directoryData.length > 0) {
-          const filtered = directoryData
+        if (directoryData && directoryData.length > 0 && towns) {
+          const matches = directoryData
             .filter(
               (entry: DirectoryEntry) =>
                 entry.name.toLowerCase().includes(normalizedQuery) ||
                 entry.town.toLowerCase().includes(normalizedQuery) ||
                 entry.description.toLowerCase().includes(normalizedQuery)
             )
+            .flatMap((entry) => {
+              const result = toDirectorySearchResult(entry, towns);
+              return result ? [result] : [];
+            })
             .slice(0, maxResultsPerCategory);
 
-          directoryResults.push(...filtered.map(toDirectorySearchResult));
+          directoryResults.push(...matches);
         }
 
         // Search Pagefind (MDX content)
@@ -201,7 +207,7 @@ export function useUnifiedSearch(
         setHasSearched(true);
       }
     },
-    [directoryData, pagefind, isPagefindReady, maxResultsPerCategory]
+    [directoryData, towns, pagefind, isPagefindReady, maxResultsPerCategory]
   );
 
   // Trigger search when debounced query changes

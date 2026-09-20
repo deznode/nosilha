@@ -33,9 +33,11 @@ const variants = {
     "text-text-primary hover:bg-background-secondary focus-visible:ring-ocean-blue",
 };
 
+// sm and md follow the handoff's metrics: 13px on 9px 16px, and 14px on 11px 20px. The
+// radius stays rounded-lg (8px), not rounded-button (12px). Spec 034 T-04.
 const sizes = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-base",
+  sm: "px-4 py-[9px] text-[13px]",
+  md: "px-5 py-[11px] text-sm",
   lg: "px-6 py-3 text-lg",
 };
 

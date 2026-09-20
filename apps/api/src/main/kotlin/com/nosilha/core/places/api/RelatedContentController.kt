@@ -1,7 +1,7 @@
 package com.nosilha.core.places.api
 
 import com.nosilha.core.places.RelatedContentService
-import com.nosilha.core.places.domain.toDto
+import com.nosilha.core.places.domain.DirectoryEntryService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -32,6 +32,7 @@ private val logger = KotlinLogging.logger {}
 @RequestMapping("/api/v1/directory")
 class RelatedContentController(
     private val relatedContentService: RelatedContentService,
+    private val directoryEntryService: DirectoryEntryService,
 ) {
     /**
      * Get related content items for a specific heritage page.
@@ -81,8 +82,8 @@ class RelatedContentController(
         // Find related content using service
         val relatedEntries = relatedContentService.findRelatedContent(contentId, validatedLimit)
 
-        // Convert to DTOs using the polymorphic toDto() extension function
-        val relatedDtos = relatedEntries.map { entry -> entry.toDto() }
+        // Convert to DTOs, resolving the whole set's heroes in one query
+        val relatedDtos = directoryEntryService.toDtos(relatedEntries)
 
         logger.info { "Returning ${relatedDtos.size} related content items for contentId=$contentId" }
 

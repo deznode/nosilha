@@ -21,6 +21,7 @@ import type {
   DashboardCounts,
   DirectorySubmissionRequest,
   DirectorySubmissionConfirmation,
+  DirectoryQueryParams,
 } from "@/lib/api-contracts";
 import {
   type StorySubmission,
@@ -65,6 +66,9 @@ import type {
   UpdateGalleryStatusRequest,
   UpdateGalleryMediaRequest,
   ExternalMedia,
+  GalleryFacets,
+  GalleryQueryParams,
+  PhotoSequence,
 } from "@/types/gallery";
 import type {
   AnalysisRunSummary,
@@ -108,6 +112,8 @@ import {
   validateTowns,
   validateTownStatusSummaries,
   validateTown,
+  validateGalleryFacets,
+  validatePhotoSequence,
 } from "@/lib/api-validation";
 
 /**
@@ -247,6 +253,63 @@ export class BackendApiClient implements ApiClient {
 
     // Use no-store cache for search results to ensure fresh data, ISR for regular browsing
     const fetchConfig = searchQuery
+      ? { cache: "no-store" as const }
+      : { next: CacheConfig.DIRECTORY_ENTRIES };
+
+    const response = await fetch(endpoint, fetchConfig);
+
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as unknown;
+    const { items, pagination } =
+      this.unwrapPagedResult<DirectoryEntry>(payload);
+    return {
+      items: validateDirectoryEntries(items),
+      pagination,
+    };
+  }
+
+  /**
+   * Queries directory entries.
+   *
+   * Preferred over the positional {@link getEntriesByCategory} for new callers, and
+   * the only way to filter by canonical settlement. Spec 034 T-21.
+   *
+   * The API applies exactly one filter, in this order: a non-blank `searchQuery`
+   * wins outright, then `townId`, then `category` + `town`, then `category`, then
+   * `town`. So `{ townId, category }` returns the whole settlement, not the
+   * settlement's Heritage records — pass one filter, not a combination.
+   */
+  async getEntries(
+    params: DirectoryQueryParams = {}
+  ): Promise<PaginatedResult<DirectoryEntry>> {
+    const search = new URLSearchParams();
+
+    if (params.category && params.category.toLowerCase() !== "all") {
+      search.append("category", params.category);
+    }
+    // Matches the backend's minimum query length
+    if (params.searchQuery && params.searchQuery.trim().length >= 2) {
+      search.append("q", params.searchQuery.trim());
+    }
+    if (params.town) {
+      search.append("town", params.town);
+    }
+    if (params.townId) {
+      search.append("townId", params.townId);
+    }
+    if (params.sort) {
+      search.append("sort", params.sort);
+    }
+    search.append("page", String(params.page ?? 0));
+    search.append("size", String(params.size ?? 20));
+
+    const endpoint = `${env.apiUrl}/api/v1/directory/entries?${search.toString()}`;
+
+    // Search results must be fresh; regular browsing uses ISR
+    const fetchConfig = params.searchQuery
       ? { cache: "no-store" as const }
       : { next: CacheConfig.DIRECTORY_ENTRIES };
 
@@ -627,14 +690,26 @@ export class BackendApiClient implements ApiClient {
   }
 
   /**
-   * Fetches towns for real-time interactive features like maps.
-   * Uses no-store cache to ensure fresh data for dynamic interactions.
+   * Every settlement with its documentation counts.
+   *
+   * Status is derived from live counts, but the answer is the same for every caller,
+   * and nine of them are archive pages whose `use cache` keys vary by filter and
+   * region. `no-store` re-hit this endpoint — the heaviest read in the API — once per
+   * variant, so on the server it is cached for 30 minutes behind the `directory` tag
+   * the backend flushes when an entry changes.
+   *
+   * The map store and the client link hooks call this from the browser, where Next
+   * does not patch `fetch` and `next` is an ignored init property. They keep the
+   * explicit `no-store` they had before, and dedupe in their own layer (TanStack
+   * Query's `staleTime`, one load per map visit) rather than in the HTTP cache.
    */
   async getTownStatusSummary(): Promise<TownStatusSummary[]> {
     const endpoint = `${env.apiUrl}/api/v1/towns/status-summary`;
-
-    // Status is derived from live counts, so keep it fresh like the rest of the map data
-    const response = await fetch(endpoint, CacheConfig.MAP_DATA);
+    const init: RequestInit =
+      typeof window === "undefined"
+        ? { next: CacheConfig.TOWN_STATUS }
+        : { cache: "no-store" };
+    const response = await fetch(endpoint, init);
 
     if (!response.ok) {
       throw new Error(`API call failed with status: ${response.status}`);
@@ -643,21 +718,6 @@ export class BackendApiClient implements ApiClient {
     const payload = (await response.json()) as unknown;
     const rawData = this.unwrapApiResponse<TownStatusSummary[]>(payload) ?? [];
     return validateTownStatusSummaries(rawData);
-  }
-
-  async getTownsForMap(): Promise<Town[]> {
-    const endpoint = `${env.apiUrl}/api/v1/towns/all`;
-
-    // Keep dynamic for real-time map interactions
-    const response = await fetch(endpoint, CacheConfig.MAP_DATA);
-
-    if (!response.ok) {
-      throw new Error(`API call failed with status: ${response.status}`);
-    }
-
-    const payload = (await response.json()) as unknown;
-    const rawData = this.unwrapApiResponse<Town[]>(payload) ?? [];
-    return validateTowns(rawData);
   }
 
   // ================================
@@ -1942,7 +2002,6 @@ export class BackendApiClient implements ApiClient {
       BEACH: "Beach",
       HERITAGE: "Heritage",
       NATURE: "Nature",
-      TOWN: "Town",
       VIEWPOINT: "Viewpoint",
       TRAIL: "Trail",
       CHURCH: "Church",
@@ -1953,7 +2012,6 @@ export class BackendApiClient implements ApiClient {
       Beach: "Beach",
       Heritage: "Heritage",
       Nature: "Nature",
-      Town: "Town",
       Viewpoint: "Viewpoint",
       Trail: "Trail",
       Church: "Church",
@@ -2398,14 +2456,9 @@ export class BackendApiClient implements ApiClient {
    * @returns PublicGalleryMediaPageResponse with paginated gallery items
    * @throws Error if API call fails
    */
-  async getGalleryMedia(options?: {
-    category?: string;
-    decade?: string;
-    q?: string;
-    hasGeo?: boolean;
-    page?: number;
-    size?: number;
-  }): Promise<PublicGalleryMediaPageResponse> {
+  async getGalleryMedia(
+    options?: GalleryQueryParams
+  ): Promise<PublicGalleryMediaPageResponse> {
     const params = new URLSearchParams();
 
     if (options?.category) {
@@ -2419,6 +2472,23 @@ export class BackendApiClient implements ApiClient {
     }
     if (options?.hasGeo !== undefined) {
       params.append("hasGeo", String(options.hasGeo));
+    }
+    if (options?.hasPlace !== undefined) {
+      params.append("hasPlace", String(options.hasPlace));
+    }
+    if (options?.hasDate !== undefined) {
+      params.append("hasDate", String(options.hasDate));
+    }
+    if (options?.mediaType) {
+      params.append("mediaType", options.mediaType);
+    }
+    // The API rejects a half pair with 400, so only send both or neither
+    if (options?.nearLat !== undefined && options?.nearLng !== undefined) {
+      params.append("nearLat", String(options.nearLat));
+      params.append("nearLng", String(options.nearLng));
+    }
+    if (options?.unplaced !== undefined) {
+      params.append("unplaced", String(options.unplaced));
     }
     if (options?.page !== undefined) {
       params.append("page", String(options.page));
@@ -2509,6 +2579,73 @@ export class BackendApiClient implements ApiClient {
   }
 
   /**
+   * Fetches the whole-archive facet counts.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * **Caching**: 30 minutes, matching the gallery list it describes.
+   *
+   * @returns The seven counts
+   * @throws Error if the API call fails or the payload is malformed
+   */
+  async getGalleryFacets(): Promise<GalleryFacets> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/facets`;
+
+    const response = await fetch(endpoint, { next: CacheConfig.GALLERY });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch gallery facets: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const facets = validateGalleryFacets(
+      this.unwrapApiResponse<unknown>(payload)
+    );
+
+    if (!facets) {
+      throw new Error("Gallery facets response was malformed");
+    }
+
+    return facets;
+  }
+
+  /**
+   * Fetches a photograph's position among all located archive photographs.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * **Caching**: 30 minutes. Neighbours wrap at the ends; a record with no
+   * coordinates comes back with a null position and no neighbours.
+   *
+   * @param id UUID of the gallery media item
+   * @returns The sequence, or undefined when the id is unknown
+   * @throws Error if the API call fails or the payload is malformed
+   */
+  async getPhotoSequence(id: string): Promise<PhotoSequence | undefined> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/${id}/sequence`;
+
+    const response = await fetch(endpoint, { next: CacheConfig.GALLERY });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return undefined;
+      }
+      throw new Error(`Failed to fetch photo sequence: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const sequence = validatePhotoSequence(
+      this.unwrapApiResponse<unknown>(payload)
+    );
+
+    if (!sequence) {
+      throw new Error("Photo sequence response was malformed");
+    }
+
+    return sequence;
+  }
+
+  /**
    * Fetches available gallery categories.
    *
    * **Public Endpoint**: No authentication required.
@@ -2586,22 +2723,6 @@ export class BackendApiClient implements ApiClient {
     }
     const payload = await response.json();
     return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
-  }
-
-  async getGalleryTimeline(): Promise<
-    import("@/types/gallery").TimelineResponse
-  > {
-    const endpoint = `${env.apiUrl}/api/v1/gallery/timeline`;
-    const response = await fetch(endpoint, {
-      next: CacheConfig.GALLERY,
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to fetch gallery timeline: ${response.status}`);
-    }
-    const payload = await response.json();
-    return this.unwrapApiResponse<import("@/types/gallery").TimelineResponse>(
-      payload
-    );
   }
 
   /**

@@ -1,13 +1,20 @@
 package com.nosilha.core.gallery.api
 
 import com.nosilha.core.gallery.api.dto.ConfirmRequest
+import com.nosilha.core.gallery.api.dto.GalleryFacetsDto
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
+import com.nosilha.core.gallery.api.dto.PhotoSequenceDto
 import com.nosilha.core.gallery.api.dto.PresignRequest
 import com.nosilha.core.gallery.api.dto.PresignResponse
 import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.TimelineDto
+import com.nosilha.core.gallery.domain.ArchiveFilter
+import com.nosilha.core.gallery.domain.GalleryFacetsService
 import com.nosilha.core.gallery.domain.GalleryService
+import com.nosilha.core.gallery.domain.MediaType
+import com.nosilha.core.gallery.domain.PhotoProximityService
+import com.nosilha.core.gallery.domain.PhotoSequenceService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.exception.ResourceNotFoundException
@@ -36,7 +43,9 @@ private val logger = KotlinLogging.logger {}
  *
  * Endpoints:
  * - GET / - List active gallery media (mixed UserUpload and External)
+ * - GET /facets - Whole-archive counts
  * - GET /{id} - Get single gallery item
+ * - GET /{id}/sequence - Position among located photographs
  * - GET /entry/{entryId} - Media for directory entry (UserUploadedMedia only)
  * - GET /categories - Distinct categories across all media
  * - GET /random - Random gallery photos (unseeded)
@@ -64,36 +73,85 @@ private val logger = KotlinLogging.logger {}
 @RequestMapping("/api/v1/gallery")
 class GalleryController(
     private val galleryService: GalleryService,
+    private val galleryFacetsService: GalleryFacetsService,
+    private val photoProximityService: PhotoProximityService,
+    private val photoSequenceService: PhotoSequenceService,
 ) {
     /**
-     * List active gallery media with pagination and optional filtering.
+     * List archive records with pagination and optional filtering.
      *
-     * Returns a unified list of ACTIVE media from both user uploads and
-     * external curated content, ordered by displayOrder.
+     * Returns a unified list of ACTIVE archive records from both user uploads and
+     * external curated content, ordered by displayOrder (or relevance when searching).
+     * Every filter and the total are evaluated in SQL; heroes are never listed.
      *
      * Query Parameters:
      * - category: Optional category filter
-     * - hasGeo: Optional geo-filter (true = only items with GPS coordinates)
+     * - decade: pre-1975, 1975-1990, 1990-2010 or 2010-plus; other values are ignored
+     * - q: Full-text search
+     * - hasGeo: true = only uploads with GPS coordinates
+     * - hasPlace: true = records with coordinates, false = uploads without
+     * - hasDate: false = no date taken and no approximate date
+     * - mediaType: IMAGE (photographs) or VIDEO (films)
+     * - nearLat, nearLng: records within the proximity box of a point; give both or neither
+     * - unplaced: true = records linked to no directory entry
      * - page: Page number (default: 0)
      * - size: Items per page (default: 50, max: 100)
      *
-     * Example: GET /api/v1/gallery?category=Nature&hasGeo=true&page=0&size=20
+     * Example: GET /api/v1/gallery?nearLat=14.868&nearLng=-24.703&unplaced=true
      */
     @GetMapping
+    @Suppress("LongParameterList")
     fun listGalleryMedia(
         @RequestParam(required = false) category: String? = null,
         @RequestParam(required = false) decade: String? = null,
         @RequestParam(name = "q", required = false) query: String? = null,
         @RequestParam(required = false) hasGeo: Boolean? = null,
+        @RequestParam(required = false) hasPlace: Boolean? = null,
+        @RequestParam(required = false) hasDate: Boolean? = null,
+        @RequestParam(required = false) mediaType: MediaType? = null,
+        @RequestParam(required = false) nearLat: Double? = null,
+        @RequestParam(required = false) nearLng: Double? = null,
+        @RequestParam(required = false) unplaced: Boolean? = null,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "50") size: Int,
     ): PagedApiResult<PublicGalleryMediaDto> {
-        logger.debug {
-            "Listing gallery media - category: $category, decade: $decade, " +
-                "q: $query, hasGeo: $hasGeo, page: $page, size: $size"
-        }
-        return galleryService.listActiveMediaPublic(category, decade, query, hasGeo, page, size)
+        require((nearLat == null) == (nearLng == null)) { "nearLat and nearLng must be given together" }
+        require(nearLat == null || nearLat in -90.0..90.0) { "nearLat must be between -90 and 90" }
+        require(nearLng == null || nearLng in -180.0..180.0) { "nearLng must be between -180 and 180" }
+        require(mediaType != MediaType.AUDIO) { "mediaType must be IMAGE or VIDEO" }
+
+        val filter = ArchiveFilter(
+            category = category,
+            decade = decade?.let { GalleryService.parseDecadeRange(it) },
+            query = query?.trim()?.ifEmpty { null },
+            hasGeo = hasGeo,
+            hasPlace = hasPlace,
+            hasDate = hasDate,
+            mediaType = mediaType,
+            near = if (nearLat != null && nearLng != null) photoProximityService.boundsAround(nearLat, nearLng) else null,
+            unplaced = unplaced,
+        )
+        logger.debug { "Listing gallery media - $filter, page: $page, size: $size" }
+        return galleryService.listActiveMediaPublic(filter, page, size)
     }
+
+    /**
+     * Whole-archive counts for chips, standfirsts and home copy (spec 034 FR-018).
+     *
+     * `total` equals the unfiltered list's `totalElements`.
+     */
+    @GetMapping("/facets")
+    fun getFacets(): ApiResult<GalleryFacetsDto> = ApiResult(data = galleryFacetsService.facets())
+
+    /**
+     * Position of a photograph among located archive photographs, with wraparound
+     * neighbours (spec 034 FR-021). Returns 404 when no publicly visible record has
+     * this id; a record without coordinates has a null position.
+     */
+    @GetMapping("/{id}/sequence")
+    fun getSequence(
+        @PathVariable id: UUID,
+    ): ApiResult<PhotoSequenceDto> = ApiResult(data = photoSequenceService.sequenceOf(id))
 
     /**
      * Get a single gallery media item by ID.
@@ -287,6 +345,8 @@ class GalleryController(
             cameraMake = request.cameraMake,
             cameraModel = request.cameraModel,
             orientation = request.orientation,
+            width = request.width,
+            height = request.height,
             // Privacy tracking
             photoType = request.photoType,
             gpsPrivacyLevel = request.gpsPrivacyLevel,

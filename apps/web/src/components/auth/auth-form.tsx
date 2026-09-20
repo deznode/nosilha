@@ -389,12 +389,12 @@ export default function NosIlhaAuth({
                   )}
                   {isLogin && (
                     <div className="mt-2 flex justify-end">
-                      <a
+                      <Link
                         href="/forgot-password"
                         className="text-ocean-blue hover:text-ocean-blue-light text-sm font-medium hover:underline"
                       >
                         Forgot password?
-                      </a>
+                      </Link>
                     </div>
                   )}
                 </Field>

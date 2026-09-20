@@ -2,7 +2,9 @@ package com.nosilha.core.gallery.domain
 
 import com.nosilha.core.ai.domain.AiFeatureConfigService
 import com.nosilha.core.auth.api.UserProfileQueryService
+import com.nosilha.core.gallery.api.dto.BatchErrorDto
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.CreditBackfillResponse
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.GalleryModerationAction
 import com.nosilha.core.gallery.api.dto.UpdateExifRequest
@@ -13,7 +15,6 @@ import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.gallery.repository.MediaModerationAuditRepository
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
-import com.nosilha.core.shared.events.HeroImagePromotedEvent
 import com.nosilha.core.shared.events.MediaAnalysisBatchRequestedEvent
 import com.nosilha.core.shared.events.MediaAnalysisRequestedEvent
 import com.nosilha.core.shared.exception.BusinessException
@@ -56,6 +57,11 @@ class GalleryModerationService(
     private val aiFeatureConfigService: AiFeatureConfigService,
 ) {
     companion object {
+        /** The credit recorded when nobody knows who made a record (spec 033 FR-004). */
+        const val NOT_KNOWN_CREDIT = "not known"
+
+        const val HERO_NOT_STAMPED = "Only archive records are stamped; a hero keeps its recorded credit"
+
         /** Statuses eligible for AI analysis trigger. */
         private val ANALYSIS_ELIGIBLE_STATUSES = setOf(
             GalleryMediaStatus.ACTIVE,
@@ -255,6 +261,7 @@ class GalleryModerationService(
         request.description?.let { media.description = it }
         request.category?.let { media.category = it }
         request.showInGallery?.let { media.showInGallery = it }
+        request.identifiablePerson?.let { media.identifiablePerson = it }
 
         if (request.author != null && media is ExternalMedia) {
             val parsed = CreditParser.parseCredit(request.author)
@@ -284,6 +291,76 @@ class GalleryModerationService(
 
         val displayNames = resolveDisplayNames(listOf(saved))
         return saved.toDto(displayNames)
+    }
+
+    /**
+     * Stamps "not known" on uncredited records (spec 034 FR-024).
+     *
+     * Records flagged as showing an identifiable person are skipped: their credit waits
+     * until provenance is confirmed (FR-022). An upload's credit is its photographer; a
+     * film's is its author. Each stamp writes an audit row, so the change is reviewable.
+     *
+     * @param mediaIds Records to consider; null considers every archive record
+     * @param performedBy Admin performing the action
+     */
+    @Transactional
+    fun markCreditsNotKnown(
+        mediaIds: List<UUID>?,
+        performedBy: UUID,
+    ): CreditBackfillResponse {
+        val candidates: List<Pair<UUID, GalleryMedia?>> =
+            mediaIds?.distinct()?.map { id -> id to repository.findById(id).orElse(null) }
+                ?: repository.findAll().filter { it.role == MediaRole.ARCHIVE }.map { it.id!! to it }
+
+        var updated = 0
+        var skippedFlagged = 0
+        val errors = mutableListOf<BatchErrorDto>()
+
+        for ((id, media) in candidates) {
+            when {
+                media == null -> errors += BatchErrorDto(mediaId = id, reason = "Media not found")
+                // Asked by id or not, a hero keeps the credit recorded with it
+                media.role != MediaRole.ARCHIVE -> errors += BatchErrorDto(mediaId = id, reason = HERO_NOT_STAMPED)
+                !creditOf(media).isNullOrBlank() -> {
+                    // Listing every credited record would bury the ones asked about
+                    if (mediaIds != null) errors += BatchErrorDto(mediaId = id, reason = "Media already has a credit")
+                }
+                media.identifiablePerson -> skippedFlagged++
+                else -> {
+                    stampNotKnown(media)
+                    updated++
+                }
+            }
+        }
+
+        logger.info { "Admin $performedBy stamped 'not known' on $updated records, skipped $skippedFlagged flagged" }
+        return CreditBackfillResponse(updated = updated, skippedFlagged = skippedFlagged, errors = errors)
+    }
+
+    private fun creditOf(media: GalleryMedia): String? =
+        when (media) {
+            is UserUploadedMedia -> media.photographerCredit
+            is ExternalMedia -> media.author
+            else -> null
+        }
+
+    private fun stampNotKnown(media: GalleryMedia) {
+        when (media) {
+            is UserUploadedMedia -> media.photographerCredit = NOT_KNOWN_CREDIT
+            is ExternalMedia -> media.author = NOT_KNOWN_CREDIT
+        }
+        media.creditPlatform = null
+        media.creditHandle = null
+        repository.save(media)
+        auditRepository.save(
+            MediaModerationAudit(
+                mediaId = media.id!!,
+                action = "CREDIT_NOT_KNOWN",
+                previousStatus = media.status.name,
+                newStatus = media.status.name,
+                reason = "Credit set to '$NOT_KNOWN_CREDIT' by bulk admin action",
+            ),
+        )
     }
 
     /**
@@ -370,59 +447,6 @@ class GalleryModerationService(
         val displayName = userProfileQueryService.findDisplayName(adminId)
 
         return GalleryMediaDto.from(saved, displayName)
-    }
-
-    /**
-     * Promotes a gallery image to become the hero image for its associated directory entry.
-     *
-     * This action publishes a HeroImagePromotedEvent that the Places module will consume
-     * to update the directory entry's imageUrl field. This maintains Spring Modulith
-     * module boundaries by using event-driven communication.
-     *
-     * Prerequisites:
-     * - Media must be a UserUploadedMedia (not ExternalMedia)
-     * - Media must have ACTIVE status (approved)
-     * - Media must have an entryId (linked to a directory entry)
-     * - Media must have a publicUrl (accessible via CDN)
-     *
-     * @param mediaId UUID of the media item to promote
-     * @param adminId UUID of the admin user performing the promotion
-     * @throws NotFoundException if media not found
-     * @throws BusinessException if validation fails
-     */
-    @Transactional
-    fun promoteToHeroImage(
-        mediaId: UUID,
-        adminId: UUID,
-    ) {
-        val media = repository.findById(mediaId).orElseThrow {
-            ResourceNotFoundException("Media not found: $mediaId")
-        }
-
-        // Validations
-        if (media !is UserUploadedMedia) {
-            throw BusinessException("Only user uploads can be promoted to hero image")
-        }
-        if (media.status != GalleryMediaStatus.ACTIVE) {
-            throw BusinessException("Media must be ACTIVE to promote as hero image")
-        }
-        if (media.entryId == null) {
-            throw BusinessException("Media must be linked to a directory entry")
-        }
-        if (media.publicUrl.isNullOrBlank()) {
-            throw BusinessException("Media must have a public URL")
-        }
-
-        eventPublisher.publishEvent(
-            HeroImagePromotedEvent(
-                entryId = media.entryId!!,
-                imageUrl = media.publicUrl!!,
-                mediaId = mediaId,
-                promotedBy = adminId,
-            ),
-        )
-
-        logger.info { "Published HeroImagePromotedEvent for entry ${media.entryId}, media $mediaId, by admin $adminId" }
     }
 
     /**
@@ -593,6 +617,8 @@ class GalleryModerationService(
         request.cameraMake?.let { media.cameraMake = it }
         request.cameraModel?.let { media.cameraModel = it }
         request.orientation?.let { media.orientation = it }
+        request.width?.let { media.width = it }
+        request.height?.let { media.height = it }
         request.photoType?.let { media.photoType = it }
         request.gpsPrivacyLevel?.let { media.gpsPrivacyLevel = it }
 

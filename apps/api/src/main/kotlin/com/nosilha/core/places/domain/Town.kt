@@ -52,18 +52,6 @@ class Town : AuditableEntity() {
     @Column(columnDefinition = "TEXT")
     var highlights: String? = null
 
-    /**
-     * Primary hero image URL for the town's main display.
-     */
-    var heroImage: String? = null
-
-    /**
-     * JSON array of gallery image URLs for the town.
-     * Stored as TEXT to accommodate varying numbers of images.
-     */
-    @Column(columnDefinition = "TEXT")
-    var gallery: String? = null
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

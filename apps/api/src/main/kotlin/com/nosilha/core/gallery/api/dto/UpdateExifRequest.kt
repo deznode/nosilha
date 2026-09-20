@@ -34,6 +34,10 @@ data class UpdateExifRequest(
     @field:Min(1, message = "Orientation must be >= 1")
     @field:Max(8, message = "Orientation must be <= 8")
     val orientation: Int? = null,
+    @field:Min(1, message = "Width must be >= 1")
+    val width: Int? = null,
+    @field:Min(1, message = "Height must be >= 1")
+    val height: Int? = null,
     @field:Pattern(
         regexp = "CULTURAL_SITE|COMMUNITY_EVENT|PERSONAL",
         message = "photoType must be CULTURAL_SITE, COMMUNITY_EVENT, or PERSONAL",

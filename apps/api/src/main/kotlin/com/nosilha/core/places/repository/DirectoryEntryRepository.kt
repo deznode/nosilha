@@ -230,14 +230,13 @@ interface DirectoryEntryRepository :
     /**
      * Counts PUBLISHED entries per settlement, for the settlements index status dots.
      *
-     * Returns rows of (townId, entryCount, photographCount) so a single query answers
-     * both "has records" and "has a record with a photograph" (spec 033 FR-005).
+     * Returns rows of (townId, entryCount). Whether a record has a photograph is the gallery
+     * module's to answer, since an entry's hero lives there (spec 034 FR-023).
      */
     @Query(
         """
         SELECT d.town_id AS townId,
-               COUNT(*) AS entryCount,
-               COUNT(d.image_url) AS photographCount
+               COUNT(*) AS entryCount
         FROM directory_entries d
         WHERE d.status = 'PUBLISHED' AND d.town_id IS NOT NULL
         GROUP BY d.town_id
@@ -259,11 +258,13 @@ interface DirectoryEntryRepository :
         id: UUID,
     ): List<DirectoryEntry>
 
-    /** Published entry ids for a settlement, used to batch the "has a photograph" lookup. */
-    @Query("SELECT d.id FROM DirectoryEntry d WHERE d.townId = :townId AND d.status = 'PUBLISHED'")
-    fun findPublishedEntryIdsByTownId(
-        @Param("townId") townId: UUID,
-    ): List<UUID>
+    /**
+     * (entryId, townId) for every published entry linked to a settlement, so the
+     * settlements index counts photographs in one pass rather than one query per
+     * settlement (spec 034 FR-017).
+     */
+    @Query("SELECT d.id, d.townId FROM DirectoryEntry d WHERE d.townId IS NOT NULL AND d.status = 'PUBLISHED'")
+    fun findPublishedEntryIdsWithTownId(): List<Array<Any>>
 
     /**
      * Finds PUBLISHED DirectoryEntry instances by category and town with pagination.

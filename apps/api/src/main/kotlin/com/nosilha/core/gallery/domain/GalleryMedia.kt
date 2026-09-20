@@ -53,9 +53,9 @@ abstract class GalleryMedia : AuditableEntity() {
     @GeneratedValue
     var id: UUID? = null
 
-    /** Display title for the media item. */
-    @Column(nullable = false, length = 255)
-    var title: String = ""
+    /** Display title, or null when untitled. Never the file's name (spec 034 FR-019). */
+    @Column(length = 255)
+    var title: String? = null
 
     /** User-provided description of the media. */
     @Column(name = "description", length = 2048)
@@ -105,6 +105,16 @@ abstract class GalleryMedia : AuditableEntity() {
     /** Whether this media item appears in the public gallery page. */
     @Column(name = "show_in_gallery", nullable = false)
     var showInGallery: Boolean = true
+
+    /** Archive record, or a directory entry's hero image (spec 034 FR-023). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    var role: MediaRole = MediaRole.ARCHIVE
+
+    /** Shows an identifiable person without confirmed provenance (spec 034 FR-022). */
+    @Column(name = "identifiable_person", nullable = false)
+    var identifiablePerson: Boolean = false
 
     /** Canonical alt text for WCAG 1.1.1 compliance. Editable by admins, backfilled from AI. */
     @Column(name = "alt_text", length = 1024)

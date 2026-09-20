@@ -9,6 +9,7 @@ export * from "./admin";
 // Directory hooks
 export * from "./useDirectoryEntries";
 export * from "./useDirectoryEntry";
+export * from "./useTownSummaries";
 
 // Media hooks
 export * from "./useMediaMetadata";

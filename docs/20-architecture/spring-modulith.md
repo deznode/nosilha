@@ -152,7 +152,8 @@ sequenceDiagram
 
 **Key listeners**:
 - `GalleryService.onDirectoryEntryCreated()` — creates placeholder metadata
-- `DirectoryEntryService.onHeroImagePromoted()` — updates entry's imageUrl
+- `HeroMediaService.onEntryImageSubmitted()` — makes an entry write's image that entry's hero `gallery_media` row
+- `DirectoryEntryService.onHeroImagePromoted()` — revalidates the entry's pages (the hero itself lives in gallery)
 - `MdxFileWriter.onMdxCommitted()` — writes MDX files
 - `ImageAnalysisOrchestrator.onMediaAnalysisRequested()` — runs Cloud Vision + Gemini analysis
 - `GalleryService.onAiResultsApproved()` — applies AI fields to media

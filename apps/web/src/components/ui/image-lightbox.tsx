@@ -73,7 +73,7 @@ const SWIPE_THRESHOLD = 50;
 const DISMISS_THRESHOLD = 100;
 
 function getShareUrl(photo: Photo): string {
-  const path = `/gallery/photo/${photo.id || ""}`;
+  const path = `/photographs/${photo.id || ""}`;
   if (typeof window !== "undefined") {
     return `${window.location.origin}${path}`;
   }

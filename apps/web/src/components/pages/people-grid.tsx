@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 interface PersonPage {
@@ -63,12 +64,12 @@ export function PeopleGrid({ people }: PeopleGridProps) {
           <p className="text-muted text-sm">
             Do you have stories, photos, or information about historical figures
             from Brava? We&apos;d love to hear from you.{" "}
-            <a
+            <Link
               href="/contact"
               className="text-ocean-blue hover:text-ocean-blue-light underline"
             >
               Get in touch
-            </a>
+            </Link>
             .
           </p>
         </div>

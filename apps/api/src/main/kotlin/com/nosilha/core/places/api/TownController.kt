@@ -139,8 +139,6 @@ class TownController(
                 elevation = request.elevation,
                 founded = request.founded,
                 highlights = request.highlights ?: emptyList(),
-                heroImage = request.heroImage,
-                gallery = request.gallery ?: emptyList(),
             )
         return ApiResult(data = createdTown, status = HttpStatus.CREATED.value())
     }
@@ -168,8 +166,6 @@ class TownController(
                 elevation = request.elevation,
                 founded = request.founded,
                 highlights = request.highlights ?: emptyList(),
-                heroImage = request.heroImage,
-                gallery = request.gallery ?: emptyList(),
             )
         return ApiResult(data = updatedTown)
     }
@@ -200,6 +196,4 @@ data class CreateTownRequestDto(
     val elevation: String? = null,
     val founded: String? = null,
     val highlights: List<String>? = null,
-    val heroImage: String? = null,
-    val gallery: List<String>? = null,
 )

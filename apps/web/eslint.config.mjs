@@ -22,6 +22,7 @@ const eslintConfig = [
       ".nyc_output/",
       // Generated files
       "*.d.ts",
+      "ds-types/",
       "next-env.d.ts",
       // Third-party components
       "src/components/catalyst-ui/",

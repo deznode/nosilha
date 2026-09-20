@@ -198,7 +198,6 @@ export function NavigationSpecimen() {
         </p>
         <div className="border-hairline bg-surface rounded-card border p-4">
           <div className="space-y-2 font-mono text-sm">
-            <div className="text-muted">/directory/[category]/[slug]</div>
             <div className="text-muted">/stories/[slug]</div>
             <div className="text-muted">/people/[slug]</div>
           </div>

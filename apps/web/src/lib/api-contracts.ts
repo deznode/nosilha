@@ -89,6 +89,8 @@ export interface DirectoryQueryParams {
   size?: number;
   searchQuery?: string;
   town?: string;
+  /** Canonical settlement id — the settlement screens filter by this, not by name. */
+  townId?: string;
   sort?:
     "name_asc" | "name_desc" | "rating_desc" | "created_at_desc" | "relevance";
 }
@@ -102,6 +104,21 @@ export interface ApiClient {
     searchQuery?: string,
     town?: string,
     sort?: string
+  ): Promise<PaginatedResult<DirectoryEntry>>;
+
+  /**
+   * Query directory entries.
+   *
+   * Preferred over the positional `getEntriesByCategory` for new callers, and the
+   * only way to filter by canonical settlement (`townId`). Spec 034 T-21.
+   *
+   * The API applies exactly one filter, in this order: a non-blank `searchQuery`
+   * wins outright, then `townId`, then `category` + `town`, then `category`, then
+   * `town`. So `{ townId, category }` returns the whole settlement, not the
+   * settlement's Heritage records — pass one filter, not a combination.
+   */
+  getEntries(
+    params?: DirectoryQueryParams
   ): Promise<PaginatedResult<DirectoryEntry>>;
 
   getEntryBySlug(slug: string): Promise<DirectoryEntry | undefined>;
@@ -127,8 +144,6 @@ export interface ApiClient {
   getTowns(): Promise<Town[]>;
 
   getTownBySlug(slug: string): Promise<Town | undefined>;
-
-  getTownsForMap(): Promise<Town[]>;
 
   /** Every settlement with its derived documentation status and coordinates. */
   getTownStatusSummary(): Promise<TownStatusSummary[]>;
@@ -662,14 +677,34 @@ export interface ApiClient {
    * @param options Query parameters (category, page, size)
    * @returns PublicGalleryMediaPageResponse with paginated gallery items
    */
-  getGalleryMedia(options?: {
-    category?: string;
-    decade?: string;
-    q?: string;
-    hasGeo?: boolean;
-    page?: number;
-    size?: number;
-  }): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse>;
+  getGalleryMedia(
+    options?: import("@/types/gallery").GalleryQueryParams
+  ): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse>;
+
+  /**
+   * Whole-archive counts for chips, standfirsts and home copy.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * Every number rendered in prose comes from here or from a list total, never from
+   * a loaded page. Spec 034 FR-018.
+   */
+  getGalleryFacets(): Promise<import("@/types/gallery").GalleryFacets>;
+
+  /**
+   * Where a located photograph sits among all located archive photographs.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * Neighbours wrap at the ends. A record with no coordinates comes back with a null
+   * position and no neighbours. Spec 034 FR-021.
+   *
+   * @param id UUID of the gallery media item
+   * @returns The sequence, or undefined when the id is unknown
+   */
+  getPhotoSequence(
+    id: string
+  ): Promise<import("@/types/gallery").PhotoSequence | undefined>;
 
   /**
    * Get a single gallery media item by ID.
@@ -734,15 +769,6 @@ export interface ApiClient {
    * @returns Array of up to 5 weekly discovery photos
    */
   getWeeklyDiscovery(): Promise<import("@/types/gallery").PublicGalleryMedia[]>;
-
-  /**
-   * Fetches the gallery timeline aggregated by decade.
-   *
-   * **Public Endpoint**: No authentication required.
-   *
-   * @returns Timeline data with decade groups and sample photos
-   */
-  getGalleryTimeline(): Promise<import("@/types/gallery").TimelineResponse>;
 
   /**
    * Submit external media for admin review.
@@ -1162,6 +1188,16 @@ export const CacheConfig = {
 
   // Map data - needs to be dynamic
   MAP_DATA: { cache: "no-store" as const },
+
+  // Settlement status - one shared entry every archive page reads, so it must not
+  // vary per cache key the way `no-store` made it. The counts are derived from
+  // directory entries, and `directory` is the tag the backend flushes when one
+  // changes (FrontendRevalidationService), so the entry carries it: without it the
+  // pages would re-render around a settlement summary up to 30 minutes stale.
+  TOWN_STATUS: {
+    revalidate: 1800, // 30 minutes
+    tags: ["directory", "towns"],
+  } as NextFetchRequestConfig,
 
   // Reaction counts - cached for 5 minutes (per spec.md FR-015)
   REACTION_COUNTS: { revalidate: 300 }, // 5 minutes

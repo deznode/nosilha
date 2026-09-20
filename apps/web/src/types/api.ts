@@ -137,8 +137,9 @@ export interface TownDto {
   elevation: string | null;
   founded: string | null;
   highlights: string[];
-  heroImage: string | null;
-  gallery: string[];
+  /** No longer sent: the API dropped towns.hero_image and towns.gallery (spec 034 T-20). */
+  heroImage?: string | null;
+  gallery?: string[];
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
 }
@@ -228,6 +229,9 @@ export interface ConfirmRequest {
   cameraMake?: string;
   cameraModel?: string;
   orientation?: number;
+  // Natural size as displayed, so a tile keeps its shape before it loads
+  width?: number;
+  height?: number;
   // Privacy tracking
   photoType?: string;
   gpsPrivacyLevel?: string;

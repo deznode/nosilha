@@ -9,7 +9,6 @@ const CATEGORIES = {
   Beach: { slug: "beaches", display: "Beaches" },
   Heritage: { slug: "heritage", display: "Heritage Sites" },
   Nature: { slug: "nature", display: "Nature & Hiking" },
-  Town: { slug: "towns", display: "Towns" },
   Viewpoint: { slug: "viewpoints", display: "Viewpoints" },
   Trail: { slug: "trails", display: "Trails" },
   Church: { slug: "churches", display: "Churches" },
@@ -68,11 +67,4 @@ export function getCategorySlug(category: string): string {
  */
 export function getCategoryFromSlug(slug: string): string | null {
   return SLUG_TO_CATEGORY[slug] ?? null;
-}
-
-/**
- * Generates the URL path for a directory entry.
- */
-export function getEntryUrl(slug: string, category: string): string {
-  return `/directory/${getCategorySlug(category)}/${slug}`;
 }

@@ -11,6 +11,10 @@ import { useState, useCallback, useMemo } from "react";
 import { useR2Upload, type UploadResult } from "./useR2Upload";
 import { extractMetadata } from "@/lib/exif-utils";
 import { applyGpsPrivacy, type GpsPrivacyResult } from "@/lib/gps-privacy";
+import {
+  readImageDimensions,
+  type ImageDimensions,
+} from "@/lib/image-dimensions";
 import type {
   ExtractedExifData,
   PhotoType,
@@ -146,6 +150,8 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
   );
   const [photoType, setPhotoTypeState] = useState<PhotoType>("COMMUNITY_EVENT");
   const [manualMetadata, setManualMetadataState] = useState<ManualMetadata>({});
+  // The size the browser shows, sent so a tile keeps its shape before it loads
+  const [naturalSize, setNaturalSize] = useState<ImageDimensions | null>(null);
 
   // Track if we have EXIF data
   const hasExifData = extractedExif !== null;
@@ -211,22 +217,26 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
       setFile(newFile);
       setError(null);
       setManualMetadataState({});
+      setNaturalSize(null);
       setState("extracting");
 
       // Create preview URL
       const preview = URL.createObjectURL(newFile);
       setPreviewUrl(preview);
 
+      // Resolves null rather than rejecting when the browser cannot decode the file
+      const sizeRead = readImageDimensions(newFile);
+
       try {
         // Extract EXIF metadata
         const exif = await extractMetadata(newFile);
         setExtractedExif(exif);
-        setState("ready");
       } catch (err) {
         console.warn("EXIF extraction failed:", err);
         setExtractedExif(null);
-        setState("ready");
       }
+      setNaturalSize(await sizeRead);
+      setState("ready");
     },
     [previewUrl]
   );
@@ -266,6 +276,9 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
         cameraMake: metadata.make,
         cameraModel: metadata.model,
         orientation: metadata.orientation,
+        // Natural size as displayed
+        width: naturalSize?.width,
+        height: naturalSize?.height,
         // Privacy
         photoType: metadata.photoType,
         gpsPrivacyLevel: metadata.gpsPrivacyLevel,
@@ -286,7 +299,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
 
       return result;
     },
-    [file, metadata, r2Upload]
+    [file, metadata, naturalSize, r2Upload]
   );
 
   /**
@@ -299,6 +312,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     setFile(null);
     setPreviewUrl(null);
     setExtractedExif(null);
+    setNaturalSize(null);
     setPhotoTypeState("COMMUNITY_EVENT");
     setManualMetadataState({});
     setError(null);

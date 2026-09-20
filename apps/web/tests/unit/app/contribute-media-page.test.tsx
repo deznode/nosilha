@@ -180,6 +180,17 @@ describe("Contribute media page", () => {
     expect(mocks.upload).not.toHaveBeenCalled();
   });
 
+  it("says the file's name is published with a photograph, and not for a film", () => {
+    render(<MediaContributionPage />);
+
+    const notice =
+      "original_name · the file's name is published with the photograph";
+    expect(screen.getByText(notice)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /film link/i }));
+    expect(screen.queryByText(notice)).toBeNull();
+  });
+
   it("previews the file the upload hook holds, so what is shown is what uploads", () => {
     render(<MediaContributionPage />);
 

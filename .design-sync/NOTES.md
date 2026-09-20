@@ -289,12 +289,12 @@ Verified, graded `good`, and uploaded — 16 of 50:
   VideoGrid, MetadataBadges
 
 Still on the floor card (importable and fully functional, preview not yet
-authored) — 34: BookmarkButton, DirectoryCardSkeleton, DirectoryGridSkeleton,
+authored) — 32: BookmarkButton, DirectoryCardSkeleton, DirectoryGridSkeleton,
 LoadingSpinner, Toast, CitationSection, ExpandableText, CreditDisplay,
 FeatureCard, StarRating, Pagination, TabGroup, Tooltip, NosilhaLogo, Select,
 Textarea, MasonryPhotoGridSkeleton, Avatar, ConfirmationDialog, MobileBottomNav,
-LocationCard, LocationDetailCard, LocationBottomSheet, CategoryPill, MapControls,
-MapHeader, Button, Badge, Input, Checkbox, Dialog, Dropdown, Popover, Field.
+LocationCard, LocationDetailCard, LocationBottomSheet, MapControls, Button,
+Badge, Input, Checkbox, Dialog, Dropdown, Popover, Field.
 
 Authoring one is self-contained: write `.design-sync/previews/<Name>.tsx`,
 rebuild, `package-capture.mjs --components <Name>`, read the sheet, write

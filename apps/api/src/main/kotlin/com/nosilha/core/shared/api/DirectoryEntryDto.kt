@@ -68,6 +68,12 @@ abstract class DirectoryEntryDto {
      * duplication is stated rather than hidden. See spec 033 FR-007.
      */
     abstract val coincidentWith: CoincidentRefDto?
+
+    /**
+     * The record's hero image with its credit, resolved from the gallery module; null when it
+     * has none. [imageUrl] is its URL (spec 034 FR-023).
+     */
+    abstract val heroImage: HeroImageDto?
 }
 
 /**
@@ -90,6 +96,21 @@ data class CoincidentRefDto(
     val name: String,
     val slug: String,
     val category: String,
+)
+
+/**
+ * A record's hero image, as the place record's credit chip reads it (spec 034 FR-023).
+ *
+ * @property mediaId The gallery record serving as the hero
+ * @property url Where the image is served from
+ * @property photographerCredit The recorded credit; null when not recorded
+ * @property archiveSource Where the image came from, such as a licence line; null when not recorded
+ */
+data class HeroImageDto(
+    val mediaId: UUID,
+    val url: String,
+    val photographerCredit: String?,
+    val archiveSource: String?,
 )
 
 /**
@@ -118,6 +139,7 @@ data class RestaurantDto(
     override val townId: UUID? = null,
     override val completeness: CompletenessDto = CompletenessDto(0, 0),
     override val coincidentWith: CoincidentRefDto? = null,
+    override val heroImage: HeroImageDto? = null,
     override val category: String = "Restaurant",
 ) : DirectoryEntryDto()
 
@@ -147,6 +169,7 @@ data class HotelDto(
     override val townId: UUID? = null,
     override val completeness: CompletenessDto = CompletenessDto(0, 0),
     override val coincidentWith: CoincidentRefDto? = null,
+    override val heroImage: HeroImageDto? = null,
     override val category: String = "Hotel",
 ) : DirectoryEntryDto()
 
@@ -176,6 +199,7 @@ data class BeachDto(
     override val townId: UUID? = null,
     override val completeness: CompletenessDto = CompletenessDto(0, 0),
     override val coincidentWith: CoincidentRefDto? = null,
+    override val heroImage: HeroImageDto? = null,
     override val category: String = "Beach",
 ) : DirectoryEntryDto()
 
@@ -205,6 +229,7 @@ data class HeritageDto(
     override val townId: UUID? = null,
     override val completeness: CompletenessDto = CompletenessDto(0, 0),
     override val coincidentWith: CoincidentRefDto? = null,
+    override val heroImage: HeroImageDto? = null,
     override val category: String = "Heritage",
 ) : DirectoryEntryDto()
 
@@ -234,6 +259,7 @@ data class NatureDto(
     override val townId: UUID? = null,
     override val completeness: CompletenessDto = CompletenessDto(0, 0),
     override val coincidentWith: CoincidentRefDto? = null,
+    override val heroImage: HeroImageDto? = null,
     override val category: String = "Nature",
 ) : DirectoryEntryDto()
 
@@ -263,6 +289,7 @@ data class ViewpointDto(
     override val townId: UUID? = null,
     override val completeness: CompletenessDto = CompletenessDto(0, 0),
     override val coincidentWith: CoincidentRefDto? = null,
+    override val heroImage: HeroImageDto? = null,
     override val category: String = "Viewpoint",
 ) : DirectoryEntryDto()
 
@@ -292,6 +319,7 @@ data class TrailDto(
     override val townId: UUID? = null,
     override val completeness: CompletenessDto = CompletenessDto(0, 0),
     override val coincidentWith: CoincidentRefDto? = null,
+    override val heroImage: HeroImageDto? = null,
     override val category: String = "Trail",
 ) : DirectoryEntryDto()
 
@@ -321,6 +349,7 @@ data class ChurchDto(
     override val townId: UUID? = null,
     override val completeness: CompletenessDto = CompletenessDto(0, 0),
     override val coincidentWith: CoincidentRefDto? = null,
+    override val heroImage: HeroImageDto? = null,
     override val category: String = "Church",
 ) : DirectoryEntryDto()
 
@@ -350,6 +379,7 @@ data class PortDto(
     override val townId: UUID? = null,
     override val completeness: CompletenessDto = CompletenessDto(0, 0),
     override val coincidentWith: CoincidentRefDto? = null,
+    override val heroImage: HeroImageDto? = null,
     override val category: String = "Port",
 ) : DirectoryEntryDto()
 

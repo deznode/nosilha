@@ -1,85 +1,103 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { X, ArrowRight } from "lucide-react";
-import { useSelectedLocation, useMapStore } from "@/stores/mapStore";
+import { statusVar } from "@/lib/status";
+import { selectionCard } from "../data/map-copy";
+import type { MapItem } from "../data/types";
 
-export function LocationDetailCard() {
-  const selectedLocation = useSelectedLocation();
-  const clearSelection = useMapStore((state) => state.clearSelection);
+interface LocationDetailCardProps {
+  item: MapItem;
+  /** Distance from the canvas bottom, in pixels. */
+  bottom: number;
+  onClose: () => void;
+}
 
-  if (!selectedLocation) return null;
+/**
+ * The selected pin's card, centred over the canvas. Hand-built to the handoff panel
+ * (SPECS §4). Spec 034 FR-011.
+ */
+export function LocationDetailCard({
+  item,
+  bottom,
+  onClose,
+}: LocationDetailCardProps) {
+  const copy = selectionCard(item);
+  const regionHref = item.regionSlug
+    ? `/photographs?region=${encodeURIComponent(item.regionSlug)}`
+    : null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 50, scale: 0.95 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      exit={{ opacity: 0, x: 20, scale: 0.95 }}
-      className="map-desktop:block shadow-floating absolute bottom-10 left-[450px] z-30 hidden w-[350px] overflow-hidden rounded-3xl border border-white/20 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-black/60"
+    <section
+      aria-label={`Selected: ${copy.name}`}
+      className="absolute left-1/2 z-[6] w-[min(420px,calc(100%-28px))] -translate-x-1/2 rounded-[14px] border p-[18px] backdrop-blur-[10px] transition-[bottom] duration-[260ms] ease-[cubic-bezier(.4,.14,.3,1)]"
+      style={{
+        bottom,
+        background: "color-mix(in srgb, var(--background) 95%, transparent)",
+        borderColor: "var(--border-strong)",
+        boxShadow: "0 20px 50px rgba(0,0,0,.5)",
+      }}
     >
-      <div className="group relative h-48">
-        {selectedLocation.image ? (
-          <>
-            <Image
-              src={selectedLocation.image}
-              alt={selectedLocation.name}
-              fill
-              sizes="350px"
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="from-volcanic-gray-dark/80 absolute inset-0 bg-gradient-to-t to-transparent" />
-          </>
-        ) : (
-          <div
-            className="flex h-full w-full items-center justify-center"
-            style={{ backgroundColor: `${selectedLocation.color}20` }}
-          >
-            <selectedLocation.icon
-              size={48}
-              style={{ color: selectedLocation.color }}
-            />
-          </div>
-        )}
-        <button
-          onClick={clearSelection}
-          className="absolute top-3 right-3 rounded-full bg-black/30 p-1.5 text-white backdrop-blur-md transition-colors hover:bg-black/50"
-        >
-          <X size={18} />
-        </button>
-        <div className="absolute bottom-4 left-4">
-          <h3
-            className="font-serif text-2xl font-bold"
-            style={{
-              color: selectedLocation.image ? "white" : selectedLocation.color,
-            }}
-          >
-            {selectedLocation.name}
-          </h3>
-          <div
-            className="font-sans text-xs font-medium tracking-wider uppercase opacity-90"
-            style={{
-              color: selectedLocation.image ? "white" : selectedLocation.color,
-            }}
-          >
-            {selectedLocation.category}
-          </div>
-        </div>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close"
+        className="absolute top-3 right-3 cursor-pointer text-[15px]"
+        style={{ color: "var(--foreground-secondary)" }}
+      >
+        <span aria-hidden>✕</span>
+      </button>
+
+      <div
+        className="mb-1.5 pr-6 text-[10px] tracking-[.14em] break-all uppercase"
+        style={{ color: "var(--foreground-secondary)" }}
+      >
+        {copy.eyebrow}
       </div>
-      <div className="p-5 font-sans">
-        <p className="text-text-secondary mb-6 text-sm leading-relaxed">
-          {selectedLocation.description}
-        </p>
-        {selectedLocation.detailUrl && (
+      <h3 className="mb-2 pr-6 font-serif text-2xl leading-[1.15] font-normal">
+        {copy.name}
+      </h3>
+      <div className="mb-2.5 flex items-center gap-2">
+        <span
+          aria-hidden
+          className="size-2 flex-none rounded-full"
+          style={{ background: statusVar(item.status) }}
+        />
+        <span
+          className="text-[13px]"
+          style={{ color: "var(--foreground-secondary)" }}
+        >
+          {copy.status}
+        </span>
+      </div>
+      <p
+        className="mb-3.5 text-[13px] leading-[1.55] text-pretty"
+        style={{ color: "var(--foreground-secondary)" }}
+      >
+        {copy.description}
+      </p>
+
+      <div className="flex flex-wrap gap-2">
+        {item.href && (
           <Link
-            href={selectedLocation.detailUrl}
-            className="bg-ocean-blue hover:bg-ocean-blue/90 shadow-ocean-blue/20 shadow-floating flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold text-white transition-colors"
+            href={item.href}
+            className="bg-primary text-primary-foreground inline-flex items-center justify-center rounded-lg px-4 py-[9px] text-[13px] font-medium transition-opacity hover:opacity-90"
           >
-            View Details <ArrowRight size={14} />
+            {copy.primaryLabel}
+          </Link>
+        )}
+        {regionHref && (
+          <Link
+            href={regionHref}
+            className="rounded-full border px-4 py-[9px] text-[13px] transition-colors hover:border-[var(--brand-ocean-blue)]"
+            style={{
+              borderColor: "var(--border-strong)",
+              color: "var(--foreground)",
+            }}
+          >
+            Filter photographs to this area
           </Link>
         )}
       </div>
-    </motion.div>
+    </section>
   );
 }

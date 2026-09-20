@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { LEGACY_REDIRECTS } from "./src/lib/legacy-redirects";
+
 const isDev = process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
@@ -19,6 +21,13 @@ const nextConfig: NextConfig = {
       stale: 600,
       revalidate: 7200,
       expire: 604800,
+    },
+    // The Instagram feed. `expire` is short because the tiles hot-link signed
+    // Instagram CDN URLs, which stop resolving well before a day is out.
+    instagram: {
+      stale: 300,
+      revalidate: 1800,
+      expire: 7200,
     },
   },
   reactCompiler: true,
@@ -61,18 +70,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    return [
-      {
-        source: "/directory/landmark",
-        destination: "/directory/heritage",
-        permanent: true, // 301 redirect for SEO after Landmark → Heritage split
-      },
-      {
-        source: "/directory/entry/:slug",
-        destination: "/api/redirect/entry/:slug",
-        permanent: false, // Use temporary redirect to API handler
-      },
-    ];
+    return [...LEGACY_REDIRECTS];
   },
   async headers() {
     return [
@@ -111,19 +109,22 @@ const nextConfig: NextConfig = {
             value: "max-age=31536000; includeSubDomains",
           },
 
-          // Content Security Policy - allows MapLibre/CARTO, Google Analytics, Supabase, fonts
+          // Content Security Policy - allows MapLibre/CARTO, Google Analytics, Supabase, fonts,
+          // and the films players (YouTube IFrame API, Vimeo, archive files)
           {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' " : ""}'wasm-unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://static.cloudflareinsights.com`,
+              `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' " : ""}'wasm-unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://static.cloudflareinsights.com https://www.youtube.com`,
               "style-src 'self' 'unsafe-inline' https://basemaps.cartocdn.com https://fonts.googleapis.com",
               // `https:` already covers every https host — no per-host entries needed here.
               "img-src 'self' data: blob: https:",
               "font-src 'self' https://fonts.gstatic.com",
-              `connect-src 'self' ${isDev ? "http://localhost:8080 " : ""}https://api.nosilha.com https://*.nosilha.com https://*.cartocdn.com https://fonts.openmaptiles.org https://s3.amazonaws.com/elevation-tiles-prod/ https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com https://cloudflareinsights.com`,
+              `connect-src 'self' ${isDev ? "http://localhost:8080 " : ""}https://api.nosilha.com https://*.nosilha.com https://*.cartocdn.com https://fonts.openmaptiles.org https://s3.amazonaws.com/elevation-tiles-prod/ https://services.arcgisonline.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com https://cloudflareinsights.com`,
               "worker-src 'self' blob:",
-              "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
+              "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
+              // Archive-file films play in a native <video> from the media bucket (spec 035).
+              "media-src 'self' https://media.nosilha.com https://*.r2.cloudflarestorage.com",
               "frame-ancestors 'none'",
               "form-action 'self'",
               "base-uri 'self'",

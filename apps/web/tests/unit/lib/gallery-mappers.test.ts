@@ -153,8 +153,13 @@ describe("mapGalleryMediaToMediaItem", () => {
     });
   });
 
-  describe("raw filename detection and humanization", () => {
-    it("humanizes UUID-based titles", () => {
+  /**
+   * Spec 034 FR-019 removed the client-side title synthesis: the archive does not
+   * invent a name for a record nobody has named. A leftover filename reads
+   * "Untitled" and the filename itself is surfaced separately as provenance.
+   */
+  describe("raw filename detection", () => {
+    it("does not invent a name for a UUID-based title", () => {
       const media = userUploadFixture({
         title: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
         category: "Heritage",
@@ -162,10 +167,10 @@ describe("mapGalleryMediaToMediaItem", () => {
       });
       const result = mapGalleryMediaToMediaItem(media);
 
-      expect(result.title).toBe("Heritage — June 2024");
+      expect(result.title).toBe("Untitled");
     });
 
-    it("humanizes camera filename titles", () => {
+    it("does not invent a name for a camera filename", () => {
       const media = userUploadFixture({
         title: "IMG_20240615_123456",
         category: "Nature",
@@ -173,10 +178,10 @@ describe("mapGalleryMediaToMediaItem", () => {
       });
       const result = mapGalleryMediaToMediaItem(media);
 
-      expect(result.title).toBe("Nature — March 2024");
+      expect(result.title).toBe("Untitled");
     });
 
-    it("humanizes titles with file extensions", () => {
+    it("does not invent a name for a title with a file extension", () => {
       const media = userUploadFixture({
         title: "sunset.jpg",
         category: "Nature",
@@ -184,10 +189,10 @@ describe("mapGalleryMediaToMediaItem", () => {
       });
       const result = mapGalleryMediaToMediaItem(media);
 
-      expect(result.title).toBe("Nature — August 2024");
+      expect(result.title).toBe("Untitled");
     });
 
-    it("humanizes null titles", () => {
+    it("reads an untitled record as Untitled, not as a synthesised date", () => {
       const media = userUploadFixture({
         title: null,
         category: "Culture",
@@ -195,7 +200,7 @@ describe("mapGalleryMediaToMediaItem", () => {
       });
       const result = mapGalleryMediaToMediaItem(media);
 
-      expect(result.title).toBe("Culture — December 2024");
+      expect(result.title).toBe("Untitled");
     });
 
     it("preserves human-authored titles", () => {

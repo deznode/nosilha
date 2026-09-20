@@ -92,7 +92,7 @@ export default function ContentActionsDevPage() {
             contentId="a1b2c3d4-0001-4000-8000-000000000001"
             contentSlug="demo-heritage-entry"
             contentTitle="Eugénio Tavares Monument"
-            contentUrl="https://nosilha.com/directory/heritage/eugenio-tavares"
+            contentUrl="https://nosilha.com/nova-sintra/eugenio-tavares"
             contentType="HERITAGE"
             reactions={mockReactions}
             isAuthenticated={true}
@@ -118,7 +118,7 @@ export default function ContentActionsDevPage() {
             contentId="a1b2c3d4-0002-4000-8000-000000000002"
             contentSlug="demo-nature-entry"
             contentTitle="Monte Fontainhas Trail"
-            contentUrl="https://nosilha.com/directory/nature/monte-fontainhas"
+            contentUrl="https://nosilha.com/nossa-senhora-do-monte/monte-fontainhas"
             contentType="NATURE"
             reactions={scrollSectionReactions}
             isAuthenticated={false}
@@ -161,7 +161,7 @@ export default function ContentActionsDevPage() {
             contentId="a1b2c3d4-0003-4000-8000-000000000003"
             contentSlug="demo-restaurant"
             contentTitle="Par d'Mar Restaurant"
-            contentUrl="https://nosilha.com/directory/restaurant/par-dmar"
+            contentUrl="https://nosilha.com/furna/par-dmar"
             contentType="RESTAURANT"
             reactions={mockReactions}
             isAuthenticated={false}
