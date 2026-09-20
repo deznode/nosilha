@@ -145,6 +145,15 @@ jobs:
         env:
           NODE_ENV: production
 
+      # The build prerenders `"use cache"` pages against the production API, so it
+      # fails whenever a page reads an endpoint the deployed backend does not have
+      # yet — with a bare status code buried in a prerender trace. Probe first and
+      # name the missing endpoints instead. See scripts/preflight-api.sh.
+      - name: Preflight — API endpoints available
+        run: ./scripts/preflight-api.sh
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+
       - name: Build application
         run: pnpm build
         env:
@@ -196,6 +205,15 @@ jobs:
       - name: Install dependencies
         if: ${{ steps.changes.outputs.bundle == 'true' }}
         run: pnpm install --frozen-lockfile
+
+      # Same prerender dependency as the build in "Lint & Type Check" — probe the
+      # API first so a missing endpoint is named rather than surfacing as a bare
+      # status code inside a prerender trace. See scripts/preflight-api.sh.
+      - name: Preflight — API endpoints available
+        if: ${{ steps.changes.outputs.bundle == 'true' }}
+        run: ./scripts/preflight-api.sh
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
 
       - name: Build and check bundle size
         if: ${{ steps.changes.outputs.bundle == 'true' }}

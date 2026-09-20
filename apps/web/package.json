@@ -21,6 +21,7 @@
     "validate:content:full": "npx tsx scripts/validate-content.ts --full",
     "scaffold:article": "npx tsx scripts/scaffold-article.ts",
     "check:translations": "npx tsx scripts/check-translations.ts",
+    "preflight:api": "./scripts/preflight-api.sh",
     "dev": "run-p dev:*",
     "build": "run-s build:content build:next build:search",
     "start": "next start",
