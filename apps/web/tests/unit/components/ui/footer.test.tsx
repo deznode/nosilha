@@ -87,9 +87,10 @@ describe("Footer", () => {
     render(<Footer />);
     const footer = screen.getByRole("contentinfo");
 
-    expect(footer.className).toContain(
-      "pb-[calc(56px+env(safe-area-inset-bottom))]"
-    );
-    expect(footer.className).toContain("md:pb-0");
+    // The shared utility, not a restated height: it reads
+    // `--chrome-bottom-bar-height` (56px, and 0 from 768 up) and adds the
+    // home-indicator inset, so the `md:` counterpart is in the token rather than
+    // at each of the three call sites that clear this bar.
+    expect(footer.className).toContain("chrome-bottom-clearance");
   });
 });

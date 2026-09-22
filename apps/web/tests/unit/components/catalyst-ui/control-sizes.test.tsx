@@ -1,14 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
-
-vi.mock("framer-motion", async () => {
-  const { createFramerMotionMock } =
-    await import("../../../setup/framer-motion-mock");
-  return createFramerMotionMock();
-});
 
 /**
  * Spec 037 FR-010 — the blocking system change.

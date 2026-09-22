@@ -9,22 +9,8 @@ import { SocialMediaLinks } from "@/components/ui/social-media-links";
 // Module-level constant for copyright year (evaluated once at module load)
 const COPYRIGHT_YEAR = new Date().getFullYear();
 
-interface FooterCopy {
-  tagline: string;
-  newsletterDescription: string;
-  copyright: string;
-}
-
-const defaultCopy: FooterCopy = {
-  tagline: "Nos terra, nos gente, nos memoria.",
-  newsletterDescription:
-    "Get updates on new stories, cultural events, and ways to contribute.",
-  copyright: "Open Source Cultural Heritage Project.",
-};
-
 export interface FooterProps {
   className?: string;
-  copy?: Partial<FooterCopy>;
 }
 
 /**
@@ -42,20 +28,18 @@ export interface FooterProps {
  * button in dark. Anything dropped in here later must read from `--footer-*` or
  * `--accent-on-dark` rather than reaching for a page token. Spec 037 FR-009.
  */
-export function Footer({ className, copy: copyOverrides }: FooterProps) {
-  const copy = { ...defaultCopy, ...copyOverrides } satisfies FooterCopy;
-
+export function Footer({ className }: FooterProps) {
   return (
     <footer
       className={clsx(
         "bg-footer-ground text-footer-body",
         // The bottom bar is fixed over the end of the page, and the footer sits
-        // outside <main>, so it gets none of <main>'s pb-16. Without this the
+        // outside <main>, so it gets none of <main>'s clearance. Without this the
         // copyright line sits under the bar. Keeping the clearance inside the
         // footer's own ground also means the bar always has the footer behind it
-        // at the end of a page, never page content. Phone only — the bar is
-        // hidden from 768 up. (FR-007, FR-008)
-        "pb-[calc(56px+env(safe-area-inset-bottom))] md:pb-0",
+        // at the end of a page, never page content. Phone only — the utility reads
+        // `--chrome-bottom-bar-height`, which is 0 from 768 up. (FR-007, FR-008)
+        "chrome-bottom-clearance",
         className
       )}
       aria-labelledby="footer-heading"
@@ -85,10 +69,11 @@ export function Footer({ className, copy: copyOverrides }: FooterProps) {
               />
             </div>
             <p className="text-footer-body text-[13px] leading-[1.55]">
-              {copy.tagline}
+              Nos terra, nos gente, nos memoria.
             </p>
             <p className="text-footer-muted mt-2 hidden text-[13px] leading-[1.55] md:block">
-              {copy.newsletterDescription}
+              Get updates on new stories, cultural events, and ways to
+              contribute.
             </p>
           </div>
 
@@ -115,7 +100,8 @@ export function Footer({ className, copy: copyOverrides }: FooterProps) {
             className="ml-auto"
           />
           <p className="text-footer-muted mt-0.5 w-full text-xs">
-            &copy; {COPYRIGHT_YEAR} Nos Ilha. {copy.copyright}
+            &copy; {COPYRIGHT_YEAR} Nos Ilha. Open Source Cultural Heritage
+            Project.
           </p>
         </div>
       </div>

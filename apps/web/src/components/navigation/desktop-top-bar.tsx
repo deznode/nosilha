@@ -4,9 +4,13 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Button } from "@/components/catalyst-ui/button";
-
-import { AccountSlot, ChromeWordmark, ThemePill } from "./chrome-parts";
+import {
+  AccountSlot,
+  ChromeBar,
+  ChromeWordmark,
+  ContributeAction,
+  ThemePill,
+} from "./chrome-parts";
 import { DESKTOP_BAR_DESTINATIONS, isDestinationActive } from "./nav-config";
 
 /**
@@ -33,15 +37,12 @@ export function DesktopTopBar({ className }: { className?: string }) {
   const pathname = usePathname();
 
   return (
-    <header
-      className={clsx(
-        // Display is the caller's (`hidden lg:flex`), not this list's: an
-        // unprefixed `flex` here and an unprefixed `hidden` there are two
-        // `display` declarations at equal specificity, and the winner would be
-        // decided by stylesheet order rather than by the prop.
-        "border-hairline bg-canvas sticky top-0 z-40 h-(--chrome-top-bar-height) items-center gap-5 border-b px-[22px] print:hidden",
-        className
-      )}
+    <ChromeBar
+      // Display is the caller's (`hidden lg:flex`), not this list's: an
+      // unprefixed `flex` here and an unprefixed `hidden` there are two
+      // `display` declarations at equal specificity, and the winner would be
+      // decided by stylesheet order rather than by the prop.
+      className={clsx("bg-canvas gap-5 px-[22px]", className)}
     >
       <ChromeWordmark />
 
@@ -73,15 +74,8 @@ export function DesktopTopBar({ className }: { className?: string }) {
       </nav>
 
       <ThemePill />
-      <Button
-        href="/contribute/story"
-        size="lg"
-        color="blue"
-        className="shrink-0"
-      >
-        Contribute
-      </Button>
+      <ContributeAction />
       <AccountSlot />
-    </header>
+    </ChromeBar>
   );
 }

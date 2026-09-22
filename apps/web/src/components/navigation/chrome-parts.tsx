@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import Link from "next/link";
 
+import { Button } from "@/components/catalyst-ui/button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Avatar } from "@/components/ui/avatar";
 import { NosilhaLogo } from "@/components/ui/logo";
@@ -21,6 +22,65 @@ import { currentLanguage } from "./nav-config";
  * `tablet-top-bar.tsx` and imported by the phone-only `more-sheet.tsx`, which made
  * the tablet bar a module boundary it was never meant to be.
  */
+
+/**
+ * The `<header>` all three top bars are.
+ *
+ * Sticky, in-flow, `--chrome-top-bar-height` tall, hairline-bottomed, hidden in
+ * print — the recipe was pasted into three files, so "the three bars are one
+ * chrome" was asserted in five docstrings and enforced nowhere, and a change to
+ * the shared surface was three edits a reviewer had to diff by eye.
+ *
+ * `display` is deliberately not set here, and neither is the ground: the caller
+ * passes both. `SiteChrome` owns which width each bar appears at, and an
+ * unprefixed `flex` here against its `hidden lg:flex` would be two `display`
+ * declarations at equal specificity, resolved by stylesheet order rather than by
+ * the prop.
+ */
+export function ChromeBar({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <header
+      className={clsx(
+        "border-hairline sticky top-0 z-40 h-(--chrome-top-bar-height) items-center border-b print:hidden",
+        className
+      )}
+    >
+      {children}
+    </header>
+  );
+}
+
+/**
+ * The Contribute call to action, in the two bars and the More sheet.
+ *
+ * The three carried byte-identical `href`, `size` and `color`; only the layout
+ * utility differs, which is why that is the prop.
+ */
+export function ContributeAction({
+  className = "shrink-0",
+  onClick,
+}: {
+  className?: string;
+  onClick?: () => void;
+}) {
+  return (
+    <Button
+      href="/contribute/story"
+      size="lg"
+      color="blue"
+      className={className}
+      onClick={onClick}
+    >
+      Contribute
+    </Button>
+  );
+}
 
 /**
  * The account affordance shared by the mobile and tablet bars.

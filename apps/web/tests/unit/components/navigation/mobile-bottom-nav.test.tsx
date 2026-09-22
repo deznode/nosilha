@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 import { useUiStore } from "@/stores/uiStore";
+import { signOut } from "../../../setup/auth-provider-mock";
 import { mockMatchMedia } from "../../../setup/match-media-mock";
 
 const DARK_SCHEME = "(prefers-color-scheme: dark)";
@@ -21,10 +22,11 @@ vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),
 }));
 
-const auth: { session: unknown } = { session: null };
-vi.mock("@/components/providers/auth-provider", () => ({
-  useAuth: () => ({ session: auth.session, user: null, loading: false }),
-}));
+vi.mock("@/components/providers/auth-provider", async () => {
+  const { createAuthProviderMock } =
+    await import("../../../setup/auth-provider-mock");
+  return createAuthProviderMock();
+});
 
 /**
  * Spec 037 FR-003 / FR-006. Ported from `archive-bar.test.tsx`, which was the
@@ -37,7 +39,7 @@ describe("MobileBottomNav", () => {
     media = mockMatchMedia({ [DARK_SCHEME]: false });
     useUiStore.setState({ theme: "light" });
     mockPathname.mockReturnValue("/");
-    auth.session = null;
+    signOut();
   });
 
   afterEach(() => {

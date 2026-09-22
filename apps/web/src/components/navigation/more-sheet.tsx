@@ -3,12 +3,15 @@
 import clsx from "clsx";
 import Link from "next/link";
 
-import { Button } from "@/components/catalyst-ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-import { LanguageChip, useChromeAccount } from "./chrome-parts";
+import {
+  ContributeAction,
+  LanguageChip,
+  useChromeAccount,
+} from "./chrome-parts";
 import { DESTINATIONS, SHEET_DESTINATION_LIST } from "./nav-config";
 
 /**
@@ -18,6 +21,14 @@ import { DESTINATIONS, SHEET_DESTINATION_LIST } from "./nav-config";
  * after navigation, not before it — in the popover this replaced they preceded
  * it, which put appearance settings ahead of the site's destinations in the tab
  * order. Spec 037 FR-006.
+ *
+ * The contents are a child component rather than this function's body. The bottom
+ * bar renders this sheet closed on every route, so a body inlined here ran
+ * `useChromeAccount` — an auth read plus a theme subscription — on every page at
+ * every width, including the widths where the bar is hidden and the sheet can
+ * never open. `AnimatePresence` mounts children only while open, so as a child it
+ * costs nothing until it is used, and the exit animation still runs (which a
+ * `{isOpen && …}` guard around the sheet itself would have broken).
  */
 export function MoreSheet({
   isOpen,
@@ -26,12 +37,6 @@ export function MoreSheet({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const { signedIn, initials, displayName } = useChromeAccount();
-
-  // One string, three rows: the mapped destinations, Profile and Sign in only
-  // differ by their colour.
-  const rowClasses = "px-1.5 py-3 text-[15px] transition-colors duration-150";
-
   return (
     <BottomSheet
       isOpen={isOpen}
@@ -40,8 +45,22 @@ export function MoreSheet({
       // Clears the 56px bottom bar. The bar stays above the sheet so the More
       // trigger keeps its X state and remains tappable to dismiss; without this
       // it paints over the legal row instead.
-      className="px-3 pt-0 pb-[calc(56px+env(safe-area-inset-bottom)+12px)]"
+      className="px-3 pt-0 pb-[calc(var(--chrome-bottom-bar-height)+env(safe-area-inset-bottom)+12px)]"
     >
+      <MoreSheetBody onClose={onClose} />
+    </BottomSheet>
+  );
+}
+
+function MoreSheetBody({ onClose }: { onClose: () => void }) {
+  const { signedIn, initials, displayName } = useChromeAccount();
+
+  // One string, three rows: the mapped destinations, Profile and Sign in only
+  // differ by their colour.
+  const rowClasses = "px-1.5 py-3 text-[15px] transition-colors duration-150";
+
+  return (
+    <>
       {signedIn && (
         <div className="border-hairline flex items-center gap-3 border-b px-1.5 pt-1.5 pb-2.5">
           <Avatar initials={initials} size="sm" />
@@ -85,15 +104,7 @@ export function MoreSheet({
       </nav>
 
       <div className="border-hairline mt-1.5 flex items-center gap-2 border-t pt-2.5">
-        <Button
-          href="/contribute/story"
-          size="lg"
-          color="blue"
-          className="flex-1"
-          onClick={onClose}
-        >
-          Contribute
-        </Button>
+        <ContributeAction className="flex-1" onClick={onClose} />
         <LanguageChip className="w-11 shrink-0" />
         <ThemeToggle showContainer={false} shape="square" />
       </div>
@@ -110,6 +121,6 @@ export function MoreSheet({
           </Link>
         ))}
       </div>
-    </BottomSheet>
+    </>
   );
 }

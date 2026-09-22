@@ -20,8 +20,15 @@ import {
   showOnMapLink,
 } from "./photo-detail-rows";
 
-/** The archive bar's height, which the sticky stage sits under. */
-const BAR_HEIGHT = 65;
+/**
+ * The top bar's height, which the sticky stage sits under.
+ *
+ * The token, not the 65 that used to be inlined here: the bar is 52px on a phone,
+ * 64px on a tablet and 65px from 1024 up, so the constant was only ever right at
+ * desktop width, and it restated a number `globals.css` and `archive-skeleton`
+ * already share. Spec 037.
+ */
+const BAR_HEIGHT = "var(--chrome-top-bar-height)";
 
 /**
  * One photograph, full bleed. Spec 034 FR-010, FR-012.
@@ -97,9 +104,9 @@ export function PhotoDetail({
         minWidth: 0,
         padding: "30px",
         position: "sticky",
-        top: `${BAR_HEIGHT}px`,
+        top: BAR_HEIGHT,
         alignSelf: "flex-start",
-        height: `calc(100vh - ${BAR_HEIGHT}px)`,
+        height: `calc(100vh - ${BAR_HEIGHT})`,
       };
 
   const metaStyle: React.CSSProperties = narrow
@@ -122,7 +129,7 @@ export function PhotoDetail({
     <div
       className="flex flex-wrap"
       style={{
-        minHeight: `calc(100vh - ${BAR_HEIGHT}px)`,
+        minHeight: `calc(100vh - ${BAR_HEIGHT})`,
         background: "var(--muted)",
       }}
     >

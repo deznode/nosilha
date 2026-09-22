@@ -6,6 +6,7 @@ import { DesktopTopBar } from "@/components/navigation/desktop-top-bar";
 import { MobileTopBar } from "@/components/navigation/mobile-top-bar";
 import { TabletTopBar } from "@/components/navigation/tablet-top-bar";
 import { useUiStore } from "@/stores/uiStore";
+import { signIn, signOut } from "../../../setup/auth-provider-mock";
 import { mockMatchMedia } from "../../../setup/match-media-mock";
 
 const DARK_SCHEME = "(prefers-color-scheme: dark)";
@@ -21,22 +22,11 @@ vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),
 }));
 
-const auth: { session: unknown; email: string | null } = {
-  session: null,
-  email: null,
-};
-vi.mock("@/components/providers/auth-provider", () => ({
-  useAuth: () => ({
-    session: auth.session,
-    user: auth.email ? { id: "u1", email: auth.email } : null,
-    loading: false,
-  }),
-}));
-
-const signIn = () => {
-  auth.session = { user: { email: "maria.tavares@example.com" } };
-  auth.email = "maria.tavares@example.com";
-};
+vi.mock("@/components/providers/auth-provider", async () => {
+  const { createAuthProviderMock } =
+    await import("../../../setup/auth-provider-mock");
+  return createAuthProviderMock();
+});
 
 /** Spec 037 FR-002 / FR-004 / FR-005. */
 describe("site chrome top bars", () => {
@@ -46,8 +36,7 @@ describe("site chrome top bars", () => {
     media = mockMatchMedia({ [DARK_SCHEME]: false });
     useUiStore.setState({ theme: "light" });
     mockPathname.mockReturnValue("/");
-    auth.session = null;
-    auth.email = null;
+    signOut();
   });
 
   afterEach(() => {

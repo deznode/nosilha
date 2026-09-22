@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MoreSheet } from "@/components/navigation/more-sheet";
 import { useUiStore } from "@/stores/uiStore";
+import { signIn, signOut } from "../../../setup/auth-provider-mock";
 import { mockMatchMedia } from "../../../setup/match-media-mock";
 
 vi.mock("framer-motion", async () => {
@@ -16,22 +17,11 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
-const auth: { session: unknown; email: string | null } = {
-  session: null,
-  email: null,
-};
-vi.mock("@/components/providers/auth-provider", () => ({
-  useAuth: () => ({
-    session: auth.session,
-    user: auth.email ? { id: "u1", email: auth.email } : null,
-    loading: false,
-  }),
-}));
-
-const signIn = () => {
-  auth.session = { user: { email: "maria.tavares@example.com" } };
-  auth.email = "maria.tavares@example.com";
-};
+vi.mock("@/components/providers/auth-provider", async () => {
+  const { createAuthProviderMock } =
+    await import("../../../setup/auth-provider-mock");
+  return createAuthProviderMock();
+});
 
 /** Spec 037 FR-006 / FR-013. */
 describe("MoreSheet", () => {
@@ -40,8 +30,7 @@ describe("MoreSheet", () => {
   beforeEach(() => {
     media = mockMatchMedia({ "(prefers-color-scheme: dark)": false });
     useUiStore.setState({ theme: "light" });
-    auth.session = null;
-    auth.email = null;
+    signOut();
   });
 
   afterEach(() => {

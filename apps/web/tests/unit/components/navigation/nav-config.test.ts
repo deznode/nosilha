@@ -1,17 +1,19 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  BOTTOM_BAR,
+  BOTTOM_BAR_DESTINATIONS,
   DESTINATIONS,
-  FOOTER_LEGAL,
-  SHEET_DESTINATIONS,
-  TABLET_INLINE,
-  TABLET_OVERFLOW,
+  FOOTER_LEGAL_DESTINATIONS,
+  SHEET_DESTINATION_LIST,
+  TABLET_INLINE_DESTINATIONS,
+  TABLET_OVERFLOW_DESTINATIONS,
   isDestinationActive,
   languages,
   navigation,
-  resolve,
 } from "@/components/navigation/nav-config";
+
+const keysOf = (destinations: { key: string }[]) =>
+  destinations.map((d) => d.key);
 
 /**
  * Spec 037 FR-001 — one canonical destination list.
@@ -23,9 +25,9 @@ import {
  * reintroduce the divergence.
  */
 describe("nav-config", () => {
-  describe("resolve", () => {
+  describe("resolution", () => {
     it("returns destinations in the order the keys declare", () => {
-      expect(resolve(TABLET_INLINE).map((d) => d.label)).toEqual([
+      expect(TABLET_INLINE_DESTINATIONS.map((d) => d.label)).toEqual([
         "Settlements",
         "Culture",
         "Map",
@@ -41,35 +43,40 @@ describe("nav-config", () => {
 
   describe("surface membership", () => {
     it("puts four icon destinations plus a synthetic More in the bottom bar", () => {
-      const items = resolve(BOTTOM_BAR);
-      expect(items.map((d) => d.label)).toEqual([
+      expect(BOTTOM_BAR_DESTINATIONS.map((d) => d.label)).toEqual([
         "Home",
         "Settlements",
         "Culture",
         "Map",
       ]);
-      // The bar renders an icon per item, so every bottom-bar destination needs one.
-      for (const item of items) expect(item.icon).toBeDefined();
+      // The bar renders an icon per item, so every bottom-bar destination needs
+      // one. `resolveWithIcons` throws at module load if that ever stops holding,
+      // which is what lets the renderer drop its non-null assertion.
+      for (const item of BOTTOM_BAR_DESTINATIONS) {
+        expect(item.icon).toBeDefined();
+      }
     });
 
     it("carries Stay in the canonical list", () => {
       expect(DESTINATIONS.stay.href).toBe("/stay");
-      expect(TABLET_OVERFLOW).toContain("stay");
-      expect(SHEET_DESTINATIONS).toContain("stay");
+      expect(keysOf(TABLET_OVERFLOW_DESTINATIONS)).toContain("stay");
+      expect(keysOf(SHEET_DESTINATION_LIST)).toContain("stay");
     });
 
     it("carries Films, which the old bottom bar omitted entirely", () => {
-      expect(SHEET_DESTINATIONS).toContain("films");
-      expect(TABLET_OVERFLOW).toContain("films");
+      expect(keysOf(SHEET_DESTINATION_LIST)).toContain("films");
+      expect(keysOf(TABLET_OVERFLOW_DESTINATIONS)).toContain("films");
     });
 
     it("keeps the tablet inline and overflow sets disjoint", () => {
-      const inline = new Set<string>(TABLET_INLINE);
-      expect(TABLET_OVERFLOW.some((key) => inline.has(key))).toBe(false);
+      const inline = new Set(keysOf(TABLET_INLINE_DESTINATIONS));
+      expect(
+        keysOf(TABLET_OVERFLOW_DESTINATIONS).some((key) => inline.has(key))
+      ).toBe(false);
     });
 
     it("gives the footer only legal and about destinations", () => {
-      expect(resolve(FOOTER_LEGAL).map((d) => d.label)).toEqual([
+      expect(FOOTER_LEGAL_DESTINATIONS.map((d) => d.label)).toEqual([
         "About",
         "Contact",
         "Privacy",

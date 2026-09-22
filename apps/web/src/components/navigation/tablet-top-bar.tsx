@@ -6,10 +6,15 @@ import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Button } from "@/components/catalyst-ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-import { AccountSlot, ChromeLogoLink, LanguageChip } from "./chrome-parts";
+import {
+  AccountSlot,
+  ChromeBar,
+  ChromeLogoLink,
+  ContributeAction,
+  LanguageChip,
+} from "./chrome-parts";
 import {
   TABLET_INLINE_DESTINATIONS,
   TABLET_OVERFLOW_DESTINATIONS,
@@ -30,10 +35,9 @@ export function TabletTopBar({ className }: { className?: string }) {
   const pathname = usePathname();
 
   return (
-    <header
+    <ChromeBar
       className={clsx(
-        "border-hairline bg-card sticky top-0 z-40 h-(--chrome-top-bar-height) items-center gap-3 border-b px-[18px] print:hidden",
-        "dark:border-chrome-line dark:bg-chrome-raised",
+        "bg-card dark:border-chrome-line dark:bg-chrome-raised gap-3 px-[18px]",
         className
       )}
     >
@@ -101,15 +105,8 @@ export function TabletTopBar({ className }: { className?: string }) {
         </Popover>
       </nav>
 
-      <Button
-        href="/contribute/story"
-        size="lg"
-        color="blue"
-        className="shrink-0"
-      >
-        Contribute
-      </Button>
+      <ContributeAction />
       <AccountSlot />
-    </header>
+    </ChromeBar>
   );
 }

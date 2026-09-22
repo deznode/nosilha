@@ -167,6 +167,14 @@
      Spec 037. */
   --chrome-top-bar-height: 52px;
 
+  /* Height of the fixed phone bottom bar, for the three things that have to clear
+     it: <main>, the footer colophon and the More sheet. It is 0 from 768 up, where
+     the tablet bar carries navigation inline and the bar is hidden — so a clearance
+     reading this token stops reserving space without a `md:` counterpart of its own.
+     Each of those three used to restate 56px in its own units, and they had already
+     drifted apart. Spec 037. */
+  --chrome-bottom-bar-height: 56px;
+
   /* @status-mix:start */
   /* Status mix ratios - see @theme inline for the derived utilities */
   --status-mix-surface: 14%;
@@ -182,6 +190,8 @@
 @media (min-width: 768px) {
   :root {
     --chrome-top-bar-height: 64px;
+    /* The bottom bar is hidden from here up. */
+    --chrome-bottom-bar-height: 0px;
   }
 }
 
@@ -761,6 +771,15 @@
 @layer utilities {
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Clearance for the fixed phone bottom bar, including the home-indicator inset.
+     One definition so the bar can be resized from `--chrome-bottom-bar-height`
+     alone rather than from four call sites that must agree. Spec 037. */
+  .chrome-bottom-clearance {
+    padding-bottom: calc(
+      var(--chrome-bottom-bar-height) + env(safe-area-inset-bottom)
+    );
   }
 
   /* BravaMap: Hide scrollbar on category pills overflow */

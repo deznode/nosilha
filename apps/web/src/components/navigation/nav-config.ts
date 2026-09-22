@@ -117,12 +117,7 @@ export const DESTINATIONS: Record<DestinationKey, Destination> = {
 };
 
 /** Phone thumb zone. `More` is synthetic and appended by the component. */
-export const BOTTOM_BAR: DestinationKey[] = [
-  "home",
-  "settlements",
-  "culture",
-  "map",
-];
+const BOTTOM_BAR: DestinationKey[] = ["home", "settlements", "culture", "map"];
 
 /**
  * Shown inline in the 768–1023 bar.
@@ -133,11 +128,7 @@ export const BOTTOM_BAR: DestinationKey[] = [
  * specified not to wrap anywhere in 768–1023, so an array would be config nothing
  * reads, kept honest only by a test asserting its own literal.
  */
-export const TABLET_INLINE: DestinationKey[] = [
-  "settlements",
-  "culture",
-  "map",
-];
+const TABLET_INLINE: DestinationKey[] = ["settlements", "culture", "map"];
 
 /**
  * The desktop pill bar (≥1024), left to right.
@@ -147,7 +138,7 @@ export const TABLET_INLINE: DestinationKey[] = [
  * tablet bar), so leaving it out would make desktop the one width where a
  * destination is unreachable. One set of destinations is the point of this file.
  */
-export const DESKTOP_BAR: DestinationKey[] = [
+const DESKTOP_BAR: DestinationKey[] = [
   "home",
   "settlements",
   "culture",
@@ -158,14 +149,10 @@ export const DESKTOP_BAR: DestinationKey[] = [
 ];
 
 /** Behind `More ▾` in the 768–1023 bar. */
-export const TABLET_OVERFLOW: DestinationKey[] = [
-  "photographs",
-  "films",
-  "stay",
-];
+const TABLET_OVERFLOW: DestinationKey[] = ["photographs", "films", "stay"];
 
 /** The More sheet's grid. Profile / Sign in is auth-conditional, appended by the component. */
-export const SHEET_DESTINATIONS: DestinationKey[] = [
+const SHEET_DESTINATIONS: DestinationKey[] = [
   "photographs",
   "films",
   "stay",
@@ -174,15 +161,32 @@ export const SHEET_DESTINATIONS: DestinationKey[] = [
 ];
 
 /** The footer colophon's legal row. */
-export const FOOTER_LEGAL: DestinationKey[] = [
-  "about",
-  "contact",
-  "privacy",
-  "terms",
-];
+const FOOTER_LEGAL: DestinationKey[] = ["about", "contact", "privacy", "terms"];
 
-export function resolve(keys: DestinationKey[]): Destination[] {
+/** A destination that is guaranteed to carry an icon — see `resolveWithIcons`. */
+export type IconDestination = Destination & { icon: LucideIcon };
+
+function resolve(keys: DestinationKey[]): Destination[] {
   return keys.map((key) => DESTINATIONS[key]);
+}
+
+/**
+ * `resolve` for the one surface that renders icons.
+ *
+ * The bottom bar's renderer used to assert the icon away (`destination.icon!`)
+ * because `icon` is optional on `Destination` — only four destinations have one.
+ * Checking here makes the config's guarantee the type's guarantee, and a
+ * bottom-bar key added without an icon fails at module load rather than
+ * rendering `undefined` as a component.
+ */
+function resolveWithIcons(keys: DestinationKey[]): IconDestination[] {
+  return keys.map((key) => {
+    const destination = DESTINATIONS[key];
+    if (!destination.icon) {
+      throw new Error(`Bottom-bar destination "${key}" is missing an icon.`);
+    }
+    return destination as IconDestination;
+  });
 }
 
 /**
@@ -193,8 +197,12 @@ export function resolve(keys: DestinationKey[]): Destination[] {
  * surfaces, including server-side for the footer on every page. Resolving here
  * also gives the lists a stable identity, which is what a memoized child would
  * need.
+ *
+ * These are the file's public surface for membership; the key arrays and
+ * `resolve` are private. Exporting both layers gave every list two names, and
+ * the only consumer of the key form was a test asserting its own literal.
  */
-export const BOTTOM_BAR_DESTINATIONS = resolve(BOTTOM_BAR);
+export const BOTTOM_BAR_DESTINATIONS = resolveWithIcons(BOTTOM_BAR);
 export const DESKTOP_BAR_DESTINATIONS = resolve(DESKTOP_BAR);
 export const TABLET_INLINE_DESTINATIONS = resolve(TABLET_INLINE);
 export const TABLET_OVERFLOW_DESTINATIONS = resolve(TABLET_OVERFLOW);

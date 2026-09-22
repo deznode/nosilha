@@ -12,8 +12,11 @@ import { BOTTOM_BAR_DESTINATIONS, isDestinationActive } from "./nav-config";
 /**
  * Phone bottom navigation — the thumb zone, on every route.
  *
- * The bar itself is unchanged from what shipped: 56px (`h-14`), the same five
- * items, labels, routes and icons, safe-area padding. Two things changed.
+ * The bar itself is unchanged from what shipped: 56px, the same five items,
+ * labels, routes and icons, safe-area padding. Its height is
+ * `--chrome-bottom-bar-height`, which is also what `<main>`, the footer and the
+ * More sheet clear — moving the bar is one edit rather than four. Two things
+ * changed.
  *
  * It no longer hides itself. It used to carry a `HIDDEN_ROUTES` list holding one
  * pattern, `/people/[slug]`, so a visitor reading a historical figure lost all
@@ -61,9 +64,9 @@ export function MobileBottomNav() {
         className="bg-card border-hairline dark:border-chrome-line dark:bg-chrome-raised fixed right-0 bottom-0 left-0 z-50 border-t pb-[env(safe-area-inset-bottom)] md:hidden print:hidden"
         aria-label="Mobile navigation"
       >
-        <div className="flex h-14 items-center justify-around">
+        <div className="flex h-(--chrome-bottom-bar-height) items-center justify-around">
           {BOTTOM_BAR_DESTINATIONS.map((destination) => {
-            const Icon = destination.icon!;
+            const Icon = destination.icon;
             const active = isDestinationActive(destination, pathname);
 
             return (

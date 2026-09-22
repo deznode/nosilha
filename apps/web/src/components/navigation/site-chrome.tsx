@@ -74,5 +74,11 @@ export function SiteChrome({
  * now be 64px of dead space above every desktop page. What is left clears the
  * fixed bottom bar, which is phone-only. `(archive-fill)` passes
  * `showBottomNav=false` and sizes its own column, so it uses none of this.
+ *
+ * The clearance itself is `.chrome-bottom-clearance`, the same utility the footer
+ * and the More sheet use: it reads `--chrome-bottom-bar-height` and adds the
+ * home-indicator inset, and it goes to 0 at 768 on its own. This used to be
+ * `pb-16 md:pb-0` — 64px for a 56px bar, and the only one of the three clearances
+ * that left out `env(safe-area-inset-bottom)`.
  */
-export const CHROME_MAIN_CLEARANCE = "pb-16 md:pb-0";
+export const CHROME_MAIN_CLEARANCE = "chrome-bottom-clearance";

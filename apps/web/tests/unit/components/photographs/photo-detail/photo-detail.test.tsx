@@ -300,13 +300,16 @@ describe("PhotoDetail", () => {
     expect(container.querySelector('[style*="sticky"]')).toBeNull();
   });
 
-  it("sticks the stage under the archive bar on a desktop", () => {
+  it("sticks the stage under the top bar on a desktop", () => {
     const { container } = render(
       <PhotoDetail media={upload()} sequence={SEQUENCE} />
     );
     const stage = container.querySelector('[style*="sticky"]') as HTMLElement;
 
-    expect(stage.style.top).toBe("65px");
+    // The token rather than the 65 that used to be inlined here: the bar is 52px
+    // on a phone and 64px on a tablet, so the literal was only right at desktop
+    // width. Spec 037.
+    expect(stage.style.top).toBe("var(--chrome-top-bar-height)");
     expect(container.querySelector('[style*="74vh"]')).toBeTruthy();
   });
 });
