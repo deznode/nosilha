@@ -1,18 +1,18 @@
-import { Suspense } from "react";
-
 import { IdentifySheet } from "@/components/identify/identify-sheet";
-import { ArchiveBar } from "@/components/navigation/archive-bar";
+import { SiteChrome } from "@/components/navigation/site-chrome";
 import { Footer } from "@/components/ui/footer";
 
 /**
  * Archive Layout — the eight redesigned screens that scroll.
  *
- * The prototype's single sticky bar replaces the site header here (spec 034 FR-003).
- * Its sibling `(archive-fill)` carries the same bar for screens that fill the
- * viewport instead of scrolling, and drops the footer.
+ * Chrome is shared with `(main)` and `(archive-fill)` via `SiteChrome` (spec 037).
+ * This group used to carry `ArchiveBar` and no bottom bar, so tapping a bottom-bar
+ * item on a `(main)` route landed here and the bar the visitor had just used
+ * disappeared. Its sibling `(archive-fill)` carries the same chrome for screens
+ * that fill the viewport instead of scrolling, and drops the footer.
  *
- * The Suspense boundary lets `ArchiveBar`'s `usePathname()` punch a dynamic hole in
- * otherwise cached pages, the same way `(main)` treats its nav.
+ * `SiteChrome` owns the Suspense boundaries the bars' `usePathname()` needs to
+ * punch dynamic holes in otherwise cached pages.
  */
 export default function ArchiveLayout({
   children,
@@ -21,10 +21,10 @@ export default function ArchiveLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <Suspense>
-        <ArchiveBar />
-      </Suspense>
-      <main id="main-content" className="flex-grow">
+      <SiteChrome />
+      {/* The phone and tablet bars are sticky and in-flow; `StickyNav` at lg: is
+          fixed, so only that width needs clearance. */}
+      <main id="main-content" className="flex-grow pb-16 md:pb-0 lg:pt-16">
         {children}
       </main>
       <div className="print:hidden">

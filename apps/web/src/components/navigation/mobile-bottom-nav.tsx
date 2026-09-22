@@ -1,295 +1,105 @@
 "use client";
 
-import { useState } from "react";
+import clsx from "clsx";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  Grid3X3,
-  BookOpen,
-  Map,
-  Menu,
-  X,
-  Film,
-  User,
-  LogIn,
-  Globe,
-  Plus,
-  UserPlus,
-  Check,
-} from "lucide-react";
-import clsx from "clsx";
-import { useAuth } from "@/components/providers/auth-provider";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { languages } from "@/components/navigation/nav-config";
+import { useState } from "react";
 
-interface NavItem {
-  label: string;
-  icon: typeof Home;
-  href?: string;
-  action?: "menu";
-  /** Routes that match this item (exact or starts-with) */
-  activeMatch: string[] | "exact";
-}
-
-const navItems: NavItem[] = [
-  {
-    label: "Home",
-    icon: Home,
-    href: "/",
-    activeMatch: "exact",
-  },
-  {
-    label: "Settlements",
-    icon: Grid3X3,
-    href: "/settlements",
-    activeMatch: ["/settlements"],
-  },
-  {
-    label: "Culture",
-    icon: BookOpen,
-    href: "/history",
-    activeMatch: ["/history", "/people"],
-  },
-  {
-    label: "Map",
-    icon: Map,
-    href: "/map",
-    activeMatch: "exact",
-  },
-  {
-    label: "More",
-    icon: Menu,
-    action: "menu",
-    activeMatch: [],
-  },
-];
-
-/** Additional items shown in the "More" menu */
-const moreMenuItems = [
-  { label: "Photographs", href: "/photographs", icon: Film },
-];
-
-/** Routes where bottom nav should be hidden (detail pages) */
-const HIDDEN_ROUTES = [
-  /^\/people\/[^/]+$/, // /people/[slug]
-];
+import { MoreSheet } from "./more-sheet";
+import { BOTTOM_BAR, isDestinationActive, resolve } from "./nav-config";
 
 /**
- * Mobile Bottom Navigation - Calm Premium thumb-zone accessibility
+ * Phone bottom navigation — the thumb zone, on every route.
  *
- * Features:
- * - Persistent bottom bar (mobile only)
- * - Hidden on detail pages for immersive reading
- * - Safe area padding for iOS home indicator
- * - "More" button opens a popover with additional navigation
+ * The bar itself is unchanged from what shipped: 56px (`h-14`), the same five
+ * items, labels, routes and icons, safe-area padding. Two things changed.
+ *
+ * It no longer hides itself. It used to carry a `HIDDEN_ROUTES` list holding one
+ * pattern, `/people/[slug]`, so a visitor reading a historical figure lost all
+ * navigation. Nothing replaces it — the bar is persistent, with no scroll-hide
+ * and no route-based hiding (FR-003).
+ *
+ * And it is hidden from 768 up rather than from 1024: at tablet width
+ * `TabletTopBar` carries navigation inline, and 56px of screen goes back to the
+ * page.
  */
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const { session } = useAuth();
-  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState(languages[0]);
+  const [moreOpen, setMoreOpen] = useState(false);
 
-  // Hide on detail pages
-  const shouldHide = HIDDEN_ROUTES.some((pattern) => pattern.test(pathname));
-  if (shouldHide) return null;
+  // `cacheComponents` wraps routes in <Activity>, which hides rather than
+  // unmounts them, so `useState` survives navigation and a sheet left open would
+  // come back open. Adjusted during render rather than in an effect: an effect
+  // keyed on pathname does not fire reliably in a hidden component (Next.js
+  // #78844), and React bails out of the re-render when the value is unchanged.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    setMoreOpen(false);
+  }
 
-  const isActive = (item: NavItem): boolean => {
-    if (item.activeMatch === "exact") {
-      return pathname === item.href;
-    }
-    return item.activeMatch.some((match) => pathname.startsWith(match));
-  };
+  const destinations = resolve(BOTTOM_BAR);
+
+  const itemClasses = (active: boolean) =>
+    clsx(
+      "touch-target flex flex-col items-center justify-center gap-0.5 px-3 py-2",
+      "transition-colors duration-150",
+      active
+        ? "text-ocean-blue"
+        : "text-muted hover:text-ocean-blue focus-visible:text-ocean-blue",
+      "focus-visible:ring-ocean-blue/50 focus:outline-none focus-visible:rounded-lg focus-visible:ring-2"
+    );
 
   return (
     <>
-      {/* More menu overlay */}
-      {moreMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
-          onClick={() => setMoreMenuOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+      <MoreSheet isOpen={moreOpen} onClose={() => setMoreOpen(false)} />
 
-      {/* More menu popover */}
-      {moreMenuOpen && (
-        <div className="bg-surface border-hairline rounded-card shadow-floating fixed right-4 bottom-20 z-50 w-56 border p-2 lg:hidden">
-          <nav aria-label="More navigation options">
-            {moreMenuItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setMoreMenuOpen(false)}
-                className={clsx(
-                  "text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors",
-                  pathname.startsWith(item.href) && "text-ocean-blue"
-                )}
-              >
-                <item.icon className="h-5 w-5" aria-hidden="true" />
-                {item.label}
-              </Link>
-            ))}
-
-            <div className="border-hairline my-2 border-t" />
-
-            {/* Contribute */}
-            <Link
-              href="/contribute/story"
-              onClick={() => setMoreMenuOpen(false)}
-              className="text-ocean-blue hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
-            >
-              <Plus className="h-5 w-5" aria-hidden="true" />
-              Contribute a Story
-            </Link>
-
-            <div className="border-hairline my-2 border-t" />
-
-            {/* Auth */}
-            {session ? (
-              <>
-                <Link
-                  href="/profile"
-                  onClick={() => setMoreMenuOpen(false)}
-                  className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
-                >
-                  <User className="h-5 w-5" aria-hidden="true" />
-                  Profile
-                </Link>
-                <Link
-                  href="/settings"
-                  onClick={() => setMoreMenuOpen(false)}
-                  className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
-                >
-                  <Globe className="h-5 w-5" aria-hidden="true" />
-                  Settings
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  onClick={() => setMoreMenuOpen(false)}
-                  className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
-                >
-                  <LogIn className="h-5 w-5" aria-hidden="true" />
-                  Log in
-                </Link>
-                <Link
-                  href="/signup"
-                  onClick={() => setMoreMenuOpen(false)}
-                  className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
-                >
-                  <UserPlus className="h-5 w-5" aria-hidden="true" />
-                  Sign up
-                </Link>
-              </>
-            )}
-
-            <div className="border-hairline my-2 border-t" />
-
-            {/* Language */}
-            <div className="px-3 py-2">
-              <div className="text-muted mb-2 text-xs font-semibold tracking-wider uppercase">
-                Language
-              </div>
-              <div className="flex gap-1.5">
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => !lang.disabled && setCurrentLang(lang)}
-                    disabled={lang.disabled}
-                    title={lang.disabled ? "Coming soon" : undefined}
-                    className={clsx(
-                      "flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                      lang.disabled &&
-                        "border-hairline text-muted cursor-not-allowed opacity-40",
-                      !lang.disabled &&
-                        currentLang.code === lang.code &&
-                        "border-ocean-blue bg-ocean-blue text-white",
-                      !lang.disabled &&
-                        currentLang.code !== lang.code &&
-                        "border-hairline text-body hover:border-ocean-blue"
-                    )}
-                  >
-                    <span>{lang.flag}</span>
-                    {lang.code}
-                    {currentLang.code === lang.code && (
-                      <Check className="h-3 w-3" aria-hidden="true" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="border-hairline my-2 border-t" />
-
-            <div className="flex items-center justify-between px-3 py-2">
-              <span className="text-muted text-sm">Theme</span>
-              <ThemeToggle />
-            </div>
-          </nav>
-        </div>
-      )}
-
-      {/* Bottom navigation bar */}
       <nav
-        className="bg-surface border-hairline fixed right-0 bottom-0 left-0 z-50 border-t pb-[env(safe-area-inset-bottom)] lg:hidden"
+        // Same surface as the top bar, in both themes: the design lifts both
+        // bars off the page ground so they read as one chrome rather than two
+        // (`bg-surface` put this bar on #EFE8DC in light and #141B26 in dark,
+        // half a step from the top bar either way). Spec 037.
+        className="bg-card border-hairline fixed right-0 bottom-0 left-0 z-50 border-t pb-[env(safe-area-inset-bottom)] md:hidden dark:border-[#333C44] dark:bg-[#242C33] print:hidden"
         aria-label="Mobile navigation"
       >
         <div className="flex h-14 items-center justify-around">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item);
-
-            if (item.action === "menu") {
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-                  className={clsx(
-                    "touch-target flex flex-col items-center justify-center gap-0.5 px-3 py-2",
-                    "transition-colors duration-150",
-                    moreMenuOpen
-                      ? "text-ocean-blue"
-                      : "text-muted hover:text-ocean-blue focus-visible:text-ocean-blue",
-                    "focus-visible:ring-ocean-blue/50 focus:outline-none focus-visible:rounded-lg focus-visible:ring-2"
-                  )}
-                  aria-label={moreMenuOpen ? "Close menu" : "Open menu"}
-                  aria-expanded={moreMenuOpen}
-                >
-                  {moreMenuOpen ? (
-                    <X className="h-5 w-5" aria-hidden="true" />
-                  ) : (
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  )}
-                  <span className="text-[10px] font-medium">{item.label}</span>
-                </button>
-              );
-            }
+          {destinations.map((destination) => {
+            const Icon = destination.icon!;
+            const active = isDestinationActive(destination, pathname);
 
             return (
               <Link
-                key={item.label}
-                href={item.href!}
-                className={clsx(
-                  "touch-target flex flex-col items-center justify-center gap-0.5 px-3 py-2",
-                  "transition-colors duration-150",
-                  active
-                    ? "text-ocean-blue"
-                    : "text-muted hover:text-ocean-blue focus-visible:text-ocean-blue",
-                  "focus-visible:ring-ocean-blue/50 focus:outline-none focus-visible:rounded-lg focus-visible:ring-2"
-                )}
+                key={destination.key}
+                href={destination.href}
+                className={itemClasses(active)}
                 aria-current={active ? "page" : undefined}
               >
                 <Icon
                   className={clsx("h-5 w-5", active && "fill-ocean-blue/20")}
                   aria-hidden="true"
                 />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[10.5px] font-medium">
+                  {destination.label}
+                </span>
               </Link>
             );
           })}
+
+          <button
+            type="button"
+            onClick={() => setMoreOpen((open) => !open)}
+            className={itemClasses(moreOpen)}
+            aria-label={moreOpen ? "Close menu" : "Open menu"}
+            aria-expanded={moreOpen}
+          >
+            {moreOpen ? (
+              <X className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            )}
+            <span className="text-[10.5px] font-medium">More</span>
+          </button>
         </div>
       </nav>
     </>

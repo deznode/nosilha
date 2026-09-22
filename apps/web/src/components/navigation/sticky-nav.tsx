@@ -55,7 +55,6 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [currentLang, setCurrentLang] = useState(languages[0]);
-  const isHome = pathname === "/";
 
   // --- Stuck detection ---
   // Hero mode: IntersectionObserver on sentinel (like prototype)
@@ -79,10 +78,12 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
     return () => observer.disconnect();
   }, [heroMode]);
 
-  // Layout mode: don't render on home page (hero section has its own nav)
-  if (!heroMode && isHome) {
-    return null;
-  }
+  // The layout-mode home-page guard is gone. It dated from when `/` lived in
+  // `(main)` behind a hero carrying its own nav; `/` is an `(archive)` route now
+  // and `heroMode` has no callers, so the branch had never once executed. Left in
+  // place it would have fired the moment `SiteChrome` put this bar on archive
+  // routes, blanking the desktop nav on the site's most-visited page.
+  // Spec 037 — the one sanctioned change to this file.
 
   const isHeroTransparent = heroMode && !isStuck;
 

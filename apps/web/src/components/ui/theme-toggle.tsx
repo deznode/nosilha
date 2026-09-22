@@ -16,11 +16,19 @@ export interface ThemeToggleProps {
   variant?: "default" | "light";
   /** Show circular container like other icon buttons */
   showContainer?: boolean;
+  /**
+   * `square` is the 44px bordered control the site chrome uses (spec 037). Given
+   * as a variant rather than a `className` override because the base sets
+   * `rounded-full`, and two radius utilities at equal specificity resolve by
+   * stylesheet order, not by prop order.
+   */
+  shape?: "circle" | "square";
 }
 
 export function ThemeToggle({
   variant = "default",
   showContainer = true,
+  shape = "circle",
 }: ThemeToggleProps) {
   const isLight = variant === "light";
 
@@ -74,7 +82,10 @@ export function ThemeToggle({
     <motion.button
       onClick={cycleTheme}
       className={clsx(
-        "relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full",
+        "relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center",
+        shape === "square"
+          ? "border-hairline size-11 shrink-0 rounded-lg border"
+          : "rounded-full",
         "focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2",
         "transition-all duration-200"
       )}

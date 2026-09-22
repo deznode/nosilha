@@ -24,12 +24,50 @@ export function InputGroup({
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
 
+// Height and colors are selected here rather than overridden by the caller: a
+// passed `className` lands on the outer `data-slot="control"` wrapper and never
+// reaches the real <input>, so it cannot restyle the control at all.
+// Spec 037 FR-010.
+const inputSizes = {
+  // Moved verbatim out of the class list below, so omitting `size` renders a
+  // byte-identical <input>.
+  md: "px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)]",
+  // Site chrome: 44px at every breakpoint.
+  lg: "h-11 px-3",
+};
+
+const inputAppearances = {
+  default: [
+    // Typography
+    "dark:text-text-primary text-base/6 text-basalt-900 placeholder:text-basalt-500 sm:text-sm/6",
+    // Border
+    "border border-basalt-900/10 data-hover:border-basalt-900/20 dark:border-white/10 dark:data-hover:border-white/20",
+    // Background color
+    "dark:bg-background-primary/5 bg-transparent",
+  ],
+  // An always-dark ground in both themes — the footer. Deliberately carries no
+  // `dark:` variant: the footer does not flip with the theme, so a theme-reactive
+  // token would resolve to its light value on a permanently dark surface, which
+  // is the contrast bug this set exists to prevent. Spec 037 FR-009.
+  onDark: [
+    "text-footer-heading placeholder:text-footer-placeholder text-base/6 sm:text-sm/6",
+    "border border-footer-input-border data-hover:border-footer-input-border",
+    "bg-footer-input-bg",
+  ],
+};
+
 export const Input = forwardRef(function Input(
   {
     className,
+    size = "md",
+    appearance = "default",
     ...props
   }: {
     className?: string;
+    /** `lg` is the 44px site-chrome control. Omit for the default. */
+    size?: keyof typeof inputSizes;
+    /** `onDark` for a control on an always-dark ground, e.g. the footer. */
+    appearance?: keyof typeof inputAppearances;
     type?:
       | "email"
       | "number"
@@ -39,7 +77,10 @@ export const Input = forwardRef(function Input(
       | "text"
       | "url"
       | DateType;
-  } & Omit<Headless.InputProps, "as" | "className">,
+    // `size` is omitted from the native props: HTML inputs have their own
+    // numeric `size` attribute, which no call site uses and which would
+    // otherwise collide with the variant prop above.
+  } & Omit<Headless.InputProps, "as" | "className" | "size">,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   return (
@@ -53,6 +94,9 @@ export const Input = forwardRef(function Input(
         "before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-white before:shadow-sm",
         // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
         "dark:before:hidden",
+        // On an always-dark ground the white backdrop would show through the
+        // control's own translucent-free background in light mode, so drop it.
+        appearance === "onDark" && "before:hidden",
         // Focus ring
         "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset sm:focus-within:after:ring-2 sm:focus-within:after:ring-ocean-blue",
         // Disabled state
@@ -82,13 +126,10 @@ export const Input = forwardRef(function Input(
               "[&::-webkit-datetime-edit-meridiem-field]:p-0",
             ],
           // Basic layout
-          "relative block w-full appearance-none rounded-lg px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)]",
-          // Typography
-          "dark:text-text-primary text-base/6 text-basalt-900 placeholder:text-basalt-500 sm:text-sm/6",
-          // Border
-          "border border-basalt-900/10 data-hover:border-basalt-900/20 dark:border-white/10 dark:data-hover:border-white/20",
-          // Background color
-          "dark:bg-background-primary/5 bg-transparent",
+          "relative block w-full appearance-none rounded-lg",
+          inputSizes[size],
+          // Typography, border and background
+          inputAppearances[appearance],
           // Hide default focus styles
           "focus:outline-hidden",
           // Invalid state

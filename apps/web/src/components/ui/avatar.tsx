@@ -34,6 +34,13 @@ type AvatarProps = {
   status?: keyof typeof statusColors;
   className?: string;
   square?: boolean;
+  /**
+   * Render the initials fallback for an always-dark ground, e.g. the chrome bars
+   * in dark mode. The default pair resolves to `text-ocean-blue` on
+   * `bg-ocean-blue/10`, which measures 1.95:1 on the bars' `#242C33` — the same
+   * failure the footer's Subscribe button had, on the same token. Spec 037 FR-011.
+   */
+  onDark?: boolean;
 };
 
 /**
@@ -41,7 +48,16 @@ type AvatarProps = {
  * Supports image source, initials fallback, size variants, and status indicators.
  */
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
-  { src, alt = "", initials, size = "md", status, className, square = false },
+  {
+    src,
+    alt = "",
+    initials,
+    size = "md",
+    status,
+    className,
+    square = false,
+    onDark = false,
+  },
   ref
 ) {
   return (
@@ -69,7 +85,9 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
         <span
           className={clsx(
             "flex size-full items-center justify-center font-medium",
-            "bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 dark:text-ocean-blue-light",
+            onDark
+              ? "bg-accent-on-dark text-accent-on-dark-foreground font-semibold"
+              : "bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 dark:text-ocean-blue-light",
             square ? "rounded-lg" : "rounded-full"
           )}
         >

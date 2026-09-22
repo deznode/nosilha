@@ -9,6 +9,7 @@ import {
 } from "@/lib/validation/newsletter-schema";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
 import {
   hasSubmittedEmail,
@@ -116,13 +117,13 @@ export function FooterNewsletterForm() {
   };
 
   return (
-    <div className="mt-6">
+    <div>
       <form
         onSubmit={handleSubmit(onSubmit, onInvalid)}
-        className="sm:flex sm:max-w-md sm:items-start"
+        className="flex items-start gap-2"
         noValidate
       >
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <label htmlFor="footer-email-address" className="sr-only">
             Email address
           </label>
@@ -132,13 +133,14 @@ export function FooterNewsletterForm() {
             id="footer-email-address"
             type="email"
             autoComplete="email"
-            placeholder="Enter your email"
+            placeholder="your@email.com"
             aria-label="Email address for newsletter subscription"
             aria-invalid={errors.email ? "true" : "false"}
             aria-describedby={errors.email ? "footer-email-error" : undefined}
             disabled={isProcessing}
             data-invalid={errors.email ? "" : undefined}
-            className="sm:w-64 xl:w-full"
+            size="lg"
+            appearance="onDark"
           />
 
           {/* Honeypot field (hidden from users and screen readers) */}
@@ -156,26 +158,31 @@ export function FooterNewsletterForm() {
             <p
               id="footer-email-error"
               role="alert"
-              className="text-status-error mt-2 text-sm font-medium"
+              className="mt-2 text-sm font-medium text-[#F0B5B0]"
             >
               {errors.email.message}
             </p>
           )}
         </div>
 
-        <div className="mt-4 sm:mt-0 sm:ml-4 sm:shrink-0">
-          <button
+        <div className="shrink-0">
+          {/* Ochre, not ocean blue: #3D5A73 on the footer's #1B2127 measures
+              2.18:1 and fails AA. Ocean blue is the token that fails on this
+              ground. Spec 037 FR-009. */}
+          <Button
             type="submit"
+            size="lg"
+            color="accentOnDark"
             disabled={isProcessing}
-            className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue disabled:hover:bg-ocean-blue rounded-button shadow-subtle flex w-full items-center justify-center px-3 py-2 text-sm font-semibold text-white transition-all focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
+            className="px-[15px]"
           >
             {isProcessing ? "Subscribing\u2026" : "Subscribe"}
-          </button>
+          </Button>
         </div>
       </form>
 
       {/* Privacy message */}
-      <p className="text-muted mt-4 text-sm">
+      <p className="text-footer-muted mt-3 text-xs">
         We respect your privacy. Unsubscribe at any time.
       </p>
     </div>
