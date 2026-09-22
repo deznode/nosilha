@@ -1,9 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
+
+import { useSheetModal } from "@/lib/hooks/use-sheet-modal";
 
 interface FilterBottomSheetProps {
   isOpen: boolean;
@@ -24,53 +25,7 @@ export function FilterBottomSheet({
   onClear,
   activeCount = 0,
 }: FilterBottomSheetProps) {
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
-
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.stopPropagation();
-        onClose();
-        return;
-      }
-      if (e.key === "Tab" && sheetRef.current) {
-        const focusable = sheetRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    },
-    [onClose]
-  );
-
-  useEffect(() => {
-    if (isOpen) {
-      previousFocusRef.current = document.activeElement as HTMLElement;
-      document.body.style.overflow = "hidden";
-      document.addEventListener("keydown", handleKeyDown);
-
-      // Move focus into the sheet
-      requestAnimationFrame(() => {
-        sheetRef.current?.focus();
-      });
-
-      return () => {
-        document.body.style.overflow = "";
-        document.removeEventListener("keydown", handleKeyDown);
-        previousFocusRef.current?.focus();
-      };
-    }
-  }, [isOpen, handleKeyDown]);
+  const sheetRef = useSheetModal(isOpen, onClose);
 
   return (
     <AnimatePresence>

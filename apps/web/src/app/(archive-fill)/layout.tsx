@@ -1,21 +1,23 @@
-import { Suspense } from "react";
-
 import { IdentifySheet } from "@/components/identify/identify-sheet";
-import { ArchiveBar } from "@/components/navigation/archive-bar";
+import { SiteChrome } from "@/components/navigation/site-chrome";
 
 /**
  * Archive Fill Layout — archive screens that fill the viewport rather than scroll.
  *
- * Same bar as `(archive)`, no footer, and a main sized to what the bar leaves behind,
- * so a child like the map owns its own scrolling without the page growing past the
- * viewport (FR-003's last criterion).
+ * Same chrome as `(archive)`, no footer, and a main sized to what the bar leaves
+ * behind, so a child like the map owns its own scrolling without the page growing
+ * past the viewport (spec 034 FR-003's last criterion).
+ *
+ * No bottom bar here, by decision: these screens fill the viewport and keep their
+ * full bleed. It is the one place the chrome is not identical everywhere, and the
+ * reason is the screen, not the route group (spec 037).
  *
  * The main takes the remaining height of a viewport-tall column rather than
- * subtracting a constant. The bar measures about 65px on a wide screen, but below
- * ~640px its nav pills wrap and it grows to about 158px, so `calc(100vh - 65px)` let
- * `/map` overflow a phone by the difference and pushed the bottom sheet below the fold
- * (FR-012). `dvh` follows the mobile browser's collapsing toolbar, which `vh` does not.
- * The photo detail still sizes its own panes from the 65px constant.
+ * subtracting a constant. That mattered more when the old archive bar wrapped to
+ * about 158px below ~640px; the bars are now a flat 52px phone / 64px tablet, but
+ * the column still measures rather than assumes. `dvh` follows the mobile
+ * browser's collapsing toolbar, which `vh` does not. The photo detail sizes its
+ * own panes from the same bar heights — see `archive-skeleton.tsx`.
  */
 export default function ArchiveFillLayout({
   children,
@@ -24,9 +26,7 @@ export default function ArchiveFillLayout({
 }) {
   return (
     <div className="flex h-dvh flex-col">
-      <Suspense>
-        <ArchiveBar />
-      </Suspense>
+      <SiteChrome showBottomNav={false} />
       {/*
         No Suspense around `children`. A boundary here flushes the shell — and with it
         HTTP 200 — before the page runs, so `/photographs/[id]` answered 200 with a

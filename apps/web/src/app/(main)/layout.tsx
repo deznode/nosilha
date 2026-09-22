@@ -1,23 +1,25 @@
-import { Suspense } from "react";
-import { StickyNav } from "@/components/navigation/sticky-nav";
-import { NavVisibilityWrapper } from "@/components/ui/nav-visibility-wrapper";
+import clsx from "clsx";
+
+import {
+  CHROME_MAIN_CLEARANCE,
+  SiteChrome,
+} from "@/components/navigation/site-chrome";
 import { Footer } from "@/components/ui/footer";
-import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 
 /**
- * Main Layout - Standard pages with Header and Footer
+ * Main Layout - Standard pages with site chrome and footer.
  *
- * This layout wraps all routes in the (main) route group,
- * providing the standard site chrome (header, footer, navigation).
+ * This layout wraps all routes in the (main) route group. The chrome itself is
+ * shared with `(archive)` and `(archive-fill)` via `SiteChrome`, so crossing
+ * between route groups no longer changes the frame around the page (spec 037).
  *
- * Routes that need full-page takeover (like auth) should use
- * their own route group without this layout.
+ * Routes that need full-page takeover (like auth) should use their own route
+ * group without this layout.
  *
- * Mobile: Includes MobileBottomNav for thumb-zone accessibility,
- * with padding to prevent content overlap.
- *
- * Suspense boundaries around nav components allow usePathname()
- * to create dynamic holes in cached pages (PPR).
+ * The footer renders at every width. It used to be wrapped in `hidden lg:block`,
+ * which made Privacy and Terms unreachable on a phone on every route in this
+ * group, while `(archive)` rendered the same footer at all widths — two answers
+ * to the same question (spec 037 FR-008).
  */
 export default function MainLayout({
   children,
@@ -26,23 +28,16 @@ export default function MainLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <Suspense>
-        <NavVisibilityWrapper>
-          <StickyNav className="print:hidden" />
-        </NavVisibilityWrapper>
-      </Suspense>
+      <SiteChrome />
       <main
         id="main-content"
-        className="animate-fade-in flex-grow pt-12 pb-16 md:pt-16 lg:pb-0"
+        className={clsx("animate-fade-in flex-grow", CHROME_MAIN_CLEARANCE)}
       >
         {children}
       </main>
-      <div className="hidden lg:block print:hidden">
+      <div className="print:hidden">
         <Footer />
       </div>
-      <Suspense>
-        <MobileBottomNav />
-      </Suspense>
     </div>
   );
 }

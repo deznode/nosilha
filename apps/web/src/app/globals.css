@@ -111,6 +111,70 @@
   /* Focus Ring */
   --focus-glow: oklch(0.35 0.08 240 / 0.15);
 
+  /* === ALWAYS-DARK SETS — Spec 037 FR-009 / FR-011 ===
+     Defined once in :root and deliberately NOT redefined in .dark. These surfaces
+     are dark in both themes, so they must not participate in the theme toggle —
+     that is the whole point. A theme-reactive token placed on one of these grounds
+     resolves to its light value on a permanently dark surface, which is the
+     mechanism behind the 2.18:1 privacy line and the 2.27:1 Subscribe button the
+     2026-09 chrome audit measured.
+
+     Literal hex, not OKLCH brand tokens: these values were measured against this
+     specific ground in the design handoff, and --brand-sobrado-ochre is a
+     different, cooler value that has not been. Do not repoint without re-measuring.
+     Contrast ratios below are on --footer-ground unless stated. */
+
+  /* The measured scale itself. Every always-dark value in the app resolves to one
+     of these, so re-measuring is an edit here rather than a hunt for hex strings.
+     The named groups below are consumer-facing aliases, never second copies. */
+  --dark-ground: #1b2127;
+  --dark-raised: #242c33; /* bars and inputs, a step above the ground */
+  --dark-line: #333c44;
+  --dark-ink: #f5f7f9; /* 9.4:1 on --dark-ground */
+  --dark-ink-body: #d5dbe0; /* 8.15:1 */
+  --dark-ink-muted: #aeb9c4; /* 5.9:1 */
+
+  /* Footer colophon */
+  --footer-ground: var(--dark-ground);
+  --footer-body: var(--dark-ink-body);
+  --footer-muted: var(--dark-ink-muted);
+  --footer-heading: var(--dark-ink);
+  --footer-divider: var(--dark-line);
+  --footer-input-bg: var(--dark-raised);
+  --footer-input-border: #4a545e;
+  --footer-placeholder: #9aa5af; /* 4.6:1 on --footer-input-bg */
+  --footer-error: #f0b5b0; /* 7.2:1 on --footer-ground */
+
+  /* Chrome bars. Dark only when the theme is dark — unlike the footer these do
+     flip — but when they are dark they are the same measured ground, so they read
+     from the same scale rather than restating its hexes at thirteen call sites. */
+  --chrome-raised: var(--dark-raised);
+  --chrome-line: var(--dark-line);
+  --chrome-ink: var(--dark-ink);
+  --chrome-ink-muted: var(--dark-ink-muted);
+
+  /* Filled actions and avatars on a dark or raised-dark ground, in either theme.
+     Kept outside the --footer-* group because the chrome bars use it too, and one
+     definition with two consumers is what stops the pair drifting apart. */
+  --accent-on-dark: #c79a5e;
+  --accent-on-dark-foreground: var(
+    --dark-ground
+  ); /* 6.4:1 on --accent-on-dark */
+  --accent-on-dark-deep: #7a5730; /* the far end of the footer's rule gradient */
+
+  /* Height of the sticky top bar, for the few places that have to subtract it
+     from the viewport rather than sit below it in flow. Redefined at 768 below.
+     Spec 037. */
+  --chrome-top-bar-height: 52px;
+
+  /* Height of the fixed phone bottom bar, for the three things that have to clear
+     it: <main>, the footer colophon and the More sheet. It is 0 from 768 up, where
+     the tablet bar carries navigation inline and the bar is hidden — so a clearance
+     reading this token stops reserving space without a `md:` counterpart of its own.
+     Each of those three used to restate 56px in its own units, and they had already
+     drifted apart. Spec 037. */
+  --chrome-bottom-bar-height: 56px;
+
   /* @status-mix:start */
   /* Status mix ratios - see @theme inline for the derived utilities */
   --status-mix-surface: 14%;
@@ -119,6 +183,24 @@
   --status-mix-ink: 70%;
   --status-ink-base: black;
   /* @status-mix:end */
+}
+
+/* The tablet bar carries navigation inline, so it is taller than the phone bar's
+   identity-only 52px. Spec 037 FR-004. */
+@media (min-width: 768px) {
+  :root {
+    --chrome-top-bar-height: 64px;
+    /* The bottom bar is hidden from here up. */
+    --chrome-bottom-bar-height: 0px;
+  }
+}
+
+/* The desktop pill bar. 65px is the archive bar's measured height, which this bar
+   restores — the same constant `photo-detail.tsx` has always sized its panes from. */
+@media (min-width: 1024px) {
+  :root {
+    --chrome-top-bar-height: 65px;
+  }
 }
 
 /* === DARK MODE OVERRIDES (Volcanic Night) === */
@@ -392,6 +474,24 @@
 
   /* Focus */
   --color-focus-glow: var(--focus-glow);
+
+  /* Always-dark sets — Spec 037. No .dark counterpart by design. */
+  --color-footer-ground: var(--footer-ground);
+  --color-footer-body: var(--footer-body);
+  --color-footer-muted: var(--footer-muted);
+  --color-footer-heading: var(--footer-heading);
+  --color-footer-divider: var(--footer-divider);
+  --color-footer-input-bg: var(--footer-input-bg);
+  --color-footer-input-border: var(--footer-input-border);
+  --color-footer-placeholder: var(--footer-placeholder);
+  --color-footer-error: var(--footer-error);
+  --color-chrome-raised: var(--chrome-raised);
+  --color-chrome-line: var(--chrome-line);
+  --color-chrome-ink: var(--chrome-ink);
+  --color-chrome-ink-muted: var(--chrome-ink-muted);
+  --color-accent-on-dark: var(--accent-on-dark);
+  --color-accent-on-dark-foreground: var(--accent-on-dark-foreground);
+  --color-accent-on-dark-deep: var(--accent-on-dark-deep);
 }
 
 /* ========================================
@@ -671,6 +771,15 @@
 @layer utilities {
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Clearance for the fixed phone bottom bar, including the home-indicator inset.
+     One definition so the bar can be resized from `--chrome-bottom-bar-height`
+     alone rather than from four call sites that must agree. Spec 037. */
+  .chrome-bottom-clearance {
+    padding-bottom: calc(
+      var(--chrome-bottom-bar-height) + env(safe-area-inset-bottom)
+    );
   }
 
   /* BravaMap: Hide scrollbar on category pills overflow */

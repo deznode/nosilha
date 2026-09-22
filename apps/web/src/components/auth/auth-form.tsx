@@ -71,7 +71,11 @@ const FacebookIcon = () => (
 function PasswordInput({
   error,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { error?: string }) {
+  // `size` omitted: it is the native numeric input attribute, which no caller
+  // uses and which collides with `Input`'s own size variant.
+}: Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & {
+  error?: string;
+}) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (

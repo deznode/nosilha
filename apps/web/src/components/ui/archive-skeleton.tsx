@@ -20,7 +20,12 @@ export function ArchiveSkeleton({
         maxWidth: full ? undefined : "1180px",
         margin: "0 auto",
         padding: "40px 22px 80px",
-        minHeight: full ? "calc(100vh - 65px)" : undefined,
+        // Tracks the top bar: 52px on a phone, 64px from 768 up. Was a flat 65px
+        // for the old archive bar, which left full-height skeletons 13px too
+        // tall on a phone. Spec 037.
+        minHeight: full
+          ? "calc(100dvh - var(--chrome-top-bar-height, 52px))"
+          : undefined,
       }}
     >
       <div

@@ -6,9 +6,10 @@ import React, { forwardRef } from "react";
 const styles = {
   base: [
     // Base
-    "relative isolate inline-flex items-baseline justify-center gap-x-2 rounded-lg border text-base/6 font-semibold",
-    // Sizing
-    "px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)] sm:text-sm/6",
+    // Alignment lives in `sizes`, not here: a fixed-height button needs
+    // `items-center`, and two alignment utilities in one class list resolve by
+    // stylesheet order rather than by which was passed last.
+    "relative isolate inline-flex justify-center gap-x-2 rounded-lg border text-base/6 font-semibold",
     // Focus
     "focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-ocean-blue",
     // Disabled
@@ -56,6 +57,25 @@ const styles = {
     // Icon
     "[--btn-icon:var(--color-basalt-500)] data-active:[--btn-icon:var(--color-basalt-800)] data-hover:[--btn-icon:var(--color-basalt-800)] dark:[--btn-icon:var(--color-basalt-500)] dark:data-active:[--btn-icon:var(--color-mist-200)] dark:data-hover:[--btn-icon:var(--color-mist-200)]",
   ],
+  // Height is selected here, never overridden by a passed `className`: the base
+  // classes are emitted after it in `clsx`, so an override loses on equal
+  // specificity. Spec 037 FR-010.
+  sizes: {
+    // The string that used to live under "Sizing" in `base`, moved verbatim so
+    // every call site that omits `size` renders a byte-identical class list.
+    md: [
+      "items-baseline",
+      "px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)] sm:text-sm/6",
+    ],
+    // Site chrome. Pins 44px at every breakpoint rather than more padding math —
+    // chrome controls must not take the `sm:` step-down `md` intentionally has.
+    lg: [
+      // Centred, not baseline-aligned: at a fixed height the baseline leaves the
+      // label 4px from the top and 23px from the bottom of a 44px control.
+      "items-center h-11 px-4 text-sm/6",
+      "*:data-[slot=icon]:my-0 sm:*:data-[slot=icon]:my-0 sm:*:data-[slot=icon]:size-5",
+    ],
+  },
   colors: {
     // Primary actions. Reads the semantic --primary token, not --color-ocean-blue:
     // as a fill carrying white text the raw brand token measures 2.27:1 in dark mode
@@ -113,6 +133,15 @@ const styles = {
       "text-white [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-sobrado-ochre)] [--btn-border:var(--color-sobrado-ochre)]/80",
       "[--btn-icon:var(--color-white)]/80 data-active:[--btn-icon:var(--color-white)] data-hover:[--btn-icon:var(--color-white)]",
     ],
+    // Filled actions on an always-dark ground, in either theme: the footer's
+    // Subscribe button. --primary is the wrong token here — it is tuned to carry
+    // white text on a light page, and ocean blue on #1B2127 measures 2.18:1.
+    // Ochre on basalt measures 6.4:1. Spec 037 FR-009.
+    accentOnDark: [
+      "text-accent-on-dark-foreground [--btn-hover-overlay:var(--color-accent-on-dark-foreground)]/10 [--btn-bg:var(--color-accent-on-dark)] [--btn-border:var(--color-accent-on-dark)]/90",
+      "dark:[--btn-hover-overlay:var(--color-accent-on-dark-foreground)]/10",
+      "[--btn-icon:var(--color-accent-on-dark-foreground)] data-active:[--btn-icon:var(--color-accent-on-dark-foreground)] data-hover:[--btn-icon:var(--color-accent-on-dark-foreground)]",
+    ],
   },
 };
 
@@ -120,13 +149,18 @@ type ButtonProps = (
   | { color?: keyof typeof styles.colors; outline?: never; plain?: never }
   | { color?: never; outline: true; plain?: never }
   | { color?: never; outline?: never; plain: true }
-) & { className?: string; children: React.ReactNode } & (
+) & {
+  className?: string;
+  /** `lg` is the 44px site-chrome control. Omit for the default 36px. */
+  size?: keyof typeof styles.sizes;
+  children: React.ReactNode;
+} & (
     | Omit<Headless.ButtonProps, "as" | "className">
     | Omit<React.ComponentPropsWithoutRef<typeof NextLink>, "className">
   );
 
 export const Button = forwardRef(function Button(
-  { color, outline, plain, className, children, ...props }: ButtonProps,
+  { color, outline, plain, size, className, children, ...props }: ButtonProps,
   ref: React.ForwardedRef<HTMLElement>
 ) {
   function getVariantStyles(): string[] {
@@ -135,7 +169,12 @@ export const Button = forwardRef(function Button(
     return [...styles.solid, ...styles.colors[color ?? "dark/zinc"]];
   }
 
-  const classes = clsx(className, styles.base, getVariantStyles());
+  const classes = clsx(
+    className,
+    styles.base,
+    styles.sizes[size ?? "md"],
+    getVariantStyles()
+  );
 
   return "href" in props ? (
     <NextLink

@@ -34,6 +34,19 @@ type AvatarProps = {
   status?: keyof typeof statusColors;
   className?: string;
   square?: boolean;
+  /**
+   * Render the initials fallback for a ground that goes dark with the theme, e.g.
+   * the chrome bars. In dark mode the default pair resolves to `text-ocean-blue`
+   * on `bg-ocean-blue/10`, which measures 1.95:1 on the bars' `#242C33` — the same
+   * failure the footer's Subscribe button had, on the same token. Spec 037 FR-011.
+   *
+   * A static flag, switched by the `dark:` variant rather than by a resolved
+   * theme passed in: the caller used to read `useResolvedTheme()` to compute it,
+   * which made every bar a theme subscriber and, because `useMediaQuery` answers
+   * `false` on the server, prerendered the light pair for dark-mode visitors until
+   * hydration.
+   */
+  onDark?: boolean;
 };
 
 /**
@@ -41,7 +54,16 @@ type AvatarProps = {
  * Supports image source, initials fallback, size variants, and status indicators.
  */
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
-  { src, alt = "", initials, size = "md", status, className, square = false },
+  {
+    src,
+    alt = "",
+    initials,
+    size = "md",
+    status,
+    className,
+    square = false,
+    onDark = false,
+  },
   ref
 ) {
   return (
@@ -69,7 +91,9 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
         <span
           className={clsx(
             "flex size-full items-center justify-center font-medium",
-            "bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 dark:text-ocean-blue-light",
+            onDark
+              ? "bg-ocean-blue/10 text-ocean-blue dark:bg-accent-on-dark dark:text-accent-on-dark-foreground dark:font-semibold"
+              : "bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 dark:text-ocean-blue-light",
             square ? "rounded-lg" : "rounded-full"
           )}
         >

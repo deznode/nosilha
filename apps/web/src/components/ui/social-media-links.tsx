@@ -58,21 +58,35 @@ const socialMediaData: SocialMediaItem[] = [
 interface SocialMediaLinksProps {
   className?: string;
   variant?: "default" | "compact";
+  /**
+   * `onDark` for a ground that is dark in both themes, e.g. the footer colophon.
+   * The default pair is theme-reactive and resolves to `#5C544A` on the footer's
+   * `#1B2127` in light mode — 2.18:1, the contrast failure the 2026-09 audit
+   * logged as F-2. Spec 037 FR-009.
+   */
+  tone?: "default" | "onDark";
 }
 
 export function SocialMediaLinks({
   className = "",
   variant = "default",
+  tone = "default",
 }: SocialMediaLinksProps) {
   if (variant === "compact") {
     // Compact version - similar to existing footer
     return (
-      <div className={`flex space-x-6 ${className}`}>
+      <div className={`flex items-center ${className}`}>
         {socialMediaData.map((item) => (
           <a
             key={item.name}
             href={item.href}
-            className="text-muted hover:text-ocean-blue transition-colors duration-200"
+            // Padded to a 44px target: as bare 24px icons these were three of
+            // the twelve sub-minimum controls the audit measured (F-5).
+            className={`flex size-11 items-center justify-center transition-colors duration-200 ${
+              tone === "onDark"
+                ? "text-footer-muted hover:text-footer-heading"
+                : "text-muted hover:text-ocean-blue"
+            }`}
             aria-label={item.ariaLabel}
             target="_blank"
             rel="noopener noreferrer"
