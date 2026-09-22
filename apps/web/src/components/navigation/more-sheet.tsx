@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import Link from "next/link";
 
 import { Button } from "@/components/catalyst-ui/button";
@@ -7,14 +8,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-import { useChromeAccount } from "./chrome-account";
-import { LanguageChip } from "./tablet-top-bar";
-import {
-  DESTINATIONS,
-  SHEET_DESTINATIONS,
-  languages,
-  resolve,
-} from "./nav-config";
+import { LanguageChip, useChromeAccount } from "./chrome-parts";
+import { DESTINATIONS, SHEET_DESTINATION_LIST } from "./nav-config";
 
 /**
  * Everything not in the five bottom-bar items.
@@ -32,8 +27,10 @@ export function MoreSheet({
   onClose: () => void;
 }) {
   const { signedIn, initials, displayName } = useChromeAccount();
-  const destinations = resolve(SHEET_DESTINATIONS);
-  const currentLanguage = languages[0];
+
+  // One string, three rows: the mapped destinations, Profile and Sign in only
+  // differ by their colour.
+  const rowClasses = "px-1.5 py-3 text-[15px] transition-colors duration-150";
 
   return (
     <BottomSheet
@@ -58,12 +55,12 @@ export function MoreSheet({
       )}
 
       <nav aria-label="More destinations" className="grid grid-cols-2">
-        {destinations.map((destination) => (
+        {SHEET_DESTINATION_LIST.map((destination) => (
           <Link
             key={destination.key}
             href={destination.href}
             onClick={onClose}
-            className="text-body px-1.5 py-3 text-[15px] transition-colors duration-150"
+            className={clsx("text-body", rowClasses)}
           >
             {destination.label}
           </Link>
@@ -72,7 +69,7 @@ export function MoreSheet({
           <Link
             href="/profile"
             onClick={onClose}
-            className="text-body px-1.5 py-3 text-[15px] transition-colors duration-150"
+            className={clsx("text-body", rowClasses)}
           >
             Profile
           </Link>
@@ -80,7 +77,7 @@ export function MoreSheet({
           <Link
             href="/login"
             onClick={onClose}
-            className="text-ocean-blue px-1.5 py-3 text-[15px] transition-colors duration-150"
+            className={clsx("text-ocean-blue", rowClasses)}
           >
             Sign in
           </Link>
@@ -97,7 +94,7 @@ export function MoreSheet({
         >
           Contribute
         </Button>
-        <LanguageChip code={currentLanguage.code} className="w-11 shrink-0" />
+        <LanguageChip className="w-11 shrink-0" />
         <ThemeToggle showContainer={false} shape="square" />
       </div>
 

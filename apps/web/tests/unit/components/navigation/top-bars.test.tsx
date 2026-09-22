@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { DesktopTopBar } from "@/components/navigation/desktop-top-bar";
 import { MobileTopBar } from "@/components/navigation/mobile-top-bar";
 import { TabletTopBar } from "@/components/navigation/tablet-top-bar";
 import { useUiStore } from "@/stores/uiStore";
@@ -195,6 +196,104 @@ describe("site chrome top bars", () => {
           screen.getByRole("button", { name: /Current theme/ })
         ).toBeInTheDocument();
       });
+    });
+  });
+
+  /**
+   * The archive bar's pill row, restored by preference and now rendered on every
+   * public route rather than only the archive screens.
+   */
+  describe("DesktopTopBar", () => {
+    it("shows the seven destinations as pills, in order", () => {
+      render(<DesktopTopBar />);
+      const nav = screen.getByRole("navigation", { name: "Primary" });
+
+      const labels = within(nav)
+        .getAllByRole("link")
+        .map((link) => link.textContent);
+      expect(labels).toEqual([
+        "Home",
+        "Settlements",
+        "Culture",
+        "Photographs",
+        "Films",
+        "Map",
+        "Stay",
+      ]);
+    });
+
+    it("carries the archive wordmark home", () => {
+      render(<DesktopTopBar />);
+
+      const wordmark = screen.getByRole("link", { name: "Nos Ilha home" });
+      expect(wordmark).toHaveAttribute("href", "/");
+      expect(wordmark).toHaveTextContent("NosIlha");
+      expect(wordmark).toHaveTextContent("Archive");
+    });
+
+    it.each([
+      ["/", "Home"],
+      ["/settlements", "Settlements"],
+      ["/history", "Culture"],
+      ["/photographs", "Photographs"],
+      ["/films", "Films"],
+      ["/map", "Map"],
+      ["/stay", "Stay"],
+    ])("lights the pill for %s", (pathname, label) => {
+      mockPathname.mockReturnValue(pathname);
+      render(<DesktopTopBar />);
+
+      expect(screen.getByRole("link", { name: label })).toHaveAttribute(
+        "aria-current",
+        "page"
+      );
+    });
+
+    // A prefix match on "/" would light Home on every route.
+    it("does not light Home on a sub-route", () => {
+      mockPathname.mockReturnValue("/settlements");
+      render(<DesktopTopBar />);
+
+      expect(screen.getByRole("link", { name: "Home" })).not.toHaveAttribute(
+        "aria-current"
+      );
+    });
+
+    it("keeps Contribute and the account slot the archive bar had no room for", () => {
+      render(<DesktopTopBar />);
+
+      expect(screen.getByRole("link", { name: "Contribute" })).toHaveAttribute(
+        "href",
+        "/contribute/story"
+      );
+      expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+        "href",
+        "/login"
+      );
+
+      signIn();
+      render(<DesktopTopBar />);
+      expect(
+        screen.getAllByRole("link", { name: "Your profile" })[0]
+      ).toHaveAttribute("href", "/profile");
+    });
+
+    // Two states, resolved first, so one click always lands on an explicit
+    // choice rather than toggling within "system".
+    it("offers the theme one click away as a text pill", async () => {
+      const user = userEvent.setup();
+      render(<DesktopTopBar />);
+
+      const pill = screen.getByRole("button", { name: "Dark" });
+      await user.click(pill);
+      expect(useUiStore.getState().theme).toBe("dark");
+    });
+
+    it("names the light theme when the resolved theme is dark", () => {
+      useUiStore.setState({ theme: "dark" });
+      render(<DesktopTopBar />);
+
+      expect(screen.getByRole("button", { name: "Light" })).toBeInTheDocument();
     });
   });
 });

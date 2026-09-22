@@ -7,17 +7,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/catalyst-ui/button";
-import { NosilhaLogo } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { useResolvedTheme } from "@/hooks/use-resolved-theme";
 
-import { AccountSlot } from "./chrome-account";
+import { AccountSlot, ChromeLogoLink, LanguageChip } from "./chrome-parts";
 import {
-  TABLET_INLINE,
-  TABLET_OVERFLOW,
+  TABLET_INLINE_DESTINATIONS,
+  TABLET_OVERFLOW_DESTINATIONS,
   isDestinationActive,
-  languages,
-  resolve,
 } from "./nav-config";
 
 /**
@@ -32,39 +28,23 @@ import {
  */
 export function TabletTopBar({ className }: { className?: string }) {
   const pathname = usePathname();
-  const resolvedTheme = useResolvedTheme();
-
-  const inline = resolve(TABLET_INLINE);
-  const overflow = resolve(TABLET_OVERFLOW);
-  const currentLanguage = languages[0];
 
   return (
     <header
       className={clsx(
-        "border-hairline bg-card sticky top-0 z-40 h-16 items-center gap-3 border-b px-[18px] print:hidden",
-        "dark:border-[#333C44] dark:bg-[#242C33]",
+        "border-hairline bg-card sticky top-0 z-40 h-(--chrome-top-bar-height) items-center gap-3 border-b px-[18px] print:hidden",
+        "dark:border-chrome-line dark:bg-chrome-raised",
         className
       )}
     >
-      <Link
-        href="/"
-        className="flex shrink-0 items-center"
-        aria-label="Nos Ilha home"
-      >
-        <NosilhaLogo
-          size="sidebar"
-          variant={resolvedTheme === "dark" ? "light" : "default"}
-          showSubtitle={false}
-          instanceId="tablet-top-bar-logo"
-        />
-      </Link>
+      <ChromeLogoLink instanceId="tablet-top-bar-logo" className="shrink-0" />
 
       {/* `flex-1` with `min-w-0` so the nav yields before the bar can wrap. */}
       <nav
         aria-label="Primary"
         className="ml-1.5 flex min-w-0 flex-1 items-center gap-0.5"
       >
-        {inline.map((destination) => {
+        {TABLET_INLINE_DESTINATIONS.map((destination) => {
           const active = isDestinationActive(destination, pathname);
           return (
             <Link
@@ -74,8 +54,8 @@ export function TabletTopBar({ className }: { className?: string }) {
               className={clsx(
                 "rounded-[7px] px-[11px] py-[11px] text-[13.5px] whitespace-nowrap transition-colors duration-150",
                 active
-                  ? "bg-surface text-body dark:bg-[#333C44] dark:text-[#F5F7F9]"
-                  : "text-muted hover:text-body dark:text-[#AEB9C4]"
+                  ? "bg-surface text-body dark:bg-chrome-line dark:text-chrome-ink"
+                  : "text-muted hover:text-body dark:text-chrome-ink-muted"
               )}
             >
               {destination.label}
@@ -90,7 +70,7 @@ export function TabletTopBar({ className }: { className?: string }) {
             className={clsx(
               "text-muted hover:text-body flex items-center gap-[5px] rounded-[7px] px-[11px] py-[11px] text-[13.5px] whitespace-nowrap transition-colors duration-150",
               "data-focus:outline-ocean-blue focus:outline-none data-focus:outline-2 data-focus:outline-offset-2",
-              "dark:text-[#AEB9C4]"
+              "dark:text-chrome-ink-muted"
             )}
           >
             More
@@ -101,20 +81,20 @@ export function TabletTopBar({ className }: { className?: string }) {
             className={clsx(
               "bg-card border-hairline absolute top-[calc(100%+8px)] left-0 z-[2] w-[210px] rounded-[10px] border p-1.5",
               "shadow-[0_8px_22px_rgba(27,33,39,0.15)]",
-              "dark:border-[#333C44] dark:bg-[#242C33]"
+              "dark:border-chrome-line dark:bg-chrome-raised"
             )}
           >
-            {overflow.map((destination) => (
+            {TABLET_OVERFLOW_DESTINATIONS.map((destination) => (
               <Link
                 key={destination.key}
                 href={destination.href}
-                className="text-body hover:bg-surface block rounded-[7px] px-2.5 py-[11px] text-sm transition-colors duration-150 dark:text-[#F5F7F9] dark:hover:bg-[#333C44]"
+                className="text-body hover:bg-surface dark:text-chrome-ink dark:hover:bg-chrome-line block rounded-[7px] px-2.5 py-[11px] text-sm transition-colors duration-150"
               >
                 {destination.label}
               </Link>
             ))}
-            <div className="border-hairline mt-[5px] flex items-center gap-1.5 border-t pt-[5px] dark:border-[#333C44]">
-              <LanguageChip code={currentLanguage.code} className="flex-1" />
+            <div className="border-hairline dark:border-chrome-line mt-[5px] flex items-center gap-1.5 border-t pt-[5px]">
+              <LanguageChip className="flex-1" />
               <ThemeToggle showContainer={false} shape="square" />
             </div>
           </PopoverPanel>
@@ -131,29 +111,5 @@ export function TabletTopBar({ className }: { className?: string }) {
       </Button>
       <AccountSlot />
     </header>
-  );
-}
-
-/**
- * The current locale, shown but not switchable — `PT` and `CV` are disabled in
- * `languages`, and a disabled locale must not render as though it were available.
- */
-export function LanguageChip({
-  code,
-  className,
-}: {
-  code: string;
-  className?: string;
-}) {
-  return (
-    <span
-      className={clsx(
-        "border-hairline text-muted flex h-11 items-center justify-center rounded-lg border font-mono text-[13px] dark:border-[#333C44] dark:text-[#AEB9C4]",
-        className
-      )}
-      title="English. Português and Kriolu are coming soon."
-    >
-      {code}
-    </span>
   );
 }

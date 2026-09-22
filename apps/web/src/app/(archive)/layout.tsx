@@ -1,5 +1,10 @@
+import clsx from "clsx";
+
 import { IdentifySheet } from "@/components/identify/identify-sheet";
-import { SiteChrome } from "@/components/navigation/site-chrome";
+import {
+  CHROME_MAIN_CLEARANCE,
+  SiteChrome,
+} from "@/components/navigation/site-chrome";
 import { Footer } from "@/components/ui/footer";
 
 /**
@@ -22,9 +27,10 @@ export default function ArchiveLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <SiteChrome />
-      {/* The phone and tablet bars are sticky and in-flow; `StickyNav` at lg: is
-          fixed, so only that width needs clearance. */}
-      <main id="main-content" className="flex-grow pb-16 md:pb-0 lg:pt-16">
+      <main
+        id="main-content"
+        className={clsx("flex-grow", CHROME_MAIN_CLEARANCE)}
+      >
         {children}
       </main>
       <div className="print:hidden">

@@ -158,7 +158,7 @@ export function FooterNewsletterForm() {
             <p
               id="footer-email-error"
               role="alert"
-              className="mt-2 text-sm font-medium text-[#F0B5B0]"
+              className="text-footer-error mt-2 text-sm font-medium"
             >
               {errors.email.message}
             </p>

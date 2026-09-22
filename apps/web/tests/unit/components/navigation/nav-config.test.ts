@@ -5,7 +5,6 @@ import {
   DESTINATIONS,
   FOOTER_LEGAL,
   SHEET_DESTINATIONS,
-  TABLET_COLLAPSE_ORDER,
   TABLET_INLINE,
   TABLET_OVERFLOW,
   isDestinationActive,
@@ -67,17 +66,6 @@ describe("nav-config", () => {
     it("keeps the tablet inline and overflow sets disjoint", () => {
       const inline = new Set<string>(TABLET_INLINE);
       expect(TABLET_OVERFLOW.some((key) => inline.has(key))).toBe(false);
-    });
-
-    it("records the documented tablet collapse order", () => {
-      expect(TABLET_COLLAPSE_ORDER).toEqual([
-        "culture",
-        "stay",
-        "films",
-        "photographs",
-        "map",
-        "settlements",
-      ]);
     });
 
     it("gives the footer only legal and about destinations", () => {

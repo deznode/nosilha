@@ -124,21 +124,43 @@
      different, cooler value that has not been. Do not repoint without re-measuring.
      Contrast ratios below are on --footer-ground unless stated. */
 
+  /* The measured scale itself. Every always-dark value in the app resolves to one
+     of these, so re-measuring is an edit here rather than a hunt for hex strings.
+     The named groups below are consumer-facing aliases, never second copies. */
+  --dark-ground: #1b2127;
+  --dark-raised: #242c33; /* bars and inputs, a step above the ground */
+  --dark-line: #333c44;
+  --dark-ink: #f5f7f9; /* 9.4:1 on --dark-ground */
+  --dark-ink-body: #d5dbe0; /* 8.15:1 */
+  --dark-ink-muted: #aeb9c4; /* 5.9:1 */
+
   /* Footer colophon */
-  --footer-ground: #1b2127;
-  --footer-body: #d5dbe0; /* 8.15:1 */
-  --footer-muted: #aeb9c4; /* 5.9:1 */
-  --footer-heading: #f5f7f9; /* 9.4:1 */
-  --footer-divider: #333c44;
-  --footer-input-bg: #242c33;
+  --footer-ground: var(--dark-ground);
+  --footer-body: var(--dark-ink-body);
+  --footer-muted: var(--dark-ink-muted);
+  --footer-heading: var(--dark-ink);
+  --footer-divider: var(--dark-line);
+  --footer-input-bg: var(--dark-raised);
   --footer-input-border: #4a545e;
   --footer-placeholder: #9aa5af; /* 4.6:1 on --footer-input-bg */
+  --footer-error: #f0b5b0; /* 7.2:1 on --footer-ground */
+
+  /* Chrome bars. Dark only when the theme is dark — unlike the footer these do
+     flip — but when they are dark they are the same measured ground, so they read
+     from the same scale rather than restating its hexes at thirteen call sites. */
+  --chrome-raised: var(--dark-raised);
+  --chrome-line: var(--dark-line);
+  --chrome-ink: var(--dark-ink);
+  --chrome-ink-muted: var(--dark-ink-muted);
 
   /* Filled actions and avatars on a dark or raised-dark ground, in either theme.
      Kept outside the --footer-* group because the chrome bars use it too, and one
      definition with two consumers is what stops the pair drifting apart. */
   --accent-on-dark: #c79a5e;
-  --accent-on-dark-foreground: #1b2127; /* 6.4:1 on --accent-on-dark */
+  --accent-on-dark-foreground: var(
+    --dark-ground
+  ); /* 6.4:1 on --accent-on-dark */
+  --accent-on-dark-deep: #7a5730; /* the far end of the footer's rule gradient */
 
   /* Height of the sticky top bar, for the few places that have to subtract it
      from the viewport rather than sit below it in flow. Redefined at 768 below.
@@ -160,6 +182,14 @@
 @media (min-width: 768px) {
   :root {
     --chrome-top-bar-height: 64px;
+  }
+}
+
+/* The desktop pill bar. 65px is the archive bar's measured height, which this bar
+   restores — the same constant `photo-detail.tsx` has always sized its panes from. */
+@media (min-width: 1024px) {
+  :root {
+    --chrome-top-bar-height: 65px;
   }
 }
 
@@ -444,8 +474,14 @@
   --color-footer-input-bg: var(--footer-input-bg);
   --color-footer-input-border: var(--footer-input-border);
   --color-footer-placeholder: var(--footer-placeholder);
+  --color-footer-error: var(--footer-error);
+  --color-chrome-raised: var(--chrome-raised);
+  --color-chrome-line: var(--chrome-line);
+  --color-chrome-ink: var(--chrome-ink);
+  --color-chrome-ink-muted: var(--chrome-ink-muted);
   --color-accent-on-dark: var(--accent-on-dark);
   --color-accent-on-dark-foreground: var(--accent-on-dark-foreground);
+  --color-accent-on-dark-deep: var(--accent-on-dark-deep);
 }
 
 /* ========================================

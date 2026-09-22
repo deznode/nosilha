@@ -3,7 +3,8 @@
 import clsx from "clsx";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useRef } from "react";
+
+import { useSheetModal } from "@/lib/hooks/use-sheet-modal";
 
 interface BottomSheetProps {
   isOpen: boolean;
@@ -16,8 +17,6 @@ interface BottomSheetProps {
   children: ReactNode;
   /** Padding and any per-consumer overrides for the panel itself. */
   className?: string;
-  /** Widths the sheet is allowed to appear at. Defaults to phone only. */
-  breakpointClassName?: string;
 }
 
 /**
@@ -25,9 +24,11 @@ interface BottomSheetProps {
  * behaviours a sheet has to get right: focus trap, focus restore, body scroll
  * lock, Escape, scrim click.
  *
- * Generalized from `filter-bottom-sheet.tsx`, which had all of the above but
- * baked in a title row and a Clear/Apply footer. The one behaviour added here is
- * `prefers-reduced-motion`: the source pattern animates unconditionally.
+ * The modal behaviours come from `useSheetModal`, shared with
+ * `filter-bottom-sheet.tsx` — which is where this sheet's shape came from, but
+ * which bakes in a title row and a Clear/Apply footer and so stays its own
+ * component. The one behaviour added here is `prefers-reduced-motion`: the source
+ * pattern animates unconditionally.
  *
  * Deliberately not built on Catalyst's `Dialog`, which becomes a centred modal at
  * `sm:` (640px) — inside the phone range this sheet has to cover — and does not
@@ -39,57 +40,9 @@ export function BottomSheet({
   label,
   children,
   className,
-  breakpointClassName = "md:hidden",
 }: BottomSheetProps) {
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const sheetRef = useSheetModal(isOpen, onClose);
   const prefersReducedMotion = useReducedMotion();
-
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.stopPropagation();
-        onClose();
-        return;
-      }
-      if (e.key === "Tab" && sheetRef.current) {
-        const focusable = sheetRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    },
-    [onClose]
-  );
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    previousFocusRef.current = document.activeElement as HTMLElement;
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", handleKeyDown);
-
-    // Move focus into the sheet once it is in the document.
-    const frame = requestAnimationFrame(() => {
-      sheetRef.current?.focus();
-    });
-
-    return () => {
-      cancelAnimationFrame(frame);
-      document.body.style.overflow = "";
-      document.removeEventListener("keydown", handleKeyDown);
-      previousFocusRef.current?.focus();
-    };
-  }, [isOpen, handleKeyDown]);
 
   const panelTransition = prefersReducedMotion
     ? { duration: 0 }
@@ -98,7 +51,8 @@ export function BottomSheet({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className={clsx("fixed inset-0 z-50", breakpointClassName)}>
+        // Phone only: at 768 up the tablet bar carries navigation inline.
+        <div className="fixed inset-0 z-50 md:hidden">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

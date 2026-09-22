@@ -124,11 +124,37 @@ export const BOTTOM_BAR: DestinationKey[] = [
   "map",
 ];
 
-/** Shown inline in the 768–1023 bar. */
+/**
+ * Shown inline in the 768–1023 bar.
+ *
+ * If it ever has to shed destinations, the order to drop them in is Culture,
+ * Stay, Films, Photographs, Map, Settlements — logo, account and Contribute never
+ * collapse. Recorded as prose rather than as an exported array: the bar is
+ * specified not to wrap anywhere in 768–1023, so an array would be config nothing
+ * reads, kept honest only by a test asserting its own literal.
+ */
 export const TABLET_INLINE: DestinationKey[] = [
   "settlements",
   "culture",
   "map",
+];
+
+/**
+ * The desktop pill bar (≥1024), left to right.
+ *
+ * `culture` is in this list although the archive bar it restores had no pill for
+ * it: every other width reaches `/history` from the chrome (the bottom bar, the
+ * tablet bar), so leaving it out would make desktop the one width where a
+ * destination is unreachable. One set of destinations is the point of this file.
+ */
+export const DESKTOP_BAR: DestinationKey[] = [
+  "home",
+  "settlements",
+  "culture",
+  "photographs",
+  "films",
+  "map",
+  "stay",
 ];
 
 /** Behind `More ▾` in the 768–1023 bar. */
@@ -136,23 +162,6 @@ export const TABLET_OVERFLOW: DestinationKey[] = [
   "photographs",
   "films",
   "stay",
-];
-
-/**
- * The order the tablet bar would shed inline destinations in, if it ever needed
- * to. Logo, account and Contribute never collapse.
- *
- * Documented data only: the bar is specified not to wrap at any width in
- * 768–1023, so nothing consumes this yet. It is here so the decision is recorded
- * rather than rediscovered.
- */
-export const TABLET_COLLAPSE_ORDER: DestinationKey[] = [
-  "culture",
-  "stay",
-  "films",
-  "photographs",
-  "map",
-  "settlements",
 ];
 
 /** The More sheet's grid. Profile / Sign in is auth-conditional, appended by the component. */
@@ -175,6 +184,22 @@ export const FOOTER_LEGAL: DestinationKey[] = [
 export function resolve(keys: DestinationKey[]): Destination[] {
   return keys.map((key) => DESTINATIONS[key]);
 }
+
+/**
+ * The key lists above resolved once, at module load.
+ *
+ * Every one of them is a module constant, so resolving per render rebuilt the
+ * same arrays of the same five object references on every navigation, on four
+ * surfaces, including server-side for the footer on every page. Resolving here
+ * also gives the lists a stable identity, which is what a memoized child would
+ * need.
+ */
+export const BOTTOM_BAR_DESTINATIONS = resolve(BOTTOM_BAR);
+export const DESKTOP_BAR_DESTINATIONS = resolve(DESKTOP_BAR);
+export const TABLET_INLINE_DESTINATIONS = resolve(TABLET_INLINE);
+export const TABLET_OVERFLOW_DESTINATIONS = resolve(TABLET_OVERFLOW);
+export const SHEET_DESTINATION_LIST = resolve(SHEET_DESTINATIONS);
+export const FOOTER_LEGAL_DESTINATIONS = resolve(FOOTER_LEGAL);
 
 export function isDestinationActive(
   destination: Destination,
@@ -222,3 +247,9 @@ export const languages = [
   { code: "PT", label: "Português", flag: "🇵🇹", disabled: true },
   { code: "CV", label: "Kriolu", flag: "🇨🇻", disabled: true },
 ];
+
+/**
+ * The locale the chrome shows. One place, because four surfaces were each
+ * reaching for `languages[0]` to decide the same thing.
+ */
+export const currentLanguage = languages[0];

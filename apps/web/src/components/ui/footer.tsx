@@ -2,7 +2,7 @@ import clsx from "clsx";
 import Link from "next/link";
 
 import { FooterNewsletterForm } from "@/components/newsletter/footer-newsletter-form";
-import { FOOTER_LEGAL, resolve } from "@/components/navigation/nav-config";
+import { FOOTER_LEGAL_DESTINATIONS } from "@/components/navigation/nav-config";
 import { NosilhaLogo } from "@/components/ui/logo";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 
@@ -11,14 +11,12 @@ const COPYRIGHT_YEAR = new Date().getFullYear();
 
 interface FooterCopy {
   tagline: string;
-  newsletterHeading: string;
   newsletterDescription: string;
   copyright: string;
 }
 
 const defaultCopy: FooterCopy = {
   tagline: "Nos terra, nos gente, nos memoria.",
-  newsletterHeading: "Stay Connected",
   newsletterDescription:
     "Get updates on new stories, cultural events, and ways to contribute.",
   copyright: "Open Source Cultural Heritage Project.",
@@ -46,7 +44,6 @@ export interface FooterProps {
  */
 export function Footer({ className, copy: copyOverrides }: FooterProps) {
   const copy = { ...defaultCopy, ...copyOverrides } satisfies FooterCopy;
-  const legal = resolve(FOOTER_LEGAL);
 
   return (
     <footer
@@ -72,7 +69,7 @@ export function Footer({ className, copy: copyOverrides }: FooterProps) {
           accident; in dark mode the footer and the page are the same ground and
           this is the only thing separating them. */}
       <div
-        className="h-[3px] w-full bg-[linear-gradient(90deg,#C79A5E,#7A5730)]"
+        className="h-[3px] w-full bg-[linear-gradient(90deg,var(--accent-on-dark),var(--accent-on-dark-deep))]"
         aria-hidden="true"
       />
 
@@ -103,7 +100,7 @@ export function Footer({ className, copy: copyOverrides }: FooterProps) {
 
       <div className="border-footer-divider border-t px-[18px] pt-1.5 pb-3 md:px-7">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-[14px]">
-          {legal.map((destination) => (
+          {FOOTER_LEGAL_DESTINATIONS.map((destination) => (
             <Link
               key={destination.key}
               href={destination.href}

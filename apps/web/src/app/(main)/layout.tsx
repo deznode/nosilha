@@ -1,4 +1,9 @@
-import { SiteChrome } from "@/components/navigation/site-chrome";
+import clsx from "clsx";
+
+import {
+  CHROME_MAIN_CLEARANCE,
+  SiteChrome,
+} from "@/components/navigation/site-chrome";
 import { Footer } from "@/components/ui/footer";
 
 /**
@@ -24,12 +29,9 @@ export default function MainLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <SiteChrome />
-      {/* The phone and tablet bars are sticky and in-flow, so they need no top
-          padding. `StickyNav` at lg: is fixed and does. Bottom padding clears the
-          fixed bottom bar, which is phone-only. */}
       <main
         id="main-content"
-        className="animate-fade-in flex-grow pb-16 md:pb-0 lg:pt-16"
+        className={clsx("animate-fade-in flex-grow", CHROME_MAIN_CLEARANCE)}
       >
         {children}
       </main>

@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { MoreSheet } from "./more-sheet";
-import { BOTTOM_BAR, isDestinationActive, resolve } from "./nav-config";
+import { BOTTOM_BAR_DESTINATIONS, isDestinationActive } from "./nav-config";
 
 /**
  * Phone bottom navigation — the thumb zone, on every route.
@@ -39,8 +39,6 @@ export function MobileBottomNav() {
     setMoreOpen(false);
   }
 
-  const destinations = resolve(BOTTOM_BAR);
-
   const itemClasses = (active: boolean) =>
     clsx(
       "touch-target flex flex-col items-center justify-center gap-0.5 px-3 py-2",
@@ -60,11 +58,11 @@ export function MobileBottomNav() {
         // bars off the page ground so they read as one chrome rather than two
         // (`bg-surface` put this bar on #EFE8DC in light and #141B26 in dark,
         // half a step from the top bar either way). Spec 037.
-        className="bg-card border-hairline fixed right-0 bottom-0 left-0 z-50 border-t pb-[env(safe-area-inset-bottom)] md:hidden dark:border-[#333C44] dark:bg-[#242C33] print:hidden"
+        className="bg-card border-hairline dark:border-chrome-line dark:bg-chrome-raised fixed right-0 bottom-0 left-0 z-50 border-t pb-[env(safe-area-inset-bottom)] md:hidden print:hidden"
         aria-label="Mobile navigation"
       >
         <div className="flex h-14 items-center justify-around">
-          {destinations.map((destination) => {
+          {BOTTOM_BAR_DESTINATIONS.map((destination) => {
             const Icon = destination.icon!;
             const active = isDestinationActive(destination, pathname);
 
