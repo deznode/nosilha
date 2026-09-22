@@ -31,7 +31,6 @@ import { currentLanguage } from "./nav-config";
  */
 export function useChromeAccount() {
   const { session, user } = useAuth();
-  const resolvedTheme = useResolvedTheme();
 
   const email = user?.email ?? session?.user?.email ?? "";
   const localPart = email.split("@")[0] ?? "";
@@ -41,12 +40,11 @@ export function useChromeAccount() {
     signedIn: Boolean(session),
     initials,
     displayName: localPart || "Your account",
-    onDark: resolvedTheme === "dark",
   };
 }
 
 export function AccountSlot() {
-  const { signedIn, initials, onDark } = useChromeAccount();
+  const { signedIn, initials } = useChromeAccount();
 
   if (!signedIn) {
     return (
@@ -65,7 +63,9 @@ export function AccountSlot() {
       aria-label="Your profile"
       className="focus-ring shrink-0 rounded-full"
     >
-      <Avatar initials={initials} size="md" onDark={onDark} />
+      {/* `onDark` is static: the avatar's dark pair is applied by the `dark:`
+          variant, on the same ground as the bar it sits in. */}
+      <Avatar initials={initials} size="md" onDark />
     </Link>
   );
 }
@@ -77,6 +77,12 @@ export function AccountSlot() {
  * namespace the SVG gradient ids, and two bars rendering the same id at once —
  * which they do, since both are mounted at every width and only hidden by CSS —
  * would have them collide.
+ *
+ * `variant="auto"` rather than `useResolvedTheme()` picking between `default` and
+ * `light`: the hook's own contract is "surfaces CSS cannot reach", and a logo's
+ * colours are not one. Reading it here made both bars re-render on every theme
+ * change and, since `useMediaQuery` answers `false` on the server, served the
+ * light-mode mark to dark-mode visitors until hydration.
  */
 export function ChromeLogoLink({
   instanceId,
@@ -85,8 +91,6 @@ export function ChromeLogoLink({
   instanceId: string;
   className?: string;
 }) {
-  const resolvedTheme = useResolvedTheme();
-
   return (
     <Link
       href="/"
@@ -95,7 +99,7 @@ export function ChromeLogoLink({
     >
       <NosilhaLogo
         size="sidebar"
-        variant={resolvedTheme === "dark" ? "light" : "default"}
+        variant="auto"
         showSubtitle={false}
         instanceId={instanceId}
       />

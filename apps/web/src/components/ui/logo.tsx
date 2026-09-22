@@ -208,7 +208,14 @@ const textVariants = {
 export interface NosilhaLogoProps {
   showSubtitle?: boolean;
   className?: string;
-  variant?: "default" | "light";
+  /**
+   * `light` is the always-light lockup for a permanently dark ground (the footer
+   * colophon). `auto` is the same treatment applied by the `dark:` variant, for a
+   * ground that flips with the theme — the chrome bars, which used to pick between
+   * `default` and `light` from `useResolvedTheme()` and so prerendered the wrong
+   * one for dark-mode visitors.
+   */
+  variant?: "default" | "light" | "auto";
   size?: "default" | "compact" | "sidebar";
   /** Hide text and show icon only (used by sidebar collapsed state) */
   iconOnly?: boolean;
@@ -224,13 +231,21 @@ export function NosilhaLogo({
   iconOnly = false,
   instanceId,
 }: NosilhaLogoProps) {
-  const textColor = variant === "light" ? "text-white" : "text-text-primary";
-  const brandColor =
-    variant === "light" ? "text-sky-400 drop-shadow-sm" : "text-ocean-blue";
-  const subtitleColor =
-    variant === "light"
-      ? "text-amber-50 drop-shadow-md font-medium"
-      : "text-ocean-blue-light font-medium";
+  const textColor = {
+    default: "text-text-primary",
+    light: "text-white",
+    auto: "text-text-primary dark:text-white",
+  }[variant];
+  const brandColor = {
+    default: "text-ocean-blue",
+    light: "text-sky-400 drop-shadow-sm",
+    auto: "text-ocean-blue dark:text-sky-400 dark:drop-shadow-sm",
+  }[variant];
+  const subtitleColor = {
+    default: "text-ocean-blue-light font-medium",
+    light: "text-amber-50 drop-shadow-md font-medium",
+    auto: "font-medium text-ocean-blue-light dark:text-amber-50 dark:drop-shadow-md",
+  }[variant];
 
   // Sidebar variant: static icon, smaller text, no animations
   if (size === "sidebar") {
