@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   AccountSlot,
   ChromeBar,
-  ChromeLogoLink,
+  ChromeWordmark,
   ContributeAction,
   LanguageChip,
 } from "./chrome-parts";
@@ -41,7 +41,7 @@ export function TabletTopBar({ className }: { className?: string }) {
         className
       )}
     >
-      <ChromeLogoLink instanceId="tablet-top-bar-logo" className="shrink-0" />
+      <ChromeWordmark className="shrink-0" />
 
       {/* `flex-1` with `min-w-0` so the nav yields before the bar can wrap. */}
       <nav
