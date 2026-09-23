@@ -33,9 +33,7 @@ export function MobileTopBar({ className }: { className?: string }) {
         className
       )}
     >
-      {/* `mr-auto`, not `flex-1`: the home link should be as wide as the
-          wordmark, not the whole bar. */}
-      <ChromeWordmark className="mr-auto min-w-0" />
+      <ChromeWordmark className="mr-auto" />
       <AccountSlot />
     </ChromeBar>
   );

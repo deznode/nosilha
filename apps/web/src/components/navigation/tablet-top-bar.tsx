@@ -41,7 +41,7 @@ export function TabletTopBar({ className }: { className?: string }) {
         className
       )}
     >
-      <ChromeWordmark className="shrink-0" />
+      <ChromeWordmark />
 
       {/* `flex-1` with `min-w-0` so the nav yields before the bar can wrap. */}
       <nav

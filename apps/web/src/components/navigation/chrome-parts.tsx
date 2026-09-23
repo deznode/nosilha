@@ -12,10 +12,10 @@ import { useUiStore } from "@/stores/uiStore";
 import { currentLanguage } from "./nav-config";
 
 /**
- * The parts the phone and tablet bars both render, and the phone sheet borrows.
+ * The parts the top bars share, and the phone sheet borrows.
  *
  * They live here rather than in whichever bar happened to need them first: the
- * two bars are meant to be one chrome, so the pieces most likely to change — the
+ * bars are meant to be one chrome, so the pieces most likely to change — the
  * brand mark, the account affordance, the locale chip — are stated once.
  * `LanguageChip` in particular used to be exported from `tablet-top-bar.tsx` and
  * imported by the phone-only `more-sheet.tsx`, which made the tablet bar a module
@@ -162,15 +162,17 @@ export function LanguageChip({ className }: { className?: string }) {
  * admin surfaces; the chrome carries only the wordmark.
  *
  * Set a step larger below 1024 so the 9px label stays legible on a phone, and
- * `min-h-11` so the link is a full touch target however small the type is. The
- * baseline alignment lives on an inner span so the taller link can centre it.
+ * `touch-target` so the link is a full touch target however small the type is.
+ * `shrink-0` because the mark never wraps, so a bar squeezing it would only push
+ * the text past its own focus ring. The baseline alignment lives on an inner
+ * span so the taller link can centre it.
  */
 export function ChromeWordmark({ className }: { className?: string }) {
   return (
     <Link
       href="/"
       className={clsx(
-        "focus-ring flex min-h-11 items-center rounded-sm whitespace-nowrap",
+        "focus-ring touch-target flex shrink-0 items-center rounded-sm",
         className
       )}
       aria-label="Nos Ilha home"
