@@ -8,8 +8,8 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 
 ## Architecture
 
-- **Frontend**: Next.js 16.2 (App Router) with React 19.2, TypeScript, Tailwind CSS, Cache Components (`"use cache"`), Supabase Auth
-- **Backend**: Spring Boot 4.0.4 with Kotlin 2.3.20, Java 25, Spring Modulith 2.0.1, PostgreSQL
+- **Frontend**: Next.js 16.3 (App Router) with React 19.2, TypeScript, Tailwind CSS, Cache Components (`"use cache"`), Supabase Auth, MapLibre GL
+- **Backend**: Spring Boot 4.1.0 with Kotlin 2.4.0, Java 25, Spring Modulith 2.0.1, PostgreSQL
 - **Infrastructure**: Docker Compose (local), Terraform + GCP Cloud Run (prod)
 - **CI/CD**: 11 GitHub Actions workflows — security scanning, auto-deployment, health checks
 
@@ -17,7 +17,7 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 
 ```
 nosilha/
-├── apps/web/          # Next.js 16.2 frontend
+├── apps/web/          # Next.js 16.3 frontend
 ├── apps/api/          # Spring Boot 4 backend (Kotlin)
 ├── infrastructure/    # Docker Compose, Terraform, GCP config
 ├── docs/              # Architecture, API reference, ADRs, design system
@@ -91,7 +91,8 @@ Domain-specific executors located in `.claude/skills/`. Each skill has detailed 
 |-------|---------|---------|
 | `content-pipeline` | Orchestrates Research → Plan → Author → Verify for cultural heritage content | "create content", "write about", "plan content", "content pipeline" |
 | `web-searching` | Web research with multi-source verification | "research", "search", "find information", "verify facts" |
-| `mapping-sites` | Mapbox GL JS + React for cultural heritage maps | "add map", "show locations", "map component" |
+| `mapping-sites` | MapLibre GL + react-map-gl map work: structure, rules and known pitfalls | "add map", "show locations", "map component", "markers", "clustering" |
+| `pre-release` | Full pre-release verification checklist before a production deploy | `/pre-release` (user-invoked only) |
 | `playwright:playwright-cli` | Browser automation (Claude Code plugin) | See Playwright section below |
 
 #### Content Pipeline Details
