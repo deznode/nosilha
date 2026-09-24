@@ -10,11 +10,13 @@ External media (`PublicExternalMedia`) has three URL fields with distinct purpos
 
 | Field | Contains | Safe for `<Image>`? |
 |-------|----------|---------------------|
-| `url` | Original source URL (YouTube watch/embed URL for VIDEO, direct image URL for IMAGE) | Only for IMAGE |
+| `url` | Original source URL, nullable. Direct image URL for IMAGE; YouTube-synced VIDEO rows have **no** `url` | Only for IMAGE |
 | `thumbnailUrl` | Stored thumbnail — may be a video page URL if data was ingested incorrectly | Use `resolveExternalThumbnail()` |
 | `embedUrl` | Embeddable player URL (YouTube `/embed/...`) | Never — use in `<iframe>` only |
 
-User uploads (`PublicUserUploadMedia`) have `publicUrl` — always safe for `<Image>`.
+User uploads (`PublicUserUploadMedia`) have `publicUrl` (nullable), safe for `<Image>` when present.
+
+To **link** to an external film, use `resolveExternalWatchUrl(url, platform, externalId)`; a link keyed on `url` alone is dead for synced videos.
 
 ## Golden Rule
 
@@ -24,7 +26,7 @@ These are video page or player URLs (e.g. `youtube.com/embed/...`, `youtube.com/
 
 ## Required Pattern: Resolving Image URLs
 
-Always use `resolveExternalThumbnail()` from `@/lib/gallery-mappers` for external VIDEO/AUDIO thumbnails:
+Use `resolvePublicImageUrl(media)` from `@/lib/gallery-mappers` for any `PublicGalleryMedia`: it applies the branching below in one call and returns `string | null`. When you only have the raw fields, branch like this and use `resolveExternalThumbnail()` for external VIDEO/AUDIO:
 
 ```typescript
 import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
@@ -72,7 +74,7 @@ Import: `import { YouTubeFacade } from "@/components/gallery/youtube-facade"`
 
 | File | Purpose |
 |------|---------|
-| `apps/web/src/lib/gallery-mappers.ts` | `resolveExternalThumbnail()`, `mapGalleryMediaToMediaItem()` |
+| `apps/web/src/lib/gallery-mappers.ts` | `resolvePublicImageUrl()`, `resolveExternalThumbnail()`, `resolveExternalWatchUrl()`, `mapGalleryMediaToMediaItem()` |
 | `apps/web/src/types/gallery.ts` | `PublicExternalMedia`, `PublicUserUploadMedia` type definitions |
 | `apps/web/src/types/media.ts` | `MediaItem` (frontend-normalized shape) |
 | `apps/web/src/components/gallery/youtube-facade.tsx` | YouTube thumbnail + play button → iframe facade |

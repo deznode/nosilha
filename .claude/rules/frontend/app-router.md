@@ -13,31 +13,32 @@ pnpm run dev             # Start development server with Turbopack
 pnpm run build           # Build for production (includes Velite content processing)
 pnpm run start           # Start production server
 pnpm run lint            # Run ESLint
-npx tsc --noEmit        # TypeScript type checking
+pnpm build:content && pnpm exec tsc --noEmit   # Type check (Velite first, or ~26 phantom @/.velite errors)
 ```
+
+From the repo root, `task test:web` runs lint, the Velite build, type check and unit tests in that order.
 
 ## Architecture Patterns
 
-- **Route Groups**: Uses parentheses for logical organization `(auth)`, `(main)`, `(admin)` without affecting URLs
+- **Route Groups**: parentheses organize routes without affecting URLs: `(archive)`, `(archive-fill)`, `(main)`, `(auth)`, `(admin)`
 - **Server Components First**: Prioritizes React Server Components for performance
-- **Dynamic Routing**: `/directory/[category]`, `/directory/[category]/[slug]`
+- **Dynamic Routing**: `/[town]`, `/[town]/[entry]`, `/films/[id]`, `/photographs/[id]`, `/history/[slug]`, `/people/[slug]`; legacy `/directory/[category]/[slug]` is a redirect route
 - **Mobile-First Design**: All components are responsive and mobile-optimized
 - **Authentication**: Supabase Auth provider with JWT token management
-- **Caching Strategy**: `"use cache"` + `cacheLife()` with custom profiles (content, entry, longLived) and built-in `"max"` for static pages
-- **API Integration**: Centralized API client with error handling and fallback to mock data
+- **Caching Strategy**: `"use cache"` + `cacheLife()` with custom profiles (content, entry, longLived, instagram) and built-in `"max"` for static pages
+- **API Integration**: Centralized API client; backend or mock chosen by `NEXT_PUBLIC_USE_MOCK_API`, with no runtime fallback to mock data
 
 ## Route Structure
 
 ```
 apps/web/src/app/
-├── (auth)/              # Auth routes (login, register)
-├── (main)/              # Public routes
-│   ├── directory/
-│   │   ├── [category]/
-│   │   └── [category]/[slug]/
-│   └── [category]/      # MDX content pages
-├── (immersive)/         # Full-screen immersive experiences (e.g., maps)
-├── (admin)/             # Admin dashboard
+├── (archive)/           # Archive home, [town], [town]/[entry], films, photographs, settlements, stay
+├── (archive-fill)/      # Full-bleed pages: map, photographs/[id]
+├── (main)/              # about, contact, contribute, history, people, stories, profile, settings, design-system, privacy, terms
+├── (auth)/              # login, signup
+├── (admin)/             # Admin dashboard and dev tools
+├── directory/           # Legacy /directory/* redirect route
+├── auth/callback/       # Supabase auth callback
 └── api/                 # API routes
 ```
 
@@ -46,16 +47,17 @@ apps/web/src/app/
 ### CI/CD (Automated)
 
 ```bash
-cd apps/web && npx tsc --noEmit  # Type checking
-pnpm run lint                     # ESLint
-pnpm run build                    # Next.js build
+cd apps/web
+pnpm build:content && pnpm exec tsc --noEmit   # Type checking
+pnpm run lint                                  # ESLint
+pnpm run build                                 # Next.js build
 ```
 
 ### Local Development (Manual)
 
 ```bash
 pnpm run test:e2e   # Playwright E2E tests (Chromium only, local-only)
-pnpm run test:unit  # Vitest unit tests (25 files, 299 tests)
+pnpm run test:unit  # Vitest unit tests (tests/unit, ~93 files)
 ```
 
 ### Pre-Release Checklist (15-20 min)
@@ -69,19 +71,21 @@ pnpm run test:unit  # Vitest unit tests (25 files, 299 tests)
 ### Server Component with Cache (Default)
 
 ```tsx
-// app/directory/page.tsx
+// app/(archive)/settlements/page.tsx
 import { cacheLife, cacheTag } from "next/cache";
 
-export default async function DirectoryPage() {
+async function cachedSettlements(filter: string | undefined) {
   "use cache";
   cacheLife("content");
-  cacheTag("directory");
-  const entries = await fetchDirectoryEntries()
-  return <DirectoryList entries={entries} />
+  cacheTag("towns");
+  const towns = await getTownStatusSummary();
+  return <SettlementsContent towns={towns} initialFilter={parseSettlementFilter(filter)} />;
 }
 ```
 
-Custom profiles defined in `next.config.ts`: `content` (1h revalidate), `entry` (30m), `longLived` (2h). Built-in `"max"` (30d) for static pages.
+Arguments to a `"use cache"` function become part of the cache key, so pass primitives.
+
+Custom profiles defined in `next.config.ts`: `content` (1h revalidate), `entry` (30m), `longLived` (2h), `instagram` (30m, 2h expire). Built-in `"max"` (30d) for static pages.
 
 ### Client Component (Interactive)
 
@@ -108,10 +112,16 @@ export default async function AboutPage() {
 
 ### Dynamic Routes
 
+`params` is a Promise in Next.js 16; await it:
+
 ```tsx
-// app/directory/[category]/page.tsx
-export default async function CategoryPage({ params }: { params: { category: string } }) {
-  const { category } = params
+// app/(archive)/[town]/page.tsx
+export default async function TownPage({
+  params,
+}: {
+  params: Promise<{ town: string }>
+}) {
+  const { town } = await params
   // ...
 }
 ```

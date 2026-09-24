@@ -20,7 +20,7 @@ Frontend design system for the Nos Ilha cultural heritage platform. Built with N
 - **Typography**: Fraunces for headings (cultural warmth), Outfit for body (modern clarity)
 - **Colors**: Ocean Blue primary, Slate neutrals, warm brand accents
 - **Motion**: Calm, confident transitions with `cubic-bezier(0.16, 1, 0.3, 1)`
-- **Shape**: Generous border radii (16-24px for cards), multi-layered shadows
+- **Shape**: Rounded shapes (12px cards and buttons, 16px containers), multi-layered shadows
 
 ## Components
 
@@ -64,13 +64,17 @@ Interactive gallery showcasing all design tokens and components.
 
 ### Brand Colors
 
-| Token | Light | Dark | Usage |
-|-------|-------|------|-------|
-| `ocean-blue` | `#003f60` | `#39bbf8` | Primary CTAs, links, focus rings |
-| `valley-green` | `#236436` | - | Success states, nature elements |
-| `bougainvillea-pink` | `#ae1173` | `#f36fb8` | Accent highlights, decorative |
-| `sobrado-ochre` | `#cd6800` | - | Warnings, warm accents |
-| `sunny-yellow` | `#f3ba26` | - | Ratings, call-to-action |
+Current values from `apps/web/src/app/globals.css` (Slate palette, spec 033). Components use the semantic tokens below, not these directly.
+
+| Token | Light | Dark |
+|-------|-------|------|
+| `ocean-blue` | `oklch(0.455 0.054 245.4)` | `oklch(0.742 0.053 243.2)` |
+| `valley-green` | `oklch(0.511 0.04 170.7)` | `oklch(0.696 0.053 163.5)` |
+| `bougainvillea-pink` | `oklch(0.485 0.072 67.7)` | `oklch(0.721 0.076 64.1)` |
+| `sobrado-ochre` | `oklch(0.485 0.072 67.7)` | `oklch(0.721 0.076 64.1)` |
+| `sunny-yellow` | `oklch(0.584 0.063 89.9)` | `oklch(0.756 0.071 91.8)` |
+
+`bougainvillea-pink` currently has the same value as `sobrado-ochre`; the name is kept for compatibility.
 
 ### Semantic Tokens (Preferred)
 
@@ -124,8 +128,8 @@ All colors are defined in OKLCH format for perceptual uniformity:
 
 ```css
 /* OKLCH: oklch(Lightness Chroma Hue) */
---brand-ocean-blue: oklch(0.35 0.08 240);  /* Light mode */
---brand-ocean-blue: oklch(0.73 0.15 200);  /* Dark mode */
+--brand-ocean-blue: oklch(0.455 0.054 245.4);  /* Light mode */
+--brand-ocean-blue: oklch(0.742 0.053 243.2);  /* Dark mode */
 ```
 
 **Why OKLCH?**
@@ -348,7 +352,7 @@ import { Card } from "@/components/ui/card";
 
 ### Catalyst UI Components
 
-The project uses a curated subset of Catalyst UI for complex interactive components. 9 components are retained, with simplified color variants aligned to the brand palette.
+The project uses a curated subset of Catalyst UI for complex interactive components. 9 components are retained (8 files; InputGroup ships in `input.tsx`), with simplified color variants aligned to the brand palette.
 
 | Component | File | Usage |
 |-----------|------|-------|
@@ -587,23 +591,22 @@ function MyComponent() {
 
 ### Mobile Bottom Navigation
 
-Persistent bottom bar for thumb-zone accessibility (mobile only, `md:hidden`).
+Persistent bottom bar for the phone thumb zone (below 768px). Destinations come from `components/navigation/nav-config.ts`, the single source for every bar, the footer, the sitemap and robots.
 
 | Item | Icon | Route | Active Match |
 |------|------|-------|--------------|
 | Home | `Home` | `/` | Exact |
-| Directory | `Grid3X3` | `/directory` | Starts with `/directory` |
+| Settlements | `Grid3X3` | `/settlements` | Starts with `/settlements` |
 | Culture | `BookOpen` | `/history` | `/history`, `/people` |
 | Map | `Map` | `/map` | Exact |
-| More | `Menu` | - | Opens popover menu |
+| More | `Menu` | - | Opens `MoreSheet` |
 
 **Behavior:**
-- Hidden on detail pages (`/directory/[cat]/[slug]`, `/stories/[slug]`, `/people/[slug]`)
-- Safe area padding for iOS home indicator: `pb-[env(safe-area-inset-bottom)]`
-- Height: 56px (h-14)
+- Never hides itself, including on detail pages and while scrolling (spec 037)
+- Height comes from `--chrome-bottom-bar-height` (56px, 0 from 768px up); pages clear it with `.chrome-bottom-clearance`
+- Safe area padding for the iOS home indicator
 
-**"More" Menu Contents:**
-- Stories, Media links
+**`MoreSheet` contents** (in focus order): the destinations not on the bottom bar (`SHEET_DESTINATIONS` in `nav-config.ts`), Profile or Sign in, then language and theme, then Privacy and Terms
 - Profile/Login link
 - Theme toggle
 
@@ -692,7 +695,7 @@ const Component = ({ className, ...props }) => (
 | `apps/web/src/app/layout.tsx` | Font loading, theme init |
 | `apps/web/tailwind.config.ts` | Tailwind theme extensions |
 | `apps/web/src/stores/uiStore.ts` | Theme state management |
-| `apps/web/src/components/catalyst-ui/` | Catalyst UI components (8 retained) |
+| `apps/web/src/components/catalyst-ui/` | Catalyst UI components (8 files, 9 components) |
 | `apps/web/src/components/ui/card.tsx` | Base card with hoverable |
 | `apps/web/src/components/providers/toast-provider.tsx` | Toast system |
 | `apps/web/src/components/navigation/mobile-bottom-nav.tsx` | Mobile navigation |
