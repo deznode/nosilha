@@ -1,5 +1,3 @@
-settings.local.json
-
 # Dependencies
 node_modules/
 .pnpm-store/
@@ -48,6 +46,7 @@ lerna-debug.log*
 
 # Security scan reports (may contain detected secrets)
 gitleaks-report.json
+security-reports/
 
 # Security
 *.pem
@@ -96,14 +95,8 @@ playwright-output/
 .playwright-mcp/
 .playwright-cli/
 
-# Ideation prototype (nested git repo - temporary reference)
-nosilha-ideate
-nosilha-map
-
 # Velite build output
 apps/web/.velite
-
-arkhe-claude-plugins
 
 # Lefthook local overrides
 lefthook-local.yml
@@ -134,7 +127,9 @@ apps/web/ds-types/
 # design handoff bundles imported from claude.ai/design (13MB; source of truth is the design project)
 .claude-design/
 
-# UX audit screenshots (~12MB; regenerate with playwright-cli, see docs/10-product/redesign-ux-audit-2026-09.md appendix C)
-docs/10-product/redesign-ux-audit-2026-09/
+# UX audit screenshots (~12MB; regenerate with playwright-cli, see docs/90-archive/redesign-ux-audit-2026-09.md appendix C)
+docs/90-archive/redesign-ux-audit-2026-09/
 
+# Claude Code local state
+settings.local.json
 .claude/worktrees

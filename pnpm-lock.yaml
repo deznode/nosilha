@@ -26,13 +26,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@types/react-syntax-highlighter':
-        specifier: ^15.5.13
-        version: 15.5.13
-      react-syntax-highlighter:
-        specifier: ^16.1.1
-        version: 16.1.1(react@19.2.8)
     devDependencies:
       '@nx/eslint':
         specifier: ^23.1.1
