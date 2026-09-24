@@ -214,7 +214,7 @@ module.exports = {
       // Map page budget (complex interactive content)
       path: "/map",
       resourceSizes: [
-        { resourceType: "script", budget: 400 }, // Mapbox requires more JS
+        { resourceType: "script", budget: 400 }, // MapLibre GL is a large bundle
         { resourceType: "image", budget: 300 }, // Map tiles
         { resourceType: "total", budget: 2000 },
       ],
