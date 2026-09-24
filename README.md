@@ -41,7 +41,7 @@
 | 🏛️ Cultural Archive | History, traditions, and cultural practices with stories of significant figures |
 | 🏘️ Town Pages | Detailed pages for each town with historical context |
 | 📸 Media Galleries | Photo and video galleries of landscapes, people, and culture |
-| 🗺️ Interactive Maps | Mapbox-powered maps with landmarks and heritage sites |
+| 🗺️ Interactive Maps | MapLibre maps of landmarks and heritage sites on open basemaps |
 | 📒 Community Directory | Local businesses, artisans, and services |
 | 🌐 Multilingual | English, Portuguese, and French support |
 
@@ -51,9 +51,9 @@
 
 | Frontend | Backend | Infrastructure |
 |----------|---------|----------------|
-| Next.js 16 + React 19.2 (App Router) | Spring Boot 4.0 + Kotlin 2.3.0 | Google Cloud Run (serverless) |
+| Next.js 16 + React 19.2 (App Router) | Spring Boot 4.1 + Kotlin 2.4 | Google Cloud Run (serverless) |
 | TypeScript + Tailwind CSS | PostgreSQL 16 + Flyway migrations | Terraform IaC |
-| Supabase Auth + Mapbox GL | Spring Modulith 2.0.1 | GitHub Actions CI/CD |
+| Supabase Auth + MapLibre GL | Spring Modulith 2.0.1 | GitHub Actions CI/CD |
 
 ---
 

@@ -55,7 +55,7 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 | Solo-maintained | Single primary maintainer; architecture must be simple to operate |
 | Budget-conscious | GCP free tier optimization; Supabase free tier for auth/database |
 | Monorepo structure | Frontend and backend in single repository |
-| Fixed tech stack | Next.js 16, Spring Boot 4.0, Kotlin 2.3.0, Java 25 |
+| Fixed tech stack | Next.js 16, Spring Boot 4.1, Kotlin 2.4, Java 25 |
 
 ### 2.2 Organizational Constraints
 
@@ -82,7 +82,7 @@ C4Context
     System(nosilha, "Nos Ilha Platform", "Cultural heritage hub preserving Brava Island memory")
 
     System_Ext(supabase, "Supabase", "Authentication + PostgreSQL database")
-    System_Ext(mapbox, "Mapbox", "Interactive mapping service")
+    System_Ext(tiles, "Map tile providers", "CARTO basemaps, Esri imagery, AWS terrain tiles")
     System_Ext(r2, "Cloudflare R2", "Media file storage")
     System_Ext(gcp, "Google Cloud Platform", "Container hosting, secrets, registry")
     System_Ext(google_ai, "Google AI APIs", "Cloud Vision + Gemini")
@@ -91,7 +91,7 @@ C4Context
     Rel(admin, nosilha, "Moderates content")
     Rel(tourist, nosilha, "Explores directory and map")
     Rel(nosilha, supabase, "Authenticates users, stores data")
-    Rel(nosilha, mapbox, "Renders interactive maps")
+    Rel(nosilha, tiles, "Loads basemap, imagery and terrain tiles")
     Rel(nosilha, r2, "Stores uploaded media")
     Rel(nosilha, gcp, "Deploys containers")
     Rel(nosilha, google_ai, "Analyzes images")
@@ -101,7 +101,7 @@ C4Context
     UpdateElementStyle(tourist, $fontColor="#ffffff", $bgColor="#4F46E5", $borderColor="#4338CA")
     UpdateElementStyle(nosilha, $fontColor="#ffffff", $bgColor="#2563EB", $borderColor="#1D4ED8")
     UpdateElementStyle(supabase, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
-    UpdateElementStyle(mapbox, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(tiles, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
     UpdateElementStyle(r2, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
     UpdateElementStyle(gcp, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
     UpdateElementStyle(google_ai, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
@@ -110,7 +110,7 @@ C4Context
     UpdateRelStyle(admin, nosilha, $textColor="#6B7280", $lineColor="#9CA3AF")
     UpdateRelStyle(tourist, nosilha, $textColor="#6B7280", $lineColor="#9CA3AF")
     UpdateRelStyle(nosilha, supabase, $textColor="#6B7280", $lineColor="#9CA3AF")
-    UpdateRelStyle(nosilha, mapbox, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(nosilha, tiles, $textColor="#6B7280", $lineColor="#9CA3AF")
     UpdateRelStyle(nosilha, r2, $textColor="#6B7280", $lineColor="#9CA3AF")
     UpdateRelStyle(nosilha, gcp, $textColor="#6B7280", $lineColor="#9CA3AF")
     UpdateRelStyle(nosilha, google_ai, $textColor="#6B7280", $lineColor="#9CA3AF")
@@ -122,7 +122,7 @@ C4Context
 |--------|---------|-----------|
 | Supabase Auth | User authentication | JWT tokens, OAuth providers |
 | Supabase PostgreSQL | Primary database | JDBC connection |
-| Mapbox | Interactive maps | GL JS API |
+| CARTO, Esri, AWS Terrarium | Basemap, satellite and terrain tiles, rendered in the browser by MapLibre GL | Public tile and style URLs over HTTPS, no API key |
 | Cloudflare R2 | Media file storage | S3-compatible API |
 | GCP Cloud Run | Container hosting | HTTP/HTTPS |
 | GCP Artifact Registry | Docker images | Container Registry API |
@@ -167,17 +167,17 @@ C4Container
 
     System_Boundary(nosilha, "Nos Ilha Platform") {
         Container(frontend, "Frontend", "Next.js 16, React 19, TypeScript", "Server-rendered web app with App Router, Zustand, TanStack Query")
-        Container(backend, "Backend API", "Spring Boot 4.0, Kotlin 2.3", "REST API with 9 Spring Modulith modules")
+        Container(backend, "Backend API", "Spring Boot 4.1, Kotlin 2.4", "REST API with 9 Spring Modulith modules")
     }
 
     System_Ext(supabase, "Supabase", "Auth + PostgreSQL")
-    System_Ext(mapbox, "Mapbox", "GL JS mapping API")
+    System_Ext(tiles, "Map tile providers", "CARTO, Esri, AWS Terrarium")
     System_Ext(r2, "Cloudflare R2", "S3-compatible storage")
     System_Ext(google_ai, "Google AI", "Vision + Gemini APIs")
 
     Rel(user, frontend, "Uses", "HTTPS")
     Rel(frontend, backend, "Calls", "REST/JSON")
-    Rel(frontend, mapbox, "Loads maps", "GL JS")
+    Rel(frontend, tiles, "Loads tiles, rendered by MapLibre GL", "HTTPS")
     Rel(backend, supabase, "Authenticates, queries", "JDBC/JWT")
     Rel(backend, r2, "Stores files", "S3 API")
     Rel(backend, google_ai, "Analyzes images", "REST")
@@ -186,13 +186,13 @@ C4Container
     UpdateElementStyle(frontend, $fontColor="#ffffff", $bgColor="#2563EB", $borderColor="#1D4ED8")
     UpdateElementStyle(backend, $fontColor="#ffffff", $bgColor="#2563EB", $borderColor="#1D4ED8")
     UpdateElementStyle(supabase, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
-    UpdateElementStyle(mapbox, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(tiles, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
     UpdateElementStyle(r2, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
     UpdateElementStyle(google_ai, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
 
     UpdateRelStyle(user, frontend, $textColor="#6B7280", $lineColor="#9CA3AF")
     UpdateRelStyle(frontend, backend, $textColor="#6B7280", $lineColor="#9CA3AF")
-    UpdateRelStyle(frontend, mapbox, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(frontend, tiles, $textColor="#6B7280", $lineColor="#9CA3AF")
     UpdateRelStyle(backend, supabase, $textColor="#6B7280", $lineColor="#9CA3AF")
     UpdateRelStyle(backend, r2, $textColor="#6B7280", $lineColor="#9CA3AF")
     UpdateRelStyle(backend, google_ai, $textColor="#6B7280", $lineColor="#9CA3AF")
@@ -347,7 +347,7 @@ C4Deployment
     Deployment_Node(gcp, "Google Cloud Platform", "us-east1") {
         Deployment_Node(cloudrun, "Cloud Run", "Serverless containers") {
             Container(frontend, "nosilha-frontend", "Next.js 16", "Server-rendered frontend")
-            Container(backend, "nosilha-backend-api", "Spring Boot 4.0", "REST API")
+            Container(backend, "nosilha-backend-api", "Spring Boot 4.1", "REST API")
         }
         Deployment_Node(registry, "Artifact Registry", "Container images") {
             Container(fe_image, "frontend:latest", "Docker")
@@ -510,7 +510,7 @@ See [docs/20-architecture/testing.md](testing.md) for details.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| detekt code analysis | Disabled | Pending Kotlin 2.3.0 compatibility |
+| detekt code analysis | Disabled | Waiting for a detekt release that supports the current Kotlin (2.4) |
 | GCS bucket | Provisioned, unused | Using Cloudflare R2 instead |
 | Media processing | Partial (AI analysis) | AI analysis implemented; image optimization pending |
 

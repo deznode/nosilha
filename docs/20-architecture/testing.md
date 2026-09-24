@@ -39,7 +39,7 @@ pnpm run test:e2e:debug      # Debug mode
 - `auth-login.spec.ts` - User authentication flow
 - `auth-logout.spec.ts` - Session cleanup
 - `directory-browsing.spec.ts` - Directory navigation
-- `map-interaction.spec.ts` - Mapbox integration
+- `map-interaction.spec.ts` - Map explorer (MapLibre) interaction
 
 ### Unit Tests (Local Only)
 

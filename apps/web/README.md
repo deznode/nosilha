@@ -9,7 +9,7 @@ The Nos Ilha frontend is a Next.js 16 / React 19.2 application that powers a cul
 - **Framework:** Next.js 16 (App Router, React Server Components) with React 19.2
 - **Styling:** Tailwind CSS v4 semantic tokens, custom CSS animations, Merriweather + Lato fonts
 - **State & Data:** TanStack Query 5, Zustand stores, React Hook Form + Zod validation
-- **Mapping & Media:** Mapbox GL v3, react-map-gl, Framer Motion animations
+- **Mapping & Media:** MapLibre GL v5 via react-map-gl, CARTO basemaps, Framer Motion animations
 - **Auth & API:** Supabase Auth client, strategy-based API factory that switches between Spring Boot REST endpoints and local mock data
 - **Tooling:** ESLint flat config, Prettier + Tailwind plugin, Vitest (local), Playwright (local)
 
