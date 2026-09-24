@@ -34,7 +34,7 @@ Uses [Taskfile](https://taskfile.dev/) for orchestration. Install: `brew install
 ```bash
 task check     # verify prerequisites (Docker, Node, pnpm, Java)
 task setup     # copy env templates, install web deps
-task dev       # start API (auto-starts postgres) + web in parallel
+task dev       # start API (auto-starts postgres), then web once the API is healthy
 ```
 
 **Environment files**: Copy templates before first run:

@@ -107,10 +107,26 @@ tasks:
       - cd {{.WEB_DIR}} && pnpm install
 
   dev:
-    desc: Full-stack dev — start API (auto-starts postgres) + web in parallel
+    desc: Full-stack dev — start API (auto-starts postgres), then web once the API is healthy
     deps:
       - dev:api
-      - dev:web
+      - dev:web:after-api
+
+  dev:web:after-api:
+    # The web is ready in under a second and the API takes ~20s; a page opened in
+    # that gap renders the error page. Waiting on the health check avoids it.
+    internal: true
+    silent: true
+    cmds:
+      - |
+        echo "Waiting for the API on :8080 before starting web..."
+        for i in $(seq 1 180); do
+          curl -sf http://localhost:8080/actuator/health > /dev/null && exit 0
+          sleep 1
+        done
+        echo "API not healthy after 180s; check the dev:api output above."
+        exit 1
+      - task: dev:web
 
   dev:api:
     desc: Start API server — auto-starts postgres via spring-boot-docker-compose

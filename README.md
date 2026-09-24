@@ -66,7 +66,7 @@ The project uses [Taskfile](https://taskfile.dev/) to orchestrate development wo
 ```bash
 task check    # Verify prerequisites (Docker, Node, pnpm, Java)
 task setup    # Copy env templates (API, web, infra), install web dependencies
-task dev      # Start API (auto-starts postgres) + web in parallel
+task dev      # Start API (auto-starts postgres), then web once the API is healthy
 ```
 
 The API uses Spring Boot Docker Compose integration to auto-start and configure PostgreSQL — no manual `docker-compose up` needed.
