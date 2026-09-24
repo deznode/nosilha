@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { cacheLife } from "next/cache";
@@ -5,6 +6,7 @@ import { headers, cookies } from "next/headers";
 
 // UI Components
 import Link from "next/link";
+import { ArchiveSkeleton } from "@/components/ui/archive-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { ImageHeroSection } from "@/components/ui/image-hero-section";
@@ -77,7 +79,15 @@ interface PageProps {
   }>;
 }
 
-export default async function HistoryPage({ searchParams }: PageProps) {
+export default function HistoryPage({ searchParams }: PageProps) {
+  return (
+    <Suspense fallback={<ArchiveSkeleton />}>
+      <HistoryForLanguage searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function HistoryForLanguage({ searchParams }: PageProps) {
   const { lang } = await searchParams;
 
   // Resolve language outside cache boundary (uses headers/cookies)

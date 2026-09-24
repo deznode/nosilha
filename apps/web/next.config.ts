@@ -75,17 +75,6 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/_next/static/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: isDev
-              ? "no-store, max-age=0"
-              : "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-      {
         source: "/(.*)",
         headers: [
           // Prevent clickjacking - blocks site from being embedded in iframes

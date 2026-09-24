@@ -82,7 +82,8 @@ export function ArchiveHome({
             src={heroUrl}
             alt={heroAlt}
             fill
-            priority
+            loading="eager"
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover"
           />

@@ -75,7 +75,9 @@ export default function HomePage() {
   return (
     <ArchiveHomeContent
       instagram={
-        <Suspense fallback={<InstagramSectionLoading />}>
+        // The key is for dev: a slot replayed through `use cache` otherwise logs a
+        // missing-key warning against HomePage.
+        <Suspense key="instagram" fallback={<InstagramSectionLoading />}>
           <InstagramSection />
         </Suspense>
       }
