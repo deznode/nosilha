@@ -61,7 +61,9 @@ jobs:
       - name: Detect affected Nx projects
         id: affected
         run: |
-          AFFECTED=$(pnpm nx show projects --affected --base=origin/main --head=HEAD 2>/dev/null || echo "")
+          # --json=false prints one name per line for the grep below; no error
+          # suppression, so a broken Nx fails this job instead of reporting nothing.
+          AFFECTED=$(pnpm nx show projects --affected --base=origin/main --head=HEAD --json=false)
           echo "Affected projects: $AFFECTED"
 
           if echo "$AFFECTED" | grep -qxF "api"; then

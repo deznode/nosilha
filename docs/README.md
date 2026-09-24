@@ -40,7 +40,7 @@ docs/
 | [state-management.md](20-architecture/state-management.md) | State management patterns |
 | [testing.md](20-architecture/testing.md) | Testing guide (Playwright E2E, Vitest) |
 | [supabase-admin-roles.md](20-architecture/supabase-admin-roles.md) | Admin role setup |
-| [nx-monorepo.md](20-architecture/nx-monorepo.md) | Nx monorepo commands |
+| [nx-monorepo.md](20-architecture/nx-monorepo.md) | Nx: CI affected-project detection only |
 | [ai-provider-orchestration.md](20-architecture/ai-provider-orchestration.md) | AI provider orchestration |
 | [adr/](20-architecture/adr/) | Architecture Decision Records |
 

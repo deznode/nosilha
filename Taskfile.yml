@@ -161,7 +161,8 @@ tasks:
     dir: "{{.WEB_DIR}}"
     cmds:
       - pnpm run lint
-      - npx tsc --noEmit
+      - pnpm run build:content
+      - pnpm exec tsc --noEmit
       - pnpm run test:unit
 
   lint:

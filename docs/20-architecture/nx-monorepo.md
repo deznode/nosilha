@@ -1,69 +1,41 @@
-# Nx Monorepo Guide
+# Nx in This Monorepo
 
-Quick reference for using Nx in this polyglot monorepo.
+Nx has one job here: telling CI which apps a pull request touches. It does not build, test or run anything. Use [Taskfile](../../Taskfile.yml) for that (`task dev`, `task test`, `task lint`; run `task --list` for the rest).
 
-## Common Commands
+## What Nx does
 
-### Development
-
-| Command | Description |
-|---------|-------------|
-| `pnpm run dev` | Start both frontend and backend |
-| `pnpm run web:dev` | Start frontend only (Next.js on port 3000) |
-| `pnpm run api:dev` | Start backend only (Spring Boot on port 8080) |
-
-### Build & Test
-
-| Command | Description |
-|---------|-------------|
-| `pnpm run build` | Build all projects |
-| `pnpm run test` | Run all tests |
-| `pnpm run lint` | Lint all projects |
-| `pnpm run web:build` | Build frontend only |
-| `pnpm run api:build` | Build backend only |
-
-### Affected Commands (CI optimized)
+`pr-validation.yml` runs:
 
 ```bash
-pnpm run affected:build   # Build only changed projects
-pnpm run affected:test    # Test only changed projects
-pnpm run affected:lint    # Lint only changed projects
+pnpm nx show projects --affected --base=origin/main --head=HEAD --json=false
 ```
 
-### Nx Utilities
+and sets the `backend` / `frontend` outputs from whether `api` or `web` is in the list. Those outputs decide whether the global security scan runs and what the PR status report says.
+
+The frontend and backend workflows do **not** depend on Nx. They use their own `dorny/paths-filter` checks.
+
+## Configuration
+
+| File | Purpose |
+|------|---------|
+| `nx.json` | Default inputs (all files under a project root) and `defaultBase: main` |
+| `apps/web/project.json` | Declares the `web` project; no targets |
+| `apps/api/project.json` | Declares the `api` project; no targets |
+
+There are no Nx plugins. The `@nx/next` plugin was removed because it loaded `apps/web/next.config.ts` only to infer targets nothing used, and failing to load that file made every Nx command exit 1.
+
+## Commands
 
 ```bash
-pnpm run graph            # Open dependency graph visualization
-npx nx show projects      # List all projects
-npx nx reset              # Clear Nx cache
+pnpm run graph                                            # Project graph in the browser
+pnpm nx show projects --json=false                        # List projects (api, web)
+pnpm nx show projects --affected --files=<path> --json=false  # Which project owns a file
+pnpm nx reset                                             # Clear the Nx cache and daemon
 ```
 
-## Available Targets
-
-### Web (Next.js)
-
-Auto-detected by `@nx/next` plugin: `dev`, `build`, `start`, `serve-static`
-
-### API (Spring Boot)
-
-Defined in `apps/api/project.json`:
-
-| Target | Gradle Command |
-|--------|----------------|
-| `dev` | `./gradlew bootRun --args='--spring.profiles.active=local'` |
-| `build` | `./gradlew build` |
-| `test` | `./gradlew test` |
-| `lint` | `./gradlew ktlintCheck` |
-
-## Troubleshooting
-
-```bash
-npx nx show project <name>  # Check available targets
-npx nx reset                # Clear stale cache
-npx nx show projects --affected  # List changed projects
-```
+Always pass `--json=false` when a script reads the output. Piped output is JSON by default (`["api","web"]`), which line-based tools such as `grep -x` will not match.
 
 ## Reference
 
-- [ADR-0001: Nx for Polyglot Monorepo](./adr/0001-nx-monorepo.md)
+- [ADR-0001: Nx for Polyglot Monorepo](./adr/0001-nx-monorepo.md): the original decision, from when Nx was also the task runner
 - [Nx Documentation](https://nx.dev)
