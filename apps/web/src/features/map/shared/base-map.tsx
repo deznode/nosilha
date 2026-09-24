@@ -29,17 +29,6 @@ export interface BaseMapProps {
  * Wrapper around react-map-gl/maplibre with MapLibre GL JS, default center/zoom,
  * open tile style (CARTO Voyager), CSS import, and ref forwarding.
  */
-// CARTO's font CDN (tiles.basemaps.cartocdn.com/fonts) serves glyph PBFs without
-// Access-Control-Allow-Origin, so MapLibre's fetch is blocked and labels never
-// render. Redirect glyph requests to the OpenMapTiles font CDN, which serves the
-// same font stacks with permissive CORS. `replace` is a no-op for other URLs.
-const transformCartoGlyphs = (url: string) => ({
-  url: url.replace(
-    "https://tiles.basemaps.cartocdn.com/fonts/",
-    "https://fonts.openmaptiles.org/"
-  ),
-});
-
 export const BaseMap = forwardRef<MapRef, BaseMapProps>(
   (
     {
@@ -67,7 +56,6 @@ export const BaseMap = forwardRef<MapRef, BaseMapProps>(
           bearing: MAP_CONFIG.DEFAULT_BEARING,
         }}
         mapStyle={style}
-        transformRequest={transformCartoGlyphs}
         style={{
           position: "absolute",
           inset: 0,
