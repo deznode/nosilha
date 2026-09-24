@@ -111,7 +111,7 @@ Cross-module read-only access via public interfaces in `api/` packages:
 | `MediaQueryService` | gallery | Media metadata queries |
 | `StoriesQueryService` | stories | Story queries |
 
-**Pattern**: Interface in `module/api/` (public), implementation in `module/` (internal)
+**Pattern**: Interface in `module/api/` (exposed), implementation elsewhere in the module (internal to the module)
 
 ---
 
@@ -166,7 +166,7 @@ sequenceDiagram
 |----------|------------|
 | `api/` controllers, query services | Public (cross-module) |
 | `events/` | Public (cross-module) |
-| `domain/` services, `repository/` | Internal (package-private) |
+| `domain/` services, `repository/` | Module-internal (Spring Modulith treats non-exposed sub-packages as internal; the Kotlin classes stay public) |
 
 ---
 
@@ -177,7 +177,7 @@ sequenceDiagram
 ./gradlew test --tests "ModularityTests"
 
 # View generated diagrams
-ls build/modulith/*.puml
+ls build/spring-modulith-docs/
 ```
 
 ---
@@ -187,16 +187,16 @@ ls build/modulith/*.puml
 1. Create structure: `mkdir -p src/main/kotlin/com/nosilha/core/newmodule/{api,domain,repository,events}`
 2. Add `NewModuleMetadata.kt` with `@ApplicationModule` annotation
 3. Declare `allowedDependencies` (e.g., `"shared :: api"`, `"shared :: domain"`)
-4. Implement controller in `api/`, services as `internal` in `domain/`
+4. Implement controller in `api/`, services in `domain/`
 5. Run `./gradlew test --tests "ModularityTests"` to verify
 
 ---
 
 ## Best Practices
 
-- Use events for cross-module communication (not direct service imports)
+- Prefer events for cross-module side effects and `*QueryService` interfaces for cross-module reads; avoid new direct imports of another module's domain services (a few exist, e.g. `feedback` → `GalleryService`)
 - Expose only controllers, events, and query services publicly
-- Make domain services `internal` (package-private)
+- Keep domain services out of `api/`, so Spring Modulith treats them as module-internal
 - Test module boundaries with `ModularityTests`
 - Avoid circular dependencies — break cycles with events or query services
 

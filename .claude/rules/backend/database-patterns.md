@@ -10,16 +10,16 @@ Three-directory convention separating schema DDL from seed/reference data:
 
 ```
 apps/api/src/main/resources/db/
-├── migration/    # Schema DDL only (V__ versioned) — all environments
+├── migration/    # Schema DDL + schema-coupled data fixes (V__ versioned) — all environments
 ├── seed/         # Reference/seed data (R__ repeatable) — all environments
-└── devdata/      # Dev-only sample data — local profile only
+└── devdata/      # Dev-only sample data — local profile only (currently empty)
 ```
 
 ### Directory Rules
 
 | Directory | Purpose | Migration Types | Environments |
 |-----------|---------|----------------|--------------|
-| `db/migration/` | Schema DDL (CREATE, ALTER, DROP, indexes, constraints) | `V__` only | All |
+| `db/migration/` | Schema DDL (CREATE, ALTER, DROP, indexes, constraints), plus data fixes that belong with a schema change (e.g. V17, V21) | `V__` only | All |
 | `db/seed/` | Reference data and one-time data imports | `R__` (evolving) + `V__` (one-time) | All |
 | `db/devdata/` | Dev-only sample data for local testing | `R__` or `V__` | Local only |
 
@@ -60,9 +60,9 @@ Flyway locations are configured per Spring profile:
 - **Local dev** (`application-local.yml`): `classpath:db/migration,classpath:db/seed,classpath:db/devdata`
 - **Test** (`application-test.yml`): `classpath:db/migration,classpath:db/seed`
 
-### Consolidated Migrations (V1-V9)
+### Baseline Migrations (V1-V9)
 
-Migrations are domain-grouped with final-form CREATE TABLE statements:
+V1-V9 are domain-grouped with final-form CREATE TABLE statements. Incremental migrations follow: V10-V17 and V19-V21 in `db/migration/`, V18 in `db/seed/`. The next free number is one above the highest across **both** directories.
 
 | Migration | Domain | Tables |
 |-----------|--------|--------|
@@ -127,15 +127,15 @@ var id: UUID? = null
 @Entity
 @Table(name = "directory_entries")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "entry_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "category", discriminatorType = DiscriminatorType.STRING)
 abstract class DirectoryEntry : AuditableEntity() {
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id @GeneratedValue
     var id: UUID? = null
     // shared fields...
 }
 
 @Entity
-@DiscriminatorValue("RESTAURANT")
+@DiscriminatorValue("Restaurant")
 class Restaurant : DirectoryEntry() {
     var cuisine: String? = null
     var openingHours: String? = null
@@ -184,7 +184,9 @@ var status: GalleryMediaStatus = GalleryMediaStatus.PENDING_REVIEW
 
 Matching migration with `CHECK` constraint or CREATE TYPE:
 ```sql
-CREATE TYPE gallery_media_status AS ENUM ('PENDING_REVIEW', 'APPROVED', 'REJECTED');
+CREATE TYPE gallery_media_status AS ENUM (
+    'PENDING', 'PROCESSING', 'PENDING_REVIEW', 'ACTIVE', 'ARCHIVED', 'FLAGGED', 'REJECTED'
+);
 ```
 
 ## Full-Text Search
@@ -212,10 +214,11 @@ fun searchByQueryPublished(
 ): Page<DirectoryEntry>
 ```
 
-Migration to create the search vector:
+The search vector is declared inline in `V3__create_places_tables.sql` and kept current by a trigger:
 ```sql
-ALTER TABLE directory_entries ADD COLUMN search_vector tsvector;
+search_vector       tsvector,   -- in CREATE TABLE directory_entries
 CREATE INDEX idx_directory_entries_search ON directory_entries USING GIN(search_vector);
+CREATE OR REPLACE FUNCTION update_directory_search_vector() RETURNS TRIGGER AS $$ ... $$;
 ```
 
 ## Reference

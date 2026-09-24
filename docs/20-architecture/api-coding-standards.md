@@ -30,7 +30,7 @@ Quick reference for backend patterns. For module architecture, see [spring-modul
 abstract class DirectoryEntry : AuditableEntity()
 
 @Entity
-@DiscriminatorValue("RESTAURANT")
+@DiscriminatorValue("Restaurant")
 class Restaurant : DirectoryEntry()
 ```
 
@@ -73,13 +73,19 @@ fun createEntry(@Valid @RequestBody request: CreateEntryRequestDto): ApiResult<D
 | Type | Pattern | Example |
 |------|---------|---------|
 | DDL (schema) | `V{n}__{description}.sql` | `V1__create_directory_entries_table.sql` |
-| Seed data | `V{n}__seed_{description}.sql` | `V6__seed_towns_with_corrected_data.sql` |
+| Reference/seed data | `R__{description}.sql` (repeatable, idempotent upserts) in `db/seed/` | `R__seed_towns.sql` |
+| One-time data import | `V{n}__{description}.sql` in `db/seed/` | `V18__copy_entry_images_into_gallery_heroes.sql` |
 
 ### Location
 
 ```
-apps/api/src/main/resources/db/migration/
+apps/api/src/main/resources/db/
+├── migration/   # V__ schema DDL (+ schema-coupled data fixes)
+├── seed/        # R__ reference data, V__ one-time imports
+└── devdata/     # local profile only
 ```
+
+Version numbers are one global sequence across `migration/` and `seed/`; check both before picking the next one.
 
 ### Best Practices
 
@@ -118,8 +124,8 @@ apps/api/src/main/resources/db/migration/
 | Purpose | Example |
 |---------|---------|
 | Filtering | `?category=Restaurant&town=Nova%20Sintra` |
-| Pagination | `?page=0&size=20&sort=name,asc` |
-| Search | `?search=seafood` |
+| Pagination | `?page=0&size=20&sort=created_at_desc` |
+| Search | `?q=seafood` |
 
 ---
 
@@ -261,14 +267,12 @@ logger.info("Processing {}", item)                   // ❌ Don't use placeholde
 
 ```kotlin
 @Service
-@Transactional(readOnly = true)  // Default to read-only
 class DirectoryEntryService {
-
-    // Read operations inherit read-only
+    // Services that mix reads and writes annotate each method
+    @Transactional(readOnly = true)
     fun getEntry(id: UUID) = repository.findById(id)
 
-    // Write operations override
-    @Transactional(readOnly = false)
+    @Transactional
     fun createEntry(request: CreateEntryRequestDto) = repository.save(entity)
 }
 ```
