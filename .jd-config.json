@@ -10,6 +10,6 @@
     "90": "archive"
   },
   "products": [],
-  "ignore": ["adr", "content-authoring", "PROJECT-STATUS.md"],
+  "ignore": ["adr", "content-authoring"],
   "readme_format": "table"
 }
