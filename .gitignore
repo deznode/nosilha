@@ -127,9 +127,6 @@ apps/web/ds-types/
 # design handoff bundles imported from claude.ai/design (13MB; source of truth is the design project)
 .claude-design/
 
-# UX audit screenshots (~12MB; regenerate with playwright-cli, see docs/90-archive/redesign-ux-audit-2026-09.md appendix C)
-docs/90-archive/redesign-ux-audit-2026-09/
-
 # Claude Code local state
 settings.local.json
 .claude/worktrees

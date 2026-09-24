@@ -49,6 +49,7 @@ docs/
 |----------|-------------|
 | [spring-modulith-event-testing.md](30-research/spring-modulith-event-testing.md) | Event testing patterns |
 | [tailwindcss-v4-color-tokens.md](30-research/tailwindcss-v4-color-tokens.md) | Tailwind CSS v4 color tokens |
+| [mobile-first-performance-nextjs16.md](30-research/mobile-first-performance-nextjs16.md) | Mobile-first performance with Next.js 16 |
 
 ### [40 Operations](40-operations/)
 | Document | Description |
