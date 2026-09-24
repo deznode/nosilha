@@ -6,21 +6,20 @@ import Link from "next/link";
 import { Button } from "@/components/catalyst-ui/button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Avatar } from "@/components/ui/avatar";
-import { NosilhaLogo } from "@/components/ui/logo";
 import { useResolvedTheme } from "@/hooks/use-resolved-theme";
 import { useUiStore } from "@/stores/uiStore";
 
 import { currentLanguage } from "./nav-config";
 
 /**
- * The parts the phone and tablet bars both render, and the phone sheet borrows.
+ * The parts the top bars share, and the phone sheet borrows.
  *
  * They live here rather than in whichever bar happened to need them first: the
- * two bars are meant to be one chrome, so the pieces most likely to change — the
- * brand mark and how it picks a theme variant, the account affordance, the locale
- * chip — are stated once. `LanguageChip` in particular used to be exported from
- * `tablet-top-bar.tsx` and imported by the phone-only `more-sheet.tsx`, which made
- * the tablet bar a module boundary it was never meant to be.
+ * bars are meant to be one chrome, so the pieces most likely to change — the
+ * brand mark, the account affordance, the locale chip — are stated once.
+ * `LanguageChip` in particular used to be exported from `tablet-top-bar.tsx` and
+ * imported by the phone-only `more-sheet.tsx`, which made the tablet bar a module
+ * boundary it was never meant to be.
  */
 
 /**
@@ -131,43 +130,6 @@ export function AccountSlot() {
 }
 
 /**
- * Brand mark and home link, identical in both bars.
- *
- * `instanceId` is required rather than defaulted: `NosilhaLogo` uses it to
- * namespace the SVG gradient ids, and two bars rendering the same id at once —
- * which they do, since both are mounted at every width and only hidden by CSS —
- * would have them collide.
- *
- * `variant="auto"` rather than `useResolvedTheme()` picking between `default` and
- * `light`: the hook's own contract is "surfaces CSS cannot reach", and a logo's
- * colours are not one. Reading it here made both bars re-render on every theme
- * change and, since `useMediaQuery` answers `false` on the server, served the
- * light-mode mark to dark-mode visitors until hydration.
- */
-export function ChromeLogoLink({
-  instanceId,
-  className,
-}: {
-  instanceId: string;
-  className?: string;
-}) {
-  return (
-    <Link
-      href="/"
-      className={clsx("flex items-center", className)}
-      aria-label="Nos Ilha home"
-    >
-      <NosilhaLogo
-        size="sidebar"
-        variant="auto"
-        showSubtitle={false}
-        instanceId={instanceId}
-      />
-    </Link>
-  );
-}
-
-/**
  * The current locale, shown but not switchable — `PT` and `CV` are disabled in
  * `languages`, and a disabled locale must not render as though it were available.
  *
@@ -191,29 +153,38 @@ export function LanguageChip({ className }: { className?: string }) {
 
 /**
  * The archive wordmark: `NosIlha` set in the serif, with a spaced `ARCHIVE`
- * label. Restored for the desktop bar, whose previous style this is.
+ * label — the brand mark in all three bars.
  *
  * Not `NosilhaLogo`: that lockup leads with the hibiscus mark and its
  * `showSubtitle` reads "Brava, Cabo Verde". This is a different, text-only
  * treatment, which is why it is its own small component rather than another
- * variant bolted onto the logo.
+ * variant bolted onto the logo. The hibiscus stays with the footer, auth and
+ * admin surfaces; the chrome carries only the wordmark.
+ *
+ * Set a step larger below 1024 so the 9px label stays legible on a phone, and
+ * `touch-target` so the link is a full touch target however small the type is.
+ * `shrink-0` because the mark never wraps, so a bar squeezing it would only push
+ * the text past its own focus ring. The baseline alignment lives on an inner
+ * span so the taller link can centre it.
  */
 export function ChromeWordmark({ className }: { className?: string }) {
   return (
     <Link
       href="/"
       className={clsx(
-        "focus-ring flex items-baseline gap-2 rounded-sm",
+        "focus-ring touch-target flex shrink-0 items-center rounded-sm",
         className
       )}
       aria-label="Nos Ilha home"
     >
-      <span className="font-serif text-[19px] font-normal tracking-[-0.01em]">
-        <span className="text-body">Nos</span>
-        <span className="text-ocean-blue">Ilha</span>
-      </span>
-      <span className="text-muted text-[9px] tracking-[0.18em] uppercase">
-        Archive
+      <span className="flex items-baseline gap-2">
+        <span className="font-serif text-[21px] font-normal tracking-[-0.01em] lg:text-[19px]">
+          <span className="text-body">Nos</span>
+          <span className="text-ocean-blue">Ilha</span>
+        </span>
+        <span className="text-muted text-[10.5px] tracking-[0.18em] uppercase lg:text-[9px]">
+          Archive
+        </span>
       </span>
     </Link>
   );

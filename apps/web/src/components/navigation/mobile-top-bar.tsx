@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-import { AccountSlot, ChromeBar, ChromeLogoLink } from "./chrome-parts";
+import { AccountSlot, ChromeBar, ChromeWordmark } from "./chrome-parts";
 
 /**
  * Phone top bar (0–767) — identity and account, at `--chrome-top-bar-height`
@@ -33,10 +33,7 @@ export function MobileTopBar({ className }: { className?: string }) {
         className
       )}
     >
-      <ChromeLogoLink
-        instanceId="mobile-top-bar-logo"
-        className="min-w-0 flex-1"
-      />
+      <ChromeWordmark className="mr-auto" />
       <AccountSlot />
     </ChromeBar>
   );
