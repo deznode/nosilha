@@ -13,10 +13,10 @@ pnpm run dev             # Start development server with Turbopack
 pnpm run build           # Build for production (includes Velite content processing)
 pnpm run start           # Start production server
 pnpm run lint            # Run ESLint
-pnpm build:content && pnpm exec tsc --noEmit   # Type check (Velite first, or ~26 phantom @/.velite errors)
+pnpm run typecheck       # Type check (builds Velite first, or ~26 phantom @/.velite errors)
 ```
 
-From the repo root, `task test:web` runs lint, the Velite build, type check and unit tests in that order.
+From the repo root, `task test:web` runs lint, type check and unit tests in that order.
 
 ## Architecture Patterns
 
@@ -48,9 +48,9 @@ apps/web/src/app/
 
 ```bash
 cd apps/web
-pnpm build:content && pnpm exec tsc --noEmit   # Type checking
-pnpm run lint                                  # ESLint
-pnpm run build                                 # Next.js build
+pnpm run typecheck   # Type checking
+pnpm run lint        # ESLint
+pnpm run build       # Next.js build
 ```
 
 ### Local Development (Manual)

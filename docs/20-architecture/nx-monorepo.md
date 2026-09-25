@@ -18,7 +18,7 @@ The frontend and backend workflows do **not** depend on Nx. They use their own `
 
 | File | Purpose |
 |------|---------|
-| `nx.json` | Default inputs (all files under a project root) and `defaultBase: main` |
+| `nx.json` | `defaultBase: main` (the base branch for affected detection) |
 | `apps/web/project.json` | Declares the `web` project; no targets |
 | `apps/api/project.json` | Declares the `api` project; no targets |
 
