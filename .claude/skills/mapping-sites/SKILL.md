@@ -16,14 +16,14 @@ Every map in the app runs on **MapLibre GL JS v5** through **`react-map-gl/mapli
 | Basemaps | CARTO Voyager / Positron / Dark Matter style URLs (`MAP_STYLES`) |
 | Satellite | Esri World Imagery raster style (`SATELLITE_STYLE`) |
 | Terrain | AWS Terrarium DEM tiles (`TERRAIN_DEM`), `raster-dem` source |
-| Glyphs | CARTO's font URLs rewritten to `fonts.openmaptiles.org` (`transformCartoGlyphs` in `base-map.tsx`); CARTO serves glyphs without CORS |
+| Glyphs | Served by CARTO (`tiles.basemaps.cartocdn.com/fonts/`), straight from the style. `fonts.openmaptiles.org` shut down in 2026; don't route glyphs there |
 | Clustering | `use-supercluster` wrapped by `useMapClustering` (gallery map only) |
 
 ## Where things live
 
 | Path | Role |
 |------|------|
-| `apps/web/src/features/map/shared/base-map.tsx` | `BaseMap`: the one `<Map>` wrapper (defaults, CSS import, glyph transform, ref forwarding). New map surfaces build on it. |
+| `apps/web/src/features/map/shared/base-map.tsx` | `BaseMap`: the one `<Map>` wrapper (defaults, CSS import, ref forwarding). New map surfaces build on it. |
 | `apps/web/src/features/map/data/constants.ts` | `MAP_STYLES`, `SATELLITE_STYLE`, `TERRAIN_DEM`, `MAP_CONFIG`, `EXPLORER_VIEW` |
 | `apps/web/src/features/map/components/brava-map.tsx` → `map-canvas.tsx` | The `/map` explorer (route `app/(archive-fill)/map/page.tsx`, loaded with `dynamic(..., { ssr: false })`) |
 | `apps/web/src/features/map/data/locations-adapter.ts` | Turns towns, records and photos into `MapItem`s (`settlementItems`, `recordItems`, `photoItems`) |
@@ -36,7 +36,7 @@ Import through the feature's public API (`@/features/map`) where an export exist
 
 ## Rules
 
-- **Build on `BaseMap`**, don't render a bare `<Map>`: it carries the glyph fix and defaults every surface needs.
+- **Build on `BaseMap`**, don't render a bare `<Map>`: it carries the defaults every surface needs.
 - **Client-only**: map components are `"use client"` and the route loads them with `next/dynamic` and `ssr: false`.
 - **CSP**: any new tile, style, glyph or imagery host must be added to the CSP in `apps/web/next.config.ts` (`connect-src`, and `style-src` for style JSON). A missing host fails silently as blank tiles or missing labels.
 - **Stable style objects**: inline styles (like `SATELLITE_STYLE`) are module-level constants, so the map never restyles on re-render.

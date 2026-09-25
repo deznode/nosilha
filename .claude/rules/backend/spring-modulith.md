@@ -18,7 +18,7 @@ cd apps/api
 
 ## Module Boundaries
 
-Modular monolith with enforced boundaries. Modules communicate via events, not direct service calls.
+Modular monolith with enforced boundaries (`ModularityTests`). Modules prefer events for side effects; cross-module reads go through `*QueryService` interfaces in each module's `api/` package (`auth/api/UserProfileQueryService`, `gallery/api/MediaQueryService`, `places/api/PlacesQueryService`, `stories/api/StoriesQueryService`). Some direct calls exist (e.g. `feedback/SuggestionService` → `GalleryService`).
 
 ```
 apps/api/src/main/kotlin/com/nosilha/core/
@@ -28,7 +28,7 @@ apps/api/src/main/kotlin/com/nosilha/core/
 ├── gallery/         # Gallery media (user uploads + curated external content)
 ├── ai/              # AI image analysis and content moderation
 ├── engagement/      # User interactions (reactions, bookmarks)
-├── stories/         # Community narratives, MDX publishing
+├── stories/         # Community narratives, MDX publishing (UI hidden since 2026-09; backend still wired)
 ├── feedback/        # Community feedback channels, dashboard
 └── config/          # Cache configuration (Caffeine)
 ```
@@ -40,9 +40,9 @@ The `shared/` module is the shared kernel — other modules may depend on it:
 ```
 shared/
 ├── api/             # ApiResult, PagedApiResult, ErrorResponse, shared DTOs
-├── domain/          # AuditableEntity base class
-├── events/          # DomainEvent, ApplicationModuleEvent interfaces
-├── exception/       # ResourceNotFoundException, GlobalExceptionHandler
+├── domain/          # CreatableEntity, AuditableEntity base classes
+├── events/          # DomainEvent, ApplicationModuleEvent + cross-module event classes (module-private events live in <module>/events/)
+├── exception/       # GlobalExceptionHandler, ResourceNotFound/Forbidden/Business/RateLimitExceeded exceptions
 ├── config/          # Cross-cutting config
 ├── service/         # Shared services
 └── util/            # Utility functions
@@ -84,7 +84,7 @@ class DirectoryEntryService(
 
 ```kotlin
 @Service
-class MediaService {
+class GalleryService {
     @ApplicationModuleListener
     fun onDirectoryEntryCreated(event: DirectoryEntryCreatedEvent) {
         // Cross-module reaction — runs AFTER publishing transaction commits

@@ -23,7 +23,7 @@ Three commands to go from clone to running:
 ```bash
 task check    # Verify prerequisites
 task setup    # Copy web env template, install web dependencies
-task dev      # Start API (auto-starts postgres) + web in parallel
+task dev      # Start API (auto-starts postgres), then web once the API is healthy
 ```
 
 Before running `task dev`, copy the backend config template:

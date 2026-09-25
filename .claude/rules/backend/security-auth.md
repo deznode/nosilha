@@ -6,12 +6,14 @@ paths: apps/api/**
 
 ## Exception Hierarchy
 
-| Exception | HTTP Status | Package |
-|-----------|------------|---------|
-| `ResourceNotFoundException` | 404 Not Found | `shared.exception` |
-| Validation errors (Jakarta) | 400 Bad Request | handled by `GlobalExceptionHandler` |
-| `BusinessException` | 422 Unprocessable Entity | `shared.exception` |
-| `RateLimitExceededException` | 429 Too Many Requests | `shared.exception` |
+| Exception | HTTP Status | Where |
+|-----------|------------|-------|
+| `ResourceNotFoundException` | 404 Not Found | `shared/exception/ResourceNotFoundException.kt` |
+| `ForbiddenException` | 403 Forbidden | `shared/exception/ForbiddenException.kt` (`@ResponseStatus`) |
+| Validation errors (Jakarta), `IllegalArgumentException` | 400 Bad Request | handled by `GlobalExceptionHandler` |
+| `BusinessException` | 422 Unprocessable Entity | defined in `GlobalExceptionHandler.kt` |
+| `RateLimitExceededException` | 429 Too Many Requests | defined in `GlobalExceptionHandler.kt` |
+| `YouTubeSyncDisabledException` | 503 Service Unavailable | defined in `GlobalExceptionHandler.kt` |
 
 ```kotlin
 // Throwing exceptions
@@ -50,7 +52,7 @@ data class ValidationErrorResponse(
 
 ## Rate Limiting
 
-Uses Bucket4j token bucket with Caffeine per-user cache:
+Uses Bucket4j token buckets in a Caffeine cache, keyed per user (`ProfileService`) or per client IP (`DirectoryEntryService`, `SuggestionService`):
 
 ```kotlin
 private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
@@ -78,8 +80,8 @@ fun submitEntry(
     @Valid @RequestBody request: CreateDirectoryEntrySubmissionRequest,
     authentication: Authentication,
     httpRequest: HttpServletRequest,
-): ApiResult<ConfirmationDto> {
-    val userId = authentication.name  // Supabase user ID from JWT
+): ApiResult<DirectoryEntrySubmissionConfirmationDto> {
+    val userId = UUID.fromString(authentication.name)  // Supabase user ID from JWT
     val ipAddress = extractClientIp(httpRequest)  // shared/util/RequestUtils.kt
     // ...
 }
@@ -98,6 +100,7 @@ Supabase JWT with ES256, stateless sessions:
 ```kotlin
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity  // required for @PreAuthorize
 class SecurityConfig(
     private val supabaseJwtConverter: SupabaseJwtAuthenticationConverter,
 ) {
@@ -139,16 +142,19 @@ class SecurityConfig(
 
 | Endpoint Pattern | Access |
 |-----------------|--------|
-| `GET /api/v1/directory/**` | Public |
-| `GET /api/v1/towns/**` | Public |
-| `GET /api/v1/gallery/**` | Public |
-| `POST /api/v1/suggestions` | Public |
-| `POST /api/v1/contact` | Public |
+| `GET /api/v1/directory/**`, `GET /api/v1/towns/**` | Public |
+| `GET /api/v1/gallery` and listed sub-paths: `{id}`, `facets`, `{id}/sequence`, `entry/{entryId}`, `categories`, `approved`, `random`, `featured`, `weekly`, `timeline`, `videos/featured` | Public |
+| `GET /api/v1/reactions/content/**`, `GET /api/v1/stories`, `GET /api/v1/stories/slug/**` | Public |
+| `POST /api/v1/suggestions`, `POST /api/v1/contact`, `POST /api/v1/content/register` | Public |
 | `POST /api/v1/directory/submissions` | `USER`, `ADMIN`, `authenticated` |
-| `POST /api/v1/gallery/upload/**` | `USER`, `ADMIN`, `authenticated` |
-| `/api/v1/users/me/**` | `USER`, `ADMIN`, `authenticated` |
-| `/api/v1/bookmarks/**` | `USER`, `ADMIN`, `authenticated` |
+| `POST /api/v1/gallery/upload/presign`, `/upload/confirm`, `/submit` | `USER`, `ADMIN`, `authenticated` |
+| `POST /api/v1/stories`, `/api/v1/ai/**` | `USER`, `ADMIN`, `authenticated` |
+| `/api/v1/users/me/**`, `/api/v1/bookmarks/**` | `USER`, `ADMIN`, `authenticated` |
+| `POST /api/v1/directory/entries`, `PUT`/`DELETE /api/v1/directory/**` | `ADMIN` only |
 | `/api/v1/admin/**` | `ADMIN` only |
+| Anything else | Authenticated |
+
+**There is no `/gallery/**` wildcard.** A new public GET endpoint returns 401 until it gets its own matcher in `SecurityConfig`.
 
 ## Reference
 

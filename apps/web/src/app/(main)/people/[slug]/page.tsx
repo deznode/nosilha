@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { headers, cookies } from "next/headers";
 import { Article } from "@/components/content/article";
+import { ArchiveSkeleton } from "@/components/ui/archive-skeleton";
 import { pages } from "@/.velite";
 import {
   getBestLanguage,
@@ -62,7 +64,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function PeoplePage({ params, searchParams }: PageProps) {
+export default function PeoplePage({ params, searchParams }: PageProps) {
+  return (
+    <Suspense fallback={<ArchiveSkeleton />}>
+      <PeopleForLanguage params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function PeopleForLanguage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const { lang } = await searchParams;
 

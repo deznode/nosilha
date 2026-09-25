@@ -104,13 +104,13 @@ defaultOptions: {
 
 ## Zod Schemas
 
-Schemas live in `src/lib/validation/` or `src/lib/content/schemas.ts`:
+App schemas live in `src/schemas/` (auth, contact, directory entry/submission, filter, gallery edit, suggestion, user profile, admin). The newsletter schema is `src/lib/validation/newsletter-schema.ts`; content schemas are `src/lib/content/schemas.ts`:
 
 ```typescript
 import { z } from "zod";
 
 export const newsletterSchema = z.object({
-  email: z.string().trim().min(1, "Email is required").email("Invalid email"),
+  email: z.string().trim().min(1, "Email is required").email("Please enter a valid email address"),
   website: z.string().optional(), // Honeypot
 });
 

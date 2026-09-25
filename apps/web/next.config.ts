@@ -75,17 +75,6 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/_next/static/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: isDev
-              ? "no-store, max-age=0"
-              : "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-      {
         source: "/(.*)",
         headers: [
           // Prevent clickjacking - blocks site from being embedded in iframes
@@ -120,7 +109,7 @@ const nextConfig: NextConfig = {
               // `https:` already covers every https host — no per-host entries needed here.
               "img-src 'self' data: blob: https:",
               "font-src 'self' https://fonts.gstatic.com",
-              `connect-src 'self' ${isDev ? "http://localhost:8080 " : ""}https://api.nosilha.com https://*.nosilha.com https://*.cartocdn.com https://fonts.openmaptiles.org https://s3.amazonaws.com/elevation-tiles-prod/ https://services.arcgisonline.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com https://cloudflareinsights.com`,
+              `connect-src 'self' ${isDev ? "http://localhost:8080 " : ""}https://api.nosilha.com https://*.nosilha.com https://*.cartocdn.com https://s3.amazonaws.com/elevation-tiles-prod/ https://services.arcgisonline.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com https://cloudflareinsights.com`,
               "worker-src 'self' blob:",
               "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
               // Archive-file films play in a native <video> from the media bucket (spec 035).

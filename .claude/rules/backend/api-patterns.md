@@ -29,7 +29,7 @@ data class PagedApiResult<T : Any>(
 }
 ```
 
-**DON'T**: Use `ResponseEntity<T>` directly — always wrap in `ApiResult` or `PagedApiResult`.
+**DON'T**: return a bare DTO or `ResponseEntity<Dto>`. The body is always `ApiResult` / `PagedApiResult`. `ResponseEntity<ApiResult<T>>` is fine when the status or headers vary (about 30 endpoints do this).
 
 ## Controller Structure
 
@@ -105,20 +105,19 @@ Use HTML JavaDoc tags and OpenAPI annotations:
 fun submitDirectoryEntry(
     @Valid @RequestBody request: CreateDirectoryEntrySubmissionRequest,
     authentication: Authentication,
-): ApiResult<ConfirmationDto> { ... }
+): ApiResult<DirectoryEntrySubmissionConfirmationDto> { ... }
 ```
 
 ## Module Sub-Package Layout
 
-Every module follows this structure:
+Most modules follow this structure, plus an `events/` package. Exceptions: `auth/security/`, `ai/provider/`, and top-level services in `auth/`, `feedback/` and `places/` (e.g. `places/RelatedContentService.kt`):
 
 ```
 places/
 ├── api/              # Controllers, request/response DTOs
 │   ├── DirectoryEntryController.kt
 │   ├── AdminDirectoryEntryController.kt
-│   ├── CreateDirectoryEntrySubmissionRequest.kt
-│   └── DirectoryEntrySubmissionConfirmationDto.kt
+│   └── AdminDirectoryDtos.kt   # includes the submission request and confirmation DTOs
 ├── domain/           # Entities, services, mapper extensions
 │   ├── DirectoryEntry.kt
 │   ├── Restaurant.kt

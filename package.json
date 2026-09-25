@@ -13,24 +13,9 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "nx run-many -t dev",
-    "build": "nx run-many -t build",
-    "test": "nx run-many -t test",
-    "lint": "nx run-many -t lint",
-    "affected:build": "nx affected -t build",
-    "affected:test": "nx affected -t test",
-    "affected:lint": "nx affected -t lint",
-    "graph": "nx graph",
-    "web:dev": "nx run web:dev",
-    "web:build": "nx run web:build",
-    "api:dev": "nx run api:dev",
-    "api:build": "nx run api:build",
-    "api:test": "nx run api:test",
-    "api:serve": "nx run api:serve"
+    "graph": "nx graph"
   },
   "devDependencies": {
-    "@nx/eslint": "^23.1.1",
-    "@nx/next": "^23.1.1",
     "nx": "^23.1.1"
   },
   "pnpm": {

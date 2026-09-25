@@ -54,7 +54,6 @@ apps/web/src/
     ├── authSchema.ts           # Login/signup forms
     ├── filterSchema.ts         # Filter + URL params
     ├── userProfileSchema.ts    # User profile data
-    ├── storySchema.ts          # Story submission
     ├── suggestionSchema.ts     # Content suggestions
     ├── contactSchema.ts        # Contact form
     ├── directorySubmissionSchema.ts  # Directory submissions
@@ -173,7 +172,6 @@ export function useDirectoryEntries(category = "all", page = 0, size = 20) {
 | `directoryEntrySchema` | Discriminated union for entry types |
 | `loginSchema` / `signupSchema` | Auth form validation |
 | `filterSchema` | URL param validation |
-| `storySchema` | Story submission |
 | `contactSchema` | Contact form |
 
 ### Pattern: Discriminated Union

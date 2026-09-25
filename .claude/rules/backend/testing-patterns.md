@@ -6,7 +6,7 @@ paths: apps/api/**
 
 ## Integration Test Setup
 
-Every integration test uses this annotation trio:
+Every MockMvc integration test uses this annotation trio (`AutoConfigureMockMvc` is imported from `org.springframework.boot.webmvc.test.autoconfigure` in Spring Boot 4):
 
 ```kotlin
 @ActiveProfiles("test")
@@ -77,13 +77,17 @@ When tests touch multiple tables, delete in FK-safe order in `@BeforeEach`:
 @BeforeEach
 fun cleanup() {
     // Child tables first
-    jdbcTemplate.execute("DELETE FROM analysis_runs")
+    jdbcTemplate.execute("DELETE FROM ai_analysis_log")
     jdbcTemplate.execute("DELETE FROM reactions")
     // Event publication table
     jdbcTemplate.execute("DELETE FROM event_publication")
-    // Parent tables last
-    jdbcTemplate.execute("DELETE FROM gallery_media")
-    jdbcTemplate.execute("DELETE FROM directory_entries")
+}
+
+@AfterEach
+fun removeCreatedRows() {
+    // Seeded tables (directory_entries, gallery_media, towns) hold shared seed rows:
+    // delete only what this test created, never the whole table.
+    created.forEach { jdbcTemplate.update("DELETE FROM directory_entries WHERE id = ?", it) }
 }
 ```
 
@@ -92,19 +96,21 @@ fun cleanup() {
 Use Spring Security's mock authentication:
 
 ```kotlin
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication
 
-private fun authAs(userId: String) =
-    authentication(
-        UsernamePasswordAuthenticationToken(userId, null, emptyList())
-    )
+// The principal must be a UUID string: controllers call UUID.fromString(authentication.name).
+private fun auth(
+    id: UUID,
+    role: String,
+) = authentication(UsernamePasswordAuthenticationToken(id.toString(), null, listOf(SimpleGrantedAuthority(role))))
 
 // Usage:
 mockMvc
     .perform(
         post("/api/v1/directory/submissions")
-            .with(authAs("user-123"))
+            .with(auth(UUID.randomUUID(), "ROLE_USER"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonMapper.writeValueAsString(dto)),
     ).andExpect(status().isCreated)
@@ -127,12 +133,13 @@ No additional setup needed — Spring Boot auto-configures Testcontainers from t
 `@MockitoBean` replaces all matching beans in the context:
 
 ```kotlin
+// ai/AiModuleIntegrationTest.kt
 @MockitoBean
-private lateinit var aiProvider: AiImageAnalysisProvider
+private lateinit var mockProvider: ImageAnalysisProvider  // injected into List<ImageAnalysisProvider> as a single element
 
-// For List<Provider> injections, the mock becomes a single-element list
+// gallery tests
 @MockitoBean
-private lateinit var culturalProvider: CulturalContextProvider
+private lateinit var r2StorageService: R2StorageService
 ```
 
 ## Event Testing
@@ -140,14 +147,18 @@ private lateinit var culturalProvider: CulturalContextProvider
 `@ApplicationModuleListener` events run **AFTER** the publishing transaction commits (AFTER_COMMIT phase). In `@SpringBootTest`, events process asynchronously — poll for results:
 
 ```kotlin
-private fun awaitAnalysisRun(mediaId: UUID, timeout: Duration = Duration.ofSeconds(10)): AnalysisRun {
-    val deadline = Instant.now().plus(timeout)
-    while (Instant.now().isBefore(deadline)) {
-        val run = analysisRunRepository.findTopByMediaIdOrderByCreatedAtDesc(mediaId)
-        if (run != null) return run
+// ai/AiModuleIntegrationTest.kt
+private fun awaitAnalysisRun(
+    mediaId: UUID,
+    timeoutMs: Long = 5000,
+): List<AnalysisRun> {
+    val start = System.currentTimeMillis()
+    while (System.currentTimeMillis() - start < timeoutMs) {
+        val runs = analysisRunRepository.findByMediaId(mediaId)
+        if (runs.isNotEmpty()) return runs
         Thread.sleep(100)
     }
-    throw AssertionError("AnalysisRun not found within $timeout for media $mediaId")
+    return analysisRunRepository.findByMediaId(mediaId)
 }
 ```
 

@@ -34,7 +34,7 @@ Uses [Taskfile](https://taskfile.dev/) for orchestration. Install: `brew install
 ```bash
 task check     # verify prerequisites (Docker, Node, pnpm, Java)
 task setup     # copy env templates, install web deps
-task dev       # start API (auto-starts postgres) + web in parallel
+task dev       # start API (auto-starts postgres), then web once the API is healthy
 ```
 
 **Environment files**: Copy templates before first run:
@@ -161,7 +161,7 @@ Config: `.playwright/cli.config.json` configures the CLI skill. `apps/web/playwr
 - `docs/20-architecture/state-management.md` - State management patterns guide (Zustand, TanStack Query, Zod)
 - `docs/20-architecture/testing.md` - Comprehensive testing guide (Playwright E2E, Vitest unit tests)
 - `docs/20-architecture/supabase-admin-roles.md` - Supabase admin role setup and JWT-based access control
-- `docs/20-architecture/nx-monorepo.md` - Nx monorepo commands and project graph
+- `docs/20-architecture/nx-monorepo.md` - What Nx does here (CI affected-project detection only)
 - `docs/20-architecture/ai-provider-orchestration.md` - AI provider orchestration
 - `docs/20-architecture/adr/` - Architecture Decision Records
 

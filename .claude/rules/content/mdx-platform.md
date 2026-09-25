@@ -10,15 +10,16 @@ Velite processes MDX files at build time with type-safe schemas.
 
 ## Multilingual Support
 
-Co-located translations (EN/PT/KEA/FR) with fallback chains and translation status tracking.
+Co-located translations (EN/PT/KEA/FR) are supported, with fallback chains and translation status tracking. Only English (`en.mdx`) files exist today.
 
 ## Content Structure
 
 All content lives in `apps/web/content/pages/`:
 
-- **Top-level pages**: `content/pages/[category]/en.mdx` → URL `/[category]` (e.g., `/history`, `/music`)
-- **Sub-pages**: `content/pages/[category]/[slug]/en.mdx` → URL `/[category]/[slug]` (e.g., `/music/morna-origins`)
-- **Categories**: `history`, `music`, `people`, `traditions`, `places`
+- **Sub-pages**: `content/pages/[category]/[slug]/en.mdx`
+- **Categories**: `history`, `music`, `people`, `traditions` (`history/` holds only `_meta.yaml`)
+- **Routes**: only `(main)/history/[slug]` and `(main)/people/[slug]` render MDX pages. `music/` and `traditions/` content has no route yet.
+- **`/history` itself** is not MDX: it loads typed data from `src/lib/content/history/`.
 
 ## Commands
 
@@ -40,7 +41,7 @@ All components support structured data in YAML frontmatter.
 
 ## Pattern for Complex Pages
 
-Cultural heritage pages (like `/history`) use data-driven MDX:
+MDX pages can use data-driven components through structured frontmatter (the Page schema in `velite.config.ts` has optional timeline, figures, sections and citations fields):
 
 1. Define structured data in YAML frontmatter (sections, figures, timeline, citations)
 2. Extend Page schema in `velite.config.ts` with optional structured fields
@@ -50,7 +51,7 @@ Cultural heritage pages (like `/history`) use data-driven MDX:
 ## Additional Features
 
 - **Search**: Pagefind for static, client-side search with language-specific indexes and faceted filtering
-- **Validation**: Pre-commit hooks validate frontmatter schemas, internal links, and cross-references
+- **Validation**: lefthook runs `scripts/validate-content.ts` on staged MDX (frontmatter schemas, internal links, cross-references, series)
 - **Scaffolding**: CLI tools for creating new articles from templates
 - **Translation Management**: Admin dashboard at `/admin/translations` shows translation status and outdated content
 
@@ -69,5 +70,5 @@ Cultural heritage pages (like `/history`) use data-driven MDX:
 
 ## Reference
 
-- See `plan/specs/007-mdx-content-platform/` for complete specification
-- Pattern Reference: See `/history` page implementation for data-driven MDX with structured frontmatter
+- See `plan/research/reference/mdx-content-platform.md` for the original specification
+- Pattern Reference: `src/lib/content/history/` for the typed-data version of the same components

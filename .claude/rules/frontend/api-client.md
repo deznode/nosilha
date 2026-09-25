@@ -40,10 +40,14 @@ export interface ApiClient {
 
 // 2. backend-api.ts
 async getNewFeature(id: string): Promise<FeatureDto> {
-  const response = await fetch(`${this.baseUrl}/api/v1/features/${id}`, {
+  const response = await fetch(`${env.apiUrl}/api/v1/features/${id}`, {
     next: CacheConfig.INDIVIDUAL_ENTRY,
   });
-  return this.handleResponse(response);
+  if (!response.ok) {
+    throw new Error(`API call failed with status: ${response.status}`);
+  }
+  const payload = (await response.json()) as unknown;
+  return this.unwrapApiResponse<FeatureDto>(payload);
 }
 
 // 3. api.ts
@@ -75,6 +79,7 @@ export const CacheConfig = {
   DIRECTORY_ENTRIES: { revalidate: 3600 },  // 1 hour
   INDIVIDUAL_ENTRY: { revalidate: 1800 },   // 30 minutes
   TOWNS: { revalidate: 3600 },              // 1 hour
+  TOWN_STATUS: { revalidate: 1800, tags: ["directory", "towns"] }, // 30 minutes
   MAP_DATA: { cache: "no-store" as const }, // Always fresh
   REACTION_COUNTS: { revalidate: 300 },     // 5 minutes
   RELATED_CONTENT: { revalidate: 300 },     // 5 minutes
@@ -82,26 +87,26 @@ export const CacheConfig = {
 } as const;
 ```
 
-Usage in `page.tsx`:
-
-```typescript
-export const revalidate = 3600; // 1 hour ISR
-```
+These apply to `fetch` calls. Pages don't export `revalidate`: `cacheComponents` is on, so pages use `"use cache"` + `cacheLife()` (see app-router.md).
 
 ## Response Type Mapping
 
 Backend `ApiResult<T>` / `PagedApiResult<T>` maps to frontend types:
 
 ```typescript
-// Frontend type for paginated responses
-export interface PaginatedResult<T> {
-  items: T[];
+// Frontend types for paginated responses (api-contracts.ts)
+export interface PaginationMetadata {
   page: number;
   size: number;
   totalElements: number;
   totalPages: number;
   first: boolean;
   last: boolean;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  pagination: PaginationMetadata | null;
 }
 ```
 

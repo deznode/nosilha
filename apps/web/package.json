@@ -26,6 +26,7 @@
     "build": "run-s build:content build:next build:search",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "velite --clean && tsc --noEmit",
     "sync:brand": "node ../../scripts/sync-brand-tokens.mjs",
     "clean": "rm -rf .next playwright-report test-results",
     "test:e2e": "playwright test",

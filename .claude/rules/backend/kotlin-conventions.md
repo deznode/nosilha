@@ -54,18 +54,21 @@ class MyService {
 
 ## Transaction Annotations
 
+Default: annotate methods. Services that mix reads and writes (e.g. `DirectoryEntryService`) put `@Transactional` / `@Transactional(readOnly = true)` on each method. Pure read services use class-level `@Transactional(readOnly = true)` (e.g. `TownStatusService`, `MediaQueryServiceImpl`).
+
 ```kotlin
 @Service
-@Transactional                        // Class-level for write services
-class MyWriteService { ... }
+class MyService {
+    @Transactional
+    fun create(request: CreateRequest): Dto { ... }
+
+    @Transactional(readOnly = true)
+    fun findById(id: UUID): Dto = ...
+}
 
 @Service
-@Transactional(readOnly = true)       // Class-level for read-only services
-class MyReadService { ... }
-
-// Override at method level when needed:
-@Transactional(readOnly = true)
-fun findById(id: UUID): Entity = ...
+@Transactional(readOnly = true)       // pure read service
+class MyQueryService { ... }
 ```
 
 ## DTO Mapping
@@ -79,7 +82,7 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
     return when (this) {
         is Restaurant -> RestaurantDto(id = entityId, name = name, ...)
         is Hotel -> HotelDto(id = entityId, name = name, ...)
-        else -> throw IllegalArgumentException("Unknown entry type")
+        else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
     }
 }
 ```

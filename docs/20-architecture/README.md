@@ -11,6 +11,6 @@ System design, ADRs, API standards, module architecture, and testing.
 | [state-management.md](state-management.md) | State management patterns |
 | [testing.md](testing.md) | Testing guide |
 | [supabase-admin-roles.md](supabase-admin-roles.md) | Admin role setup |
-| [nx-monorepo.md](nx-monorepo.md) | Nx monorepo commands |
+| [nx-monorepo.md](nx-monorepo.md) | Nx: CI affected-project detection only |
 | [ai-provider-orchestration.md](ai-provider-orchestration.md) | AI provider orchestration |
 | [adr/](adr/) | Architecture Decision Records |

@@ -3,6 +3,7 @@ version: "3"
 vars:
   API_DIR: apps/api
   WEB_DIR: apps/web
+  API_PORT: 8080
   DOCKER_COMPOSE: infrastructure/docker/docker-compose.yml
   INFRA_DIR: infrastructure/terraform
 
@@ -107,17 +108,33 @@ tasks:
       - cd {{.WEB_DIR}} && pnpm install
 
   dev:
-    desc: Full-stack dev — start API (auto-starts postgres) + web in parallel
+    desc: Full-stack dev — start API (auto-starts postgres), then web once the API is healthy
     deps:
       - dev:api
-      - dev:web
+      - dev:web:after-api
+
+  dev:web:after-api:
+    # The web is ready in under a second and the API takes ~20s; a page opened in
+    # that gap renders the error page. Waiting on the health check avoids it.
+    internal: true
+    silent: true
+    cmds:
+      - |
+        echo "Waiting for the API on :{{.API_PORT}} before starting web..."
+        for i in $(seq 1 180); do
+          curl -sf http://localhost:{{.API_PORT}}/actuator/health > /dev/null && exit 0
+          sleep 1
+        done
+        echo "API not healthy after 180s; check the dev:api output above."
+        exit 1
+      - task: dev:web
 
   dev:api:
     desc: Start API server — auto-starts postgres via spring-boot-docker-compose
     dir: "{{.API_DIR}}"
     preconditions:
-      - sh: "! lsof -nP -iTCP:8080 -sTCP:LISTEN > /dev/null"
-        msg: "Port 8080 is already in use, likely by an API left over from an earlier run. Run `task stop:all`, then retry."
+      - sh: "! lsof -nP -iTCP:{{.API_PORT}} -sTCP:LISTEN > /dev/null"
+        msg: "Port {{.API_PORT}} is already in use, likely by an API left over from an earlier run. Run `task stop:all`, then retry."
     cmds:
       - ./gradlew bootRun --args='--spring.profiles.active=local'
 
@@ -161,7 +178,7 @@ tasks:
     dir: "{{.WEB_DIR}}"
     cmds:
       - pnpm run lint
-      - npx tsc --noEmit
+      - pnpm run typecheck
       - pnpm run test:unit
 
   lint:
@@ -195,7 +212,7 @@ tasks:
         # Task runs scripts with errexit, so commands that fail harmlessly end in `|| true`
         pids=""
         # Only stop port listeners started from this repo; report anything else
-        for pid in $(lsof -t -nP -iTCP:3000,3001,8080 -sTCP:LISTEN 2>/dev/null || true); do
+        for pid in $(lsof -t -nP -iTCP:3000,3001,{{.API_PORT}} -sTCP:LISTEN 2>/dev/null || true); do
           cwd=$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' || true)
           case "$cwd" in
             "{{.ROOT_DIR}}"*) pids="$pids $pid" ;;
