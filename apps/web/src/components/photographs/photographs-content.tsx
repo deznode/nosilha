@@ -238,7 +238,7 @@ export function PhotographsContent({
           {/*
             Films are cards, not tiles. A film has no file, no dimensions and no
             photographer, so rendering one through `PhotoTile` would put a synthesised
-            YouTube thumbnail behind a filename scrim and pin "no photographer" and
+            YouTube thumbnail into a photograph's frame and pin "no photographer" and
             "no title" to it — the three things SPECS §4's films decision forbids.
           */}
           {filter === "films" ? (

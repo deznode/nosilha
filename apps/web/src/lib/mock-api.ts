@@ -2243,8 +2243,8 @@ const MOCK_TOWNS: Town[] = [
     name: "Fajã d'Água",
     description:
       "Once our gateway to the world's whaling ships, now a hidden paradise where volcanic pools offer perfect refuge from the Atlantic's power",
-    latitude: 14.87306,
-    longitude: -24.73194,
+    latitude: 14.87149,
+    longitude: -24.73145,
     population: "126 (2010 census)",
     elevation: "Sea level-100m",
     founded: "18th century as main port",
@@ -2263,8 +2263,8 @@ const MOCK_TOWNS: Town[] = [
     name: "Nossa Senhora do Monte",
     description:
       "High among the clouds, this sacred place has drawn pilgrims for over 150 years, offering both spiritual solace and breathtaking views of our island home",
-    latitude: 14.85806,
-    longitude: -24.71806,
+    latitude: 14.85969,
+    longitude: -24.71551,
     population: "271 (2010 census)",
     elevation: "642m",
     founded: "Parish established around 1826",
@@ -2283,8 +2283,8 @@ const MOCK_TOWNS: Town[] = [
     name: "Cachaço",
     description:
       "In Brava's remote highlands, generations of families have perfected the art of cheese-making, creating flavors that carry the essence of our mountain pastures",
-    latitude: 14.83694,
-    longitude: -24.69694,
+    latitude: 14.83712,
+    longitude: -24.69442,
     population: "228 (2010 census)",
     elevation: "592m",
     founded: "19th century",

@@ -205,7 +205,7 @@ describe("photoItems", () => {
     }),
   ];
 
-  it("pins a located upload with its thumbnail, filename and page", () => {
+  it("pins a located upload with its thumbnail and page", () => {
     const [item] = photoItems([photo()], towns);
 
     expect(item).toMatchObject({
@@ -215,7 +215,6 @@ describe("photoItems", () => {
       eyebrow: "Photograph",
       status: "partial",
       image: "https://r2.example/DJI_0047.JPG",
-      filename: "DJI_0047.JPG",
       placeName: null,
       credit: null,
       href: "/photographs/media-1",

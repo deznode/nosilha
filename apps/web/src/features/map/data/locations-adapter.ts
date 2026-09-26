@@ -7,7 +7,6 @@ import type { TownStatusSummary } from "@/types/town";
 import { categoryLabel } from "@/lib/category-label";
 import {
   photoCredit,
-  photoFilename,
   photoIsIdentifiablePerson,
   photoIsLocated,
   photoTitle,
@@ -132,7 +131,6 @@ export function photoItems(
       href: `/photographs/${record.id}`,
       regionSlug: nearestSlug(lat, lng, towns),
       image,
-      filename: photoFilename(record),
       placeName: trimmed(record.locationName),
       credit: photoCredit(record),
     });

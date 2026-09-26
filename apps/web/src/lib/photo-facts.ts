@@ -37,11 +37,6 @@ export function photoTitle(media: PublicGalleryMedia): PhotoTitle {
     : { text: "Untitled", untitled: true };
 }
 
-/** The name the file arrived under; null for a film, which is not a file. */
-export function photoFilename(media: PublicGalleryMedia): string | null {
-  return isPublicUserUploadMedia(media) ? trimmed(media.originalName) : null;
-}
-
 /**
  * Formatted in `en-US` at UTC, not the reader's locale: the label is a fact read off
  * the file, and it must not shift a day because of where it is read.
@@ -108,7 +103,6 @@ export function photoIsIdentifiablePerson(media: PublicGalleryMedia): boolean {
 
 export interface PhotoFacts {
   title: PhotoTitle;
-  filename: string | null;
   date: string | null;
   credit: string | null;
   located: boolean;
@@ -146,7 +140,6 @@ export function photoFacts(media: PublicGalleryMedia): PhotoFacts {
 
   return {
     title,
-    filename: photoFilename(media),
     date,
     credit,
     located,

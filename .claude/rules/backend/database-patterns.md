@@ -62,7 +62,7 @@ Flyway locations are configured per Spring profile:
 
 ### Baseline Migrations (V1-V9)
 
-V1-V9 are domain-grouped with final-form CREATE TABLE statements. Incremental migrations follow: V10-V17 and V19-V21 in `db/migration/`, V18 in `db/seed/`. The next free number is one above the highest across **both** directories.
+V1-V9 are domain-grouped with final-form CREATE TABLE statements. Incremental migrations follow: V10-V17 and V19-V22 in `db/migration/`, V18 in `db/seed/`. The next free number is one above the highest across **both** directories.
 
 | Migration | Domain | Tables |
 |-----------|--------|--------|

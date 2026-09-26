@@ -5,7 +5,6 @@ import {
   photoAspectRatio,
   photoDateLabel,
   photoFacts,
-  photoFilename,
   photoTitle,
 } from "@/lib/photo-facts";
 import type {
@@ -79,16 +78,6 @@ describe("photoTitle", () => {
 
   it("treats a blank title as untitled", () => {
     expect(photoTitle(upload({ title: "   " })).untitled).toBe(true);
-  });
-});
-
-describe("photoFilename", () => {
-  it("is the name the file arrived under", () => {
-    expect(photoFilename(upload())).toBe("DJI_0177.JPG");
-  });
-
-  it("is null for a film, which has no file", () => {
-    expect(photoFilename(film())).toBeNull();
   });
 });
 

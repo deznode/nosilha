@@ -69,7 +69,7 @@ describe("PhotoDetail", () => {
     vi.clearAllMocks();
   });
 
-  it("heads the record with its category, title and filename", () => {
+  it("heads the record with its category and title, not its filename", () => {
     render(<PhotoDetail media={upload()} sequence={SEQUENCE} />);
 
     // Twice, as in the prototype: the eyebrow and the Category row.
@@ -77,7 +77,7 @@ describe("PhotoDetail", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Untitled" })
     ).toBeInTheDocument();
-    expect(screen.getByText("DJI_0177.JPG")).toBeInTheDocument();
+    expect(screen.queryByText("DJI_0177.JPG")).toBeNull();
   });
 
   it("lists what the file recorded and where it came from", () => {

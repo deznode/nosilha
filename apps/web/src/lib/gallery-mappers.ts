@@ -133,8 +133,7 @@ export function mapGalleryMediaToMediaItem(
   });
 
   // FR-019: the upload no longer copies the filename into `title`, and rows where it
-  // did were untitled by the same migration. A record without one reads "Untitled";
-  // the filename it arrived under is shown separately, as provenance, not as a name.
+  // did were untitled by the same migration. A record without one reads "Untitled".
   const rawTitle = media.title || "";
   const title = isRawFilename(rawTitle) ? "Untitled" : rawTitle || "Untitled";
 

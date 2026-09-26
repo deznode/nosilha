@@ -41,7 +41,6 @@ const photo: MapItem = {
   hasRecords: false,
   href: "/photographs/1",
   regionSlug: "nova-sintra",
-  filename: "DJI_0047.JPG",
   placeName: null,
   credit: null,
 };
@@ -88,10 +87,10 @@ describe("LocationDetailCard", () => {
     ).toHaveAttribute("href", "/photographs?region=faja-de-agua");
   });
 
-  it("words a photograph with its filename in the eyebrow", () => {
+  it("words a photograph without its filename", () => {
     renderCard(photo);
 
-    expect(screen.getByText("Photograph · DJI_0047.JPG")).toBeInTheDocument();
+    expect(screen.getByText("Photograph")).toBeInTheDocument();
     expect(
       screen.getByText("coordinates from the file · no place name")
     ).toBeInTheDocument();

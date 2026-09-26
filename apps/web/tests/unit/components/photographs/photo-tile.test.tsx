@@ -46,10 +46,10 @@ describe("PhotoTile", () => {
     expect(frame.style.aspectRatio).toBe("388 / 300");
   });
 
-  it("prints the filename and opens the record", () => {
+  it("opens the record without printing the filename", () => {
     render(<PhotoTile media={upload()} />);
 
-    expect(screen.getByText("DJI_0177.JPG")).toBeInTheDocument();
+    expect(screen.queryByText("DJI_0177.JPG")).toBeNull();
     expect(screen.getByRole("link")).toHaveAttribute("href", "/photographs/p1");
   });
 

@@ -148,18 +148,6 @@ function UnlocatedCard({ media }: { media: PublicGalleryMedia }) {
         >
           {facts.title.text}
         </div>
-        {facts.filename && (
-          <div
-            className="font-mono break-all"
-            style={{
-              fontSize: "9px",
-              color: "var(--foreground-secondary)",
-              marginTop: "3px",
-            }}
-          >
-            {facts.filename}
-          </div>
-        )}
       </div>
     </Link>
   );
