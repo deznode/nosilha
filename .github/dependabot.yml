@@ -69,6 +69,16 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    ignore:
+      # Kotlin 2.4.20+: ktlint cannot parse any file under it. Every ktlint task
+      # fails with "IllegalStateException: Extensions storage is not registered",
+      # with both the pinned ktlint 1.5.0 and the latest 1.8.0 (ktlint-gradle
+      # 14.2.0). Gradle 9.7.1 with Kotlin 2.4.0 passes, so Kotlin is the cause
+      # (verified locally against #224).
+      # Unblock when: a ktlint release works with Kotlin 2.4.20; bump
+      # `ktlint { version }` in apps/api/build.gradle.kts and re-run ktlintCheck.
+      - dependency-name: "org.jetbrains.kotlin*"
+        versions: [">= 2.4.20"]
     groups:
       dependencies:
         update-types:
