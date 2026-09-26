@@ -2,7 +2,7 @@
 
 import { useDeferredValue, useMemo } from "react";
 import useSupercluster from "use-supercluster";
-import type Supercluster from "supercluster";
+import type { AnyProps, ClusterFeature, PointFeature } from "supercluster";
 import type { GeoJsonProperties } from "geojson";
 import type { UseMapClusteringOptions, MapBounds } from "./types";
 
@@ -10,33 +10,32 @@ const DEFAULT_RADIUS = 50;
 const DEFAULT_MAX_ZOOM = 14;
 
 interface UseMapClusteringParams<P extends GeoJsonProperties> {
-  points: Supercluster.PointFeature<P>[];
+  points: PointFeature<P>[];
   zoom: number;
   bounds: MapBounds;
   options?: UseMapClusteringOptions;
 }
 
 type ClusterOrPoint<P extends GeoJsonProperties> =
-  | Supercluster.ClusterFeature<Supercluster.AnyProps>
-  | Supercluster.PointFeature<P>;
+  ClusterFeature<AnyProps> | PointFeature<P>;
 
 /** Records at byte-identical coordinates, which no zoom level can separate. */
 export interface CoincidentGroup<P extends GeoJsonProperties> {
   key: string;
   longitude: number;
   latitude: number;
-  leaves: Supercluster.PointFeature<P>[];
+  leaves: PointFeature<P>[];
 }
 
 export interface GroupedFeatures<P extends GeoJsonProperties> {
-  clusters: Supercluster.ClusterFeature<Supercluster.AnyProps>[];
-  points: Supercluster.PointFeature<P>[];
+  clusters: ClusterFeature<AnyProps>[];
+  points: PointFeature<P>[];
   groups: CoincidentGroup<P>[];
 }
 
 function isCluster<P extends GeoJsonProperties>(
   feature: ClusterOrPoint<P>
-): feature is Supercluster.ClusterFeature<Supercluster.AnyProps> {
+): feature is ClusterFeature<AnyProps> {
   return Boolean((feature.properties as { cluster?: boolean } | null)?.cluster);
 }
 
@@ -52,12 +51,12 @@ const coordinateKey = ([lng, lat]: number[]) => `${lng},${lat}`;
  */
 export function groupCoincident<P extends GeoJsonProperties>(
   features: ClusterOrPoint<P>[],
-  getLeaves: (clusterId: number) => Supercluster.PointFeature<P>[]
+  getLeaves: (clusterId: number) => PointFeature<P>[]
 ): GroupedFeatures<P> {
-  const clusters: Supercluster.ClusterFeature<Supercluster.AnyProps>[] = [];
-  const byCoordinate = new Map<string, Supercluster.PointFeature<P>[]>();
+  const clusters: ClusterFeature<AnyProps>[] = [];
+  const byCoordinate = new Map<string, PointFeature<P>[]>();
 
-  const addPoint = (point: Supercluster.PointFeature<P>) => {
+  const addPoint = (point: PointFeature<P>) => {
     const key = coordinateKey(point.geometry.coordinates);
     const bucket = byCoordinate.get(key);
     if (bucket) bucket.push(point);
@@ -82,7 +81,7 @@ export function groupCoincident<P extends GeoJsonProperties>(
     else clusters.push(feature);
   }
 
-  const points: Supercluster.PointFeature<P>[] = [];
+  const points: PointFeature<P>[] = [];
   const groups: CoincidentGroup<P>[] = [];
 
   for (const [key, bucket] of byCoordinate) {
