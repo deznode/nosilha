@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import Supercluster from "supercluster";
+import Supercluster, { type PointFeature } from "supercluster";
 import { groupCoincident } from "@/features/map/shared/use-map-clustering";
 
 type Props = { cluster: false; locationId: string };
@@ -10,7 +10,7 @@ function point(
   locationId: string,
   lng: number,
   lat: number
-): Supercluster.PointFeature<Props> {
+): PointFeature<Props> {
   return {
     type: "Feature",
     properties: { cluster: false, locationId },
@@ -18,7 +18,7 @@ function point(
   };
 }
 
-const ids = (features: Supercluster.PointFeature<Props>[]) =>
+const ids = (features: PointFeature<Props>[]) =>
   features.map((f) => f.properties.locationId);
 
 const noLeaves = () => [];
@@ -36,10 +36,10 @@ describe("groupCoincident", () => {
 
     expect(result.groups).toHaveLength(1);
     expect(ids(result.groups[0].leaves)).toEqual(["faja", "nos-raiz"]);
-    expect(result.groups[0]).toMatchObject({
-      longitude: -24.732,
-      latitude: 14.873,
-    });
+    // Supercluster 9 rebuilds features from projected coordinates, so they
+    // carry float noise (~1e-14°). Coincident records still share one key.
+    expect(result.groups[0].longitude).toBeCloseTo(-24.732, 9);
+    expect(result.groups[0].latitude).toBeCloseTo(14.873, 9);
     expect(ids(result.points)).toEqual(["mato"]);
     expect(result.clusters).toEqual([]);
   });
@@ -70,10 +70,10 @@ describe("groupCoincident", () => {
     expect(result.clusters).toEqual([]);
     expect(result.groups).toHaveLength(1);
     expect(ids(result.groups[0].leaves).sort()).toEqual(["faja", "nos-raiz"]);
-    expect(result.groups[0]).toMatchObject({
-      longitude: -24.732,
-      latitude: 14.873,
-    });
+    // Supercluster 9 rebuilds features from projected coordinates, so they
+    // carry float noise (~1e-14°). Coincident records still share one key.
+    expect(result.groups[0].longitude).toBeCloseTo(-24.732, 9);
+    expect(result.groups[0].latitude).toBeCloseTo(14.873, 9);
   });
 
   it("keeps a cluster whose leaves sit at different points", () => {
