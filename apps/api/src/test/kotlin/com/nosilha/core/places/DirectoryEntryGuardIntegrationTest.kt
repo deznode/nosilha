@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.core.io.ClassPathResource
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -105,18 +106,37 @@ class DirectoryEntryGuardIntegrationTest {
 
     @Test
     fun `records at identical coordinates reference each other`() {
-        // Nos Raiz and the Faja d'Agua nature entry carry byte-identical coordinates.
-        // The redesign states that duplication rather than hiding it.
-        mockMvc
-            .perform(get("/api/v1/directory/slug/nos-raiz"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.coincidentWith").exists())
-            .andExpect(jsonPath("$.data.coincidentWith.slug").value("faja-dagua"))
+        // The redesign states a duplicated pin rather than hiding it. The seed no longer
+        // carries one (V22 moved the Faja d'Agua entry onto the village), so put Nos Raiz
+        // on the Faja d'Agua entry's exact coordinates for the duration of the test.
+        val jdbc = JdbcTemplate(dataSource)
+        val original =
+            jdbc.queryForMap("SELECT latitude, longitude FROM directory_entries WHERE slug = 'nos-raiz'")
+        jdbc.update(
+            """
+            UPDATE directory_entries SET (latitude, longitude) =
+                (SELECT latitude, longitude FROM directory_entries WHERE slug = 'faja-dagua')
+            WHERE slug = 'nos-raiz'
+            """.trimIndent(),
+        )
+        try {
+            mockMvc
+                .perform(get("/api/v1/directory/slug/nos-raiz"))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.data.coincidentWith").exists())
+                .andExpect(jsonPath("$.data.coincidentWith.slug").value("faja-dagua"))
 
-        mockMvc
-            .perform(get("/api/v1/directory/slug/faja-dagua"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.coincidentWith.slug").value("nos-raiz"))
+            mockMvc
+                .perform(get("/api/v1/directory/slug/faja-dagua"))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.data.coincidentWith.slug").value("nos-raiz"))
+        } finally {
+            jdbc.update(
+                "UPDATE directory_entries SET latitude = ?, longitude = ? WHERE slug = 'nos-raiz'",
+                original["latitude"],
+                original["longitude"],
+            )
+        }
     }
 
     @Test
