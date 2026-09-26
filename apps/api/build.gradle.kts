@@ -1,11 +1,11 @@
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
-    kotlin("jvm") version "2.4.0"
-    kotlin("plugin.spring") version "2.4.0"
+    kotlin("jvm") version "2.4.10"
+    kotlin("plugin.spring") version "2.4.10"
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.jpa") version "2.4.0"
+    kotlin("plugin.jpa") version "2.4.10"
     jacoco
     // TODO: by JC, 12/26/25 - Re-enable detekt when compatible version is released
     // Issue: detekt 2.0.0-alpha.1 compiled with Kotlin 2.2.20, but we need Kotlin 2.3.0 for Java 25 JVM target
@@ -96,7 +96,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:6.3.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.4.0")
     testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
