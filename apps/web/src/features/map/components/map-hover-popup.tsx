@@ -50,20 +50,12 @@ export function MapHoverCard({ item }: { item: MapItem }) {
         <div className="font-serif text-[15px] leading-[1.2] font-normal">
           {copy.title}
         </div>
-        {copy.sub?.kind === "file" && (
-          <div
-            className="mt-[3px] font-mono text-[9px] break-all"
-            style={{ color: "var(--foreground-secondary)" }}
-          >
-            {copy.sub.text}
-          </div>
-        )}
-        {copy.sub?.kind === "eyebrow" && (
+        {copy.eyebrow && (
           <div
             className="mt-[3px] text-[10px] tracking-[.12em] uppercase"
             style={{ color: "var(--foreground-secondary)" }}
           >
-            {copy.sub.text}
+            {copy.eyebrow}
           </div>
         )}
         <div className="mt-2 flex items-center gap-1.5">

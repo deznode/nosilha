@@ -38,25 +38,16 @@ export function PhotoTile({ media }: { media: PublicGalleryMedia }) {
             />
           )}
         </div>
-        <div
-          className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2"
-          style={{
-            padding: "26px 12px 10px",
-            background:
-              "linear-gradient(to top, rgba(8,11,15,.86), transparent)",
-          }}
-        >
-          {facts.filename && (
+        {facts.located && (
+          <div
+            className="absolute inset-x-0 bottom-0 flex justify-end"
+            style={{
+              padding: "26px 12px 10px",
+              background:
+                "linear-gradient(to top, rgba(8,11,15,.86), transparent)",
+            }}
+          >
             <span
-              className="font-mono break-all"
-              style={{ fontSize: "10px", color: "rgba(228,235,241,.7)" }}
-            >
-              {facts.filename}
-            </span>
-          )}
-          {facts.located && (
-            <span
-              className="flex-none"
               style={{
                 fontSize: "10px",
                 letterSpacing: ".1em",
@@ -67,8 +58,8 @@ export function PhotoTile({ media }: { media: PublicGalleryMedia }) {
             >
               On map
             </span>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <div style={{ padding: "12px 13px 13px" }}>

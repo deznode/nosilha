@@ -218,14 +218,6 @@ export function PhotoDetail({
           >
             {facts.title.text}
           </h1>
-          {facts.filename && (
-            <div
-              className="font-mono break-all"
-              style={{ fontSize: "11px", color: "var(--foreground-secondary)" }}
-            >
-              {facts.filename}
-            </div>
-          )}
         </div>
 
         <section

@@ -49,7 +49,6 @@ export interface MapItem {
   // Photographs
   /** Thumbnail for the pin and the popup. Absent for anyone not cleared to be shown. */
   image?: string;
-  filename?: string | null;
   placeName?: string | null;
   credit?: string | null;
 }

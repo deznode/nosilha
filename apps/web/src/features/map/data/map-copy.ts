@@ -95,10 +95,7 @@ function selectionDescription(item: MapItem): string {
 /** The floating card for the selected pin. */
 export function selectionCard(item: MapItem): SelectionCardCopy {
   return {
-    eyebrow:
-      item.kind === "photo" && item.filename
-        ? `${item.eyebrow} · ${item.filename}`
-        : item.eyebrow,
+    eyebrow: item.eyebrow,
     name: item.name,
     status: selectionStatus(item),
     description: selectionDescription(item),
@@ -112,7 +109,8 @@ const PHOTO_PIN_LABEL = "coordinates, no place name";
 export interface PopupCopy {
   image: string | null;
   title: string;
-  sub: { kind: "file" | "eyebrow"; text: string } | null;
+  /** The small caps line under the title; a photograph has none. */
+  eyebrow: string | null;
   status: DocumentationStatus;
   statusLabel: string;
 }
@@ -123,7 +121,7 @@ export function popupContent(item: MapItem): PopupCopy {
     return {
       image: item.image ?? null,
       title: item.name,
-      sub: item.filename ? { kind: "file", text: item.filename } : null,
+      eyebrow: null,
       status: item.status,
       statusLabel: item.placeName
         ? "coordinates from the file"
@@ -134,7 +132,7 @@ export function popupContent(item: MapItem): PopupCopy {
   return {
     image: null,
     title: item.name,
-    sub: { kind: "eyebrow", text: item.eyebrow },
+    eyebrow: item.eyebrow,
     status: item.status,
     statusLabel: STATUS_CONFIG[item.status].label,
   };

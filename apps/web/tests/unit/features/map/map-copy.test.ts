@@ -59,7 +59,6 @@ function photo(overrides: Partial<MapItem> = {}): MapItem {
     href: "/photographs/media-1",
     regionSlug: "nova-sintra",
     image: "https://r2.example/DJI_0047.JPG",
-    filename: "DJI_0047.JPG",
     placeName: null,
     credit: null,
     ...overrides,
@@ -178,9 +177,9 @@ describe("selectionCard", () => {
     );
   });
 
-  it("words a photograph, filename in the eyebrow", () => {
+  it("words a photograph", () => {
     expect(selectionCard(photo())).toEqual({
-      eyebrow: "Photograph · DJI_0047.JPG",
+      eyebrow: "Photograph",
       name: "Untitled",
       status: "coordinates from the file · no place name",
       description:
@@ -195,7 +194,6 @@ describe("selectionCard", () => {
         placeName: "Furna",
         credit: "Maria Lopes",
         description: "The harbour at dusk.",
-        filename: null,
       })
     );
     expect(card.eyebrow).toBe("Photograph");
@@ -207,11 +205,11 @@ describe("selectionCard", () => {
 // ─── popupContent ────────────────────────────────────────────────────────────
 
 describe("popupContent", () => {
-  it("shows a photograph's image and filename", () => {
+  it("shows a photograph's image and no eyebrow", () => {
     expect(popupContent(photo())).toEqual({
       image: "https://r2.example/DJI_0047.JPG",
       title: "Untitled",
-      sub: { kind: "file", text: "DJI_0047.JPG" },
+      eyebrow: null,
       status: "partial",
       statusLabel: "coordinates, no place name",
     });
@@ -221,17 +219,13 @@ describe("popupContent", () => {
     expect(popupContent(record())).toEqual({
       image: null,
       title: "Nos Raiz",
-      sub: { kind: "eyebrow", text: "Stay" },
+      eyebrow: "Stay",
       status: "partial",
       statusLabel: "records, no photograph",
     });
     expect(popupContent(settlement({ status: "name" })).statusLabel).toBe(
       "name only"
     );
-  });
-
-  it("drops the file line for a photograph with no filename", () => {
-    expect(popupContent(photo({ filename: null })).sub).toBeNull();
   });
 });
 

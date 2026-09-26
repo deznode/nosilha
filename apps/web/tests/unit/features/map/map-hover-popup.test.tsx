@@ -30,7 +30,6 @@ const photo: MapItem = {
   href: "/photographs/1",
   regionSlug: "nova-sintra",
   image: "https://r2.example/DJI_0047.JPG",
-  filename: "DJI_0047.JPG",
   placeName: null,
   credit: null,
 };
@@ -49,7 +48,7 @@ const church: MapItem = {
 };
 
 describe("MapHoverCard", () => {
-  it("shows a photograph's image, title, filename and status", () => {
+  it("shows a photograph's image, title and status", () => {
     const { container } = render(<MapHoverCard item={photo} />);
 
     expect(container.querySelector("img")).toHaveAttribute(
@@ -57,7 +56,6 @@ describe("MapHoverCard", () => {
       "https://r2.example/DJI_0047.JPG"
     );
     expect(screen.getByText("Untitled")).toBeInTheDocument();
-    expect(screen.getByText("DJI_0047.JPG").className).toContain("font-mono");
     expect(screen.getByText("coordinates, no place name")).toBeInTheDocument();
   });
 
