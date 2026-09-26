@@ -77,7 +77,16 @@ updates:
       # (verified locally against #224).
       # Unblock when: a ktlint release works with Kotlin 2.4.20; bump
       # `ktlint { version }` in apps/api/build.gradle.kts and re-run ktlintCheck.
+      # Dependabot names the `kotlin("…")` plugins by their short ids (`jvm`,
+      # `plugin.spring`, `plugin.jpa`), so the group-id pattern alone matched
+      # nothing and #228 still proposed 2.4.20. List both forms.
       - dependency-name: "org.jetbrains.kotlin*"
+        versions: [">= 2.4.20"]
+      - dependency-name: "jvm"
+        versions: [">= 2.4.20"]
+      - dependency-name: "plugin.spring"
+        versions: [">= 2.4.20"]
+      - dependency-name: "plugin.jpa"
         versions: [">= 2.4.20"]
     groups:
       dependencies:
