@@ -3,7 +3,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 plugins {
     kotlin("jvm") version "2.4.0"
     kotlin("plugin.spring") version "2.4.0"
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.4.0"
     jacoco
@@ -35,6 +35,10 @@ extra["kotlinLogging"] = "7.0.3"
 extra["springdocOpenApiVersion"] = "2.8.9"
 extra["springModulithVersion"] = "2.0.1"
 
+// Spring Boot 4.1.1 manages Tomcat 11.0.24, which has critical advisories fixed in 11.0.25
+// (FORM auth, DIGEST replay, access control). Remove once Boot manages >= 11.0.25.
+extra["tomcat.version"] = "11.0.26"
+
 // Override Spring Boot's testcontainers version for Docker 29+ compatibility
 extra["springAiVersion"] = "2.0.0-M2"
 
@@ -43,7 +47,7 @@ dependencyManagement {
         mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
         mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
         // Override Jackson 2.x to fix CVE in async parser DoS (transitive via AWS SDK)
-        mavenBom("com.fasterxml.jackson:jackson-bom:2.22.1")
+        mavenBom("com.fasterxml.jackson:jackson-bom:2.22.3")
     }
 }
 
@@ -57,7 +61,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocOpenApiVersion")}")
-    implementation("tools.jackson.module:jackson-module-kotlin:3.2.1")
+    implementation("tools.jackson.module:jackson-module-kotlin:3.2.3")
     implementation("io.github.oshai:kotlin-logging-jvm:${property("kotlinLogging")}")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-database-postgresql")
@@ -67,11 +71,11 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     // Cloudflare R2 (S3-compatible) integration
-    implementation(platform("software.amazon.awssdk:bom:2.47.5"))
+    implementation(platform("software.amazon.awssdk:bom:2.55.3"))
     implementation("software.amazon.awssdk:s3")
 
     // OWASP HTML Sanitizer for XSS prevention
-    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20260313.1")
+    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20260922.1")
 
     // Spring Modulith dependencies
     implementation("org.springframework.modulith:spring-modulith-starter-core:${property("springModulithVersion")}")
@@ -81,10 +85,10 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine")
 
     // Bucket4j for efficient in-memory rate limiting (token bucket algorithm)
-    implementation("com.bucket4j:bucket4j_jdk17-core:8.19.0")
+    implementation("com.bucket4j:bucket4j_jdk17-core:8.20.0")
 
     // Google Cloud Vision SDK for image analysis (labels, OCR, landmarks)
-    implementation("com.google.cloud:google-cloud-vision:3.92.0")
+    implementation("com.google.cloud:google-cloud-vision:3.95.0")
 
     // Spring AI for Gemini cultural context generation (native structured output)
     implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
