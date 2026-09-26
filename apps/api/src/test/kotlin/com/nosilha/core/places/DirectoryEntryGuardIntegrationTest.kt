@@ -37,6 +37,9 @@ class DirectoryEntryGuardIntegrationTest {
     @Autowired
     private lateinit var dataSource: DataSource
 
+    @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
+
     @Test
     fun `a heritage record counts its grid rows, not contact fields`() {
         // A public square is not incomplete for lacking a phone number: settlement,
@@ -109,10 +112,9 @@ class DirectoryEntryGuardIntegrationTest {
         // The redesign states a duplicated pin rather than hiding it. The seed no longer
         // carries one (V22 moved the Faja d'Agua entry onto the village), so put Nos Raiz
         // on the Faja d'Agua entry's exact coordinates for the duration of the test.
-        val jdbc = JdbcTemplate(dataSource)
         val original =
-            jdbc.queryForMap("SELECT latitude, longitude FROM directory_entries WHERE slug = 'nos-raiz'")
-        jdbc.update(
+            jdbcTemplate.queryForMap("SELECT latitude, longitude FROM directory_entries WHERE slug = 'nos-raiz'")
+        jdbcTemplate.update(
             """
             UPDATE directory_entries SET (latitude, longitude) =
                 (SELECT latitude, longitude FROM directory_entries WHERE slug = 'faja-dagua')
@@ -131,7 +133,7 @@ class DirectoryEntryGuardIntegrationTest {
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.data.coincidentWith.slug").value("nos-raiz"))
         } finally {
-            jdbc.update(
+            jdbcTemplate.update(
                 "UPDATE directory_entries SET latitude = ?, longitude = ? WHERE slug = 'nos-raiz'",
                 original["latitude"],
                 original["longitude"],
