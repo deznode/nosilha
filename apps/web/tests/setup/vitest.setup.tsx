@@ -37,9 +37,15 @@ class LocalStorageMock implements Storage {
   }
 }
 
-// Set up storage mocks globally
-global.localStorage = new LocalStorageMock();
-global.sessionStorage = new LocalStorageMock();
+// Set up storage mocks globally. Vitest 5 exposes these as getter-only
+// properties, so plain assignment throws; redefine them instead.
+for (const name of ["localStorage", "sessionStorage"] as const) {
+  Object.defineProperty(globalThis, name, {
+    value: new LocalStorageMock(),
+    configurable: true,
+    writable: true,
+  });
+}
 
 // Set up required environment variables for testing
 process.env.NEXT_PUBLIC_API_URL = "http://localhost:8080";
