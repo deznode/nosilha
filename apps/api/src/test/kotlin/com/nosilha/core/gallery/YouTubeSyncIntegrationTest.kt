@@ -180,6 +180,53 @@ class YouTubeSyncIntegrationTest {
     }
 
     @Test
+    @DisplayName("POST /youtube/sync - Re-sync leaves a curated row's display_title and place_id untouched (spec 038)")
+    fun `syncChannel should not overwrite curated display title or place`() {
+        val townId = jdbcTemplate.queryForObject("SELECT id FROM towns ORDER BY slug LIMIT 1", UUID::class.java)!!
+        val curated =
+            galleryMediaRepository.save(
+                ExternalMedia().apply {
+                    this.mediaType = MediaType.VIDEO
+                    this.platform = ExternalPlatform.YOUTUBE
+                    this.externalId = "curated_video"
+                    this.title = "BRAVA 4K drone"
+                    this.displayTitle = "Brava from the air"
+                    this.placeId = townId
+                    this.status = GalleryMediaStatus.ACTIVE
+                    this.curatedBy = testAdminId
+                },
+            )
+
+        `when`(youTubeApiClient.fetchUploadsPlaylistId("testchannel"))
+            .thenReturn("UU_test_uploads")
+        `when`(youTubeApiClient.fetchPlaylistItems("UU_test_uploads", null))
+            .thenReturn(
+                YouTubePlaylistResponse(
+                    items = listOf(createPlaylistItem("curated_video", "BRAVA 4K drone (re-uploaded title)", "New desc")),
+                    nextPageToken = null,
+                ),
+            )
+
+        mockMvc
+            .perform(
+                post("/api/v1/admin/gallery/youtube/sync")
+                    .with(adminAuth())
+                    .contentType(HttpMediaType.APPLICATION_JSON),
+            ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.synced").value(0))
+            .andExpect(jsonPath("$.data.skipped").value(1))
+
+        val row =
+            jdbcTemplate.queryForMap(
+                "SELECT title, display_title, place_id FROM gallery_media WHERE id = ?",
+                curated.id,
+            )
+        assertEquals("BRAVA 4K drone", row["title"])
+        assertEquals("Brava from the air", row["display_title"])
+        assertEquals(townId, row["place_id"])
+    }
+
+    @Test
     @DisplayName("POST /youtube/sync - Syncs specific playlist with category")
     fun `syncPlaylist should apply category override`() {
         `when`(youTubeApiClient.fetchPlaylistItems("PL_custom_playlist", null))

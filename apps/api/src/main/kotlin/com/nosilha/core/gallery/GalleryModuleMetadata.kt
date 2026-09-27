@@ -28,7 +28,7 @@ import org.springframework.modulith.PackageInfo
  *
  * <p><strong>Module Boundaries:</strong></p>
  * <ul>
- *   <li>Depends on: shared :: api, shared :: domain, shared :: events, shared :: exception, auth (UserProfileQueryService for display names), ai (AiFeatureConfigService for domain guards)</li>
+ *   <li>Depends on: shared :: api, shared :: domain, shared :: events, shared :: exception, shared :: service (FrontendRevalidationService after admin edits), auth (UserProfileQueryService for display names), ai (AiFeatureConfigService for domain guards)</li>
  *   <li>Exposes: MediaController, AdminMediaController (REST APIs), MediaUploadedEvent</li>
  *   <li>Internal: MediaService, R2StorageService, MediaRepository</li>
  * </ul>
@@ -50,7 +50,15 @@ import org.springframework.modulith.PackageInfo
 @PackageInfo
 @ApplicationModule(
     displayName = "Gallery Module",
-    allowedDependencies = ["shared :: api", "shared :: domain", "shared :: events", "shared :: exception", "auth", "ai"],
+    allowedDependencies = [
+        "shared :: api",
+        "shared :: domain",
+        "shared :: events",
+        "shared :: exception",
+        "shared :: service",
+        "auth",
+        "ai",
+    ],
     type = ApplicationModule.Type.OPEN,
 )
 class GalleryModuleMetadata

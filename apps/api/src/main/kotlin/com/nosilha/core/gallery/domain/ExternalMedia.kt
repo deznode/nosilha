@@ -96,6 +96,20 @@ class ExternalMedia : GalleryMedia() {
     var curatedBy: UUID? = null
 
     /**
+     * Curated title shown in the archive (spec 038). The host's own title stays in
+     * [title]; YouTube sync never overwrites this.
+     */
+    @Column(name = "display_title", length = 255)
+    var displayTitle: String? = null
+
+    /**
+     * Settlement (towns.id) the film was made near (spec 038). A plain column with no
+     * JPA association, so the gallery module never depends on places.
+     */
+    @Column(name = "place_id")
+    var placeId: UUID? = null
+
+    /**
      * Generates platform-specific embed URL for video/audio content.
      *
      * Returns:

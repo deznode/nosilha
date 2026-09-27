@@ -2,6 +2,7 @@ package com.nosilha.core.gallery.api.dto
 
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
+import java.util.UUID
 
 /**
  * Request DTO for updating gallery media metadata.
@@ -27,4 +28,11 @@ data class UpdateGalleryMediaRequest(
     val featured: Boolean? = null,
     @field:Min(value = 0, message = "Duration must be non-negative")
     val durationSeconds: Int? = null,
+    /** Curated film title (spec 038). Null leaves it unchanged; blank clears it. External media only. */
+    @field:Size(max = 255, message = "Display title cannot exceed 255 characters")
+    val displayTitle: String? = null,
+    /** Settlement (towns.id) a film was made near (spec 038). Null leaves it unchanged. External media only. */
+    val placeId: UUID? = null,
+    /** True clears [placeId]; PATCH treats a null placeId as "no change" (spec 038). External media only. */
+    val clearPlace: Boolean? = null,
 )

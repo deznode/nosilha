@@ -146,6 +146,10 @@ sealed class GalleryMediaDto {
         // Featured video fields
         val durationSeconds: Int? = null,
         val featured: Boolean = false,
+        /** Curated title shown in the archive; `title` keeps the host's own (spec 038). */
+        val displayTitle: String? = null,
+        /** Settlement (towns.id) the film was made near (spec 038). */
+        val placeId: UUID? = null,
     ) : GalleryMediaDto()
 
     companion object {
@@ -241,6 +245,8 @@ sealed class GalleryMediaDto {
                 // Featured video fields
                 durationSeconds = media.durationSeconds,
                 featured = media.featured,
+                displayTitle = media.displayTitle,
+                placeId = media.placeId,
             )
     }
 }

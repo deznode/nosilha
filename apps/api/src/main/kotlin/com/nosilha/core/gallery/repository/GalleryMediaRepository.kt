@@ -370,4 +370,18 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
         @Param("aiModerationStatus") aiModerationStatus: String,
         pageable: Pageable,
     ): Page<GalleryMedia>
+
+    /**
+     * Whether a settlement exists, for validating a film's place_id (spec 038).
+     *
+     * Reads the towns table directly so the gallery module does not import places;
+     * the gallery_media.place_id foreign key already couples the two tables.
+     */
+    @Query(
+        value = "SELECT EXISTS (SELECT 1 FROM towns WHERE id = :placeId)",
+        nativeQuery = true,
+    )
+    fun placeExists(
+        @Param("placeId") placeId: UUID,
+    ): Boolean
 }
