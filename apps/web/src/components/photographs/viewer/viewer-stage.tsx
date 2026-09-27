@@ -250,7 +250,7 @@ export function ViewerStage({
             ref={closeRef}
             type="button"
             onClick={() => setFullScreen(false)}
-            className="dark-pill hit-area pointer-events-auto absolute top-3.5 left-3.5 inline-flex !px-3.5 [--hit-inset:-7px_-3px]"
+            className="dark-pill hit-area pointer-events-auto absolute top-3.5 left-3.5 inline-flex !px-3.5"
           >
             ✕ Close
           </button>
@@ -262,7 +262,7 @@ export function ViewerStage({
               type="button"
               onClick={onTogglePanel}
               aria-pressed={panelOpen}
-              className="dark-pill hit-area hidden [--hit-inset:-7px_-3px] md:inline-flex"
+              className="dark-pill hit-area hidden md:inline-flex"
             >
               {panelOpen ? "Hide details" : "Details"}
             </button>
@@ -271,7 +271,7 @@ export function ViewerStage({
             type="button"
             onClick={toggleZoom}
             aria-pressed={zoomed}
-            className="dark-pill hit-area inline-flex [--hit-inset:-7px_-3px]"
+            className="dark-pill hit-area inline-flex"
           >
             {zoomed ? "Fit" : "Zoom"}
           </button>
@@ -279,7 +279,7 @@ export function ViewerStage({
             type="button"
             onClick={toggleFullScreen}
             aria-pressed={fullScreen}
-            className="dark-pill hit-area inline-flex [--hit-inset:-7px_-3px]"
+            className="dark-pill hit-area inline-flex"
           >
             {fullScreen ? "Exit full screen" : "Full screen"}
           </button>

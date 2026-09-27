@@ -7,7 +7,6 @@ import {
 
 function renderSheet(view: SheetView = "peek") {
   const props = {
-    onToggle: vi.fn(),
     onSetOpen: vi.fn(),
     onDismiss: vi.fn(),
   };
@@ -38,16 +37,16 @@ describe("LocationBottomSheet", () => {
   });
 
   it("toggles on a click or key press of the grabber", () => {
-    const { onToggle } = renderSheet();
+    const { onSetOpen } = renderSheet("peek");
     fireEvent.click(grabber());
-    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(onSetOpen).toHaveBeenCalledWith(true);
   });
 
   it("opens on a drag up past the threshold, without also toggling", () => {
-    const { onSetOpen, onToggle } = renderSheet("peek");
+    const { onSetOpen } = renderSheet("open");
     drag(grabber(), -80);
+    expect(onSetOpen).toHaveBeenCalledTimes(1);
     expect(onSetOpen).toHaveBeenCalledWith(true);
-    expect(onToggle).not.toHaveBeenCalled();
   });
 
   it("shuts on a drag down past the threshold", () => {
@@ -57,13 +56,12 @@ describe("LocationBottomSheet", () => {
   });
 
   it("settles back on a short drag, and the next click still toggles", () => {
-    const { onSetOpen, onToggle } = renderSheet("peek");
+    const { onSetOpen } = renderSheet("peek");
     drag(grabber(), -20);
     expect(onSetOpen).not.toHaveBeenCalled();
-    expect(onToggle).not.toHaveBeenCalled();
 
     fireEvent.click(grabber());
-    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(onSetOpen).toHaveBeenCalledWith(true);
   });
 
   it("follows the finger while dragging, without the easing", () => {

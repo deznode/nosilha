@@ -69,10 +69,7 @@ describe("MapLegend", () => {
       town("d", "NAME_ONLY"),
     ]);
     render(
-      <MapLegend
-        rows={legendRows("settlements", statusCounts(items), [], 0)}
-        bottom={14}
-      />
+      <MapLegend rows={legendRows("settlements", statusCounts(items), [], 0)} />
     );
 
     expect(rows().map((row) => row.textContent)).toEqual([
@@ -91,7 +88,6 @@ describe("MapLegend", () => {
           [],
           0
         )}
-        bottom={14}
       />
     );
     expect(dotColours()).toEqual([
@@ -113,10 +109,7 @@ describe("MapLegend", () => {
       { nova: "nova-sintra" }
     );
     render(
-      <MapLegend
-        rows={legendRows("records", statusCounts(items), [], 0)}
-        bottom={14}
-      />
+      <MapLegend rows={legendRows("records", statusCounts(items), [], 0)} />
     );
 
     expect(rows().map((row) => row.textContent)).toEqual([
@@ -126,11 +119,11 @@ describe("MapLegend", () => {
     ]);
   });
 
-  it("sits at the offset it is given", () => {
-    render(<MapLegend rows={[]} bottom={146} />);
+  it("floats 14px above the canvas bottom", () => {
+    render(<MapLegend rows={[]} />);
     expect(
       screen.getByRole("list", { name: "Pin colour key" }).style.bottom
-    ).toBe("146px");
+    ).toBe("14px");
   });
 
   it("sits inline as one scrolling line in the sheet", () => {
@@ -145,10 +138,7 @@ describe("MapLegend", () => {
 describe("PhotographsNote", () => {
   it("states the count and links to the no-place tray", () => {
     render(
-      <PhotographsNote
-        note="Six photographs carry no coordinates and cannot appear here."
-        bottom={62}
-      />
+      <PhotographsNote note="Six photographs carry no coordinates and cannot appear here." />
     );
 
     expect(

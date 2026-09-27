@@ -243,14 +243,3 @@ export function photographsNote(unlocated: number): string | null {
     zero: "",
   });
 }
-
-/**
- * Legend, selection-card and photographs-note bottoms on a wide screen, in pixels
- * (SPECS §3).
- *
- * The prototype puts the note at the card's 62px, where it covers MapLibre's zoom
- * buttons and attribution in the same corner (112px tall). The note clears them
- * instead. On a narrow screen none of the three floats: they live in the bottom sheet,
- * where they no longer cover the map. Spec 039 (M1, M3).
- */
-export const OVERLAY_OFFSETS = { legend: 14, card: 62, note: 122 } as const;

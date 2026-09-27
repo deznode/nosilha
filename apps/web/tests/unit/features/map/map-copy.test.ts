@@ -3,7 +3,6 @@ import {
   legendRows,
   listFooter,
   listStatusLine,
-  OVERLAY_OFFSETS,
   photographsNote,
   popupContent,
   selectionCard,
@@ -335,13 +334,5 @@ describe("photographsNote", () => {
 
   it("is absent when every photograph is on the map", () => {
     expect(photographsNote(0)).toBeNull();
-  });
-});
-
-// ─── OVERLAY_OFFSETS ─────────────────────────────────────────────────────────
-
-describe("OVERLAY_OFFSETS", () => {
-  it("keeps the note above the zoom buttons on a wide screen", () => {
-    expect(OVERLAY_OFFSETS).toEqual({ legend: 14, card: 62, note: 122 });
   });
 });

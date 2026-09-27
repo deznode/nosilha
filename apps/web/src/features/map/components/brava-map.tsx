@@ -7,7 +7,7 @@ import { useNarrow } from "@/hooks/use-narrow";
 import { useMapStore, useModeItems } from "@/stores/mapStore";
 import { EXPLORER_VIEW } from "../data/constants";
 import { statusCounts } from "../data/locations-adapter";
-import { legendRows, OVERLAY_OFFSETS, photographsNote } from "../data/map-copy";
+import { legendRows, photographsNote } from "../data/map-copy";
 import type { MapItem } from "../data/types";
 import {
   useApplyPendingSelection,
@@ -243,17 +243,12 @@ export default function BravaMap() {
       />
       <MapControls controls={controls} />
       {/* On a phone these live in the sheet instead of covering the map. Spec 039. */}
-      {!narrow && rows && (
-        <MapLegend rows={rows} bottom={OVERLAY_OFFSETS.legend} />
-      )}
-      {!narrow && note && (
-        <PhotographsNote note={note} bottom={OVERLAY_OFFSETS.note} />
-      )}
+      {!narrow && rows && <MapLegend rows={rows} />}
+      {!narrow && note && <PhotographsNote note={note} />}
       {!narrow && selected && (
         <LocationDetailCard
           key={selected.key}
           item={selected}
-          bottom={OVERLAY_OFFSETS.card}
           onClose={clearSelection}
         />
       )}
@@ -290,7 +285,6 @@ export default function BravaMap() {
       {narrow ? (
         <LocationBottomSheet
           view={sheetView}
-          onToggle={() => useMapStore.getState().toggleSheet()}
           onSetOpen={(open) => useMapStore.getState().setSheetOpen(open)}
           onDismiss={clearSelection}
         >
@@ -305,6 +299,7 @@ export default function BravaMap() {
             ) : (
               <MapSidebar
                 onSelect={selectRow}
+                inSheet
                 header={grabber}
                 legend={rows && <MapLegend rows={rows} variant="sheet" />}
                 notice={note && <PhotographsNote note={note} variant="sheet" />}

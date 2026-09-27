@@ -8,6 +8,14 @@ import type { LegendRow } from "../data/map-copy";
 const OVERLAY_GROUND = "color-mix(in srgb, var(--background) 88%, transparent)";
 
 /**
+ * Bottoms over the canvas on a wide screen, in pixels (SPECS §3). The prototype puts
+ * the note at the selection card's 62px, where it covers MapLibre's zoom buttons and
+ * attribution in the same corner (112px tall); the note clears them instead.
+ */
+const LEGEND_BOTTOM = 14;
+const NOTE_BOTTOM = 122;
+
+/**
  * Where an overlay sits: floating over the canvas (wide), or inline in the bottom sheet
  * (narrow), where it no longer covers the map. Spec 039 (M3).
  */
@@ -15,8 +23,6 @@ export type OverlayVariant = "floating" | "sheet";
 
 interface MapLegendProps {
   rows: LegendRow[];
-  /** Distance from the canvas bottom, in pixels; floating only. */
-  bottom?: number;
   variant?: OverlayVariant;
 }
 
@@ -25,11 +31,7 @@ interface MapLegendProps {
  * the sheet. Counts are live and describe the whole mode, not the filtered list.
  * Spec 034 FR-011, Spec 039 (M3).
  */
-export function MapLegend({
-  rows,
-  bottom,
-  variant = "floating",
-}: MapLegendProps) {
+export function MapLegend({ rows, variant = "floating" }: MapLegendProps) {
   const floating = variant === "floating";
   return (
     <ul
@@ -37,13 +39,13 @@ export function MapLegend({
       className={clsx(
         "flex gap-3.5",
         floating
-          ? "absolute left-3.5 z-[5] flex-wrap rounded-[10px] border px-[13px] py-[9px] backdrop-blur-[8px] transition-[bottom] duration-[260ms] ease-[cubic-bezier(.4,.14,.3,1)]"
+          ? "absolute left-3.5 z-[5] flex-wrap rounded-[10px] border px-[13px] py-[9px] backdrop-blur-[8px]"
           : "scrollbar-hide flex-none overflow-x-auto px-[18px] pt-2.5"
       )}
       style={
         floating
           ? {
-              bottom,
+              bottom: LEGEND_BOTTOM,
               background: OVERLAY_GROUND,
               borderColor: "var(--border-subtle)",
             }
@@ -74,8 +76,6 @@ export function MapLegend({
 
 interface PhotographsNoteProps {
   note: string;
-  /** Distance from the canvas bottom, in pixels; floating only. */
-  bottom?: number;
   variant?: OverlayVariant;
 }
 
@@ -85,7 +85,6 @@ interface PhotographsNoteProps {
  */
 export function PhotographsNote({
   note,
-  bottom,
   variant = "floating",
 }: PhotographsNoteProps) {
   const floating = variant === "floating";
@@ -94,11 +93,11 @@ export function PhotographsNote({
       className={clsx(
         "rounded-[10px] border border-dashed px-3.5 py-3",
         floating
-          ? "absolute right-3.5 z-[5] max-w-[260px] backdrop-blur-[8px] transition-[bottom] duration-[260ms] ease-[cubic-bezier(.4,.14,.3,1)]"
+          ? "absolute right-3.5 z-[5] max-w-[260px] backdrop-blur-[8px]"
           : "mb-2"
       )}
       style={{
-        bottom: floating ? bottom : undefined,
+        bottom: floating ? NOTE_BOTTOM : undefined,
         background: "color-mix(in srgb, var(--background) 90%, transparent)",
         borderColor:
           "color-mix(in srgb, var(--brand-sobrado-ochre) 50%, transparent)",
@@ -112,7 +111,7 @@ export function PhotographsNote({
       </p>
       <Link
         href="/photographs?filter=noplace"
-        className="hit-area mt-2 inline-block text-xs underline underline-offset-[3px] [--hit-inset:-14px_-8px]"
+        className="hit-area mt-2 inline-block text-xs underline underline-offset-[3px]"
         style={{ color: "var(--foreground)" }}
       >
         Open the no-place tray

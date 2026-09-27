@@ -20,7 +20,9 @@ const photo: MapItem = {
 
 function renderDetail() {
   const onClose = vi.fn();
-  render(<LocationSheetDetail item={photo} onClose={onClose} />);
+  render(
+    <LocationSheetDetail item={photo} onClose={onClose} handle={<span />} />
+  );
   return { onClose };
 }
 

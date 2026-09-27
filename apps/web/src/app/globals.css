@@ -792,9 +792,8 @@
     @apply min-h-[44px] min-w-[44px];
   }
 
-  /* A 44px touch area without moving layout: an invisible ::after beyond the box.
-     Set `--hit-inset` per element (a negative inset grows the area). It is measured
-     from the padding box, so a bordered element needs one more pixel. `:where` keeps
+  /* A touch area of at least 44px without moving layout: an invisible ::after
+     centred on the box, growing only the sides shorter than 44px. `:where` keeps
      `relative` at zero specificity, so an `absolute` element stays absolute. Spec 039. */
   :where(.hit-area) {
     position: relative;
@@ -802,7 +801,11 @@
   .hit-area::after {
     content: "";
     position: absolute;
-    inset: var(--hit-inset, -12px -8px);
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    translate: -50% -50%;
   }
 
   /* Clearance for the fixed phone bottom bar, including the home-indicator inset.

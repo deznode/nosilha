@@ -8,8 +8,8 @@ import { DetailCloseButton, LocationDetailBody } from "./location-detail";
 interface LocationSheetDetailProps {
   item: MapItem;
   onClose: () => void;
-  /** The handle row's drag target; a plain bar when omitted. */
-  handle?: ReactNode;
+  /** The handle row's drag target, from the sheet. */
+  handle: ReactNode;
 }
 
 /**
@@ -31,13 +31,7 @@ export function LocationSheetDetail({
         className="relative flex min-h-11 flex-none items-center justify-center border-b"
         style={{ borderColor: "var(--border-subtle)" }}
       >
-        {handle ?? (
-          <span
-            aria-hidden
-            className="h-1 w-[34px] rounded-full"
-            style={{ background: "var(--border-strong)" }}
-          />
-        )}
+        {handle}
         <DetailCloseButton
           onClose={onClose}
           className="absolute top-1/2 right-1.5 -translate-y-1/2"

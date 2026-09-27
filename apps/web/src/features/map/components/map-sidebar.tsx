@@ -41,6 +41,11 @@ function ChipDot({ status }: { status: StatusFilter }) {
 
 interface MapSidebarProps {
   onSelect: (item: MapItem) => void;
+  /**
+   * In the narrow layout's bottom sheet: one scrolling row of chips, and a 16px search
+   * so iOS does not zoom on focus. Spec 039 (M4).
+   */
+  inSheet?: boolean;
   /** Shown above the tabs — the bottom sheet's grabber on a narrow screen. */
   header?: ReactNode;
   /** Under the header: the pin colour key, in the sheet's peek. Spec 039 (M3). */
@@ -55,6 +60,7 @@ interface MapSidebarProps {
  */
 export function MapSidebar({
   onSelect,
+  inSheet = false,
   header,
   legend,
   notice,
@@ -130,7 +136,10 @@ export function MapSidebar({
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search Brava…"
           aria-label="Search Brava"
-          className="w-full rounded-[10px] border px-3 py-2.5 text-base outline-none focus:border-[var(--brand-ocean-blue)] min-[861px]:text-[13px]"
+          className={clsx(
+            "w-full rounded-[10px] border px-3 py-2.5 outline-none focus:border-[var(--brand-ocean-blue)]",
+            inSheet ? "text-base" : "text-[13px]"
+          )}
           style={{
             background: "var(--card)",
             borderColor: "var(--border-subtle)",
@@ -141,7 +150,10 @@ export function MapSidebar({
         <div
           role="group"
           aria-label="Filter by status"
-          className="scrollbar-hide mt-3 flex flex-wrap gap-1.5 max-[861px]:-mx-[18px] max-[861px]:flex-nowrap max-[861px]:overflow-x-auto max-[861px]:px-[18px]"
+          className={clsx(
+            "scrollbar-hide mt-3 flex gap-1.5",
+            inSheet ? "-mx-[18px] overflow-x-auto px-[18px]" : "flex-wrap"
+          )}
         >
           {CHIPS.map(({ status: key, label }) => (
             <FilterChip

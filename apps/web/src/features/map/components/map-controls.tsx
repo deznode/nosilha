@@ -29,7 +29,7 @@ export function MapControls({ controls }: { controls: MapControl[] }) {
             onClick={control.onClick}
             className={clsx(
               // The ::after grows the 38px button to a 44px target across the 6px gaps.
-              "hit-area size-[38px] cursor-pointer rounded-[10px] border font-sans text-xs backdrop-blur-[6px] transition-colors [--hit-inset:-4px]",
+              "hit-area size-[38px] cursor-pointer rounded-[10px] border font-sans text-xs backdrop-blur-[6px] transition-colors",
               !on && "hover:border-[var(--border-strong)]"
             )}
             style={{

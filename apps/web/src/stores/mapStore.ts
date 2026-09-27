@@ -58,8 +58,7 @@ interface MapState extends MapQueryState {
   setExpandedGroup: (key: string | null) => void;
   toggleSatellite: () => void;
   toggle3D: () => void;
-  toggleSheet: () => void;
-  /** Sets the sheet directly, for a drag that has a direction. Spec 039. */
+  /** Opens or shuts the sheet: the grabber toggles it, a drag picks a side. Spec 039. */
   setSheetOpen: (open: boolean) => void;
   /** Applies a deep link in one step; `setMode` would clear its selection. */
   hydrate: (state: MapQueryState) => void;
@@ -103,7 +102,6 @@ export const useMapStore = create<MapState>()(
       setExpandedGroup: (key) => set({ expandedGroupKey: key }),
       toggleSatellite: () => set((s) => ({ satellite: !s.satellite })),
       toggle3D: () => set((s) => ({ is3D: !s.is3D })),
-      toggleSheet: () => set((s) => ({ sheetOpen: !s.sheetOpen })),
       setSheetOpen: (open) => set({ sheetOpen: open }),
       hydrate: ({ mode, status, query, selectedKey }) =>
         set({ mode, status, query, selectedKey, expandedGroupKey: null }),

@@ -3,11 +3,9 @@
 import { useRef, useState, type RefObject } from "react";
 
 /** Travel, in pixels, past which a released drag moves the sheet. */
-export const SHEET_DRAG_THRESHOLD = 40;
+const DRAG_THRESHOLD = 40;
 /** Movement under this is a tap, not a drag. */
 const DRAG_SLOP = 4;
-/** The tallest the sheet follows a finger to, as a share of its container. */
-const DRAG_MAX_SHARE = 0.85;
 
 interface DragStart {
   id: number;
@@ -19,6 +17,8 @@ interface DragStart {
 
 interface UseSheetDragOptions {
   sheetRef: RefObject<HTMLElement | null>;
+  /** The tallest the sheet follows a finger to, as a share of its container. */
+  maxShare: number;
   /** A release after dragging up past the threshold. */
   onUp: () => void;
   /** A release after dragging down past the threshold. */
@@ -30,10 +30,15 @@ interface UseSheetDragOptions {
  * past the threshold settles it up or down. Pointer events cover touch and mouse
  * alike. Spec 039 (M5).
  *
- * The handle stays a button for keyboard and screen readers, and a drag ends in a
- * click on it; `consumeClick` tells the button to ignore that one.
+ * A drag can end in a click on the handle; the handlers swallow that one, so a
+ * button handle does not also act on it.
  */
-export function useSheetDrag({ sheetRef, onUp, onDown }: UseSheetDragOptions) {
+export function useSheetDrag({
+  sheetRef,
+  maxShare,
+  onUp,
+  onDown,
+}: UseSheetDragOptions) {
   const start = useRef<DragStart | null>(null);
   const dragged = useRef(false);
   const [dragHeight, setDragHeight] = useState<number | null>(null);
@@ -48,7 +53,7 @@ export function useSheetDrag({ sheetRef, onUp, onDown }: UseSheetDragOptions) {
       id: event.pointerId,
       y: event.clientY,
       height: sheet.getBoundingClientRect().height,
-      max: container * DRAG_MAX_SHARE,
+      max: container * maxShare,
       moved: false,
     };
     try {
@@ -75,8 +80,8 @@ export function useSheetDrag({ sheetRef, onUp, onDown }: UseSheetDragOptions) {
     if (!s.moved) return;
     dragged.current = true;
     const dy = event.clientY - s.y;
-    if (dy <= -SHEET_DRAG_THRESHOLD) onUp();
-    else if (dy >= SHEET_DRAG_THRESHOLD) onDown();
+    if (dy <= -DRAG_THRESHOLD) onUp();
+    else if (dy >= DRAG_THRESHOLD) onDown();
   };
 
   const onPointerCancel = () => {
@@ -84,16 +89,20 @@ export function useSheetDrag({ sheetRef, onUp, onDown }: UseSheetDragOptions) {
     setDragHeight(null);
   };
 
-  /** True once after a drag, so the click that ends it does not also toggle. */
-  const consumeClick = () => {
-    const was = dragged.current;
+  const onClickCapture = (event: React.MouseEvent<HTMLElement>) => {
+    if (!dragged.current) return;
     dragged.current = false;
-    return was;
+    event.stopPropagation();
   };
 
   return {
-    handlers: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel },
+    handlers: {
+      onPointerDown,
+      onPointerMove,
+      onPointerUp,
+      onPointerCancel,
+      onClickCapture,
+    },
     dragHeight,
-    consumeClick,
   };
 }

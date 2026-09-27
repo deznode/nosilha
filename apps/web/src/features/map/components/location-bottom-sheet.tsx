@@ -4,12 +4,11 @@ import { useRef, type ReactNode } from "react";
 import { clsx } from "clsx";
 import { useSheetDrag } from "../hooks/use-sheet-drag";
 
-/** Grabber, the pin colour key and the mode tabs. Spec 039 (M3) added the key. */
-export const SHEET_PEEK_HEIGHT = 160;
-/** Tall enough for several list rows under the tabs, search and chips. Spec 039 (M4). */
-export const SHEET_EXPANDED_HEIGHT = "85%";
-/** The selection's detail view sizes to its content, up to half the canvas. */
-export const SHEET_DETAIL_MAX_HEIGHT = "50%";
+/**
+ * Expanded, as a share of the canvas: tall enough for several list rows under the
+ * tabs, search and chips. A drag stops there too. Spec 039 (M4).
+ */
+const EXPANDED_SHARE = 0.85;
 
 /**
  * What the sheet shows: peeking at the list, a selected pin's details, or the list
@@ -18,16 +17,16 @@ export const SHEET_DETAIL_MAX_HEIGHT = "50%";
 export type SheetView = "peek" | "detail" | "open";
 
 const MAX_HEIGHT: Record<SheetView, string> = {
-  peek: `${SHEET_PEEK_HEIGHT}px`,
-  detail: SHEET_DETAIL_MAX_HEIGHT,
-  open: SHEET_EXPANDED_HEIGHT,
+  // Grabber, the pin colour key and the mode tabs. Spec 039 (M3) added the key.
+  peek: "160px",
+  // The selection's detail view sizes to its content, up to half the canvas.
+  detail: "50%",
+  open: `${EXPANDED_SHARE * 100}%`,
 };
 
 interface LocationBottomSheetProps {
   view: SheetView;
-  /** A click or key press on the grabber. */
-  onToggle: () => void;
-  /** A drag on the grabber or the detail handle that settles the list open or shut. */
+  /** The grabber's click, key press or drag, settling the list open or shut. */
   onSetOpen: (open: boolean) => void;
   /** A drag down on the detail view's handle, which closes the selection. */
   onDismiss: () => void;
@@ -45,15 +44,15 @@ interface LocationBottomSheetProps {
  */
 export function LocationBottomSheet({
   view,
-  onToggle,
   onSetOpen,
   onDismiss,
   children,
 }: LocationBottomSheetProps) {
   const open = view === "open";
   const sheetRef = useRef<HTMLElement>(null);
-  const { handlers, dragHeight, consumeClick } = useSheetDrag({
+  const { handlers, dragHeight } = useSheetDrag({
     sheetRef,
+    maxShare: EXPANDED_SHARE,
     onUp: () => onSetOpen(true),
     onDown: () => (view === "detail" ? onDismiss() : onSetOpen(false)),
   });
@@ -70,9 +69,7 @@ export function LocationBottomSheet({
     <button
       type="button"
       aria-expanded={open}
-      onClick={() => {
-        if (!consumeClick()) onToggle();
-      }}
+      onClick={() => onSetOpen(!open)}
       {...handlers}
       className="flex min-h-11 w-full flex-none cursor-pointer touch-none items-center justify-center gap-2.5 border-b px-2.5 text-xs"
       style={{
