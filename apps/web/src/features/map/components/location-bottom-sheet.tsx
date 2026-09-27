@@ -1,10 +1,13 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { clsx } from "clsx";
+import { useSheetDrag } from "../hooks/use-sheet-drag";
 
 /** Grabber, the pin colour key and the mode tabs. Spec 039 (M3) added the key. */
 export const SHEET_PEEK_HEIGHT = 160;
-export const SHEET_EXPANDED_HEIGHT = "64%";
+/** Tall enough for several list rows under the tabs, search and chips. Spec 039 (M4). */
+export const SHEET_EXPANDED_HEIGHT = "85%";
 /** The selection's detail view sizes to its content, up to half the canvas. */
 export const SHEET_DETAIL_MAX_HEIGHT = "50%";
 
@@ -22,8 +25,14 @@ const MAX_HEIGHT: Record<SheetView, string> = {
 
 interface LocationBottomSheetProps {
   view: SheetView;
+  /** A click or key press on the grabber. */
   onToggle: () => void;
-  children: (grabber: ReactNode) => ReactNode;
+  /** A drag on the grabber or the detail handle that settles the list open or shut. */
+  onSetOpen: (open: boolean) => void;
+  /** A drag down on the detail view's handle, which closes the selection. */
+  onDismiss: () => void;
+  /** The grabber heads the list; the handle heads the detail view. */
+  children: (grabber: ReactNode, handle: ReactNode) => ReactNode;
 }
 
 /**
@@ -31,49 +40,84 @@ interface LocationBottomSheetProps {
  * grabber and mode tabs, expanding over the canvas. A selection shows in the sheet
  * rather than floating over the map. Spec 034 FR-012, handoff SPECS §3, Spec 039.
  *
- * The grabber is a button, so the sheet is reachable by keyboard and screen reader.
+ * The grabber is a button, so the sheet is reachable by keyboard and screen reader; it
+ * also drags, as a handle bar suggests on a phone (M5).
  */
 export function LocationBottomSheet({
   view,
   onToggle,
+  onSetOpen,
+  onDismiss,
   children,
 }: LocationBottomSheetProps) {
   const open = view === "open";
+  const sheetRef = useRef<HTMLElement>(null);
+  const { handlers, dragHeight, consumeClick } = useSheetDrag({
+    sheetRef,
+    onUp: () => onSetOpen(true),
+    onDown: () => (view === "detail" ? onDismiss() : onSetOpen(false)),
+  });
+
+  const bar = (
+    <span
+      aria-hidden
+      className="h-1 w-[34px] rounded-full"
+      style={{ background: "var(--border-strong)" }}
+    />
+  );
+
   const grabber = (
     <button
       type="button"
       aria-expanded={open}
-      onClick={onToggle}
-      className="flex min-h-11 w-full flex-none cursor-pointer items-center justify-center gap-2.5 border-b px-2.5 text-xs"
+      onClick={() => {
+        if (!consumeClick()) onToggle();
+      }}
+      {...handlers}
+      className="flex min-h-11 w-full flex-none cursor-pointer touch-none items-center justify-center gap-2.5 border-b px-2.5 text-xs"
       style={{
         borderColor: "var(--border-subtle)",
         color: "var(--foreground-secondary)",
       }}
     >
-      <span
-        aria-hidden
-        className="h-1 w-[34px] rounded-full"
-        style={{ background: "var(--border-strong)" }}
-      />
+      {bar}
       {open ? "Hide the list" : "Filters and list"}
     </button>
   );
 
+  // Pointer only: the detail view's Close is its keyboard route.
+  const handle = (
+    <div
+      aria-hidden
+      data-testid="map-sheet-handle"
+      {...handlers}
+      className="flex min-h-11 flex-1 cursor-grab touch-none items-center justify-center self-stretch"
+    >
+      {bar}
+    </div>
+  );
+
   return (
     <section
+      ref={sheetRef}
       aria-label="Filters and list"
       data-testid="map-sheet"
       data-view={view}
-      className="absolute inset-x-0 bottom-0 z-20 flex flex-col overflow-hidden rounded-t-2xl border-t transition-[max-height] duration-[260ms] ease-[cubic-bezier(.4,.14,.3,1)]"
+      className={clsx(
+        "absolute inset-x-0 bottom-0 z-20 flex flex-col overflow-hidden rounded-t-2xl border-t",
+        // The sheet follows a dragging finger without lag, then eases to rest.
+        dragHeight === null &&
+          "transition-[max-height] duration-[260ms] ease-[cubic-bezier(.4,.14,.3,1)]"
+      )}
       style={{
-        maxHeight: MAX_HEIGHT[view],
+        maxHeight: dragHeight === null ? MAX_HEIGHT[view] : `${dragHeight}px`,
         background: "var(--background)",
         borderColor: "var(--border-subtle)",
         boxShadow:
           "0 -16px 44px color-mix(in srgb, var(--foreground) 18%, transparent)",
       }}
     >
-      {children(grabber)}
+      {children(grabber, handle)}
     </section>
   );
 }

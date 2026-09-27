@@ -291,13 +291,16 @@ export default function BravaMap() {
         <LocationBottomSheet
           view={sheetView}
           onToggle={() => useMapStore.getState().toggleSheet()}
+          onSetOpen={(open) => useMapStore.getState().setSheetOpen(open)}
+          onDismiss={clearSelection}
         >
-          {(grabber) =>
+          {(grabber, handle) =>
             sheetView === "detail" && selected ? (
               <LocationSheetDetail
                 key={selected.key}
                 item={selected}
                 onClose={clearSelection}
+                handle={handle}
               />
             ) : (
               <MapSidebar

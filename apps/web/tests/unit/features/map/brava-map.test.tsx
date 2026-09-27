@@ -306,7 +306,7 @@ describe("BravaMap", () => {
       ).toBeInTheDocument();
     });
 
-    it("expands to 64% over a selection and shows the list", async () => {
+    it("expands to 85% over a selection and shows the list", async () => {
       await renderMap();
       act(() => {
         useMapStore.getState().select("s:furna");
@@ -314,7 +314,7 @@ describe("BravaMap", () => {
       });
 
       const sheet = screen.getByTestId("map-sheet");
-      expect(sheet.style.maxHeight).toBe("64%");
+      expect(sheet.style.maxHeight).toBe("85%");
       expect(sheet).toHaveAttribute("data-view", "open");
       expect(
         screen.getByRole("button", { name: "Hide the list" })

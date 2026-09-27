@@ -130,7 +130,7 @@ export function MapSidebar({
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search Brava…"
           aria-label="Search Brava"
-          className="w-full rounded-[10px] border px-3 py-2.5 text-[13px] outline-none focus:border-[var(--brand-ocean-blue)]"
+          className="w-full rounded-[10px] border px-3 py-2.5 text-base outline-none focus:border-[var(--brand-ocean-blue)] min-[861px]:text-[13px]"
           style={{
             background: "var(--card)",
             borderColor: "var(--border-subtle)",
@@ -141,7 +141,7 @@ export function MapSidebar({
         <div
           role="group"
           aria-label="Filter by status"
-          className="mt-3 flex flex-wrap gap-1.5"
+          className="scrollbar-hide mt-3 flex flex-wrap gap-1.5 max-[861px]:-mx-[18px] max-[861px]:flex-nowrap max-[861px]:overflow-x-auto max-[861px]:px-[18px]"
         >
           {CHIPS.map(({ status: key, label }) => (
             <FilterChip
