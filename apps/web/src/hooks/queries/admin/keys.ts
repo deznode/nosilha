@@ -64,11 +64,10 @@ export const adminKeys = {
     list: (page: number, size: number, status?: AiModerationStatus | "ALL") =>
       [...adminKeys.all, "ai-review", { page, size, status }] as const,
     detail: (runId: string) => [...adminKeys.all, "ai-review", runId] as const,
+    statusAll: () => [...adminKeys.all, "ai-review", "status"] as const,
     status: (mediaIds: string[]) =>
       [
-        ...adminKeys.all,
-        "ai-review",
-        "status",
+        ...adminKeys.aiReview.statusAll(),
         { mediaIds: [...mediaIds].sort() },
       ] as const,
   },

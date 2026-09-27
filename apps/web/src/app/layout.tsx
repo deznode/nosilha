@@ -95,6 +95,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: {
+      "facebook-domain-verification": ["ob59zhsrsmp1gdw3yr79itdbz0itxh"],
+    },
   },
 };
 
