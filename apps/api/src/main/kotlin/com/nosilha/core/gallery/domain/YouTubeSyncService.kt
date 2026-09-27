@@ -3,6 +3,7 @@ package com.nosilha.core.gallery.domain
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.YouTubeSyncResult
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
+import com.nosilha.core.shared.service.FrontendRevalidationService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -24,6 +25,7 @@ private val logger = KotlinLogging.logger {}
  *   <li>Filters out non-public videos (private, unlisted)</li>
  *   <li>Catches per-video errors without aborting the batch</li>
  *   <li>New records created with ACTIVE status (auto-approved)</li>
+ *   <li>Revalidates the frontend's `gallery` tag once per sync that created records</li>
  * </ul>
  */
 @Service
@@ -33,6 +35,7 @@ class YouTubeSyncService(
     private val repository: GalleryMediaRepository,
     private val configService: YouTubeSyncConfigService,
     private val playlistService: YouTubeSyncPlaylistService,
+    private val revalidationService: FrontendRevalidationService,
     @Value("\${youtube.sync.channel-handle:nosilha}")
     private val channelHandle: String,
 ) {
@@ -128,7 +131,8 @@ class YouTubeSyncService(
                 // Create new ExternalMedia
                 try {
                     val request = mapToCreateRequest(item, videoId, category)
-                    moderationService.createExternalMedia(request, adminId)
+                    // One revalidation for the whole sync (below), not one per video.
+                    moderationService.createExternalMedia(request, adminId, revalidate = false)
                     synced++
                     logger.debug { "Synced video: $videoId - ${request.title}" }
                 } catch (e: Exception) {
@@ -141,6 +145,12 @@ class YouTubeSyncService(
             pageToken = response.nextPageToken
             pageCount++
         } while (pageToken != null && pageCount < YouTubeSyncConfig.MAX_PAGES)
+
+        // Each video was saved in its own committed transaction, so the new films are
+        // readable now: one flush puts them on /films and the home strip.
+        if (synced > 0) {
+            revalidationService.revalidateGallery()
+        }
 
         val result = YouTubeSyncResult(
             synced = synced,

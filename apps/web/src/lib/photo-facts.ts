@@ -50,15 +50,19 @@ const DATE_FORMAT = new Intl.DateTimeFormat("en-US", {
 
 /**
  * When the photograph was taken: the date read from the file, else the approximate
- * date exactly as a person wrote it ("sometime in the sixties"), else null.
+ * date exactly as a person wrote it ("sometime in the sixties"), else null. `format`
+ * sets how a file date reads; it defaults to "July 12, 2024".
  */
-export function photoDateLabel(media: PublicGalleryMedia): string | null {
+export function photoDateLabel(
+  media: PublicGalleryMedia,
+  format: Intl.DateTimeFormat = DATE_FORMAT
+): string | null {
   if (!isPublicUserUploadMedia(media)) return null;
 
   const taken = trimmed(media.dateTaken);
   if (taken) {
     const parsed = new Date(taken);
-    if (!Number.isNaN(parsed.getTime())) return DATE_FORMAT.format(parsed);
+    if (!Number.isNaN(parsed.getTime())) return format.format(parsed);
   }
   return trimmed(media.approximateDate);
 }

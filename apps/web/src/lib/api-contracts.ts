@@ -1168,6 +1168,14 @@ export const CacheConfig = {
   // Individual entries
   INDIVIDUAL_ENTRY: { revalidate: 1800 }, // 30 minutes
 
+  // A directory entry's own record. Its hero image comes from the gallery, so the
+  // entry carries both tags the backend flushes: without `gallery`, a hero taken
+  // down by an admin would stay on the place page for another 30 minutes.
+  ENTRY_RECORD: {
+    revalidate: 1800, // 30 minutes
+    tags: ["directory", "gallery"],
+  } as NextFetchRequestConfig,
+
   // Towns data - relatively stable
   TOWNS: { revalidate: 3600 }, // 1 hour
 
@@ -1176,12 +1184,13 @@ export const CacheConfig = {
 
   // Settlement status - one shared entry every archive page reads, so it must not
   // vary per cache key the way `no-store` made it. The counts are derived from
-  // directory entries, and `directory` is the tag the backend flushes when one
-  // changes (FrontendRevalidationService), so the entry carries it: without it the
-  // pages would re-render around a settlement summary up to 30 minutes stale.
+  // directory entries and gallery photographs, and `directory` and `gallery` are the
+  // tags the backend flushes when either changes (FrontendRevalidationService), so
+  // the entry carries both: without them the pages would re-render around a
+  // settlement summary up to 30 minutes stale.
   TOWN_STATUS: {
     revalidate: 1800, // 30 minutes
-    tags: ["directory", "towns"],
+    tags: ["directory", "towns", "gallery"],
   } as NextFetchRequestConfig,
 
   // Reaction counts - cached for 5 minutes (per spec.md FR-015)
@@ -1190,8 +1199,13 @@ export const CacheConfig = {
   // Related content - cached for 5 minutes (User Story 5)
   RELATED_CONTENT: { revalidate: 300 }, // 5 minutes
 
-  // Gallery content - cached for 30 minutes (curated and approved media)
-  GALLERY: { revalidate: 1800 }, // 30 minutes
+  // Gallery content - cached for 30 minutes (curated and approved media). Tagged
+  // `gallery`, the tag the backend flushes after an admin edit (spec 038 T-13): an
+  // untagged entry would feed the re-rendered pages the old rows for 30 minutes.
+  GALLERY: {
+    revalidate: 1800, // 30 minutes
+    tags: ["gallery"],
+  } as NextFetchRequestConfig,
 } as const;
 
 // ================================

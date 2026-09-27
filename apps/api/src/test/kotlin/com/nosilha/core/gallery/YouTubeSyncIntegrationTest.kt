@@ -16,10 +16,14 @@ import com.nosilha.core.gallery.domain.YouTubeSnippet
 import com.nosilha.core.gallery.domain.YouTubeThumbnail
 import com.nosilha.core.gallery.domain.YouTubeThumbnails
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
+import com.nosilha.core.shared.service.FrontendRevalidationService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.never
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -68,6 +72,9 @@ class YouTubeSyncIntegrationTest {
 
     @MockitoBean
     private lateinit var youTubeApiClient: YouTubeApiClient
+
+    @MockitoBean
+    private lateinit var revalidationService: FrontendRevalidationService
 
     private val testAdminId = UUID.fromString("00000000-0000-0000-0000-000000000001")
 
@@ -133,6 +140,9 @@ class YouTubeSyncIntegrationTest {
         assertEquals(ExternalPlatform.YOUTUBE, video1.platform)
         assertEquals(MediaType.VIDEO, video1.mediaType)
         assertEquals(GalleryMediaStatus.ACTIVE, video1.status)
+
+        // One revalidation for the whole sync, not one per video (spec 038 T-13)
+        verify(revalidationService, times(1)).revalidateGallery()
     }
 
     @Test
@@ -177,6 +187,56 @@ class YouTubeSyncIntegrationTest {
         // Assert: only 2 total records (1 existing + 1 new)
         val allMedia = galleryMediaRepository.findAllExternalMedia()
         assertEquals(2, allMedia.size, "Expected 2 external media records")
+    }
+
+    @Test
+    @DisplayName("POST /youtube/sync - Re-sync leaves a curated row's display_title and place_id untouched (spec 038)")
+    fun `syncChannel should not overwrite curated display title or place`() {
+        val townId = jdbcTemplate.queryForObject("SELECT id FROM towns ORDER BY slug LIMIT 1", UUID::class.java)!!
+        val curated =
+            galleryMediaRepository.save(
+                ExternalMedia().apply {
+                    this.mediaType = MediaType.VIDEO
+                    this.platform = ExternalPlatform.YOUTUBE
+                    this.externalId = "curated_video"
+                    this.title = "BRAVA 4K drone"
+                    this.displayTitle = "Brava from the air"
+                    this.placeId = townId
+                    this.status = GalleryMediaStatus.ACTIVE
+                    this.curatedBy = testAdminId
+                },
+            )
+
+        `when`(youTubeApiClient.fetchUploadsPlaylistId("testchannel"))
+            .thenReturn("UU_test_uploads")
+        `when`(youTubeApiClient.fetchPlaylistItems("UU_test_uploads", null))
+            .thenReturn(
+                YouTubePlaylistResponse(
+                    items = listOf(createPlaylistItem("curated_video", "BRAVA 4K drone (re-uploaded title)", "New desc")),
+                    nextPageToken = null,
+                ),
+            )
+
+        mockMvc
+            .perform(
+                post("/api/v1/admin/gallery/youtube/sync")
+                    .with(adminAuth())
+                    .contentType(HttpMediaType.APPLICATION_JSON),
+            ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.synced").value(0))
+            .andExpect(jsonPath("$.data.skipped").value(1))
+
+        val row =
+            jdbcTemplate.queryForMap(
+                "SELECT title, display_title, place_id FROM gallery_media WHERE id = ?",
+                curated.id,
+            )
+        assertEquals("BRAVA 4K drone", row["title"])
+        assertEquals("Brava from the air", row["display_title"])
+        assertEquals(townId, row["place_id"])
+
+        // Nothing new was created, so nothing public changed
+        verify(revalidationService, never()).revalidateGallery()
     }
 
     @Test

@@ -94,6 +94,8 @@ export interface ExternalMedia extends GalleryMediaBase {
   creditHandle?: string;
   durationSeconds?: number;
   featured?: boolean;
+  displayTitle?: string | null;
+  placeId?: string | null;
 }
 
 /**
@@ -201,6 +203,14 @@ export interface PublicExternalMedia extends PublicGalleryMediaBase {
   creditHandle?: string;
   durationSeconds?: number;
   featured?: boolean;
+  /**
+   * The curated title the archive shows; `title` keeps the host's own. Optional: the
+   * frontend build prerenders against production, which may predate the field.
+   * Spec 038 FR-004.
+   */
+  displayTitle?: string | null;
+  /** The settlement the film was made near (a `towns.id`). Spec 038 FR-004. */
+  placeId?: string | null;
 }
 
 /** Discriminated union for public gallery media */
@@ -380,4 +390,10 @@ export interface UpdateGalleryMediaRequest {
   showInGallery?: boolean;
   featured?: boolean;
   durationSeconds?: number;
+  /** Films only. A blank value clears the curated title. Spec 038 FR-004. */
+  displayTitle?: string;
+  /** Films only. Sets the settlement; see `clearPlace` to remove it. */
+  placeId?: string;
+  /** Films only. True clears the settlement (PATCH reads null as "no change"). */
+  clearPlace?: boolean;
 }

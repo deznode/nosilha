@@ -82,4 +82,8 @@ vi.mock("next/image", () => ({
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
     return <img {...props} />;
   },
+  // The `<img>` props as the loader would build them, without the loader.
+  getImageProps: ({ src, alt, sizes }: any) => ({
+    props: { src, alt, sizes, srcSet: undefined },
+  }),
 }));

@@ -19,11 +19,14 @@ import com.nosilha.core.shared.events.MediaAnalysisBatchRequestedEvent
 import com.nosilha.core.shared.events.MediaAnalysisRequestedEvent
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
+import com.nosilha.core.shared.service.FrontendRevalidationService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
@@ -47,6 +50,7 @@ private val logger = KotlinLogging.logger {}
  *
  * @property repository Repository for gallery media entities (polymorphic)
  * @property auditRepository Repository for moderation audit trail
+ * @property revalidationService Clears the frontend's `gallery` cache tag after public-facing changes
  */
 @Service
 class GalleryModerationService(
@@ -55,6 +59,7 @@ class GalleryModerationService(
     private val eventPublisher: ApplicationEventPublisher,
     private val userProfileQueryService: UserProfileQueryService,
     private val aiFeatureConfigService: AiFeatureConfigService,
+    private val revalidationService: FrontendRevalidationService,
 ) {
     companion object {
         /** The credit recorded when nobody knows who made a record (spec 033 FR-004). */
@@ -236,6 +241,11 @@ class GalleryModerationService(
 
         logger.debug { "Audit entry created for gallery media moderation: mediaId=$id, action=$action, performedBy=$performedBy" }
 
+        // Only a record entering or leaving ACTIVE changes a public page.
+        if (previousStatus == GalleryMediaStatus.ACTIVE || savedMedia.status == GalleryMediaStatus.ACTIVE) {
+            revalidateGalleryAfterCommit()
+        }
+
         val displayNames = resolveDisplayNames(listOf(savedMedia))
         return savedMedia.toDto(displayNames)
     }
@@ -257,9 +267,18 @@ class GalleryModerationService(
     ): GalleryMediaDto? {
         val media = repository.findById(id).orElse(null) ?: return null
 
+        // Validate before mutating: the native existence query would otherwise auto-flush
+        // a half-applied entity. IllegalArgumentException maps to 400 in GlobalExceptionHandler.
+        val newPlaceId = request.placeId.takeIf { media is ExternalMedia && request.clearPlace != true }
+        if (newPlaceId != null && newPlaceId != (media as ExternalMedia).placeId) {
+            require(repository.placeExists(newPlaceId)) { "Unknown placeId: $newPlaceId" }
+        }
+
         request.title?.let { media.title = it }
-        request.description?.let { media.description = it }
-        request.category?.let { media.category = it }
+        // Blank clears: an emptied field arrives as "", and a stored "" category would be
+        // listed as a category of its own.
+        request.description?.let { media.description = it.ifBlank { null } }
+        request.category?.let { media.category = it.ifBlank { null } }
         request.showInGallery?.let { media.showInGallery = it }
         request.identifiablePerson?.let { media.identifiablePerson = it }
 
@@ -283,11 +302,20 @@ class GalleryModerationService(
                 }
                 media.featured = newFeatured
             }
+            // Spec 038: curated title and settlement. Blank clears the title.
+            request.displayTitle?.let { media.displayTitle = it.trim().ifBlank { null } }
+            if (request.clearPlace == true) {
+                media.placeId = null
+            } else {
+                request.placeId?.let { media.placeId = it }
+            }
         }
 
         val saved = repository.save(media)
 
         logger.info { "Gallery media metadata updated: id=$id, type=${media.mediaSource}" }
+
+        revalidateGalleryAfterCommit()
 
         val displayNames = resolveDisplayNames(listOf(saved))
         return saved.toDto(displayNames)
@@ -402,6 +430,8 @@ class GalleryModerationService(
         auditRepository.save(audit)
 
         logger.info { "Gallery media archived: id=$id, type=${media.mediaSource}, performedBy=$performedBy" }
+
+        revalidateGalleryAfterCommit()
     }
 
     /**
@@ -411,12 +441,15 @@ class GalleryModerationService(
      *
      * @param request Request containing external media details
      * @param adminId Admin creating the media
+     * @param revalidate Whether to revalidate the frontend's `gallery` tag after commit. A batch
+     *   caller (YouTube sync) passes false and revalidates once when the batch is done.
      * @return Created ExternalMedia DTO
      */
     @Transactional
     fun createExternalMedia(
         request: CreateExternalMediaRequest,
         adminId: UUID,
+        revalidate: Boolean = true,
     ): GalleryMediaDto.External {
         logger.info { "Admin $adminId creating external media: ${request.title}" }
 
@@ -443,6 +476,11 @@ class GalleryModerationService(
 
         val saved = repository.save(media)
         logger.info { "Created ExternalMedia as ACTIVE: id=${saved.id}" }
+
+        // Created ACTIVE, so it is public at once: /films, the home strip and the films band.
+        if (revalidate) {
+            revalidateGalleryAfterCommit()
+        }
 
         val displayName = userProfileQueryService.findDisplayName(adminId)
 
@@ -638,8 +676,33 @@ class GalleryModerationService(
 
         logger.info { "EXIF metadata updated for media $mediaId by admin $adminId" }
 
+        // Coordinates and date decide a public photograph's place and date line (spec 038).
+        if (saved.status == GalleryMediaStatus.ACTIVE) {
+            revalidateGalleryAfterCommit()
+        }
+
         val displayNames = resolveDisplayNames(listOf(saved))
         return saved.toDto(displayNames)
+    }
+
+    /**
+     * Revalidates the frontend's `gallery` tag once the current transaction commits (spec 038 T-13).
+     *
+     * Deferring to after commit keeps the frontend from refetching the old row, and a
+     * rolled-back change never triggers a revalidation. Outside a transaction it runs at once.
+     */
+    private fun revalidateGalleryAfterCommit() {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            revalidationService.revalidateGallery()
+            return
+        }
+        TransactionSynchronizationManager.registerSynchronization(
+            object : TransactionSynchronization {
+                override fun afterCommit() {
+                    revalidationService.revalidateGallery()
+                }
+            },
+        )
     }
 
     private fun resolveDisplayNames(mediaList: List<GalleryMedia>): Map<UUID, String> {

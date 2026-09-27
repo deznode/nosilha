@@ -49,6 +49,19 @@ class FrontendRevalidationService(
     }
 
     /**
+     * Triggers revalidation for every page that shows gallery media.
+     *
+     * The home, films, film, photographs, photograph and place record pages all carry
+     * the `gallery` cache tag (spec 038 T-13). The gallery's admin metadata, status,
+     * archive, EXIF and create paths and the YouTube sync call this; hero role changes,
+     * R2 batch uploads and AI-approved text do not yet, and reach the pages when their
+     * cache entries expire.
+     */
+    fun revalidateGallery() {
+        revalidate("""{"tag": "$GALLERY_TAG"}""", "tag $GALLERY_TAG")
+    }
+
+    /**
      * Sends an async HTTP POST request to the frontend's /api/revalidate endpoint.
      * Failures are logged but do not throw exceptions (fire-and-forget pattern).
      */
@@ -99,5 +112,8 @@ class FrontendRevalidationService(
     private companion object {
         /** The cache tag every page listing directory entries carries. */
         const val DIRECTORY_TAG = "directory"
+
+        /** The cache tag every page showing gallery media carries. */
+        const val GALLERY_TAG = "gallery"
     }
 }

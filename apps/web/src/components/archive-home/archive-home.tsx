@@ -226,7 +226,7 @@ export function ArchiveHome({
           </section>
         )}
 
-        <FilmsStrip films={films} total={facets.films} />
+        <FilmsStrip films={films} />
 
         {instagram}
 

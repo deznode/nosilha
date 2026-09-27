@@ -1,20 +1,15 @@
 import { describe, it, expect } from "vitest";
 import {
-  archiveCountLine,
+  canPlay,
+  filmEyebrow,
+  filmHelpLine,
+  filmedNear,
+  filmsCountWords,
+  filmSourceLine,
+  upNext,
   facetCounts,
   filmFacet,
-  filmMetaTitle,
-  filmsIntro,
-  filmsStripNote,
-  filmToMediaItem,
-  formatFilmLength,
-  ONE_PAGE_LINE,
-  othersLine,
   pickFeatured,
-  playerNote,
-  searchFilms,
-  sortFilms,
-  sourceDotColor,
   toFilm,
   toFilms,
   type Film,
@@ -55,14 +50,18 @@ function youtube(
 
 function film(overrides: Partial<Film> = {}): Film {
   seq += 1;
+  const title =
+    "title" in overrides ? (overrides.title ?? null) : `Film ${seq}`;
   return {
     id: `f-${seq}`,
-    title: `Film ${seq}`,
+    title,
+    displayTitle: title ?? "Untitled film",
+    sourceTitle: title,
+    description: null,
     source: "YouTube",
     thumbnailUrl: null,
     durationSeconds: null,
     place: null,
-    filmmaker: null,
     featured: false,
     identifiablePerson: false,
     playback: { kind: "youtube", id: `id${seq}` },
@@ -85,11 +84,6 @@ const HANDOFF: Film[] = [
   ),
 ];
 
-/** Production today: nine titled YouTube films, no lengths. */
-const PRODUCTION: Film[] = Array.from({ length: 9 }, (_, i) =>
-  film({ id: `p${i}`, title: `Title ${String.fromCharCode(73 - i)}` })
-);
-
 // ─── toFilm ──────────────────────────────────────────────────────────────────
 
 describe("toFilm", () => {
@@ -102,17 +96,12 @@ describe("toFilm", () => {
       source: "YouTube",
       durationSeconds: null,
       place: null,
-      filmmaker: null,
       featured: false,
       identifiablePerson: false,
     });
     expect(f?.playback).toEqual({ kind: "youtube", id: expect.any(String) });
     expect(f?.thumbnailUrl).toMatch(/i\.ytimg\.com/);
     expect(f?.watchUrl).toMatch(/^https:\/\/www\.youtube\.com\/watch\?v=/);
-  });
-
-  it("never uses author as the filmmaker", () => {
-    expect(toFilm(youtube({ author: "Someone Real" }))?.filmmaker).toBeNull();
   });
 
   it("treats a blank title as not recorded", () => {
@@ -183,23 +172,6 @@ describe("toFilm", () => {
 
 // ─── filmToMediaItem ─────────────────────────────────────────────────────────
 
-describe("filmToMediaItem", () => {
-  it("maps the prototype's card shape", () => {
-    expect(filmToMediaItem(HANDOFF[5])).toMatchObject({
-      id: "f6",
-      title: "Title not recorded",
-      category: "Film",
-      author: "Source not recorded",
-      thumbnailUrl: undefined,
-      duration: undefined,
-      type: "VIDEO",
-    });
-    expect(filmToMediaItem(HANDOFF[0]).author).toBe("YouTube");
-  });
-});
-
-// ─── Facets, search, sorts ───────────────────────────────────────────────────
-
 describe("facets", () => {
   it("counts every facet, zeros included", () => {
     expect(facetCounts(HANDOFF)).toEqual({
@@ -216,41 +188,6 @@ describe("facets", () => {
   });
 });
 
-describe("searchFilms", () => {
-  it("matches title and source, case-insensitively", () => {
-    expect(searchFilms(HANDOFF, "BRAVA").map((f) => f.id)).toEqual([
-      "f1",
-      "f2",
-      "f3",
-    ]);
-    expect(searchFilms(HANDOFF, "youtube")).toHaveLength(4);
-    expect(searchFilms(HANDOFF, "not recorded")).toHaveLength(5);
-    expect(searchFilms(HANDOFF, "  ")).toHaveLength(9);
-  });
-});
-
-describe("sortFilms", () => {
-  const ids = (films: Film[]) => films.map((f) => f.id);
-
-  it("title: titled A–Z, untitled last", () => {
-    const sorted = sortFilms(HANDOFF, "title");
-    expect(ids(sorted).slice(0, 4)).toEqual(["f2", "f1", "f3", "f4"]);
-    expect(sorted.slice(4).every((f) => f.title === null)).toBe(true);
-  });
-
-  it("needs: untitled first", () => {
-    const sorted = sortFilms(HANDOFF, "needs");
-    expect(sorted.slice(0, 5).every((f) => f.title === null)).toBe(true);
-    expect(ids(sorted).slice(5)).toEqual(["f2", "f1", "f3", "f4"]);
-  });
-
-  it("source: by source label, then title", () => {
-    const sorted = sortFilms(HANDOFF, "source");
-    expect(sorted.slice(0, 5).every((f) => f.source === null)).toBe(true);
-    expect(ids(sorted).slice(5)).toEqual(["f2", "f1", "f3", "f4"]);
-  });
-});
-
 describe("pickFeatured", () => {
   it("prefers the featured record", () => {
     const films = [film({ title: "A" }), film({ title: "Z", featured: true })];
@@ -259,7 +196,6 @@ describe("pickFeatured", () => {
 
   it("otherwise takes the first by title", () => {
     expect(pickFeatured(HANDOFF)?.id).toBe("f2");
-    expect(pickFeatured(HANDOFF, "needs")?.title).toBeNull();
     expect(pickFeatured([])).toBeNull();
   });
 
@@ -276,100 +212,132 @@ describe("pickFeatured", () => {
 
 // ─── Display values ──────────────────────────────────────────────────────────
 
-describe("display values", () => {
-  it("colours the source dot", () => {
-    expect(sourceDotColor("YouTube")).toBe("var(--brand-ocean-blue)");
-    expect(sourceDotColor("Archive file")).toBe("var(--brand-ocean-blue)");
-    expect(sourceDotColor("Vimeo")).toBe("var(--brand-valley-green)");
-    expect(sourceDotColor(null)).toBe("var(--brand-sobrado-ochre)");
-  });
+// ─── Spec 038: display fields, Up next and immersion copy ───────────────────
 
-  it("formats a length only when one is recorded", () => {
-    expect(formatFilmLength(null)).toBeNull();
-    expect(formatFilmLength(0)).toBeNull();
-    expect(formatFilmLength(125)).toBe("2:05");
-    expect(formatFilmLength(3725)).toBe("1:02:05");
-  });
+const TOWNS = [
+  { id: "t-ns", slug: "nova-sintra", name: "Nova Sintra" },
+  { id: "t-fu", slug: "furna", name: "Furna" },
+];
 
-  it("writes the player note per source", () => {
-    expect(playerNote(HANDOFF[0])).toBe("Embedded from YouTube · plays here");
-    expect(playerNote(film({ source: "Archive file" }))).toBe(
-      "Archive file · plays here"
+describe("toFilm display fields (spec 038 FR-004)", () => {
+  it("prefers the curated title and keeps the source title", () => {
+    const f = toFilm(
+      youtube({
+        title: "[4K 60fps] - BRAVA Island - NOVA SINTRA HIKE",
+        displayTitle: "Walking Nova Sintra",
+        placeId: "t-ns",
+        description: "A walk through the town.",
+      }),
+      TOWNS
     );
-    expect(playerNote(HANDOFF[5])).toBe("Source not recorded");
+    expect(f?.displayTitle).toBe("Walking Nova Sintra");
+    expect(f?.title).toBe("Walking Nova Sintra");
+    expect(f?.sourceTitle).toBe("[4K 60fps] - BRAVA Island - NOVA SINTRA HIKE");
+    expect(f?.description).toBe("A walk through the town.");
+    expect(f?.place).toEqual({ slug: "nova-sintra", name: "Nova Sintra" });
   });
 
-  it("titles an untitled film page", () => {
-    expect(filmMetaTitle(HANDOFF[5])).toBe("An untitled film of Brava");
-    expect(filmMetaTitle(HANDOFF[3])).toBe("Nova Sintra em Agosto");
+  it("tolerates a response without the new fields", () => {
+    const f = toFilm(youtube({ title: "Pesca na Brava" }));
+    expect(f?.displayTitle).toBe("Pesca na Brava");
+    expect(f?.sourceTitle).toBe("Pesca na Brava");
+    expect(f?.place).toBeNull();
+  });
+
+  it("falls back to Untitled film and drops a description equal to the title", () => {
+    expect(toFilm(youtube({ title: null }))?.displayTitle).toBe(
+      "Untitled film"
+    );
+    expect(
+      toFilm(youtube({ title: "Same", description: "Same" }))?.description
+    ).toBeNull();
+    expect(
+      toFilm(youtube({ displayTitle: "  ", title: "Host" }))?.displayTitle
+    ).toBe("Host");
+  });
+
+  it("leaves the place null for an unknown settlement id", () => {
+    expect(toFilm(youtube({ placeId: "gone" }), TOWNS)?.place).toBeNull();
   });
 });
 
-// ─── Copy ────────────────────────────────────────────────────────────────────
+describe("upNext (spec 038 FR-043)", () => {
+  const NS = { slug: "nova-sintra", name: "Nova Sintra" };
+  const current = film({ id: "cur", place: NS });
+  const blockedSame = film({ id: "bs", place: NS, playback: null });
+  const same = film({ id: "same", place: NS });
+  const other = film({ id: "other" });
+  const blocked = film({ id: "blocked", playback: null });
+  const list = [current, blocked, other, blockedSame, same];
 
-describe("filmsIntro", () => {
-  it("returns the handoff's sentence for the handoff's data", () => {
-    expect(filmsIntro(HANDOFF)).toBe(
-      "Nine films in the archive. Four carry a title, none records a length, and the collection grows as footage is contributed."
-    );
+  it("orders same place, then playable, then unplayable", () => {
+    expect(upNext(current, list).map((f) => f.id)).toEqual([
+      "bs",
+      "same",
+      "other",
+      "blocked",
+    ]);
   });
 
-  it("drops the titled clause when every film has a title", () => {
-    expect(filmsIntro(PRODUCTION)).toBe(
-      "Nine films in the archive. None records a length, and the collection grows as footage is contributed."
-    );
+  it("puts the first playable film first among the playable ones", () => {
+    expect(upNext(current, list).find(canPlay)?.id).toBe("same");
+    expect(upNext(current, [current, blocked]).find(canPlay)).toBeUndefined();
+    expect(canPlay(blocked)).toBe(false);
   });
 
-  it("drops the length clause once any film records one", () => {
-    const films = [...PRODUCTION.slice(1), film({ durationSeconds: 60 })];
-    expect(filmsIntro(films)).toBe(
-      "Nine films in the archive. The collection grows as footage is contributed."
-    );
-  });
-
-  it("agrees in the singular and at zero", () => {
-    expect(filmsIntro([film({ title: null })])).toBe(
-      "One film in the archive. None carries a title, it records no length, and the collection grows as footage is contributed."
-    );
-    expect(filmsIntro([])).toBe(
-      "No films in the archive yet. The collection grows as footage is contributed."
-    );
-  });
-});
-
-describe("filmsStripNote", () => {
-  it("returns the handoff's sentence for the handoff's data", () => {
-    expect(filmsStripNote(HANDOFF)).toBe(
-      "Footage contributed to the archive. Four carry a title; the rest are waiting on the sync."
-    );
-  });
-
-  it("says nothing about titles when all are titled", () => {
-    expect(filmsStripNote(PRODUCTION)).toBe(
-      "Footage contributed to the archive."
-    );
-  });
-
-  it("counts no titles from a partial list", () => {
-    expect(filmsStripNote(HANDOFF, 120)).toBe(
-      "Footage contributed to the archive."
-    );
-  });
-
-  it("agrees in the singular", () => {
-    expect(filmsStripNote([film(), film({ title: null })])).toBe(
-      "Footage contributed to the archive. One carries a title; the rest are waiting on the sync."
-    );
+  it("has no same-place group when the film has no place", () => {
+    expect(upNext(other, list).map((f) => f.id)).toEqual([
+      "cur",
+      "same",
+      "blocked",
+      "bs",
+    ]);
   });
 });
 
-describe("count lines", () => {
-  it("formats the prototype's count lines", () => {
-    expect(othersLine(8)).toBe("8 others in the archive");
-    expect(othersLine(1)).toBe("1 other in the archive");
-    expect(archiveCountLine(9)).toBe("9 in the archive");
-    expect(ONE_PAGE_LINE).toBe(
-      "Every film fits on one page today. Pagination starts past twenty-four."
+describe("immersion copy (spec 038)", () => {
+  it("builds the eyebrow and filmed-near line", () => {
+    expect(filmEyebrow(film())).toBe("Film · YouTube");
+    expect(filmEyebrow(film({ source: "Archive file" }))).toBe(
+      "Film · Archive file"
     );
+    expect(filmEyebrow(film({ source: null }))).toBe("Film");
+    expect(filmedNear(film({ place: { slug: "furna", name: "Furna" } }))).toBe(
+      "Filmed near Furna"
+    );
+    expect(filmedNear(film())).toBeNull();
+  });
+
+  it("builds the source line", () => {
+    expect(filmSourceLine(film({ sourceTitle: "Pesca na Brava" }))).toBe(
+      "Listed on YouTube as “Pesca na Brava”"
+    );
+    expect(
+      filmSourceLine(
+        film({
+          source: "Archive file",
+          playback: {
+            kind: "file",
+            url: "https://media.nosilha.com/films/brava_cliffs_final.mp4?v=2",
+          },
+        })
+      )
+    ).toBe("Archive file: brava_cliffs_final.mp4");
+    expect(filmSourceLine(film({ sourceTitle: null }))).toBeNull();
+  });
+
+  it("names what is missing in the help line", () => {
+    expect(filmHelpLine(film())).toBe(
+      "Not yet recorded: where it was filmed or who filmed it."
+    );
+    expect(
+      filmHelpLine(film({ place: { slug: "furna", name: "Furna" } }))
+    ).toBe("Not yet recorded: who filmed it.");
+  });
+
+  it("counts films in words", () => {
+    expect(filmsCountWords(9)).toBe("Nine in the archive");
+    expect(filmsCountWords(1)).toBe("One in the archive");
+    expect(filmsCountWords(0)).toBe("None in the archive yet");
   });
 });

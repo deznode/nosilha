@@ -123,6 +123,18 @@ export function isRawFilename(title: string): boolean {
   return RAW_FILENAME_PATTERNS.some((pattern) => pattern.test(title));
 }
 
+const MEDIA_ID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Whether a route segment can name a gallery record. The backend keys media by UUID
+ * and also serves literal paths beside `/gallery/{id}` (`featured`, `random`, ...), so
+ * a page must not hand it anything else: `featured` would come back as a list.
+ */
+export function isMediaId(id: string): boolean {
+  return MEDIA_ID.test(id);
+}
+
 export function mapGalleryMediaToMediaItem(
   media: PublicGalleryMedia
 ): MediaItem {
