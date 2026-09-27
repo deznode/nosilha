@@ -243,20 +243,3 @@ export function photographsNote(unlocated: number): string | null {
     zero: "",
   });
 }
-
-/**
- * Legend, selection-card and photographs-note bottoms, in pixels (SPECS §3).
- *
- * The prototype puts the note at the card's 62px, where on a wide screen it covers
- * MapLibre's zoom buttons and attribution in the same corner (112px tall). The note
- * clears them instead. On a narrow screen the sheet already covers that corner.
- */
-export function overlayOffsets(
-  narrow: boolean,
-  sheetOpen: boolean
-): { legend: number; card: number; note: number } {
-  if (!narrow) return { legend: 14, card: 62, note: 122 };
-  return sheetOpen
-    ? { legend: 14, card: 14, note: 14 }
-    : { legend: 146, card: 196, note: 196 };
-}

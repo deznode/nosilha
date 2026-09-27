@@ -168,16 +168,14 @@ describe("mapStore", () => {
   });
 
   describe("toggles", () => {
-    it("flips satellite, 3D and the sheet", () => {
+    it("flips satellite and 3D", () => {
       const s = useMapStore.getState();
       s.toggleSatellite();
       s.toggle3D();
-      s.toggleSheet();
 
       const next = useMapStore.getState();
       expect(next.satellite).toBe(true);
       expect(next.is3D).toBe(true);
-      expect(next.sheetOpen).toBe(true);
     });
 
     it("resetTransient closes the sheet and the fan, and nothing else", () => {

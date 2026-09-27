@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, type ReactNode } from "react";
+import { clsx } from "clsx";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { statusVar, type DocumentationStatus } from "@/lib/status";
 import { useMapStore, useModeItems, useSelectedKey } from "@/stores/mapStore";
@@ -40,15 +41,30 @@ function ChipDot({ status }: { status: StatusFilter }) {
 
 interface MapSidebarProps {
   onSelect: (item: MapItem) => void;
+  /**
+   * In the narrow layout's bottom sheet: one scrolling row of chips, and a 16px search
+   * so iOS does not zoom on focus. Spec 039 (M4).
+   */
+  inSheet?: boolean;
   /** Shown above the tabs — the bottom sheet's grabber on a narrow screen. */
   header?: ReactNode;
+  /** Under the header: the pin colour key, in the sheet's peek. Spec 039 (M3). */
+  legend?: ReactNode;
+  /** At the head of the list: photographs mode's note, in the sheet. Spec 039 (M3). */
+  notice?: ReactNode;
 }
 
 /**
  * Mode tabs, search, status chips and the list, with its footer. The same body sits in
  * the desktop column and in the narrow bottom sheet. Spec 034 FR-011.
  */
-export function MapSidebar({ onSelect, header }: MapSidebarProps) {
+export function MapSidebar({
+  onSelect,
+  inSheet = false,
+  header,
+  legend,
+  notice,
+}: MapSidebarProps) {
   const mode = useMapStore((s) => s.mode);
   const status = useMapStore((s) => s.status);
   const query = useMapStore((s) => s.query);
@@ -72,8 +88,12 @@ export function MapSidebar({ onSelect, header }: MapSidebarProps) {
   return (
     <>
       {header}
+      {legend}
       <div
-        className="border-b px-[18px] pt-[18px] pb-3.5"
+        className={clsx(
+          "border-b px-[18px] pb-3.5",
+          legend ? "pt-2.5" : "pt-[18px]"
+        )}
         style={{ borderColor: "var(--border-subtle)" }}
       >
         <div
@@ -116,7 +136,10 @@ export function MapSidebar({ onSelect, header }: MapSidebarProps) {
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search Brava…"
           aria-label="Search Brava"
-          className="w-full rounded-[10px] border px-3 py-2.5 text-[13px] outline-none focus:border-[var(--brand-ocean-blue)]"
+          className={clsx(
+            "w-full rounded-[10px] border px-3 py-2.5 outline-none focus:border-[var(--brand-ocean-blue)]",
+            inSheet ? "text-base" : "text-[13px]"
+          )}
           style={{
             background: "var(--card)",
             borderColor: "var(--border-subtle)",
@@ -127,7 +150,10 @@ export function MapSidebar({ onSelect, header }: MapSidebarProps) {
         <div
           role="group"
           aria-label="Filter by status"
-          className="mt-3 flex flex-wrap gap-1.5"
+          className={clsx(
+            "scrollbar-hide mt-3 flex gap-1.5",
+            inSheet ? "-mx-[18px] overflow-x-auto px-[18px]" : "flex-wrap"
+          )}
         >
           {CHIPS.map(({ status: key, label }) => (
             <FilterChip
@@ -151,6 +177,7 @@ export function MapSidebar({ onSelect, header }: MapSidebarProps) {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto p-2.5">
+        {notice}
         {fetchError && (
           <p
             role="alert"

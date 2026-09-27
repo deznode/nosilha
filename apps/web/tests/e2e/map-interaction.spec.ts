@@ -137,4 +137,40 @@ test.describe("Map explorer on a phone", () => {
       page.getByRole("button", { name: "Filters and list" })
     ).toBeVisible();
   });
+
+  // Spec 039 (M1, M2): a long description once pushed Close under the site header.
+  test("shows a selection in the sheet, with Close in reach", async ({
+    page,
+    request,
+  }) => {
+    const [town] = await settlements(request);
+    test.skip(!town, "the seed holds no settlement");
+
+    await page.goto("/map");
+    await page.getByRole("button", { name: "Filters and list" }).click();
+    await page.getByRole("searchbox", { name: "Search Brava" }).fill(town.name);
+    await page
+      .getByTestId("map-sheet")
+      .getByRole("button", { name: new RegExp(`^${escapeRegExp(town.name)}`) })
+      .click();
+
+    const sheet = page.getByTestId("map-sheet");
+    await expect(sheet).toHaveAttribute("data-view", "detail");
+    const detail = sheet.getByRole("region", {
+      name: `Selected: ${town.name}`,
+    });
+    await expect(detail).toBeVisible();
+
+    const close = detail.getByRole("button", { name: "Close" });
+    const box = (await close.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    const header = (await page.locator("header").first().boundingBox())!;
+    expect(box.y).toBeGreaterThanOrEqual(header.y + header.height);
+
+    await close.click();
+    await expect(detail).toBeHidden();
+    await expect(sheet).toHaveAttribute("data-view", "peek");
+    await expect(page).not.toHaveURL(/sel=/);
+  });
 });

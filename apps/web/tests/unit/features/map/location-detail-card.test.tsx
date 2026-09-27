@@ -45,9 +45,9 @@ const photo: MapItem = {
   credit: null,
 };
 
-function renderCard(item: MapItem, bottom = 62) {
+function renderCard(item: MapItem) {
   const onClose = vi.fn();
-  render(<LocationDetailCard item={item} bottom={bottom} onClose={onClose} />);
+  render(<LocationDetailCard item={item} onClose={onClose} />);
   return { onClose, card: screen.getByRole("region") };
 }
 
@@ -104,9 +104,29 @@ describe("LocationDetailCard", () => {
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
-  it("sits at the offset it is given, 62px on a wide screen", () => {
+  it("sits 62px above the canvas bottom", () => {
     const { card } = renderCard(furna);
     expect(card.style.bottom).toBe("62px");
+  });
+
+  it("caps its height to the canvas and scrolls, so Close stays in reach", () => {
+    const { card } = renderCard(furna);
+    expect(card.style.maxHeight).toBe("calc(100% - 76px)");
+    expect(card.className).toContain("overflow-y-auto");
+  });
+
+  it("clamps a long description to three lines", () => {
+    renderCard({ ...record, description: "A long description. ".repeat(40) });
+    expect(screen.getByText(/A long description/).className).toContain(
+      "line-clamp-3"
+    );
+  });
+
+  it("gives Close a 44px target", () => {
+    renderCard(furna);
+    expect(screen.getByRole("button", { name: "Close" }).className).toContain(
+      "size-11"
+    );
   });
 
   it("uses the primary token for its main action, so it passes contrast in both themes", () => {

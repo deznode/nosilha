@@ -30,7 +30,11 @@ export function ChipRow<K extends string>({
     <div
       role="group"
       aria-label={label}
-      className={clsx("scrollbar-hide flex gap-1.5 overflow-x-auto", className)}
+      // The vertical padding leaves room for each chip's touch area, which a scroller clips.
+      className={clsx(
+        "scrollbar-hide -my-1.5 flex gap-1.5 overflow-x-auto py-1.5",
+        className
+      )}
     >
       {chips.map((chip) => {
         const on = chip.key === active;
@@ -41,7 +45,7 @@ export function ChipRow<K extends string>({
             aria-pressed={on}
             onClick={() => onSelect(chip.key)}
             className={clsx(
-              "focus-ring flex flex-none items-center gap-[7px] rounded-full border px-[13px] py-[7px] text-[13px] whitespace-nowrap transition-all duration-[180ms] ease-(--ease-archive) motion-reduce:transition-none",
+              "focus-ring hit-area flex flex-none items-center gap-[7px] rounded-full border px-[13px] py-[7px] text-[13px] whitespace-nowrap transition-all duration-[180ms] ease-(--ease-archive) motion-reduce:transition-none",
               on
                 ? "bg-foreground text-background border-foreground"
                 : "text-body border-border-subtle hover:border-border-strong bg-transparent"

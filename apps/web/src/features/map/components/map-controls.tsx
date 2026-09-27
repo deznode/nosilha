@@ -28,7 +28,8 @@ export function MapControls({ controls }: { controls: MapControl[] }) {
             aria-pressed={control.pressed}
             onClick={control.onClick}
             className={clsx(
-              "size-[38px] cursor-pointer rounded-[10px] border font-sans text-xs backdrop-blur-[6px] transition-colors",
+              // The ::after grows the 38px button to a 44px target across the 6px gaps.
+              "hit-area size-[38px] cursor-pointer rounded-[10px] border font-sans text-xs backdrop-blur-[6px] transition-colors",
               !on && "hover:border-[var(--border-strong)]"
             )}
             style={{

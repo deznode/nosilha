@@ -61,7 +61,7 @@ export function UpNext({
           role="switch"
           aria-checked={autoNext}
           onClick={onToggleAutoNext}
-          className="focus-ring text-muted ml-auto flex items-center gap-2 text-xs"
+          className="focus-ring text-muted hit-area ml-auto flex items-center gap-2 text-xs"
         >
           Autoplay
           <span

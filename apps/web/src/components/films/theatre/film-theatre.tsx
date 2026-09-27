@@ -70,7 +70,7 @@ export function FilmTheatre({
         <div className="flex min-w-0 flex-col gap-3.5 pt-5 md:pt-[30px]">
           <Link
             href="/films"
-            className="text-muted hover:text-body self-start text-[13px] transition-colors"
+            className="text-muted hover:text-body hit-area self-start text-[13px] transition-colors"
           >
             ← All films
           </Link>
