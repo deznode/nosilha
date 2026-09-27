@@ -12,12 +12,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo } from "react";
 import { Button } from "@/components/catalyst-ui/button";
 import { useUpdateGalleryMedia } from "@/hooks/queries/admin";
+import { useTownSummaries } from "@/hooks/queries/useTownSummaries";
 import { useToast } from "@/hooks/use-toast";
 import {
   galleryEditSchema,
   type GalleryEditInput,
 } from "@/schemas/galleryEditSchema";
-import type { GalleryMedia, UpdateGalleryMediaRequest } from "@/types/gallery";
+import type {
+  ExternalMedia,
+  GalleryMedia,
+  UpdateGalleryMediaRequest,
+} from "@/types/gallery";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 import { detectCreditPlatform } from "@/lib/credit-utils";
 import { CreditPreviewBadge } from "@/components/ui/credit-display";
@@ -32,6 +37,41 @@ function getAttribution(item: GalleryMedia): string {
   return "";
 }
 
+/**
+ * The film-only fields of a PATCH (spec 038), sent only when they changed.
+ *
+ * - A display title emptied by the admin is sent as "" (the backend clears it).
+ * - Choosing "Not recorded" for a film that had a settlement sends `clearPlace: true`,
+ *   since the backend reads a missing `placeId` as "no change".
+ */
+export function filmCurationChanges(
+  item: ExternalMedia,
+  data: Pick<GalleryEditInput, "displayTitle" | "placeId">
+): Pick<UpdateGalleryMediaRequest, "displayTitle" | "placeId" | "clearPlace"> {
+  const changes: Pick<
+    UpdateGalleryMediaRequest,
+    "displayTitle" | "placeId" | "clearPlace"
+  > = {};
+
+  const previousTitle = (item.displayTitle ?? "").trim();
+  const nextTitle = (data.displayTitle ?? "").trim();
+  if (nextTitle !== previousTitle) {
+    changes.displayTitle = nextTitle;
+  }
+
+  const previousPlace = item.placeId ?? "";
+  const nextPlace = data.placeId ?? "";
+  if (nextPlace !== previousPlace) {
+    if (nextPlace) {
+      changes.placeId = nextPlace;
+    } else {
+      changes.clearPlace = true;
+    }
+  }
+
+  return changes;
+}
+
 interface GalleryEditModalProps {
   isOpen: boolean;
   item: GalleryMedia | null;
@@ -44,6 +84,7 @@ interface GalleryEditModalProps {
  *
  * Features:
  * - Title, description, category, and contextual attribution fields
+ * - External media (films): display title and "Filmed near" settlement (spec 038)
  */
 export function GalleryEditModal({
   isOpen,
@@ -53,6 +94,18 @@ export function GalleryEditModal({
 }: GalleryEditModalProps) {
   const toast = useToast();
   const updateMutation = useUpdateGalleryMedia();
+  const isExternal = item !== null && isExternalMedia(item);
+  const { data: towns = [], isLoading: townsLoading } = useTownSummaries({
+    enabled: isOpen && isExternal,
+  });
+  // Only settlements with a stored row can be linked; the backend checks the id.
+  const settlements = useMemo(
+    () =>
+      towns
+        .filter((town): town is typeof town & { id: string } => !!town.id)
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [towns]
+  );
 
   const {
     register,
@@ -80,6 +133,8 @@ export function GalleryEditModal({
         attribution: getAttribution(item),
         showInGallery: item.showInGallery,
         featured: isExternalMedia(item) ? (item.featured ?? false) : false,
+        displayTitle: isExternalMedia(item) ? (item.displayTitle ?? "") : "",
+        placeId: isExternalMedia(item) ? (item.placeId ?? "") : "",
       });
     }
   }, [item, reset]);
@@ -105,6 +160,7 @@ export function GalleryEditModal({
 
     if (isExternalMedia(item)) {
       request.featured = data.featured;
+      Object.assign(request, filmCurationChanges(item, data));
     }
 
     updateMutation.mutate(
@@ -153,19 +209,60 @@ export function GalleryEditModal({
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="max-h-[70vh] space-y-4 overflow-y-auto px-6 py-4">
+                {/* Display title (external media only) */}
+                {isExternal && (
+                  <div>
+                    <label
+                      htmlFor="gallery-display-title"
+                      className="text-body mb-1 block text-sm font-medium"
+                    >
+                      Display title
+                    </label>
+                    <input
+                      id="gallery-display-title"
+                      type="text"
+                      maxLength={255}
+                      aria-describedby="gallery-display-title-help"
+                      {...register("displayTitle")}
+                      className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-lg border px-3 py-2 text-sm focus:ring-1"
+                    />
+                    <p
+                      id="gallery-display-title-help"
+                      className="text-muted mt-1 text-xs"
+                    >
+                      Shown in the archive. Leave blank to use the YouTube
+                      title.
+                    </p>
+                    {errors.displayTitle && (
+                      <p className="text-status-error mt-1 text-xs">
+                        {errors.displayTitle.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {/* Title */}
                 <div>
                   <label
                     htmlFor="gallery-title"
                     className="text-body mb-1 block text-sm font-medium"
                   >
-                    Title <span className="text-status-error">*</span>
+                    {isExternal ? (
+                      "Source title (as listed by the host)"
+                    ) : (
+                      <>
+                        Title <span className="text-status-error">*</span>
+                      </>
+                    )}
                   </label>
+                  {/* A film's title is the host's own; the archive shows the display
+                      title and cites this one as "Listed on YouTube as …". */}
                   <input
                     id="gallery-title"
                     type="text"
+                    readOnly={isExternal}
                     {...register("title")}
-                    className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-lg border px-3 py-2 text-sm focus:ring-1"
+                    className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-lg border px-3 py-2 text-sm read-only:opacity-70 focus:ring-1"
                   />
                   {errors.title && (
                     <p className="text-status-error mt-1 text-xs">
@@ -194,6 +291,37 @@ export function GalleryEditModal({
                     </p>
                   )}
                 </div>
+
+                {/* Filmed near (external media only) */}
+                {isExternal && (
+                  <div>
+                    <label
+                      htmlFor="gallery-place"
+                      className="text-body mb-1 block text-sm font-medium"
+                    >
+                      Filmed near
+                    </label>
+                    {/* Mounted once the settlements load, so the saved value finds its option. */}
+                    {townsLoading ? (
+                      <p className="text-muted text-sm">
+                        Loading settlements...
+                      </p>
+                    ) : (
+                      <select
+                        id="gallery-place"
+                        {...register("placeId")}
+                        className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-lg border px-3 py-2 text-sm focus:ring-1"
+                      >
+                        <option value="">Not recorded</option>
+                        {settlements.map((town) => (
+                          <option key={town.id} value={town.id}>
+                            {town.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                )}
 
                 {/* Category */}
                 <div>

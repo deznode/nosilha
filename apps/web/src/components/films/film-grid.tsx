@@ -1,38 +1,14 @@
-"use client";
+import { FilmCard } from "./film-card";
 
-import { useMemo } from "react";
+import type { Film } from "@/lib/films";
 
-import { VideoGrid } from "@/components/gallery/video-grid";
-import { filmToMediaItem, type Film } from "@/lib/films";
-import type { MediaItem } from "@/types/media";
-
-/** A card links to its film's page, so it can be crawled and opened in a new tab. */
-const filmHref = (item: MediaItem) => `/films/${item.id}`;
-
-/** A grid of films in which every card opens the film's own page. */
-export function FilmGrid({
-  films,
-  featuredId,
-  selectedId,
-  animationKey = "all",
-}: {
-  films: Film[];
-  /** Left out of the desktop grid because a hero above already shows it. */
-  featuredId?: string | null;
-  selectedId?: string | null;
-  /** Replays the grid's entrance when it changes, e.g. on a facet switch. */
-  animationKey?: string;
-}) {
-  const items = useMemo(() => films.map(filmToMediaItem), [films]);
-
+/** A grid of films as cards, each opening the film's own page. Spec 038 FR-002. */
+export function FilmGrid({ films }: { films: readonly Film[] }) {
   return (
-    <VideoGrid
-      items={items}
-      categoryFilter={animationKey}
-      featuredVideoId={featuredId}
-      selectedVideoId={selectedId}
-      videoHref={filmHref}
-      mobileLayout="cards"
-    />
+    <div className="grid grid-cols-1 gap-x-[18px] gap-y-[26px] sm:grid-cols-2 lg:grid-cols-3">
+      {films.map((film) => (
+        <FilmCard key={film.id} film={film} />
+      ))}
+    </div>
   );
 }

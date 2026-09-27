@@ -1190,8 +1190,13 @@ export const CacheConfig = {
   // Related content - cached for 5 minutes (User Story 5)
   RELATED_CONTENT: { revalidate: 300 }, // 5 minutes
 
-  // Gallery content - cached for 30 minutes (curated and approved media)
-  GALLERY: { revalidate: 1800 }, // 30 minutes
+  // Gallery content - cached for 30 minutes (curated and approved media). Tagged
+  // `gallery`, the tag the backend flushes after an admin edit (spec 038 T-13): an
+  // untagged entry would feed the re-rendered pages the old rows for 30 minutes.
+  GALLERY: {
+    revalidate: 1800, // 30 minutes
+    tags: ["gallery"],
+  } as NextFetchRequestConfig,
 } as const;
 
 // ================================

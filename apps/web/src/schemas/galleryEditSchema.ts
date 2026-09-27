@@ -2,7 +2,8 @@ import { z } from "zod";
 
 /**
  * Zod schema for the gallery media edit form.
- * Validates title (required), description, category, and attribution fields.
+ * Validates title (required), description, category, and attribution fields,
+ * plus the film-only display title and settlement (spec 038).
  */
 export const galleryEditSchema = z.object({
   title: z
@@ -26,6 +27,14 @@ export const galleryEditSchema = z.object({
     .or(z.literal("")),
   showInGallery: z.boolean().optional(),
   featured: z.boolean().optional(),
+  /** External media only. Blank means "use the source (YouTube) title". */
+  displayTitle: z
+    .string()
+    .max(255, "Display title cannot exceed 255 characters")
+    .optional()
+    .or(z.literal("")),
+  /** External media only. A settlement id, or "" for "Not recorded". */
+  placeId: z.string().optional().or(z.literal("")),
 });
 
 export type GalleryEditInput = z.infer<typeof galleryEditSchema>;

@@ -2515,10 +2515,8 @@ export class BackendApiClient implements ApiClient {
   ): Promise<PublicGalleryMedia | undefined> {
     const endpoint = `${env.apiUrl}/api/v1/gallery/${id}`;
 
-    // Use ISR with 30 minute cache for individual media items
-    const response = await fetch(endpoint, {
-      next: { revalidate: 1800 }, // 30 minutes
-    });
+    // Same 30-minute, `gallery`-tagged entry as the lists, so an admin edit reaches it
+    const response = await fetch(endpoint, { next: CacheConfig.GALLERY });
 
     if (!response.ok) {
       if (response.status === 404) {

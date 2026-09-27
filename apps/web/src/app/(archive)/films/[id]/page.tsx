@@ -2,10 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 
-import { FilmsScreen } from "@/components/films/film-chrome";
-import { FilmPage } from "@/components/films/film-page";
+import { FilmTheatre } from "@/components/films/theatre/film-theatre";
 import { getGalleryMedia, getGalleryMediaById } from "@/lib/api";
-import { FILMS_FETCH_SIZE, filmMetaTitle, toFilm, toFilms } from "@/lib/films";
+import {
+  FILMS_FETCH_SIZE,
+  toFilm,
+  toFilms,
+  type FilmSettlement,
+} from "@/lib/films";
+import { getArchivePhotographs } from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
 
 /**
@@ -19,12 +24,16 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface FilmRouteProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ play?: string }>;
 }
 
-async function findFilm(id: string) {
+async function findFilm(
+  id: string,
+  settlements: readonly FilmSettlement[] = []
+) {
   if (!UUID.test(id)) return null;
   const media = await getGalleryMediaById(id);
-  return media ? toFilm(media) : null;
+  return media ? toFilm(media, settlements) : null;
 }
 
 export async function generateMetadata({
@@ -35,44 +44,59 @@ export async function generateMetadata({
   if (!film) return {};
 
   return generatePageMetadata({
-    title: filmMetaTitle(film),
+    title: film.displayTitle,
     description:
-      "A film in the Brava Island archive, played in place, with what its record is still missing.",
+      film.description ??
+      "A film of Brava Island from the archive, played in place.",
     path: `/films/${film.id}`,
     keywords: ["Brava Island", "Cape Verde", "archive film"],
   });
 }
 
-export default async function FilmRoute({ params }: FilmRouteProps) {
-  const { id } = await params;
-  return cachedFilm(id);
+export default async function FilmRoute({
+  params,
+  searchParams,
+}: FilmRouteProps) {
+  const [{ id }, { play }] = await Promise.all([params, searchParams]);
+  return cachedFilm(id, play === "1");
 }
 
-/** Spec 035 FR-005. */
-async function cachedFilm(id: string) {
+/** Spec 038 FR-040 to FR-043. */
+async function cachedFilm(id: string, autoStart: boolean) {
   "use cache";
   cacheLife("entry");
   cacheTag("gallery");
+  cacheTag("towns");
 
-  // Both requests start together, but the 404 is settled on the film alone. "More
-  // films" is optional, so a failed list request drops the section instead of
-  // turning a film that exists into a 500.
-  const filmPromise = findFilm(id);
+  // The photograph dataset names the film's settlement and says whether it has
+  // photographs. The 404 is settled on the film alone: Up next and "Photographs from
+  // here" are optional, so a failed list request drops them instead of turning a film
+  // that exists into a 500.
+  const archivePromise = getArchivePhotographs().catch(() => null);
   const othersPromise = getGalleryMedia({
     mediaType: "VIDEO",
     size: FILMS_FETCH_SIZE,
   })
-    .then((list) => toFilms(list.items))
+    .then((list) => list.items)
     .catch(() => []);
 
-  const film = await filmPromise;
+  const archive = await archivePromise;
+  const settlements = archive?.settlements ?? [];
+  const film = await findFilm(id, settlements);
   if (!film) notFound();
 
-  const others = (await othersPromise).filter((f) => f.id !== film.id);
+  const films = toFilms(await othersPromise, settlements);
+  const all = films.some((f) => f.id === film.id) ? films : [film, ...films];
+  const hasPlacePhotos =
+    !!film.place &&
+    !!archive?.photos.some((p) => p.near?.slug === film.place?.slug);
 
   return (
-    <FilmsScreen>
-      <FilmPage film={film} others={others} />
-    </FilmsScreen>
+    <FilmTheatre
+      film={film}
+      films={all}
+      hasPlacePhotos={hasPlacePhotos}
+      autoStart={autoStart}
+    />
   );
 }

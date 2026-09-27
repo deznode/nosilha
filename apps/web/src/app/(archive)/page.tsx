@@ -128,7 +128,7 @@ async function ArchiveHomeContent({ instagram }: { instagram: ReactNode }) {
       }
       hero={pickHero(featured)}
       photographRow={pickPhotographRow(pool.items)}
-      films={toFilms(films.items)}
+      films={toFilms(films.items, towns)}
       instagram={instagram}
     />
   );

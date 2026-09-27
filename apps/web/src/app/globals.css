@@ -175,6 +175,13 @@
      drifted apart. Spec 037. */
   --chrome-bottom-bar-height: 56px;
 
+  /* The viewing stage: the photo viewer, the film theatre band and the films hero.
+     A deep warm grey in light, near-black in dark; its text is the same in both.
+     Spec 038 FR-001. */
+  --stage: #2b2621;
+  --stage-fg: #f3eee6;
+  --stage-fg-2: #c9bfb2;
+
   /* @status-mix:start */
   /* Status mix ratios - see @theme inline for the derived utilities */
   --status-mix-surface: 14%;
@@ -263,6 +270,11 @@
 
   /* Focus Ring */
   --focus-glow: oklch(0.78 0.14 234 / 0.2);
+
+  /* Viewing stage (spec 038 FR-001). Only the ground changes with the theme. */
+  --stage: #0b0a09;
+  --stage-fg: #f3eee6;
+  --stage-fg-2: #c9bfb2;
 
   /* @status-mix-dark:start */
   /* Status mix ratios - dark mode inverts the ink/surface relationship */
@@ -456,6 +468,11 @@
   --color-hairline: var(--border-subtle);
   --color-edge: var(--border-strong);
 
+  /* Viewing stage: bg-stage, text-stage-fg, text-stage-fg-2 (spec 038) */
+  --color-stage: var(--stage);
+  --color-stage-fg: var(--stage-fg);
+  --color-stage-fg-2: var(--stage-fg-2);
+
   /* BravaMap compat aliases */
   --color-volcanic-gray: var(--neutral-basalt-500);
   --color-volcanic-gray-dark: var(--neutral-basalt-800);
@@ -536,6 +553,8 @@
   --transition-fast: 150ms var(--ease-calm);
   --transition-standard: 200ms var(--ease-calm);
   --transition-slow: 300ms var(--ease-calm);
+  /* The archive's media curve: lifts, chips, crossfades, panels. Spec 038 FR-001. */
+  --ease-archive: cubic-bezier(0.4, 0.14, 0.3, 1);
 
   /* === Animation Tokens === */
   --animate-glow: glow 4s ease-in-out infinite;
@@ -789,6 +808,127 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* ========================================
+   * MEDIA IMMERSION (spec 038 FR-001)
+   * ======================================== */
+
+  /* Tiles and film cards rise on hover, or when the card around them does. */
+  .hover-lift {
+    transition:
+      transform 0.22s var(--ease-archive),
+      box-shadow 0.22s var(--ease-archive);
+  }
+  .hover-lift:hover,
+  .group:hover .hover-lift,
+  .group:focus-visible .hover-lift {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(20, 14, 8, 0.22);
+  }
+
+  /* Control pill on a photograph or the stage. No `display` here, so a responsive
+     `hidden md:inline-flex` on the element still decides whether it shows. */
+  .dark-pill {
+    align-items: center;
+    gap: 6px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(12, 10, 8, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #f6f1e9;
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.18s var(--ease-archive);
+  }
+  .dark-pill:hover {
+    background: rgba(12, 10, 8, 0.68);
+  }
+
+  /* Scrims under on-image text, which is always #F6F1E9. */
+  .scrim-bottom {
+    background: linear-gradient(
+      to top,
+      rgba(12, 10, 8, 0.84),
+      rgba(12, 10, 8, 0) 58%
+    );
+  }
+  .scrim-hero {
+    background: linear-gradient(
+      to top,
+      rgba(10, 8, 6, 0.9) 0%,
+      rgba(10, 8, 6, 0.2) 58%,
+      rgba(10, 8, 6, 0.32) 100%
+    );
+  }
+  .scrim-tile {
+    background: linear-gradient(to top, rgba(12, 10, 8, 0.72), transparent);
+  }
+
+  /* Slow zoom on a feature photograph and on a playing still. */
+  .ken-burns {
+    animation: ken-burns 9s linear infinite alternate;
+  }
+  .ken-burns-hero {
+    animation: ken-burns-hero 9s linear infinite alternate;
+  }
+
+  @keyframes ken-burns {
+    from {
+      transform: scale(1.001);
+    }
+    to {
+      transform: scale(1.08) translate(-1.5%, -1%);
+    }
+  }
+  @keyframes ken-burns-hero {
+    from {
+      transform: scale(1.03) translate(1%, 0);
+    }
+    to {
+      transform: scale(1.14) translate(-2%, -1.5%);
+    }
+  }
+
+  /* FilmCard's hover preview: a slow push-in on the still and a chip. Fine pointers
+     only, so touch devices never trigger it, and nothing loads for it. */
+  .film-preview-chip {
+    display: none;
+  }
+  .film-preview-still {
+    transform: scale(1.001);
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .film-preview-still {
+      transition: transform 0.5s var(--ease-archive);
+    }
+    .group:hover .film-preview-still {
+      transform: scale(1.12) translate(-2%, -1%);
+      transition: transform 7s cubic-bezier(0.2, 0.6, 0.3, 1);
+    }
+    .group:hover .film-preview-chip {
+      display: inline-block;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hover-lift,
+    .dark-pill {
+      transition: none;
+    }
+    .hover-lift:hover,
+    .group:hover .hover-lift,
+    .group:focus-visible .hover-lift {
+      transform: none;
+    }
+    .ken-burns,
+    .ken-burns-hero {
+      animation: none;
+    }
   }
 
   /* ========================================

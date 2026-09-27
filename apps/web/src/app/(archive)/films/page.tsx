@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 
-import { FilmsScreen } from "@/components/films/film-chrome";
-import { FilmsIndex } from "@/components/films/films-index";
-import { getGalleryMedia } from "@/lib/api";
-import { FILMS_FETCH_SIZE, toFilms } from "@/lib/films";
+import { FilmsCinema } from "@/components/films/cinema/films-cinema";
+import { getGalleryMedia, getTownStatusSummary } from "@/lib/api";
+import {
+  FILMS_FETCH_SIZE,
+  canPlay,
+  pickFeatured,
+  promotableFilms,
+  toFilms,
+} from "@/lib/films";
 import { generatePageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Films",
   description:
-    "Every film in the Brava Island archive, played in place, with what each record is still missing.",
+    "Films of Brava Island contributed to the archive, played in place.",
   path: "/films",
   keywords: [
     "Brava Island films",
@@ -20,22 +25,24 @@ export const metadata: Metadata = generatePageMetadata({
   ],
 });
 
-/** Spec 035 FR-002 – FR-004. */
+/** Spec 038 FR-030 to FR-032. */
 export default async function FilmsPage() {
   "use cache";
   cacheLife("content");
   cacheTag("gallery");
+  cacheTag("towns");
 
-  // No `catch`: a swallowed failure would be cached as "No films in the archive yet"
-  // for an hour, and that is a claim about the archive, not a degraded state.
-  const page = await getGalleryMedia({
-    mediaType: "VIDEO",
-    size: FILMS_FETCH_SIZE,
-  });
+  // No `catch` on the films: a swallowed failure would be cached as "None in the
+  // archive yet" for an hour. The settlements only name places, so they may fail.
+  const [page, settlements] = await Promise.all([
+    getGalleryMedia({ mediaType: "VIDEO", size: FILMS_FETCH_SIZE }),
+    getTownStatusSummary().catch(() => []),
+  ]);
+  const films = toFilms(page.items, settlements);
 
-  return (
-    <FilmsScreen>
-      <FilmsIndex films={toFilms(page.items)} />
-    </FilmsScreen>
-  );
+  // The hero plays on arrival, so it must be a film that can; with none, no hero.
+  const featured =
+    pickFeatured(promotableFilms(films).filter(canPlay)) ?? pickFeatured(films);
+
+  return <FilmsCinema films={films} featured={featured} />;
 }

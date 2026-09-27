@@ -16,6 +16,9 @@ function film(id: string, title: string | null): Film {
   return {
     id,
     title,
+    displayTitle: title ?? "Untitled film",
+    sourceTitle: title,
+    description: null,
     source: "YouTube",
     thumbnailUrl: null,
     durationSeconds: null,
@@ -239,40 +242,28 @@ describe("ArchiveHome", () => {
       film("d", "Brava"),
     ];
 
-    it("shows three films that open their pages, with live counts", () => {
+    it("shows three films as cards that open their pages (spec 038 FR-050)", () => {
       renderHome({ films: FILMS, facets: { ...FACETS, films: 4 } });
 
       const strip = screen
         .getByRole("heading", { name: "Films" })
         .closest("section")!;
-      expect(within(strip).getByText("4 in the archive")).toBeInTheDocument();
       expect(
-        within(strip).getByText(
-          "Footage contributed to the archive. Three carry a title; the rest are waiting on the sync."
-        )
+        within(strip).getByText("Footage of Brava contributed to the archive.")
       ).toBeInTheDocument();
       expect(
         within(strip).getByRole("link", { name: "See all films →" })
       ).toHaveAttribute("href", "/films");
 
       const cards = within(strip).getAllByRole("link", {
-        name: "Explorando Furna",
+        name: /Explorando Furna/,
       });
       expect(
-        within(strip).queryAllByRole("link", { name: "Brava" })
+        within(strip).queryAllByRole("link", { name: /^Brava$/ })
       ).toHaveLength(0);
       expect(cards[0]).toHaveAttribute("href", "/films/a");
       expect(strip.querySelector("[target=_blank]")).toBeNull();
       expect(strip.querySelector("iframe")).toBeNull();
-    });
-
-    it("counts no titles when the list is shorter than the archive", () => {
-      renderHome({ films: FILMS });
-
-      expect(
-        screen.getByText("Footage contributed to the archive.")
-      ).toBeInTheDocument();
-      expect(screen.getByText("9 in the archive")).toBeInTheDocument();
     });
 
     it("is absent when the archive holds no film", () => {
