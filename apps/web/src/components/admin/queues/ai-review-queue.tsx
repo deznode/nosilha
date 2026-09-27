@@ -16,6 +16,7 @@ import {
   useTriggerBatchAnalysis,
 } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
+import { isAiRunInFlight } from "@/types/ai";
 
 type AiStatusFilter =
   "ALL" | "NOT_ANALYZED" | "PENDING_REVIEW" | "APPROVED" | "REJECTED";
@@ -103,8 +104,7 @@ export function AiReviewQueue() {
           if (item.status !== "ACTIVE" && item.status !== "PENDING_REVIEW")
             return false;
           if (!item.publicUrl) return false;
-          const runStatus = aiStatuses.get(item.id)?.lastRunStatus;
-          if (runStatus === "PROCESSING" || runStatus === "PENDING")
+          if (isAiRunInFlight(aiStatuses.get(item.id)?.lastRunStatus))
             return false;
           return true;
         })

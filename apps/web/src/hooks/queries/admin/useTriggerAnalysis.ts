@@ -22,11 +22,7 @@ type AiStatusSnapshot = {
   snapshot: [QueryKey, AiStatusResponse[] | undefined][];
 };
 
-const AI_STATUS_QUERY_FILTER = {
-  queryKey: adminKeys.aiReview.all(),
-  predicate: (query: { queryKey: readonly unknown[] }) =>
-    query.queryKey.includes("status"),
-};
+const AI_STATUS_QUERY_FILTER = { queryKey: adminKeys.aiReview.statusAll() };
 
 /**
  * Saves a snapshot of AI status queries and optimistically marks
@@ -54,7 +50,7 @@ function rollbackSnapshot(
   queryClient: QueryClient,
   context?: AiStatusSnapshot
 ): void {
-  context?.snapshot?.forEach(([key, data]) =>
+  context?.snapshot.forEach(([key, data]) =>
     queryClient.setQueryData(key, data)
   );
 }

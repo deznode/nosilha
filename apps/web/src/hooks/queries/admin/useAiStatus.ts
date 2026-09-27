@@ -10,6 +10,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAiStatus } from "@/lib/api";
 import { adminKeys } from "./keys";
+import { isAiRunInFlight } from "@/types/ai";
 
 /**
  * Hook for batch-fetching AI processing status for multiple media items.
@@ -30,9 +31,7 @@ export function useAiStatus(mediaIds: string[]) {
     refetchInterval: (query) => {
       const data = query.state.data;
       if (!data) return false;
-      const hasActiveRuns = data.some(
-        (s) => s.lastRunStatus === "PROCESSING" || s.lastRunStatus === "PENDING"
-      );
+      const hasActiveRuns = data.some((s) => isAiRunInFlight(s.lastRunStatus));
       return hasActiveRuns ? 3000 : false;
     },
   });

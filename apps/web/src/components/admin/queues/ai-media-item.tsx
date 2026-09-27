@@ -10,10 +10,13 @@ import {
   Music,
   ExternalLink,
   Upload,
-  XCircle,
 } from "lucide-react";
 import type { GalleryMedia } from "@/types/gallery";
-import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
+import {
+  isAiRunInFlight,
+  type AiStatusResponse,
+  type AiModerationStatus,
+} from "@/types/ai";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { Button } from "@/components/catalyst-ui/button";
@@ -119,40 +122,8 @@ export function AiMediaItem({
     );
   };
 
-  const isProcessing =
-    aiStatus?.lastRunStatus === "PROCESSING" ||
-    aiStatus?.lastRunStatus === "PENDING";
+  const isProcessing = isAiRunInFlight(aiStatus?.lastRunStatus);
   const hasPendingReview = aiStatus?.moderationStatus === "PENDING_REVIEW";
-
-  const renderAiStatusBadge = () => {
-    if (isProcessing) {
-      return (
-        <span className="bg-brand/10 text-brand inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
-          <Loader2 size={10} className="animate-spin" /> Analyzing...
-        </span>
-      );
-    }
-    if (aiStatus?.lastRunStatus === "FAILED") {
-      return (
-        <span className="bg-status-error/10 text-status-error inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
-          <XCircle size={10} /> Analysis Failed
-        </span>
-      );
-    }
-    if (aiStatus?.moderationStatus) {
-      return (
-        <AiStatusBadge
-          moderationStatus={aiStatus.moderationStatus as AiModerationStatus}
-          onClick={onViewAiReview ? () => onViewAiReview(item.id) : undefined}
-        />
-      );
-    }
-    return (
-      <span className="bg-surface-alt text-muted inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
-        Not analyzed
-      </span>
-    );
-  };
 
   return (
     <div className="border-hairline bg-surface rounded-card hover:shadow-medium flex items-start gap-4 border p-4 transition-shadow">
@@ -197,7 +168,16 @@ export function AiMediaItem({
               <span className="text-muted text-xs">
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>
-              {renderAiStatusBadge()}
+              <AiStatusBadge
+                moderationStatus={
+                  aiStatus?.moderationStatus as AiModerationStatus | null
+                }
+                lastRunStatus={aiStatus?.lastRunStatus}
+                showUnanalyzed
+                onClick={
+                  onViewAiReview ? () => onViewAiReview(item.id) : undefined
+                }
+              />
             </div>
           </div>
         </div>

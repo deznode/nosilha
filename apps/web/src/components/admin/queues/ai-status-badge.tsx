@@ -1,18 +1,33 @@
 "use client";
 
 import { clsx } from "clsx";
-import { Sparkles, CheckCircle, XCircle } from "lucide-react";
-import type { AiModerationStatus } from "@/types/ai";
+import {
+  Sparkles,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  type LucideIcon,
+} from "lucide-react";
+import { isAiRunInFlight, type AiModerationStatus } from "@/types/ai";
 
 interface AiStatusBadgeProps {
   moderationStatus?: AiModerationStatus | null;
+  /** The latest analysis run. A queued, running or failed run outranks the moderation status. */
+  lastRunStatus?: string | null;
+  /** Show "Not analyzed" instead of nothing when there is no status at all. */
+  showUnanalyzed?: boolean;
+  /** Only the moderation states are clickable. */
   onClick?: () => void;
 }
 
-const STATUS_CONFIG: Record<
-  AiModerationStatus,
-  { icon: typeof Sparkles; label: string; className: string }
-> = {
+interface BadgeConfig {
+  icon?: LucideIcon;
+  iconClassName?: string;
+  label: string;
+  className: string;
+}
+
+const STATUS_CONFIG: Record<AiModerationStatus, BadgeConfig> = {
   PENDING_REVIEW: {
     icon: Sparkles,
     label: "AI Pending Review",
@@ -33,13 +48,42 @@ const STATUS_CONFIG: Record<
   },
 };
 
-export function AiStatusBadge({
-  moderationStatus,
-  onClick,
-}: AiStatusBadgeProps) {
-  if (!moderationStatus) return null;
+const PROCESSING: BadgeConfig = {
+  icon: Loader2,
+  iconClassName: "animate-spin",
+  label: "Analyzing...",
+  className: "bg-brand/10 text-brand",
+};
 
-  const config = STATUS_CONFIG[moderationStatus];
+const FAILED: BadgeConfig = {
+  icon: XCircle,
+  label: "Analysis Failed",
+  className: "bg-status-error/10 text-status-error",
+};
+
+const UNANALYZED: BadgeConfig = {
+  label: "Not analyzed",
+  className: "bg-surface-alt text-muted",
+};
+
+function resolveBadge({
+  moderationStatus,
+  lastRunStatus,
+  showUnanalyzed,
+}: AiStatusBadgeProps): { config?: BadgeConfig; clickable: boolean } {
+  if (isAiRunInFlight(lastRunStatus)) {
+    return { config: PROCESSING, clickable: false };
+  }
+  if (lastRunStatus === "FAILED") return { config: FAILED, clickable: false };
+  if (moderationStatus) {
+    return { config: STATUS_CONFIG[moderationStatus], clickable: true };
+  }
+  return { config: showUnanalyzed ? UNANALYZED : undefined, clickable: false };
+}
+
+export function AiStatusBadge(props: AiStatusBadgeProps) {
+  const { onClick } = props;
+  const { config, clickable } = resolveBadge(props);
   if (!config) return null;
 
   const Icon = config.icon;
@@ -51,12 +95,12 @@ export function AiStatusBadge({
         config.className
       )}
     >
-      <Icon size={10} />
+      {Icon && <Icon size={10} className={config.iconClassName} />}
       {config.label}
     </span>
   );
 
-  if (onClick) {
+  if (onClick && clickable) {
     return (
       <button type="button" onClick={onClick} className="cursor-pointer">
         {badge}

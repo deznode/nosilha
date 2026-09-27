@@ -183,6 +183,13 @@ export interface AiStatusResponse {
   aiProcessedAt: string | null;
 }
 
+/** Whether an analysis run is queued or still running. */
+export function isAiRunInFlight(
+  lastRunStatus: string | null | undefined
+): boolean {
+  return lastRunStatus === "PROCESSING" || lastRunStatus === "PENDING";
+}
+
 // ================================
 // TRIGGER TYPES
 // ================================
