@@ -132,6 +132,14 @@ describe("MapLegend", () => {
       screen.getByRole("list", { name: "Pin colour key" }).style.bottom
     ).toBe("146px");
   });
+
+  it("sits inline as one scrolling line in the sheet", () => {
+    render(<MapLegend rows={[]} variant="sheet" />);
+    const list = screen.getByRole("list", { name: "Pin colour key" });
+    expect(list.className).not.toContain("absolute");
+    expect(list.className).toContain("overflow-x-auto");
+    expect(list.style.bottom).toBe("");
+  });
 });
 
 describe("PhotographsNote", () => {
@@ -151,5 +159,17 @@ describe("PhotographsNote", () => {
     expect(
       screen.getByRole("link", { name: "Open the no-place tray" })
     ).toHaveAttribute("href", "/photographs?filter=noplace");
+  });
+
+  it("heads the sheet's list inline rather than floating", () => {
+    render(
+      <PhotographsNote
+        note="Six photographs carry no coordinates."
+        variant="sheet"
+      />
+    );
+    const note = screen.getByText(/carry no coordinates/).parentElement!;
+    expect(note.className).not.toContain("absolute");
+    expect(note.style.bottom).toBe("");
   });
 });

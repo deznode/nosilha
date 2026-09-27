@@ -59,6 +59,8 @@ interface MapState extends MapQueryState {
   toggleSatellite: () => void;
   toggle3D: () => void;
   toggleSheet: () => void;
+  /** Sets the sheet directly, for a drag that has a direction. Spec 039. */
+  setSheetOpen: (open: boolean) => void;
   /** Applies a deep link in one step; `setMode` would clear its selection. */
   hydrate: (state: MapQueryState) => void;
   /** Closes what an Activity restore should not bring back open. */
@@ -102,6 +104,7 @@ export const useMapStore = create<MapState>()(
       toggleSatellite: () => set((s) => ({ satellite: !s.satellite })),
       toggle3D: () => set((s) => ({ is3D: !s.is3D })),
       toggleSheet: () => set((s) => ({ sheetOpen: !s.sheetOpen })),
+      setSheetOpen: (open) => set({ sheetOpen: open }),
       hydrate: ({ mode, status, query, selectedKey }) =>
         set({ mode, status, query, selectedKey, expandedGroupKey: null }),
       resetTransient: () => set({ sheetOpen: false, expandedGroupKey: null }),

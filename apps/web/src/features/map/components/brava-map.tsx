@@ -7,7 +7,7 @@ import { useNarrow } from "@/hooks/use-narrow";
 import { useMapStore, useModeItems } from "@/stores/mapStore";
 import { EXPLORER_VIEW } from "../data/constants";
 import { statusCounts } from "../data/locations-adapter";
-import { legendRows, overlayOffsets, photographsNote } from "../data/map-copy";
+import { legendRows, OVERLAY_OFFSETS, photographsNote } from "../data/map-copy";
 import type { MapItem } from "../data/types";
 import {
   useApplyPendingSelection,
@@ -17,14 +17,18 @@ import {
   useFilteredLocations,
   useSelectedItem,
 } from "../hooks/useFilteredLocations";
-import { LocationBottomSheet } from "./location-bottom-sheet";
+import { LocationBottomSheet, type SheetView } from "./location-bottom-sheet";
 import { LocationDetailCard } from "./location-detail-card";
+import { LocationSheetDetail } from "./location-sheet-detail";
 import { MapCanvas } from "./map-canvas";
 import { MapControls, type MapControl } from "./map-controls";
 import { MapLegend, PhotographsNote } from "./map-legend";
 import { MapSidebar } from "./map-sidebar";
 
-/** Share of the canvas height kept clear below an eased-to pin on a phone. */
+/**
+ * Share of the canvas height kept clear below an eased-to pin on a phone: the detail
+ * sheet takes up to half, so the pin lands in the fifth above it. Spec 039.
+ */
 const NARROW_EASE_BOTTOM_SHARE = 0.6;
 
 /**
@@ -83,36 +87,50 @@ export default function BravaMap() {
     narrowRef.current = narrow;
   }, [narrow]);
 
-  const easeToItem = useCallback((item: MapItem) => {
-    const map = mapRef.current;
-    if (!map) return;
-    // On a phone the peeking sheet and the selection card cover the lower half of the
-    // canvas, so the pin is eased into the part that stays visible.
-    const bottom = narrowRef.current
-      ? Math.round(map.getContainer().clientHeight * NARROW_EASE_BOTTOM_SHARE)
-      : 0;
-    map.easeTo({
-      center: [item.coordinates.lng, item.coordinates.lat],
-      zoom: EXPLORER_VIEW.SELECT_ZOOM,
-      duration: EXPLORER_VIEW.SELECT_DURATION,
-      padding: { top: 0, right: 0, bottom, left: 0 },
-    });
-  }, []);
+  /** `keepZoom` pans without changing the reader's zoom. */
+  const easeToItem = useCallback(
+    (item: MapItem, { keepZoom = false }: { keepZoom?: boolean } = {}) => {
+      const map = mapRef.current;
+      if (!map) return;
+      // On a phone the detail sheet covers the lower half of the canvas, so the pin is
+      // eased into the part that stays visible.
+      const bottom = narrowRef.current
+        ? Math.round(map.getContainer().clientHeight * NARROW_EASE_BOTTOM_SHARE)
+        : 0;
+      map.easeTo({
+        center: [item.coordinates.lng, item.coordinates.lat],
+        ...(keepZoom ? {} : { zoom: EXPLORER_VIEW.SELECT_ZOOM }),
+        duration: EXPLORER_VIEW.SELECT_DURATION,
+        padding: { top: 0, right: 0, bottom, left: 0 },
+      });
+    },
+    []
+  );
 
-  /** A pin click selects in place, as prototyped. */
-  const selectPin = useCallback((item: MapItem) => {
-    useMapStore.getState().select(item.key);
-  }, []);
+  /**
+   * A pin click selects in place, as prototyped. On a phone the selection opens in the
+   * sheet, which would cover a pin in the lower half, so the map pans it clear.
+   */
+  const selectPin = useCallback(
+    (item: MapItem) => {
+      const store = useMapStore.getState();
+      store.select(item.key);
+      if (!narrowRef.current) return;
+      store.setSheetOpen(false);
+      easeToItem(item, { keepZoom: true });
+    },
+    [easeToItem]
+  );
 
   /**
    * A list row selects and brings the pin into view. On a phone the expanded sheet
-   * would hide both the pin and its card, so it drops back to peeking.
+   * would hide the pin, so it drops back to show the selection's details.
    */
   const selectRow = useCallback(
     (item: MapItem) => {
       const store = useMapStore.getState();
       store.select(item.key);
-      if (narrowRef.current && store.sheetOpen) store.toggleSheet();
+      if (narrowRef.current) store.setSheetOpen(false);
       easeToItem(item);
     },
     [easeToItem]
@@ -198,9 +216,15 @@ export default function BravaMap() {
 
   const counts = useMemo(() => statusCounts(modeItems), [modeItems]);
   const ready = !isLoading && !fetchError;
-  const offsets = overlayOffsets(narrow, sheetOpen);
   const note =
     ready && mode === "photographs" ? photographsNote(unlocatedCount) : null;
+  const rows = ready ? legendRows(mode, counts, photos, unlocatedCount) : null;
+  const clearSelection = () => useMapStore.getState().clearSelection();
+  const sheetView: SheetView = sheetOpen
+    ? "open"
+    : selected
+      ? "detail"
+      : "peek";
 
   const canvas = (
     <div
@@ -218,19 +242,19 @@ export default function BravaMap() {
         userLocation={userLocation}
       />
       <MapControls controls={controls} />
-      {ready && (
-        <MapLegend
-          rows={legendRows(mode, counts, photos, unlocatedCount)}
-          bottom={offsets.legend}
-        />
+      {/* On a phone these live in the sheet instead of covering the map. Spec 039. */}
+      {!narrow && rows && (
+        <MapLegend rows={rows} bottom={OVERLAY_OFFSETS.legend} />
       )}
-      {note && <PhotographsNote note={note} bottom={offsets.note} />}
-      {selected && (
+      {!narrow && note && (
+        <PhotographsNote note={note} bottom={OVERLAY_OFFSETS.note} />
+      )}
+      {!narrow && selected && (
         <LocationDetailCard
           key={selected.key}
           item={selected}
-          bottom={offsets.card}
-          onClose={() => useMapStore.getState().clearSelection()}
+          bottom={OVERLAY_OFFSETS.card}
+          onClose={clearSelection}
         />
       )}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
@@ -265,10 +289,25 @@ export default function BravaMap() {
       {canvas}
       {narrow ? (
         <LocationBottomSheet
-          open={sheetOpen}
+          view={sheetView}
           onToggle={() => useMapStore.getState().toggleSheet()}
         >
-          {(grabber) => <MapSidebar onSelect={selectRow} header={grabber} />}
+          {(grabber) =>
+            sheetView === "detail" && selected ? (
+              <LocationSheetDetail
+                key={selected.key}
+                item={selected}
+                onClose={clearSelection}
+              />
+            ) : (
+              <MapSidebar
+                onSelect={selectRow}
+                header={grabber}
+                legend={rows && <MapLegend rows={rows} variant="sheet" />}
+                notice={note && <PhotographsNote note={note} variant="sheet" />}
+              />
+            )
+          }
         </LocationBottomSheet>
       ) : null}
     </div>

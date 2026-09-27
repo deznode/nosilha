@@ -109,6 +109,26 @@ describe("LocationDetailCard", () => {
     expect(card.style.bottom).toBe("62px");
   });
 
+  it("caps its height to the canvas and scrolls, so Close stays in reach", () => {
+    const { card } = renderCard(furna);
+    expect(card.style.maxHeight).toBe("calc(100% - 76px)");
+    expect(card.className).toContain("overflow-y-auto");
+  });
+
+  it("clamps a long description to three lines", () => {
+    renderCard({ ...record, description: "A long description. ".repeat(40) });
+    expect(screen.getByText(/A long description/).className).toContain(
+      "line-clamp-3"
+    );
+  });
+
+  it("gives Close a 44px target", () => {
+    renderCard(furna);
+    expect(screen.getByRole("button", { name: "Close" }).className).toContain(
+      "size-11"
+    );
+  });
+
   it("uses the primary token for its main action, so it passes contrast in both themes", () => {
     renderCard(furna);
     expect(

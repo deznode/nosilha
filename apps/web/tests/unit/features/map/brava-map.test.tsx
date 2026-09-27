@@ -3,6 +3,7 @@ import { useEffect, type RefObject } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import BravaMap from "@/features/map/components/brava-map";
+import type { MapItem } from "@/features/map/data/types";
 import { NARROW_QUERY } from "@/hooks/use-narrow";
 import {
   getEntriesForMap,
@@ -24,16 +25,21 @@ vi.mock("@/lib/api", () => ({
 
 const easeTo = vi.fn();
 const canvasMounts = vi.fn();
+/** The canvas's pin click, as the map would call it. */
+let tapPin: (item: MapItem) => void = () => {};
 
 /** The canvas stands in for MapLibre: it hands over a camera and reports a load. */
 vi.mock("@/features/map/components/map-canvas", () => ({
   MapCanvas: ({
     mapRef,
     onLoad,
+    onSelect,
   }: {
     mapRef: RefObject<unknown>;
     onLoad: () => void;
+    onSelect: (item: MapItem) => void;
   }) => {
+    tapPin = onSelect;
     useEffect(() => {
       canvasMounts();
       mapRef.current = {
@@ -245,48 +251,78 @@ describe("BravaMap", () => {
   describe("narrow", () => {
     beforeEach(() => media.setMatches(NARROW_QUERY, true));
 
-    it("puts the list in a peeking sheet and lifts the legend to 146px", async () => {
+    it("puts the list and the pin key in a peeking sheet, with nothing over the map", async () => {
       await renderMap();
 
       expect(
         screen.queryByRole("complementary", { name: "Filters and list" })
       ).toBeNull();
       const sheet = screen.getByTestId("map-sheet");
-      expect(sheet.style.maxHeight).toBe("132px");
+      expect(sheet.style.maxHeight).toBe("160px");
+      expect(sheet).toHaveAttribute("data-view", "peek");
       expect(sheet.className).toContain("duration-[260ms]");
       expect(sheet.className).toContain("ease-[cubic-bezier(.4,.14,.3,1)]");
       expect(
         screen.getByRole("button", { name: "Filters and list" })
       ).toHaveAttribute("aria-expanded", "false");
-      expect(legend().style.bottom).toBe("146px");
+      // The key sits in the sheet's peek rather than floating over the canvas.
+      expect(sheet).toContainElement(legend());
+      expect(legend().style.bottom).toBe("");
     });
 
-    it("lifts the selection card to 196px while peeking", async () => {
+    it("shows a selection as a detail view in the sheet, not over the map", async () => {
       await renderMap();
       act(() => useMapStore.getState().select("s:furna"));
 
+      const sheet = screen.getByTestId("map-sheet");
+      expect(sheet).toHaveAttribute("data-view", "detail");
+      expect(sheet.style.maxHeight).toBe("50%");
+      expect(sheet).toContainElement(
+        screen.getByRole("region", { name: "Selected: Furna" })
+      );
       expect(
-        screen.getByRole("region", { name: "Selected: Furna" }).style.bottom
-      ).toBe("196px");
+        screen.getAllByRole("region", { name: /^Selected:/ })
+      ).toHaveLength(1);
+      expect(
+        screen.queryByRole("button", { name: "Filters and list" })
+      ).toBeNull();
     });
 
-    it("expands to 64% and returns both offsets to 14px", async () => {
+    it("closes the detail view back to the peeking list", async () => {
       await renderMap();
       act(() => useMapStore.getState().select("s:furna"));
 
-      fireEvent.click(screen.getByRole("button", { name: "Filters and list" }));
+      const close = screen.getByRole("button", { name: "Close" });
+      expect(close.className).toContain("size-11");
+      fireEvent.click(close);
 
-      expect(screen.getByTestId("map-sheet").style.maxHeight).toBe("64%");
+      expect(useMapStore.getState().selectedKey).toBeNull();
+      expect(screen.getByTestId("map-sheet")).toHaveAttribute(
+        "data-view",
+        "peek"
+      );
+      expect(
+        screen.getByRole("button", { name: "Filters and list" })
+      ).toBeInTheDocument();
+    });
+
+    it("expands to 64% over a selection and shows the list", async () => {
+      await renderMap();
+      act(() => {
+        useMapStore.getState().select("s:furna");
+        useMapStore.getState().setSheetOpen(true);
+      });
+
+      const sheet = screen.getByTestId("map-sheet");
+      expect(sheet.style.maxHeight).toBe("64%");
+      expect(sheet).toHaveAttribute("data-view", "open");
       expect(
         screen.getByRole("button", { name: "Hide the list" })
       ).toHaveAttribute("aria-expanded", "true");
-      expect(legend().style.bottom).toBe("14px");
-      expect(
-        screen.getByRole("region", { name: "Selected: Furna" }).style.bottom
-      ).toBe("14px");
+      expect(screen.queryByRole("region", { name: /^Selected:/ })).toBeNull();
     });
 
-    it("drops the sheet back to peeking and eases the pin above the card", async () => {
+    it("drops the sheet to the selection and eases the pin above it", async () => {
       await renderMap();
       fireEvent.click(screen.getByRole("button", { name: "Filters and list" }));
 
@@ -294,11 +330,44 @@ describe("BravaMap", () => {
 
       expect(useMapStore.getState().selectedKey).toBe("s:furna");
       expect(useMapStore.getState().sheetOpen).toBe(false);
+      expect(screen.getByTestId("map-sheet")).toHaveAttribute(
+        "data-view",
+        "detail"
+      );
       expect(easeTo).toHaveBeenLastCalledWith(
         expect.objectContaining({
+          zoom: 14.2,
           padding: { top: 0, right: 0, bottom: 420, left: 0 },
         })
       );
+    });
+
+    it("pans a tapped pin clear of the sheet without changing the zoom", async () => {
+      await renderMap();
+      act(() => useMapStore.getState().setSheetOpen(true));
+      const furna = useMapStore
+        .getState()
+        .settlements.find((item) => item.key === "s:furna")!;
+
+      act(() => tapPin(furna));
+
+      expect(useMapStore.getState().selectedKey).toBe("s:furna");
+      expect(useMapStore.getState().sheetOpen).toBe(false);
+      const call = easeTo.mock.lastCall![0];
+      expect(call).not.toHaveProperty("zoom");
+      expect(call.padding).toEqual({ top: 0, right: 0, bottom: 420, left: 0 });
+    });
+
+    it("heads the sheet's list with the photographs note", async () => {
+      await renderMap();
+      act(() => {
+        useMapStore.getState().setMode("photographs");
+        useMapStore.getState().setSheetOpen(true);
+      });
+
+      const note = screen.getByText(/cannot appear here/).parentElement!;
+      expect(screen.getByTestId("map-sheet")).toContainElement(note);
+      expect(note.style.bottom).toBe("");
     });
 
     it("keeps the same map when the breakpoint is crossed", async () => {
@@ -315,7 +384,7 @@ describe("BravaMap", () => {
     it("closes the sheet when the route is shown again", async () => {
       useMapStore.setState({ sheetOpen: true });
       await renderMap();
-      expect(screen.getByTestId("map-sheet").style.maxHeight).toBe("132px");
+      expect(screen.getByTestId("map-sheet").style.maxHeight).toBe("160px");
     });
   });
 

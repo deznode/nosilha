@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, type ReactNode } from "react";
+import { clsx } from "clsx";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { statusVar, type DocumentationStatus } from "@/lib/status";
 import { useMapStore, useModeItems, useSelectedKey } from "@/stores/mapStore";
@@ -42,13 +43,22 @@ interface MapSidebarProps {
   onSelect: (item: MapItem) => void;
   /** Shown above the tabs — the bottom sheet's grabber on a narrow screen. */
   header?: ReactNode;
+  /** Under the header: the pin colour key, in the sheet's peek. Spec 039 (M3). */
+  legend?: ReactNode;
+  /** At the head of the list: photographs mode's note, in the sheet. Spec 039 (M3). */
+  notice?: ReactNode;
 }
 
 /**
  * Mode tabs, search, status chips and the list, with its footer. The same body sits in
  * the desktop column and in the narrow bottom sheet. Spec 034 FR-011.
  */
-export function MapSidebar({ onSelect, header }: MapSidebarProps) {
+export function MapSidebar({
+  onSelect,
+  header,
+  legend,
+  notice,
+}: MapSidebarProps) {
   const mode = useMapStore((s) => s.mode);
   const status = useMapStore((s) => s.status);
   const query = useMapStore((s) => s.query);
@@ -72,8 +82,12 @@ export function MapSidebar({ onSelect, header }: MapSidebarProps) {
   return (
     <>
       {header}
+      {legend}
       <div
-        className="border-b px-[18px] pt-[18px] pb-3.5"
+        className={clsx(
+          "border-b px-[18px] pb-3.5",
+          legend ? "pt-2.5" : "pt-[18px]"
+        )}
         style={{ borderColor: "var(--border-subtle)" }}
       >
         <div
@@ -151,6 +165,7 @@ export function MapSidebar({ onSelect, header }: MapSidebarProps) {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto p-2.5">
+        {notice}
         {fetchError && (
           <p
             role="alert"

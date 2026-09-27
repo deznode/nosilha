@@ -245,18 +245,12 @@ export function photographsNote(unlocated: number): string | null {
 }
 
 /**
- * Legend, selection-card and photographs-note bottoms, in pixels (SPECS §3).
+ * Legend, selection-card and photographs-note bottoms on a wide screen, in pixels
+ * (SPECS §3).
  *
- * The prototype puts the note at the card's 62px, where on a wide screen it covers
- * MapLibre's zoom buttons and attribution in the same corner (112px tall). The note
- * clears them instead. On a narrow screen the sheet already covers that corner.
+ * The prototype puts the note at the card's 62px, where it covers MapLibre's zoom
+ * buttons and attribution in the same corner (112px tall). The note clears them
+ * instead. On a narrow screen none of the three floats: they live in the bottom sheet,
+ * where they no longer cover the map. Spec 039 (M1, M3).
  */
-export function overlayOffsets(
-  narrow: boolean,
-  sheetOpen: boolean
-): { legend: number; card: number; note: number } {
-  if (!narrow) return { legend: 14, card: 62, note: 122 };
-  return sheetOpen
-    ? { legend: 14, card: 14, note: 14 }
-    : { legend: 146, card: 196, note: 196 };
-}
+export const OVERLAY_OFFSETS = { legend: 14, card: 62, note: 122 } as const;
