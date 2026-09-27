@@ -181,7 +181,11 @@ export function ViewerStage({
       role="region"
       aria-label="Photograph"
       className={clsx(
-        "touch-none overflow-hidden select-none",
+        // Vertical drags scroll the page past the photograph; swipes, which are
+        // horizontal, still reach the stage. Zoomed or full screen, it takes every
+        // gesture. Spec 039 (V1).
+        zoomed || fullScreen ? "touch-none" : "touch-pan-y",
+        "overflow-hidden select-none",
         fullScreen
           ? "fixed inset-0 z-[200] bg-[#050404]"
           : "bg-stage relative h-[calc((100dvh-var(--chrome-top-bar-height))*0.64)] md:h-full md:min-w-0 md:flex-1",
@@ -246,7 +250,7 @@ export function ViewerStage({
             ref={closeRef}
             type="button"
             onClick={() => setFullScreen(false)}
-            className="dark-pill pointer-events-auto absolute top-3.5 left-3.5 inline-flex !px-3.5"
+            className="dark-pill hit-area pointer-events-auto absolute top-3.5 left-3.5 inline-flex !px-3.5 [--hit-inset:-7px_-3px]"
           >
             ✕ Close
           </button>
@@ -258,7 +262,7 @@ export function ViewerStage({
               type="button"
               onClick={onTogglePanel}
               aria-pressed={panelOpen}
-              className="dark-pill hidden md:inline-flex"
+              className="dark-pill hit-area hidden [--hit-inset:-7px_-3px] md:inline-flex"
             >
               {panelOpen ? "Hide details" : "Details"}
             </button>
@@ -267,7 +271,7 @@ export function ViewerStage({
             type="button"
             onClick={toggleZoom}
             aria-pressed={zoomed}
-            className="dark-pill inline-flex"
+            className="dark-pill hit-area inline-flex [--hit-inset:-7px_-3px]"
           >
             {zoomed ? "Fit" : "Zoom"}
           </button>
@@ -275,7 +279,7 @@ export function ViewerStage({
             type="button"
             onClick={toggleFullScreen}
             aria-pressed={fullScreen}
-            className="dark-pill inline-flex"
+            className="dark-pill hit-area inline-flex [--hit-inset:-7px_-3px]"
           >
             {fullScreen ? "Exit full screen" : "Full screen"}
           </button>

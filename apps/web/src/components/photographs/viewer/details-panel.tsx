@@ -78,7 +78,7 @@ export function DetailsPanel({
       <Link
         href={photographsHref(place)}
         scroll={false}
-        className="text-muted hover:text-body self-start text-[13px] transition-colors"
+        className="text-muted hover:text-body hit-area self-start text-[13px] transition-colors"
       >
         ← Photographs{placeLabel ? ` · ${placeLabel}` : ""}
       </Link>

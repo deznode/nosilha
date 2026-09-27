@@ -34,7 +34,11 @@ export function IdentifyQuestion({
     <button
       type="button"
       onClick={() => open(context)}
-      className={clsx("cursor-pointer text-left", className)}
+      className={clsx(
+        "cursor-pointer text-left",
+        variant === "link" && "hit-area",
+        className
+      )}
       style={STYLES[variant]}
     >
       {children}

@@ -149,6 +149,30 @@ describe("PhotoViewer", () => {
     expect(replaceState).toHaveBeenCalledTimes(1);
   });
 
+  it("lets a vertical drag scroll the page until zoomed or full screen", () => {
+    renderViewer("nova-sintra");
+    const stage = screen.getByRole("region", { name: "Photograph" });
+    expect(stage.className).toContain("touch-pan-y");
+    expect(stage.className).not.toContain("touch-none");
+
+    fireEvent.click(screen.getByRole("button", { name: "Zoom" }));
+    expect(stage.className).toContain("touch-none");
+    fireEvent.click(screen.getByRole("button", { name: "Fit" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Full screen" }));
+    expect(stage.className).toContain("touch-none");
+  });
+
+  it("cancels a swipe the browser takes over for scrolling", () => {
+    renderViewer("nova-sintra");
+    const stage = screen.getByRole("region", { name: "Photograph" });
+
+    fireEvent.pointerDown(stage, { pointerId: 1, clientX: 200, clientY: 90 });
+    fireEvent.pointerMove(stage, { pointerId: 1, clientX: 190, clientY: 160 });
+    fireEvent.pointerCancel(stage, { pointerId: 1 });
+    expect(replaceState).not.toHaveBeenCalled();
+  });
+
   it("falls back to All when the photograph is outside the filter", () => {
     renderViewer("furna");
     expect(screen.getByText(/^1 of 4/)).toBeInTheDocument();

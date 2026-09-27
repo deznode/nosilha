@@ -112,7 +112,7 @@ export function PhotographsNote({
       </p>
       <Link
         href="/photographs?filter=noplace"
-        className="mt-2 inline-block text-xs underline underline-offset-[3px]"
+        className="hit-area mt-2 inline-block text-xs underline underline-offset-[3px] [--hit-inset:-14px_-8px]"
         style={{ color: "var(--foreground)" }}
       >
         Open the no-place tray
