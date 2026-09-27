@@ -221,6 +221,16 @@ jobs:
           pnpm exec eslint . --format=@microsoft/eslint-formatter-sarif --output-file=eslint-frontend-results.sarif || true
         continue-on-error: true
 
+      # The SARIF formatter keeps eslint-disable'd results (marked with
+      # `suppressions`), and code scanning opens alerts for them anyway.
+      - name: Drop suppressed ESLint results
+        if: always() && hashFiles('apps/web/eslint-frontend-results.sarif') != ''
+        run: |
+          jq '.runs[].results |= map(select(.suppressions == null))' \
+            eslint-frontend-results.sarif > eslint-filtered.sarif
+          mv eslint-filtered.sarif eslint-frontend-results.sarif
+        continue-on-error: true
+
       - name: Upload ESLint SARIF results
         if: always() && hashFiles('apps/web/eslint-frontend-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
