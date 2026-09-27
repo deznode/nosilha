@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+} from "react";
 import { clsx } from "clsx";
 import { useReducedMotion } from "framer-motion";
 
@@ -11,23 +17,11 @@ import {
   type ArchivePhoto,
 } from "@/lib/archive-photographs";
 
-import {
-  preloadImages,
-  stageImageProps,
-  useCrossfade,
-  type StageImage,
-} from "./use-crossfade";
+import { preloadImages, stageImageProps, useCrossfade } from "./use-crossfade";
 import { ZOOM_SCALE, useStageGestures } from "./use-stage-gestures";
-
-/** The stage is the viewport less the 380px panel on a desktop, all of it on a phone. */
-export const STAGE_SIZES = "(max-width: 767px) 100vw, calc(100vw - 380px)";
 
 const CURVE = "var(--ease-archive)";
 const CHROME_IDLE_MS = 2800;
-
-export function toStageImage(photo: ArchivePhoto): StageImage {
-  return { id: photo.id, src: photo.src, alt: photo.alt };
-}
 
 /**
  * The viewing room's stage. Spec 038 FR-021, FR-023, FR-025.
@@ -71,20 +65,28 @@ export function ViewerStage({
   const [chromeAwake, setChromeAwake] = useState(true);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const target = toStageImage(photo);
-  const { layers, front, shownId } = useCrossfade(target, STAGE_SIZES);
+  const { layers, front, shownId } = useCrossfade(photo);
 
   const clearIdle = () => {
     if (idleTimer.current) clearTimeout(idleTimer.current);
     idleTimer.current = null;
   };
 
-  /** Pointer movement brings full-screen chrome back and restarts its fade-out. */
-  const wake = () => {
-    if (!fullScreen) return;
+  /** Shows the chrome and, in full screen, restarts its fade-out. */
+  const showChrome = (fading: boolean) => {
     clearIdle();
     setChromeAwake(true);
-    idleTimer.current = setTimeout(() => setChromeAwake(false), CHROME_IDLE_MS);
+    if (fading) {
+      idleTimer.current = setTimeout(
+        () => setChromeAwake(false),
+        CHROME_IDLE_MS
+      );
+    }
+  };
+
+  /** Pointer movement brings full-screen chrome back and restarts its fade-out. */
+  const wake = () => {
+    if (fullScreen) showChrome(true);
   };
 
   // With nowhere to step, a released swipe snaps back instead.
@@ -105,63 +107,58 @@ export function ViewerStage({
 
   // Entering full screen starts the idle fade; leaving it shows the chrome for good.
   useEffect(() => {
-    clearIdle();
-
-    setChromeAwake(true);
-    if (fullScreen) {
-      idleTimer.current = setTimeout(
-        () => setChromeAwake(false),
-        CHROME_IDLE_MS
-      );
-    }
+    showChrome(fullScreen);
     return clearIdle;
+    // Runs on the full-screen change only; the helpers read nothing else.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fullScreen]);
 
   // A new photograph on screen: back to fit, no drag, and warm the neighbours.
   useEffect(() => {
     resetGestures();
-    preloadImages(neighbours.map(toStageImage), STAGE_SIZES);
+    preloadImages(neighbours);
     // Neighbours follow the shown photograph; their identity changes every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shownId, resetGestures]);
 
-  // Keyboard (FR-024). Re-attached on every Activity restore, removed on hide.
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (keysDisabled) return;
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target as HTMLElement | null;
-      if (target?.closest?.("input, textarea, select, [contenteditable]")) {
-        return;
-      }
-      wake();
-      switch (event.key) {
-        case "ArrowRight":
-          event.preventDefault();
-          onStep(1);
-          break;
-        case "ArrowLeft":
-          event.preventDefault();
-          onStep(-1);
-          break;
-        case "Escape":
-          if (fullScreen) setFullScreen(false);
-          else if (zoomed) setZoomed(false);
-          else onBack();
-          break;
-        case "f":
-        case "F":
-          toggleFullScreen();
-          break;
-        case "i":
-        case "I":
-          onTogglePanel();
-          break;
-      }
+  // Keyboard (FR-024). An effect event reads the latest props and state, so the
+  // listener is attached once, re-attached on every Activity restore, removed on hide.
+  const onKeyDown = useEffectEvent((event: KeyboardEvent) => {
+    if (keysDisabled) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest?.("input, textarea, select, [contenteditable]")) {
+      return;
     }
+    wake();
+    switch (event.key) {
+      case "ArrowRight":
+        event.preventDefault();
+        onStep(1);
+        break;
+      case "ArrowLeft":
+        event.preventDefault();
+        onStep(-1);
+        break;
+      case "Escape":
+        if (fullScreen) setFullScreen(false);
+        else if (zoomed) setZoomed(false);
+        else onBack();
+        break;
+      case "f":
+      case "F":
+        toggleFullScreen();
+        break;
+      case "i":
+      case "I":
+        onTogglePanel();
+        break;
+    }
+  });
+  useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  });
+  }, []);
 
   const chromeVisible = !fullScreen || chromeAwake;
   const counter = [
@@ -207,9 +204,7 @@ export function ViewerStage({
         {layers.map((layer, i) => {
           const isFront = i === front;
           // The first layer holds the photograph the page was opened on: the LCP.
-          const props = layer
-            ? stageImageProps(layer, STAGE_SIZES, i === 0)
-            : null;
+          const props = layer ? stageImageProps(layer, i === 0) : null;
           return (
             <div
               key={i}

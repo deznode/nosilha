@@ -1,4 +1,4 @@
-import { capitalise, toWords } from "@/lib/copy/number-words";
+import { countSentence } from "@/lib/copy/number-words";
 import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { trimmed } from "@/lib/text";
 import {
@@ -13,11 +13,7 @@ export interface FilmPlace {
 }
 
 /** What `toFilm` needs to name a film's settlement from its `placeId`. */
-export interface FilmSettlement {
-  id: string | null;
-  slug: string;
-  name: string;
-}
+export type FilmSettlement = FilmPlace & { id: string | null };
 
 /**
  * The films section's single reading of a film record. Spec 035 FR-001.
@@ -53,7 +49,6 @@ export interface Film {
   durationSeconds: number | null;
   /** The settlement it was filmed near, resolved from `placeId`. Spec 038 FR-004. */
   place: FilmPlace | null;
-  filmmaker: string | null;
   featured: boolean;
   /**
    * Shows an identifiable person nobody has vouched for (spec 034 FR-022): listed,
@@ -65,9 +60,7 @@ export interface Film {
   watchUrl: string | null;
 }
 
-const UNTITLED_LABEL = "Title not recorded";
 const UNTITLED_FILM = "Untitled film";
-const UNKNOWN_SOURCE_LABEL = "Source not recorded";
 
 /**
  * How many films a screen asks the API for: its page cap. The index filters, sorts
@@ -150,8 +143,6 @@ export function toFilm(
     ),
     durationSeconds: media.durationSeconds ?? null,
     place: settlement ? { slug: settlement.slug, name: settlement.name } : null,
-    // The archive stores no maker. It joins here when it does — never from `author`.
-    filmmaker: null,
     featured: media.featured === true,
     identifiablePerson: media.identifiablePerson === true,
     playback,
@@ -170,15 +161,15 @@ export function toFilms(
   });
 }
 
-export function filmTitleLabel(film: Film): string {
-  return film.title ?? UNTITLED_LABEL;
+/** A film's page; `play` starts it with sound on arrival. */
+export function filmHref(id: string, { play = false } = {}): string {
+  return play ? `/films/${id}?play=1` : `/films/${id}`;
 }
 
-function filmSourceLabel(film: Film): string {
-  return film.source ?? UNKNOWN_SOURCE_LABEL;
-}
+/** Keeps a film that cannot play visibly set apart wherever its still shows. */
+export const UNPLAYABLE_STILL_FILTER = "grayscale(.85) brightness(.6)";
 
-// ─── Facets, search and sorts ───────────────────────────────────────────────
+// ─── Facets and order ───────────────────────────────────────────────────────
 
 export type FilmFacetKey = "all" | "titled" | "youtube" | "vimeo" | "file";
 
@@ -217,45 +208,12 @@ export function facetCounts(
   ) as Record<FilmFacetKey, number>;
 }
 
-/** Case-insensitive substring match over the title and source as displayed. */
-export function searchFilms(films: readonly Film[], query: string): Film[] {
-  const q = query.trim().toLowerCase();
-  if (!q) return [...films];
-  return films.filter(
-    (f) =>
-      filmTitleLabel(f).toLowerCase().includes(q) ||
-      filmSourceLabel(f).toLowerCase().includes(q)
-  );
-}
-
-export type FilmSortKey = "title" | "needs" | "source";
-
-export const FILM_SORT_OPTIONS: readonly {
-  value: FilmSortKey;
-  label: string;
-}[] = [
-  { value: "title", label: "Title A–Z" },
-  { value: "needs", label: "Needs a title first" },
-  { value: "source", label: "Source" },
-];
-
-const byTitle = (a: Film, b: Film) =>
-  filmTitleLabel(a).localeCompare(filmTitleLabel(b));
-const untitled = (f: Film) => (f.title === null ? 1 : 0);
-
-/**
- * Orders the archive can actually answer. No film carries a date, so date sorts would
- * be inert controls.
- */
-const FILM_SORTS: Record<FilmSortKey, (a: Film, b: Film) => number> = {
-  title: (a, b) => untitled(a) - untitled(b) || byTitle(a, b),
-  needs: (a, b) => untitled(b) - untitled(a) || byTitle(a, b),
-  source: (a, b) =>
-    filmSourceLabel(a).localeCompare(filmSourceLabel(b)) || byTitle(a, b),
-};
-
-export function sortFilms(films: readonly Film[], sort: FilmSortKey): Film[] {
-  return [...films].sort(FILM_SORTS[sort]);
+/** Titled films A–Z, then the untitled ones. */
+function byTitle(a: Film, b: Film): number {
+  if (a.title === null || b.title === null) {
+    return (a.title === null ? 1 : 0) - (b.title === null ? 1 : 0);
+  }
+  return a.title.localeCompare(b.title);
 }
 
 /**
@@ -266,14 +224,13 @@ export function promotableFilms(films: readonly Film[]): Film[] {
   return films.filter((f) => !f.identifiablePerson);
 }
 
-/** The film the index plays on arrival: the curated one, else the first in `sort`. */
-export function pickFeatured(
-  films: readonly Film[],
-  sort: FilmSortKey = "title"
-): Film | null {
+/** The film the index plays on arrival: the curated one, else the first by title. */
+export function pickFeatured(films: readonly Film[]): Film | null {
   const candidates = promotableFilms(films);
   return (
-    candidates.find((f) => f.featured) ?? sortFilms(candidates, sort)[0] ?? null
+    candidates.find((f) => f.featured) ??
+    [...candidates].sort(byTitle)[0] ??
+    null
   );
 }
 
@@ -299,11 +256,6 @@ export function upNext(film: Film, films: readonly Film[]): Film[] {
     ...rest.filter((f) => canPlay(f)),
     ...rest.filter((f) => !canPlay(f)),
   ];
-}
-
-/** The film the countdown opens: the first playable one in Up next order. */
-export function nextPlayable(film: Film, films: readonly Film[]): Film | null {
-  return upNext(film, films).find(canPlay) ?? null;
 }
 
 // ─── Immersion copy (spec 038) ──────────────────────────────────────────────
@@ -344,17 +296,20 @@ export function filmSourceLine(film: Film): string | null {
 
 /**
  * `Not yet recorded: where it was filmed or who filmed it.`, naming only what is
- * missing; null when nothing is.
+ * missing. The archive stores no maker yet (never read it from `author`), so that
+ * part always shows.
  */
-export function filmHelpLine(film: Film): string | null {
-  const missing: string[] = [];
-  if (!film.place) missing.push("where it was filmed");
-  if (!film.filmmaker) missing.push("who filmed it");
-  return missing.length ? `Not yet recorded: ${missing.join(" or ")}.` : null;
+export function filmHelpLine(film: Film): string {
+  return film.place
+    ? "Not yet recorded: who filmed it."
+    : "Not yet recorded: where it was filmed or who filmed it.";
 }
 
 /** `Nine in the archive`, `One in the archive`, `None in the archive yet`. */
 export function filmsCountWords(count: number): string {
-  if (count === 0) return "None in the archive yet";
-  return `${capitalise(toWords(count))} in the archive`;
+  return countSentence(count, {
+    one: "{n} in the archive",
+    many: "{n} in the archive",
+    zero: "None in the archive yet",
+  });
 }

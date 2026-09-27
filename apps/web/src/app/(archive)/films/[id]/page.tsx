@@ -27,12 +27,15 @@ interface FilmRouteProps {
   searchParams: Promise<{ play?: string }>;
 }
 
+function getFilmMedia(id: string) {
+  return UUID.test(id) ? getGalleryMediaById(id) : Promise.resolve(null);
+}
+
 async function findFilm(
   id: string,
   settlements: readonly FilmSettlement[] = []
 ) {
-  if (!UUID.test(id)) return null;
-  const media = await getGalleryMediaById(id);
+  const media = await getFilmMedia(id);
   return media ? toFilm(media, settlements) : null;
 }
 
@@ -72,6 +75,7 @@ async function cachedFilm(id: string, autoStart: boolean) {
   // photographs. The 404 is settled on the film alone: Up next and "Photographs from
   // here" are optional, so a failed list request drops them instead of turning a film
   // that exists into a 500.
+  const mediaPromise = getFilmMedia(id);
   const archivePromise = getArchivePhotographs().catch(() => null);
   const othersPromise = getGalleryMedia({
     mediaType: "VIDEO",
@@ -80,9 +84,9 @@ async function cachedFilm(id: string, autoStart: boolean) {
     .then((list) => list.items)
     .catch(() => []);
 
-  const archive = await archivePromise;
+  const [media, archive] = await Promise.all([mediaPromise, archivePromise]);
   const settlements = archive?.settlements ?? [];
-  const film = await findFilm(id, settlements);
+  const film = media ? toFilm(media, settlements) : null;
   if (!film) notFound();
 
   const films = toFilms(await othersPromise, settlements);

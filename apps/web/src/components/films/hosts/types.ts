@@ -3,6 +3,9 @@
  * extended for spec 038 so the frame can draw its own controls.
  */
 
+/** Whose controls are on screen: the frame's bar, or the host's own (fallback). */
+export type ControlsMode = "custom" | "host";
+
 /** How the host is asked to start. */
 export interface MountOptions {
   /** Start with the sound off (the films hero's muted preview). */
@@ -26,7 +29,7 @@ export interface HostCallbacks {
    * hidden and the frame draws its bar; `host` means the host could not be driven
    * (the plain-iframe fallback) and shows its own.
    */
-  onControls?: (mode: "custom" | "host") => void;
+  onControls?: (mode: ControlsMode) => void;
   /** The host refuses to play the film here — embed-restricted or region-locked. */
   onBlocked: () => void;
   /** The film is no longer available from its host. */

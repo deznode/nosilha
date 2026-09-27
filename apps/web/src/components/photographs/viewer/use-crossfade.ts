@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getImageProps } from "next/image";
 
 /**
@@ -19,25 +19,24 @@ export interface StageImage {
   alt: string;
 }
 
+/** The stage is the viewport less the 380px panel on a desktop, all of it on a phone. */
+export const STAGE_SIZES = "(max-width: 767px) 100vw, calc(100vw - 380px)";
+
 /** The `<img>` props for a stage layer: fill, `contain`, optimised by the loader. */
-export function stageImageProps(
-  image: StageImage,
-  sizes: string,
-  priority = false
-) {
+export function stageImageProps(image: StageImage, priority = false) {
   if (!image.src) return null;
   return getImageProps({
     src: image.src,
     alt: image.alt,
     fill: true,
-    sizes,
+    sizes: STAGE_SIZES,
     priority,
   }).props;
 }
 
 /** Fetches and decodes an image at the candidate the stage would choose. */
-function loadImage(image: StageImage, sizes: string): Promise<void> {
-  const props = stageImageProps(image, sizes);
+function loadImage(image: StageImage): Promise<void> {
+  const props = stageImageProps(image);
   if (!props || typeof window === "undefined") return Promise.resolve();
   const img = new window.Image();
   if (props.sizes) img.sizes = props.sizes;
@@ -47,8 +46,8 @@ function loadImage(image: StageImage, sizes: string): Promise<void> {
 }
 
 /** Warms the cache for the photographs either side of the current one. */
-export function preloadImages(images: readonly StageImage[], sizes: string) {
-  for (const image of images) void loadImage(image, sizes).catch(() => {});
+export function preloadImages(images: readonly StageImage[]) {
+  for (const image of images) void loadImage(image).catch(() => {});
 }
 
 interface Layers {
@@ -56,7 +55,7 @@ interface Layers {
   front: 0 | 1;
 }
 
-export function useCrossfade(target: StageImage, sizes: string) {
+export function useCrossfade(target: StageImage) {
   const [state, setState] = useState<Layers>({
     layers: [target, null],
     front: 0,
@@ -83,22 +82,15 @@ export function useCrossfade(target: StageImage, sizes: string) {
     };
     // A failed decode still swaps: the browser shows what it can, and a stuck stage
     // would be worse than a slow one.
-    loadImage(target, sizes).then(swap, swap);
+    loadImage(target).then(swap, swap);
     // `target` is compared by id; a new object for the same photograph is no change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target.id, shownId, sizes]);
-
-  /** Drops to a single layer showing `image`, with no fade (Activity restore). */
-  const reset = useCallback((image: StageImage) => {
-    token.current++;
-    setState({ layers: [image, null], front: 0 });
-  }, []);
+  }, [target.id, shownId]);
 
   return {
     layers: state.layers,
     front: state.front,
     /** The photograph actually on screen, which lags `target` while it decodes. */
     shownId,
-    reset,
   };
 }

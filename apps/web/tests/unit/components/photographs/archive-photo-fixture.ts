@@ -18,10 +18,8 @@ export function makePhoto(
     dateLabel: null,
     camera: null,
     category: null,
-    width: null,
-    height: null,
     identifiablePerson: false,
-    missing: { photographer: true, place: !overrides.near, date: true },
+    missing: { photographer: true, date: true },
     ...overrides,
   };
 }

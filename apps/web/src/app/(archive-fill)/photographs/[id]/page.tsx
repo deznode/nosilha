@@ -15,9 +15,6 @@ import { photoTitle } from "@/lib/photo-facts";
  */
 export const instant = false;
 
-/** A settlement slug or `unplaced`: the only `?place=` values worth a cache entry. */
-const PLACE_PARAM = /^[a-z0-9-]{1,64}$/;
-
 interface PhotoPageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ place?: string }>;
@@ -47,13 +44,18 @@ export default async function PhotoPage({
   searchParams,
 }: PhotoPageProps) {
   const [{ id }, { place }] = await Promise.all([params, searchParams]);
-  // Only something shaped like a filter reaches the cache key; anything else is All.
-  const filter =
-    typeof place === "string" && PLACE_PARAM.test(place) ? place : undefined;
-  return cachedPhoto(id, filter);
+  const { photos, initialId } = await cachedPhoto(id);
+  // `?place=` stays out of the cache key: the viewer checks it against the dataset.
+  return (
+    <PhotoViewer
+      photos={photos}
+      initialId={initialId}
+      place={typeof place === "string" ? place : undefined}
+    />
+  );
 }
 
-async function cachedPhoto(id: string, place: string | undefined) {
+async function cachedPhoto(id: string) {
   "use cache";
   cacheLife("entry");
   cacheTag("gallery");
@@ -80,5 +82,5 @@ async function cachedPhoto(id: string, place: string | undefined) {
     ? photos
     : [toArchivePhoto(media, settlements), ...photos];
 
-  return <PhotoViewer photos={listed} initialId={media.id} place={place} />;
+  return { photos: listed, initialId: media.id };
 }

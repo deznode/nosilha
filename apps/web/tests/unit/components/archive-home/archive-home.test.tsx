@@ -23,7 +23,6 @@ function film(id: string, title: string | null): Film {
     thumbnailUrl: null,
     durationSeconds: null,
     place: null,
-    filmmaker: null,
     featured: false,
     identifiablePerson: false,
     playback: { kind: "youtube", id },

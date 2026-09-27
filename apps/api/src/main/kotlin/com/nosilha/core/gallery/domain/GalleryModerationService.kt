@@ -241,7 +241,10 @@ class GalleryModerationService(
 
         logger.debug { "Audit entry created for gallery media moderation: mediaId=$id, action=$action, performedBy=$performedBy" }
 
-        revalidateGalleryAfterCommit()
+        // Only a record entering or leaving ACTIVE changes a public page.
+        if (previousStatus == GalleryMediaStatus.ACTIVE || savedMedia.status == GalleryMediaStatus.ACTIVE) {
+            revalidateGalleryAfterCommit()
+        }
 
         val displayNames = resolveDisplayNames(listOf(savedMedia))
         return savedMedia.toDto(displayNames)
@@ -267,7 +270,7 @@ class GalleryModerationService(
         // Validate before mutating: the native existence query would otherwise auto-flush
         // a half-applied entity. IllegalArgumentException maps to 400 in GlobalExceptionHandler.
         val newPlaceId = request.placeId.takeIf { media is ExternalMedia && request.clearPlace != true }
-        if (newPlaceId != null) {
+        if (newPlaceId != null && newPlaceId != (media as ExternalMedia).placeId) {
             require(repository.placeExists(newPlaceId)) { "Unknown placeId: $newPlaceId" }
         }
 

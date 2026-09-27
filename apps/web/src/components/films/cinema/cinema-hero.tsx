@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { filmedNear, type Film } from "@/lib/films";
+import { filmHref, filmedNear, type Film } from "@/lib/films";
 
 import { PlayButton } from "../theatre/theatre-player";
 import { useFilmHost } from "../use-film-host";
@@ -43,7 +43,7 @@ export function CinemaHero({ film }: { film: Film }) {
     play,
     pause,
     setMuted,
-  } = useFilmHost(film, { loop: true, muted: true });
+  } = useFilmHost(film, { loop: true });
   const running = state === "playing" || state === "loading";
 
   // Decided on arrival and on every Activity restore (which stopped the film).
@@ -134,7 +134,7 @@ export function CinemaHero({ film }: { film: Film }) {
         )}
         <div className="mt-1.5 flex flex-wrap gap-2">
           <Link
-            href={`/films/${film.id}?play=1`}
+            href={filmHref(film.id, { play: true })}
             className="focus-ring rounded-lg bg-[#F6F1E9] px-5 py-3 text-sm font-medium text-[#16130F] transition-opacity hover:opacity-[.92]"
           >
             Watch with sound

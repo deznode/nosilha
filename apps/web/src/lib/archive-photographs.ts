@@ -1,7 +1,12 @@
 import { capitalise, plural, toWords } from "@/lib/copy/number-words";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { nearestSettlement } from "@/lib/nearest-settlement";
-import { photoCredit, photoDateLabel } from "@/lib/photo-facts";
+import { formatCameraInfo } from "@/lib/exif-utils";
+import {
+  photoCredit,
+  photoDateLabel,
+  photoIsIdentifiablePerson,
+} from "@/lib/photo-facts";
 import { trimmed } from "@/lib/text";
 import {
   isPublicUserUploadMedia,
@@ -38,10 +43,9 @@ export interface ArchivePhoto {
   dateLabel: string | null;
   camera: string | null;
   category: string | null;
-  width: number | null;
-  height: number | null;
   identifiablePerson: boolean;
-  missing: { photographer: boolean; place: boolean; date: boolean };
+  /** Whether the credit and date are unrecorded. An unplaced photograph has no `near`. */
+  missing: { photographer: boolean; date: boolean };
 }
 
 /** `all`, a settlement slug, or `unplaced`. */
@@ -54,16 +58,6 @@ const MONTH_YEAR = new Intl.DateTimeFormat("en-US", {
   month: "long",
   timeZone: "UTC",
 });
-
-function monthYearLabel(media: PublicGalleryMedia): string | null {
-  if (!isPublicUserUploadMedia(media)) return null;
-  const taken = trimmed(media.dateTaken);
-  if (taken) {
-    const parsed = new Date(taken);
-    if (!Number.isNaN(parsed.getTime())) return MONTH_YEAR.format(parsed);
-  }
-  return trimmed(media.approximateDate);
-}
 
 /** One gallery record as an archive photograph. */
 export function toArchivePhoto(
@@ -78,14 +72,13 @@ export function toArchivePhoto(
   );
   const near = town ? { slug: town.slug, name: town.name } : null;
   const title = trimmed(media.title);
-  const monthYear = monthYearLabel(media);
+  const monthYear = photoDateLabel(media, MONTH_YEAR);
   const dateLabel = photoDateLabel(media);
   const camera =
-    [trimmed(upload?.cameraMake), trimmed(upload?.cameraModel)]
-      .filter(Boolean)
-      .join(" ") || null;
-  const width = upload?.width && upload.width > 0 ? upload.width : null;
-  const height = upload?.height && upload.height > 0 ? upload.height : null;
+    formatCameraInfo(
+      trimmed(upload?.cameraMake) ?? undefined,
+      trimmed(upload?.cameraModel) ?? undefined
+    ) ?? null;
 
   const photo: ArchivePhoto = {
     id: media.id,
@@ -98,12 +91,9 @@ export function toArchivePhoto(
     dateLabel,
     camera,
     category: trimmed(media.category),
-    width,
-    height,
-    identifiablePerson: media.identifiablePerson === true,
+    identifiablePerson: photoIsIdentifiablePerson(media),
     missing: {
       photographer: photoCredit(media) === null,
-      place: near === null,
       date: dateLabel === null,
     },
   };
@@ -347,7 +337,7 @@ function joinAnd(parts: string[]): string {
 export function viewerHelpLine(photo: ArchivePhoto): string | null {
   const missing: string[] = [];
   if (photo.missing.photographer) missing.push("who took it");
-  if (photo.missing.place) missing.push("where");
+  if (!photo.near) missing.push("where");
   if (photo.missing.date) missing.push("when");
   return missing.length ? `Not yet recorded: ${joinAnd(missing)}.` : null;
 }
@@ -357,7 +347,7 @@ export function firstMissingField(
   photo: ArchivePhoto
 ): "photographer" | "place" | "date" | null {
   if (photo.missing.photographer) return "photographer";
-  if (photo.missing.place) return "place";
+  if (!photo.near) return "place";
   if (photo.missing.date) return "date";
   return null;
 }

@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useEffectEvent,
   useLayoutEffect,
   useRef,
   useState,
@@ -11,7 +12,12 @@ import {
 import { canPlay, type Film } from "@/lib/films";
 
 import { mountFile } from "./hosts/file";
-import type { HostCallbacks, HostHandle, MountOptions } from "./hosts/types";
+import type {
+  ControlsMode,
+  HostCallbacks,
+  HostHandle,
+  MountOptions,
+} from "./hosts/types";
 import { mountVimeo } from "./hosts/vimeo";
 import { mountYouTube } from "./hosts/youtube";
 
@@ -26,9 +32,6 @@ import { mountYouTube } from "./hosts/youtube";
 export type FilmHostState =
   "idle" | "loading" | "playing" | "paused" | "ended" | "blocked" | "removed";
 
-/** Whose controls are on screen: the frame's bar, or the host's own (fallback). */
-export type ControlsMode = "custom" | "host";
-
 /** Only one film plays at a time, across every player on the page. */
 let stopActive: (() => void) | null = null;
 
@@ -36,13 +39,10 @@ const LIVE = new Set<FilmHostState>(["loading", "playing", "paused", "ended"]);
 
 export function useFilmHost(
   film: Film,
-  {
-    loop = false,
-    muted: startMuted = false,
-  }: { loop?: boolean; muted?: boolean } = {}
+  { loop = false }: { loop?: boolean } = {}
 ) {
   const [state, setState] = useState<FilmHostState>("idle");
-  const [muted, setMutedState] = useState(startMuted);
+  const [muted, setMutedState] = useState(false);
   const [progress, setProgress] = useState(0);
   const [controls, setControls] = useState<ControlsMode>("custom");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,6 +57,8 @@ export function useFilmHost(
   const kind = playback?.kind ?? null;
   const source =
     playback?.kind === "file" ? playback.url : (playback?.id ?? null);
+  // The title only labels the iframe; read at mount so a rename never restarts playback.
+  const readTitle = useEffectEvent(() => film.displayTitle);
 
   const stop = useCallback(() => {
     handleRef.current?.pause();
@@ -94,7 +96,7 @@ export function useFilmHost(
       onRemoved: () => setState("removed"),
     };
     const options: MountOptions = { muted: mutedRef.current, loop };
-    const title = film.displayTitle;
+    const title = readTitle();
     const handle =
       kind === "youtube"
         ? mountYouTube(container, source, title, callbacks, options)
@@ -108,8 +110,6 @@ export function useFilmHost(
       handleRef.current = null;
       setControls("custom");
     };
-    // `film.displayTitle` only labels the iframe; a rename must not restart playback.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live, kind, source, loop]);
 
   // Activity hides a route without unmounting it. Layout-effect cleanup runs before
@@ -175,7 +175,6 @@ export function useFilmHost(
     pause,
     toggle,
     replay,
-    stop,
     setMuted,
     seek,
   };

@@ -7,10 +7,12 @@ import { useRouter } from "next/navigation";
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { photographsHref } from "@/lib/archive-photographs";
 import {
+  canPlay,
   filmEyebrow,
   filmHelpLine,
+  filmHref,
   filmSourceLine,
-  nextPlayable,
+  filmedNear,
   upNext,
   type Film,
 } from "@/lib/films";
@@ -41,12 +43,11 @@ export function FilmTheatre({
   const router = useRouter();
   const [autoNext, setAutoNext] = useState(true);
   const ordered = upNext(film, films);
-  const next = nextPlayable(film, films);
+  const next = ordered.find(canPlay) ?? null;
   const source = filmSourceLine(film);
-  const help = filmHelpLine(film);
 
   const playNext = useCallback(
-    (target: Film) => router.push(`/films/${target.id}?play=1`),
+    (target: Film) => router.push(filmHref(target.id, { play: true })),
     [router]
   );
 
@@ -80,9 +81,7 @@ export function FilmTheatre({
           </h1>
           {film.place && (
             <div className="flex flex-wrap items-baseline gap-3.5">
-              <span className="text-body text-[15px]">
-                Filmed near {film.place.name}
-              </span>
+              <span className="text-body text-[15px]">{filmedNear(film)}</span>
               {hasPlacePhotos && (
                 <Link
                   href={photographsHref(film.place.slug)}
@@ -103,21 +102,19 @@ export function FilmTheatre({
               {source}
             </div>
           )}
-          {help && (
-            <div className="border-border-subtle mt-1 flex flex-wrap items-baseline gap-3 border-t pt-3.5">
-              <span className="text-muted text-[13px]">{help}</span>
-              <IdentifyQuestion
-                contentType="media"
-                contentId={film.id}
-                mediaId={film.id}
-                field={film.place ? "filmmaker" : "placeId"}
-                pageTitle={film.displayTitle}
-                variant="link"
-              >
-                Help complete this record
-              </IdentifyQuestion>
-            </div>
-          )}
+          <div className="border-border-subtle mt-1 flex flex-wrap items-baseline gap-3 border-t pt-3.5">
+            <span className="text-muted text-[13px]">{filmHelpLine(film)}</span>
+            <IdentifyQuestion
+              contentType="media"
+              contentId={film.id}
+              mediaId={film.id}
+              field={film.place ? "filmmaker" : "placeId"}
+              pageTitle={film.displayTitle}
+              variant="link"
+            >
+              Help complete this record
+            </IdentifyQuestion>
+          </div>
         </div>
 
         <div className="min-w-0 pt-[30px] md:pt-[34px]">

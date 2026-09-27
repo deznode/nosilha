@@ -4,7 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { clsx } from "clsx";
 
-import { canPlay, filmedNear, type Film } from "@/lib/films";
+import {
+  UNPLAYABLE_STILL_FILTER,
+  canPlay,
+  filmHref,
+  filmedNear,
+  type Film,
+} from "@/lib/films";
 
 /** The row's tag: why this film is where it is in the list. */
 export function upNextTag(
@@ -84,17 +90,13 @@ export function UpNext({
             return (
               <li key={film.id}>
                 <Link
-                  href={
-                    playable ? `/films/${film.id}?play=1` : `/films/${film.id}`
-                  }
+                  href={filmHref(film.id, { play: playable })}
                   className="focus-ring hover:bg-background-secondary -mx-2 flex gap-3 rounded-[10px] p-2 transition-colors duration-[180ms]"
                 >
                   <div
                     className="relative aspect-video w-32 flex-none overflow-hidden rounded-md bg-[#16130F]"
                     style={
-                      playable
-                        ? undefined
-                        : { filter: "grayscale(.85) brightness(.6)" }
+                      playable ? undefined : { filter: UNPLAYABLE_STILL_FILTER }
                     }
                   >
                     {film.thumbnailUrl && (

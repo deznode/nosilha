@@ -3,13 +3,7 @@ import { cacheLife, cacheTag } from "next/cache";
 
 import { FilmsCinema } from "@/components/films/cinema/films-cinema";
 import { getGalleryMedia, getTownStatusSummary } from "@/lib/api";
-import {
-  FILMS_FETCH_SIZE,
-  canPlay,
-  pickFeatured,
-  promotableFilms,
-  toFilms,
-} from "@/lib/films";
+import { FILMS_FETCH_SIZE, canPlay, pickFeatured, toFilms } from "@/lib/films";
 import { generatePageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = generatePageMetadata({
@@ -41,8 +35,7 @@ export default async function FilmsPage() {
   const films = toFilms(page.items, settlements);
 
   // The hero plays on arrival, so it must be a film that can; with none, no hero.
-  const featured =
-    pickFeatured(promotableFilms(films).filter(canPlay)) ?? pickFeatured(films);
+  const featured = pickFeatured(films.filter(canPlay)) ?? pickFeatured(films);
 
   return <FilmsCinema films={films} featured={featured} />;
 }

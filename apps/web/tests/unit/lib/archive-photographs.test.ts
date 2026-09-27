@@ -92,10 +92,8 @@ function photo(overrides: Partial<ArchivePhoto> = {}): ArchivePhoto {
     dateLabel: null,
     camera: null,
     category: null,
-    width: null,
-    height: null,
     identifiablePerson: false,
-    missing: { photographer: true, place: true, date: true },
+    missing: { photographer: true, date: true },
     ...overrides,
   };
 }
@@ -124,12 +122,7 @@ describe("toArchivePhoto", () => {
     expect(p.dateLabel).toBe("July 12, 2024");
     expect(p.camera).toBe("DJI FC3582");
     expect(p.alt).toBe("Red-tiled rooftops");
-    expect(p.width).toBe(4032);
-    expect(p.missing).toEqual({
-      photographer: true,
-      place: false,
-      date: false,
-    });
+    expect(p.missing).toEqual({ photographer: true, date: false });
   });
 
   it("falls back to an approximate date and a heading for alt", () => {
@@ -144,7 +137,6 @@ describe("toArchivePhoto", () => {
     expect(p.monthYear).toBe("sometime in the sixties");
     expect(p.alt).toBe("A photograph of Brava");
     expect(p.missing.photographer).toBe(false);
-    expect(p.missing.place).toBe(true);
   });
 
   it("drops films from the dataset", () => {
@@ -341,23 +333,21 @@ describe("copy", () => {
     );
     expect(
       viewerHelpLine(
-        photo({ missing: { photographer: true, place: false, date: true } })
+        photo({ near: NS, missing: { photographer: true, date: true } })
       )
     ).toBe("Not yet recorded: who took it and when.");
     expect(
       viewerHelpLine(
-        photo({ missing: { photographer: true, place: false, date: false } })
+        photo({ near: NS, missing: { photographer: true, date: false } })
       )
     ).toBe("Not yet recorded: who took it.");
     expect(
       viewerHelpLine(
-        photo({ missing: { photographer: false, place: false, date: false } })
+        photo({ near: NS, missing: { photographer: false, date: false } })
       )
     ).toBeNull();
     expect(
-      firstMissingField(
-        photo({ missing: { photographer: false, place: true, date: true } })
-      )
+      firstMissingField(photo({ missing: { photographer: false, date: true } }))
     ).toBe("place");
   });
 
@@ -365,12 +355,12 @@ describe("copy", () => {
     const uncredited = (near: typeof NS | null) =>
       photo({
         near,
-        missing: { photographer: true, place: !near, date: false },
+        missing: { photographer: true, date: false },
       });
     const credited = (near: typeof NS | null) =>
       photo({
         near,
-        missing: { photographer: false, place: !near, date: false },
+        missing: { photographer: false, date: false },
       });
 
     expect(

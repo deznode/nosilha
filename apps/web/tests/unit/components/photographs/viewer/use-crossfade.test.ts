@@ -43,7 +43,7 @@ describe("useCrossfade", () => {
 
   it("keeps the current photograph up until the next one decodes", async () => {
     const { result, rerender } = renderHook(
-      ({ target }) => useCrossfade(target, "100vw"),
+      ({ target }) => useCrossfade(target),
       { initialProps: { target: img("a") } }
     );
     expect(result.current.shownId).toBe("a");
@@ -61,7 +61,7 @@ describe("useCrossfade", () => {
 
   it("settles on the last photograph asked for", async () => {
     const { result, rerender } = renderHook(
-      ({ target }) => useCrossfade(target, "100vw"),
+      ({ target }) => useCrossfade(target),
       { initialProps: { target: img("a") } }
     );
     rerender({ target: img("b") });
@@ -75,7 +75,7 @@ describe("useCrossfade", () => {
 
   it("ignores a load that was overtaken by a return to the photograph on screen", async () => {
     const { result, rerender } = renderHook(
-      ({ target }) => useCrossfade(target, "100vw"),
+      ({ target }) => useCrossfade(target),
       { initialProps: { target: img("a") } }
     );
     rerender({ target: img("b") });

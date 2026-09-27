@@ -13,7 +13,6 @@ export function makeFilm(id: string, overrides: Partial<Film> = {}): Film {
     thumbnailUrl: null,
     durationSeconds: null,
     place: null,
-    filmmaker: null,
     featured: false,
     identifiablePerson: false,
     playback: { kind: "youtube", id },

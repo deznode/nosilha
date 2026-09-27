@@ -158,6 +158,16 @@ class GalleryRevalidationIntegrationTest {
     }
 
     @Test
+    fun `rejecting a record that was never public does not revalidate`() {
+        val media = film(GalleryMediaStatus.PENDING_REVIEW)
+
+        patchJson("/api/v1/admin/gallery/${media.id}/status", """{"action": "REJECT", "reason": "Duplicate"}""")
+            .andExpect(status().isOk)
+
+        verify(revalidationService, never()).revalidateGallery()
+    }
+
+    @Test
     fun `a rejection without a reason does not revalidate`() {
         val media = film()
 

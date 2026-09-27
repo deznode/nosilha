@@ -2,7 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { clsx } from "clsx";
 
-import { canPlay, filmedNear, type Film } from "@/lib/films";
+import {
+  UNPLAYABLE_STILL_FILTER,
+  canPlay,
+  filmedNear,
+  type Film,
+} from "@/lib/films";
 
 /** Three across from 1024, two on a tablet, one on a phone. */
 const FILM_CARD_SIZES =
@@ -41,9 +46,7 @@ export function FilmCard({
       <div className="hover-lift relative aspect-video overflow-hidden rounded-[10px] bg-[#16130F]">
         <div
           className={clsx("absolute inset-0", playable && "film-preview-still")}
-          style={
-            playable ? undefined : { filter: "grayscale(.85) brightness(.6)" }
-          }
+          style={playable ? undefined : { filter: UNPLAYABLE_STILL_FILTER }}
         >
           {film.thumbnailUrl ? (
             <Image

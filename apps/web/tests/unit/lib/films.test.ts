@@ -6,13 +6,10 @@ import {
   filmedNear,
   filmsCountWords,
   filmSourceLine,
-  nextPlayable,
   upNext,
   facetCounts,
   filmFacet,
   pickFeatured,
-  searchFilms,
-  sortFilms,
   toFilm,
   toFilms,
   type Film,
@@ -65,7 +62,6 @@ function film(overrides: Partial<Film> = {}): Film {
     thumbnailUrl: null,
     durationSeconds: null,
     place: null,
-    filmmaker: null,
     featured: false,
     identifiablePerson: false,
     playback: { kind: "youtube", id: `id${seq}` },
@@ -100,17 +96,12 @@ describe("toFilm", () => {
       source: "YouTube",
       durationSeconds: null,
       place: null,
-      filmmaker: null,
       featured: false,
       identifiablePerson: false,
     });
     expect(f?.playback).toEqual({ kind: "youtube", id: expect.any(String) });
     expect(f?.thumbnailUrl).toMatch(/i\.ytimg\.com/);
     expect(f?.watchUrl).toMatch(/^https:\/\/www\.youtube\.com\/watch\?v=/);
-  });
-
-  it("never uses author as the filmmaker", () => {
-    expect(toFilm(youtube({ author: "Someone Real" }))?.filmmaker).toBeNull();
   });
 
   it("treats a blank title as not recorded", () => {
@@ -197,41 +188,6 @@ describe("facets", () => {
   });
 });
 
-describe("searchFilms", () => {
-  it("matches title and source, case-insensitively", () => {
-    expect(searchFilms(HANDOFF, "BRAVA").map((f) => f.id)).toEqual([
-      "f1",
-      "f2",
-      "f3",
-    ]);
-    expect(searchFilms(HANDOFF, "youtube")).toHaveLength(4);
-    expect(searchFilms(HANDOFF, "not recorded")).toHaveLength(5);
-    expect(searchFilms(HANDOFF, "  ")).toHaveLength(9);
-  });
-});
-
-describe("sortFilms", () => {
-  const ids = (films: Film[]) => films.map((f) => f.id);
-
-  it("title: titled A–Z, untitled last", () => {
-    const sorted = sortFilms(HANDOFF, "title");
-    expect(ids(sorted).slice(0, 4)).toEqual(["f2", "f1", "f3", "f4"]);
-    expect(sorted.slice(4).every((f) => f.title === null)).toBe(true);
-  });
-
-  it("needs: untitled first", () => {
-    const sorted = sortFilms(HANDOFF, "needs");
-    expect(sorted.slice(0, 5).every((f) => f.title === null)).toBe(true);
-    expect(ids(sorted).slice(5)).toEqual(["f2", "f1", "f3", "f4"]);
-  });
-
-  it("source: by source label, then title", () => {
-    const sorted = sortFilms(HANDOFF, "source");
-    expect(sorted.slice(0, 5).every((f) => f.source === null)).toBe(true);
-    expect(ids(sorted).slice(5)).toEqual(["f2", "f1", "f3", "f4"]);
-  });
-});
-
 describe("pickFeatured", () => {
   it("prefers the featured record", () => {
     const films = [film({ title: "A" }), film({ title: "Z", featured: true })];
@@ -240,7 +196,6 @@ describe("pickFeatured", () => {
 
   it("otherwise takes the first by title", () => {
     expect(pickFeatured(HANDOFF)?.id).toBe("f2");
-    expect(pickFeatured(HANDOFF, "needs")?.title).toBeNull();
     expect(pickFeatured([])).toBeNull();
   });
 
@@ -306,7 +261,7 @@ describe("toFilm display fields (spec 038 FR-004)", () => {
   });
 });
 
-describe("upNext and nextPlayable (spec 038 FR-043)", () => {
+describe("upNext (spec 038 FR-043)", () => {
   const NS = { slug: "nova-sintra", name: "Nova Sintra" };
   const current = film({ id: "cur", place: NS });
   const blockedSame = film({ id: "bs", place: NS, playback: null });
@@ -324,9 +279,9 @@ describe("upNext and nextPlayable (spec 038 FR-043)", () => {
     ]);
   });
 
-  it("picks the first playable film as next", () => {
-    expect(nextPlayable(current, list)?.id).toBe("same");
-    expect(nextPlayable(current, [current, blocked])).toBeNull();
+  it("puts the first playable film first among the playable ones", () => {
+    expect(upNext(current, list).find(canPlay)?.id).toBe("same");
+    expect(upNext(current, [current, blocked]).find(canPlay)).toBeUndefined();
     expect(canPlay(blocked)).toBe(false);
   });
 
@@ -371,18 +326,13 @@ describe("immersion copy (spec 038)", () => {
     expect(filmSourceLine(film({ sourceTitle: null }))).toBeNull();
   });
 
-  it("names only what is missing in the help line", () => {
+  it("names what is missing in the help line", () => {
     expect(filmHelpLine(film())).toBe(
       "Not yet recorded: where it was filmed or who filmed it."
     );
     expect(
       filmHelpLine(film({ place: { slug: "furna", name: "Furna" } }))
     ).toBe("Not yet recorded: who filmed it.");
-    expect(
-      filmHelpLine(
-        film({ place: { slug: "furna", name: "Furna" }, filmmaker: "Ana" })
-      )
-    ).toBeNull();
   });
 
   it("counts films in words", () => {

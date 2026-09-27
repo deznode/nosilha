@@ -38,7 +38,7 @@ const PHOTOS = [
     category: "Landscape",
     dateLabel: "July 12, 2024",
     camera: "DJI FC3582",
-    missing: { photographer: true, place: false, date: false },
+    missing: { photographer: true, date: false },
   }),
   makePhoto("b", { near: NOVA_SINTRA }),
   makePhoto("c", { near: FURNA }),
