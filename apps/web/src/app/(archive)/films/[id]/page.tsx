@@ -3,15 +3,16 @@ import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { FilmTheatre } from "@/components/films/theatre/film-theatre";
-import { getGalleryMedia, getGalleryMediaById } from "@/lib/api";
 import {
-  FILMS_FETCH_SIZE,
-  toFilm,
-  toFilms,
-  type FilmSettlement,
-} from "@/lib/films";
+  getGalleryMedia,
+  getGalleryMediaById,
+  getTownStatusSummary,
+} from "@/lib/api";
+import { FILMS_FETCH_SIZE, toFilm, toFilms } from "@/lib/films";
+import { isMediaId } from "@/lib/gallery-mappers";
 import { getArchivePhotographs } from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
+import { excerpt } from "@/lib/text";
 
 /**
  * Blocking rather than streaming a shell, so an unknown id answers 404 rather than 200
@@ -19,88 +20,86 @@ import { generatePageMetadata } from "@/lib/metadata";
  */
 export const instant = false;
 
-/** Gallery ids are UUIDs; anything else is not a film and should not reach the API. */
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 interface FilmRouteProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ play?: string }>;
 }
 
+/** Gallery ids are UUIDs; anything else is not a film and should not reach the API. */
 function getFilmMedia(id: string) {
-  return UUID.test(id) ? getGalleryMediaById(id) : Promise.resolve(null);
-}
-
-async function findFilm(
-  id: string,
-  settlements: readonly FilmSettlement[] = []
-) {
-  const media = await getFilmMedia(id);
-  return media ? toFilm(media, settlements) : null;
+  return isMediaId(id) ? getGalleryMediaById(id) : Promise.resolve(null);
 }
 
 export async function generateMetadata({
   params,
 }: FilmRouteProps): Promise<Metadata> {
   const { id } = await params;
-  const film = await findFilm(id).catch(() => null);
+  const media = await getFilmMedia(id).catch(() => null);
+  const film = media ? toFilm(media) : null;
   if (!film) return {};
 
   return generatePageMetadata({
     title: film.displayTitle,
-    description:
-      film.description ??
-      "A film of Brava Island from the archive, played in place.",
+    description: film.description
+      ? excerpt(film.description)
+      : "A film of Brava Island from the archive, played in place.",
     path: `/films/${film.id}`,
     keywords: ["Brava Island", "Cape Verde", "archive film"],
   });
 }
 
-export default async function FilmRoute({
-  params,
-  searchParams,
-}: FilmRouteProps) {
-  const [{ id }, { play }] = await Promise.all([params, searchParams]);
-  return cachedFilm(id, play === "1");
+/**
+ * `?play=1` is read by the player from the live URL, not here, so it stays out of the
+ * cache key and a page Next re-shows (Activity) still starts when asked to.
+ */
+export default async function FilmRoute({ params }: FilmRouteProps) {
+  const { id } = await params;
+  return cachedFilm(id);
 }
 
 /** Spec 038 FR-040 to FR-043. */
-async function cachedFilm(id: string, autoStart: boolean) {
+async function cachedFilm(id: string) {
   "use cache";
   cacheLife("entry");
   cacheTag("gallery");
   cacheTag("towns");
 
-  // The photograph dataset names the film's settlement and says whether it has
-  // photographs. The 404 is settled on the film alone: Up next and "Photographs from
-  // here" are optional, so a failed list request drops them instead of turning a film
-  // that exists into a 500.
+  // Every request starts together, but the 404 is settled on the film alone.
+  //
+  // The settlements name the film's place, and a record that has one must not be
+  // cached as missing it ("Not yet recorded: where it was filmed"), so they are not
+  // caught: a failure is an error the next request retries. The film list is optional:
+  // a failed request leaves Up next out rather than claiming there are no other films.
+  // The photograph dataset only decides the optional "Photographs from here" link.
   const mediaPromise = getFilmMedia(id);
-  const archivePromise = getArchivePhotographs().catch(() => null);
+  const settlementsPromise = getTownStatusSummary();
   const othersPromise = getGalleryMedia({
     mediaType: "VIDEO",
     size: FILMS_FETCH_SIZE,
   })
     .then((list) => list.items)
-    .catch(() => []);
+    .catch(() => null);
+  const archivePromise = getArchivePhotographs().catch(() => null);
+  // `notFound()` leaves this scope before the settlements are awaited, so give the
+  // rejection a handler now rather than letting it surface as unhandled.
+  settlementsPromise.catch(() => undefined);
 
-  const [media, archive] = await Promise.all([mediaPromise, archivePromise]);
-  const settlements = archive?.settlements ?? [];
-  const film = media ? toFilm(media, settlements) : null;
+  const media = await mediaPromise;
+  if (!media || !toFilm(media)) notFound();
+
+  const [settlements, others, archive] = await Promise.all([
+    settlementsPromise,
+    othersPromise,
+    archivePromise,
+  ]);
+  const film = toFilm(media, settlements);
   if (!film) notFound();
 
-  const films = toFilms(await othersPromise, settlements);
-  const all = films.some((f) => f.id === film.id) ? films : [film, ...films];
+  const films = others === null ? null : toFilms(others, settlements);
   const hasPlacePhotos =
     !!film.place &&
     !!archive?.photos.some((p) => p.near?.slug === film.place?.slug);
 
   return (
-    <FilmTheatre
-      film={film}
-      films={all}
-      hasPlacePhotos={hasPlacePhotos}
-      autoStart={autoStart}
-    />
+    <FilmTheatre film={film} films={films} hasPlacePhotos={hasPlacePhotos} />
   );
 }

@@ -29,6 +29,9 @@ const FIELD_PHRASES: Record<string, string> = {
   latitude: "where this photograph was taken",
   locationName: "what this place is called",
   dateTaken: "roughly when this was taken",
+  // Film page (spec 038)
+  filmmaker: "who filmed this film",
+  placeId: "where this film was made",
   // Settlement
   population: "how many people live there",
   elevation: "how high above the sea it is",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import {
@@ -91,6 +91,32 @@ function ViewingRoom({
     [place]
   );
 
+  // A "More from" thumb sits far down the details. On a phone the stage and the
+  // details share one scroller, the stage on top, so bring the stage back into view:
+  // otherwise the photograph crossfades off-screen while the grid reshuffles under the
+  // finger. On a desktop the details scroll on their own: back to the new heading.
+  const boxRef = useRef<HTMLDivElement>(null);
+  const asideRef = useRef<HTMLElement>(null);
+  const showFromPanel = useCallback(
+    (photo: ArchivePhoto) => {
+      show(photo);
+      const media = (query: string) =>
+        typeof window.matchMedia === "function" &&
+        window.matchMedia(query).matches;
+      const scroller = media("(max-width: 767px)")
+        ? boxRef.current
+        : asideRef.current;
+      if (!scroller || scroller.scrollTop === 0) return;
+      scroller.scrollTo({
+        top: 0,
+        behavior: media("(prefers-reduced-motion: reduce)")
+          ? "instant"
+          : "smooth",
+      });
+    },
+    [show]
+  );
+
   const step = useCallback(
     (dir: 1 | -1) => {
       const next = stepWithin(list, current.id, dir);
@@ -119,7 +145,10 @@ function ViewingRoom({
       : [];
 
   return (
-    <div className="h-full overflow-y-auto md:flex md:overflow-hidden">
+    <div
+      ref={boxRef}
+      className="h-full overflow-y-auto md:flex md:overflow-hidden"
+    >
       <ViewerStage
         photo={current}
         neighbours={neighbours}
@@ -134,6 +163,7 @@ function ViewingRoom({
         keysDisabled={identifyOpen}
       />
       <aside
+        ref={asideRef}
         aria-label="About this photograph"
         // Behind the full-screen stage: out of the tab order and the reading order.
         inert={fullScreen}
@@ -148,7 +178,7 @@ function ViewingRoom({
           photos={photos}
           place={place}
           placeLabel={label}
-          onShow={show}
+          onShow={showFromPanel}
         />
       </aside>
     </div>

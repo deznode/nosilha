@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  isMediaId,
   mapGalleryMediaToMediaItem,
   mediaItemToGeoFeature,
 } from "@/lib/gallery-mappers";
@@ -550,5 +551,14 @@ describe("mediaItemToGeoFeature", () => {
     const feature = mediaItemToGeoFeature(item);
 
     expect(feature!.geometry.coordinates).toEqual([-24.71, -14.85]);
+  });
+});
+
+describe("isMediaId", () => {
+  it("accepts a record id and nothing a backend list route answers to", () => {
+    expect(isMediaId("0b6f7c36-9a51-4d4b-8d53-1f2e3a4b5c6d")).toBe(true);
+    expect(isMediaId("featured")).toBe(false);
+    expect(isMediaId("undefined")).toBe(false);
+    expect(isMediaId("0b6f7c36-9a51-4d4b-8d53")).toBe(false);
   });
 });

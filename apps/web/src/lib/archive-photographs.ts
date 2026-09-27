@@ -6,6 +6,7 @@ import {
   photoCredit,
   photoDateLabel,
   photoIsIdentifiablePerson,
+  photoIsLocated,
 } from "@/lib/photo-facts";
 import { trimmed } from "@/lib/text";
 import {
@@ -37,6 +38,16 @@ export interface ArchivePhoto {
   description: string | null;
   /** The settlement within ~2 km of the coordinates, or null. */
   near: PlaceRef | null;
+  /**
+   * Whether the record holds coordinates. A located photograph can still have no
+   * `near` (a coastal cliff, say): it is "not yet placed" under a settlement, but its
+   * place is recorded, and it has a pin on the map.
+   */
+  located: boolean;
+  /** The place name as recorded ("Fajã d'Água, by the harbour"), or null. */
+  placeName: string | null;
+  /** The photographer credit as recorded, or null ("not known" reads as null). */
+  credit: string | null;
   /** "July 2024", else an approximate date as written, else null. */
   monthYear: string | null;
   /** "July 12, 2024", else an approximate date as written, else null. */
@@ -80,6 +91,8 @@ export function toArchivePhoto(
       trimmed(upload?.cameraModel) ?? undefined
     ) ?? null;
 
+  const credit = photoCredit(media);
+
   const photo: ArchivePhoto = {
     id: media.id,
     src: resolvePublicImageUrl(media),
@@ -87,13 +100,16 @@ export function toArchivePhoto(
     title,
     description: trimmed(media.description),
     near,
+    located: photoIsLocated(media),
+    placeName: trimmed(upload?.locationName),
+    credit,
     monthYear,
     dateLabel,
     camera,
     category: trimmed(media.category),
     identifiablePerson: photoIsIdentifiablePerson(media),
     missing: {
-      photographer: photoCredit(media) === null,
+      photographer: credit === null,
       date: dateLabel === null,
     },
   };
@@ -228,8 +244,8 @@ export function dayOfYear(date: Date): number {
 
 /**
  * Today's photograph: rotates daily through those with a caption of their own and a
- * settlement, else any located one, else any. A photograph showing an unvouched-for
- * person never takes the slot (spec 034 FR-022).
+ * settlement, else any located one (with coordinates), else any. A photograph showing
+ * an unvouched-for person never takes the slot (spec 034 FR-022).
  */
 export function featureOfDay(
   photos: readonly ArchivePhoto[],
@@ -237,7 +253,7 @@ export function featureOfDay(
 ): ArchivePhoto | null {
   const eligible = photos.filter((p) => !p.identifiablePerson);
   const described = eligible.filter((p) => photoCaption(p) && p.near);
-  const located = eligible.filter((p) => p.near);
+  const located = eligible.filter((p) => p.located);
   const pool = described.length
     ? described
     : located.length
@@ -331,13 +347,23 @@ function joinAnd(parts: string[]): string {
 }
 
 /**
+ * Whether the record says where it was taken: coordinates or a place name. Being far
+ * from every settlement (no `near`) is not the same as the place being unrecorded.
+ */
+function placeRecorded(
+  photo: Pick<ArchivePhoto, "located" | "placeName">
+): boolean {
+  return photo.located || photo.placeName !== null;
+}
+
+/**
  * `Not yet recorded: who took it, where and when.`, naming only what is missing; null
  * when the record is complete.
  */
 export function viewerHelpLine(photo: ArchivePhoto): string | null {
   const missing: string[] = [];
   if (photo.missing.photographer) missing.push("who took it");
-  if (!photo.near) missing.push("where");
+  if (!placeRecorded(photo)) missing.push("where");
   if (photo.missing.date) missing.push("when");
   return missing.length ? `Not yet recorded: ${joinAnd(missing)}.` : null;
 }
@@ -347,7 +373,7 @@ export function firstMissingField(
   photo: ArchivePhoto
 ): "photographer" | "place" | "date" | null {
   if (photo.missing.photographer) return "photographer";
-  if (!photo.near) return "place";
+  if (!placeRecorded(photo)) return "place";
   if (photo.missing.date) return "date";
   return null;
 }

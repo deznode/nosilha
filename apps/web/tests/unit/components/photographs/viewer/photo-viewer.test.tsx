@@ -129,6 +129,26 @@ describe("PhotoViewer", () => {
     expect(replaceState).toHaveBeenCalledTimes(3);
   });
 
+  it("steps on a one-finger swipe but not on a pinch", () => {
+    renderViewer("nova-sintra");
+    const stage = screen.getByRole("region", { name: "Photograph" });
+
+    // One finger: 100px to the left steps to the next photograph.
+    fireEvent.pointerDown(stage, { pointerId: 1, clientX: 200, clientY: 90 });
+    fireEvent.pointerMove(stage, { pointerId: 1, clientX: 100, clientY: 90 });
+    fireEvent.pointerUp(stage, { pointerId: 1, clientX: 100, clientY: 90 });
+    expect(replaceState).toHaveBeenCalledTimes(1);
+
+    // Two fingers spreading apart: the first one lifting is not a swipe, even though
+    // it ends 60px left of where the second one landed.
+    fireEvent.pointerDown(stage, { pointerId: 2, clientX: 100, clientY: 90 });
+    fireEvent.pointerDown(stage, { pointerId: 3, clientX: 250, clientY: 90 });
+    fireEvent.pointerMove(stage, { pointerId: 2, clientX: 40, clientY: 90 });
+    fireEvent.pointerUp(stage, { pointerId: 2, clientX: 40, clientY: 90 });
+    fireEvent.pointerUp(stage, { pointerId: 3, clientX: 320, clientY: 90 });
+    expect(replaceState).toHaveBeenCalledTimes(1);
+  });
+
   it("falls back to All when the photograph is outside the filter", () => {
     renderViewer("furna");
     expect(screen.getByText(/^1 of 4/)).toBeInTheDocument();
@@ -203,6 +223,40 @@ describe("PhotoViewer", () => {
     expect(
       screen.getByText("Not yet recorded: who took it, where and when.")
     ).toBeInTheDocument();
+  });
+
+  it("shows the credit and place name the record holds", () => {
+    pathname = "/photographs/e";
+    render(
+      <PhotoViewer
+        photos={[
+          makePhoto("e", {
+            credit: "Ana Lopes",
+            placeName: "Fajã d'Água, by the harbour",
+            missing: { photographer: false, date: false },
+          }),
+        ]}
+        initialId="e"
+        place={undefined}
+      />
+    );
+    expect(screen.getByText("Photograph by Ana Lopes")).toBeInTheDocument();
+    expect(screen.getByText("Fajã d'Água, by the harbour")).toBeInTheDocument();
+    // A named place is a recorded place: nothing is asked for.
+    expect(screen.queryByText(/Not yet recorded/)).not.toBeInTheDocument();
+  });
+
+  it("hands focus to the new record after a More from pick", async () => {
+    renderViewer("nova-sintra");
+    await userEvent.click(
+      screen.getByRole("button", { name: "Near Nova Sintra" })
+    );
+    expect(replaceState).toHaveBeenLastCalledWith(
+      null,
+      "",
+      "/photographs/b?place=nova-sintra"
+    );
+    expect(screen.getByRole("heading", { level: 1 })).toHaveFocus();
   });
 
   it("follows the URL after a replaceState step", () => {

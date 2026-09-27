@@ -52,8 +52,10 @@ class FrontendRevalidationService(
      * Triggers revalidation for every page that shows gallery media.
      *
      * The home, films, film, photographs, photograph and place record pages all carry
-     * the `gallery` cache tag, so an admin edit or moderation decision reaches every
-     * copy of the record (spec 038 T-13).
+     * the `gallery` cache tag (spec 038 T-13). The gallery's admin metadata, status,
+     * archive, EXIF and create paths and the YouTube sync call this; hero role changes,
+     * R2 batch uploads and AI-approved text do not yet, and reach the pages when their
+     * cache entries expire.
      */
     fun revalidateGallery() {
         revalidate("""{"tag": "$GALLERY_TAG"}""", "tag $GALLERY_TAG")

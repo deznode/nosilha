@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { clsx } from "clsx";
@@ -8,6 +15,11 @@ import { clsx } from "clsx";
 import type { Film } from "@/lib/films";
 
 import { useFilmHost } from "../use-film-host";
+
+/** Whether the browser can put an element in full screen (not an iPhone, say). */
+const noSubscription = () => () => {};
+const canFullScreen = () => document.fullscreenEnabled === true;
+const cannotFullScreenOnServer = () => false;
 
 /** Where "Send a copy" goes: the existing media contribution flow. */
 export const SEND_A_COPY_HREF = "/contribute/media";
@@ -26,49 +38,95 @@ const OUTLINE_BUTTON =
  * bar; the host's controls are hidden), can't play (no play button, a way to help),
  * and ended (Up next, counting down when autoplay is on). When the host API is
  * unavailable, the plain iframe shows the host's own controls and the bar stands down.
+ * The bar adds a full screen control where the browser supports one, since the
+ * host's own (and its `f` key) are hidden.
  */
 export function TheatrePlayer({
   film,
   next,
+  lastFilm,
   autoNext,
-  autoStart = false,
   onPlayNext,
   className,
 }: {
   film: Film;
   /** The film the countdown opens: the first playable in Up next order. */
   next: Film | null;
+  /** True when the archive's films are known and none is left to play. */
+  lastFilm: boolean;
   autoNext: boolean;
-  /** Start with sound on arrival (`?play=1`). */
-  autoStart?: boolean;
   onPlayNext: (film: Film) => void;
   className?: string;
 }) {
-  const host = useFilmHost(film);
-  const { state, start, toggle } = host;
+  const {
+    state,
+    start,
+    toggle,
+    live,
+    unplayable,
+    controls,
+    containerRef,
+    muted,
+    progress,
+    seek,
+    setMuted,
+    replay,
+  } = useFilmHost(film);
   const [countdown, setCountdown] = useState(0);
 
-  // `?play=1`: play on arrival, once. Client navigation keeps the user's activation,
-  // so the browser allows sound.
-  // Refs survive an Activity hide and show, so a restored page doesn't start again.
-  const autoStarted = useRef(false);
+  // `?play=1`: play with sound on arrival. Client navigation keeps the user's
+  // activation, so the browser allows it. The live URL is read every time the page
+  // shows, not a prop or a ref: Next re-shows a recently visited film page (Activity)
+  // rather than mounting it again, so a new visit asking to play must still start it.
+  // The parameter is dropped at once, so Back and a reload don't start it again.
   useEffect(() => {
-    if (!autoStart || autoStarted.current) return;
-    autoStarted.current = true;
-    start();
-    // Drop `?play=1` so Back, a reload or an Activity restore doesn't start it again.
     const url = new URL(window.location.href);
-    if (url.searchParams.has("play")) {
-      url.searchParams.delete("play");
-      window.history.replaceState(null, "", url.pathname + url.search);
+    if (url.searchParams.get("play") !== "1") return;
+    url.searchParams.delete("play");
+    window.history.replaceState(null, "", url.pathname + url.search);
+    start();
+  }, [start]);
+
+  // Full screen on the frame itself, so the bar, Space and Up next stay in it.
+  const frameRef = useRef<HTMLDivElement>(null);
+  const fullScreenSupported = useSyncExternalStore(
+    noSubscription,
+    canFullScreen,
+    cannotFullScreenOnServer
+  );
+  const [fullScreen, setFullScreen] = useState(false);
+  useEffect(() => {
+    const onChange = () =>
+      setFullScreen(
+        frameRef.current !== null &&
+          document.fullscreenElement === frameRef.current
+      );
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+  // Leaving the page (an Activity hide included) leaves full screen with it.
+  useLayoutEffect(() => {
+    const frame = frameRef.current;
+    return () => {
+      if (frame && document.fullscreenElement === frame) {
+        void document.exitFullscreen().catch(() => {});
+      }
+    };
+  }, []);
+  const toggleFullScreen = useCallback(() => {
+    const frame = frameRef.current;
+    if (!frame || !document.fullscreenEnabled) return;
+    if (document.fullscreenElement === frame) {
+      void document.exitFullscreen().catch(() => {});
+    } else {
+      void frame.requestFullscreen().catch(() => {});
     }
-    // Only on arrival.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Ended with autoplay on: count down to the next film.
   const ended = state === "ended";
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the count restarts when the host reports the end, which only arrives through state
     setCountdown(ended && autoNext && next ? COUNTDOWN_SECONDS : 0);
   }, [ended, autoNext, next]);
 
@@ -82,49 +140,50 @@ export function TheatrePlayer({
   }, [countdown, next, onPlayNext]);
 
   // Space plays and pauses a film that is under way, unless a control has focus (it
-  // would click it too). Before the film starts, Space scrolls the page as usual.
-  const underway =
-    state === "playing" || state === "paused" || state === "loading";
+  // would click it too); F toggles full screen. Before the film plays (idle, or still
+  // loading, when the host can't take a command yet) Space scrolls the page as usual.
+  const underway = state === "playing" || state === "paused";
   useEffect(() => {
     if (!underway) return;
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== " ") return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target as HTMLElement | null;
-      if (
-        target?.closest?.(
-          "button, a, input, textarea, select, [contenteditable], [role=slider]"
-        )
-      ) {
+      if (target?.closest?.("input, textarea, select, [contenteditable]")) {
         return;
       }
+      if (event.key === "f" || event.key === "F") {
+        toggleFullScreen();
+        return;
+      }
+      if (event.key !== " ") return;
+      if (target?.closest?.("button, a, [role=slider]")) return;
       event.preventDefault();
       toggle();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [underway, toggle]);
+  }, [underway, toggle, toggleFullScreen]);
 
-  const showStill = !host.live || state === "loading";
-  const idle = state === "idle" && !host.unplayable;
+  const showStill = !live || state === "loading";
+  const idle = state === "idle" && !unplayable;
   const barOn =
-    (state === "playing" || state === "paused") && host.controls === "custom";
+    (state === "playing" || state === "paused") && controls === "custom";
 
   return (
     <div
+      ref={frameRef}
       className={clsx(
-        "relative aspect-video w-full overflow-hidden bg-[#0A0908]",
+        "relative aspect-video w-full overflow-hidden bg-[#0A0908] [&:fullscreen]:rounded-none",
         className
       )}
     >
-      {host.live && (
-        <div ref={host.containerRef} className="absolute inset-0" />
-      )}
+      {live && <div ref={containerRef} className="absolute inset-0" />}
 
       {showStill && film.thumbnailUrl && (
         <div
           className="absolute inset-0 transition-[filter] duration-300"
           style={{
-            filter: host.unplayable ? "grayscale(.85) brightness(.45)" : "none",
+            filter: unplayable ? "grayscale(.85) brightness(.45)" : "none",
           }}
         >
           <Image
@@ -165,13 +224,11 @@ export function TheatrePlayer({
         </div>
       )}
 
-      {host.unplayable && (
-        <CantPlay film={film} blocked={state === "blocked"} />
-      )}
+      {unplayable && <CantPlay film={film} blocked={state === "blocked"} />}
 
       {barOn && (
         <>
-          {host.muted && (
+          {muted && (
             <span className="absolute top-3 right-3 rounded-full bg-[rgba(10,8,6,.6)] px-3 py-1.5 text-xs text-[#F6F1E9]">
               Sound off
             </span>
@@ -186,14 +243,24 @@ export function TheatrePlayer({
             <button type="button" onClick={toggle} className={BAR_BUTTON}>
               {state === "playing" ? "Pause" : "Play"}
             </button>
-            <SeekTrack progress={host.progress} onSeek={host.seek} />
+            <SeekTrack progress={progress} onSeek={seek} />
             <button
               type="button"
-              onClick={() => host.setMuted(!host.muted)}
+              onClick={() => setMuted(!muted)}
               className={BAR_BUTTON}
             >
-              {host.muted ? "Sound on" : "Mute"}
+              {muted ? "Sound on" : "Mute"}
             </button>
+            {fullScreenSupported && (
+              <button
+                type="button"
+                onClick={toggleFullScreen}
+                aria-pressed={fullScreen}
+                className={BAR_BUTTON}
+              >
+                {fullScreen ? "Exit full screen" : "Full screen"}
+              </button>
+            )}
           </div>
         </>
       )}
@@ -201,12 +268,13 @@ export function TheatrePlayer({
       {ended && (
         <EndedOverlay
           next={next}
+          lastFilm={lastFilm}
           countdown={countdown}
           onPlayNext={() => next && onPlayNext(next)}
           onCancel={() => setCountdown(0)}
           onReplay={() => {
             setCountdown(0);
-            host.replay();
+            replay();
           }}
         />
       )}
@@ -314,12 +382,15 @@ function CantPlay({ film, blocked }: { film: Film; blocked: boolean }) {
 
 function EndedOverlay({
   next,
+  lastFilm,
   countdown,
   onPlayNext,
   onCancel,
   onReplay,
 }: {
   next: Film | null;
+  /** Say "That was the last film" only when the list is known to be exhausted. */
+  lastFilm: boolean;
   countdown: number;
   onPlayNext: () => void;
   onCancel: () => void;
@@ -340,15 +411,19 @@ function EndedOverlay({
           </div>
         )}
         <div className="flex min-w-0 flex-[1_1_200px] flex-col gap-2">
-          <span
-            aria-live="polite"
-            className="text-[11px] tracking-[.16em] uppercase opacity-[.78]"
-          >
-            {countdown > 0 ? `Up next in ${countdown}` : "Up next"}
-          </span>
-          <span className="font-serif text-[22px] leading-[1.2]">
-            {next ? next.displayTitle : "That was the last film"}
-          </span>
+          {(next || lastFilm) && (
+            <>
+              <span
+                aria-live="polite"
+                className="text-[11px] tracking-[.16em] uppercase opacity-[.78]"
+              >
+                {countdown > 0 ? `Up next in ${countdown}` : "Up next"}
+              </span>
+              <span className="font-serif text-[22px] leading-[1.2]">
+                {next ? next.displayTitle : "That was the last film"}
+              </span>
+            </>
+          )}
           <div className="mt-1 flex flex-wrap gap-2">
             {next && (
               <button

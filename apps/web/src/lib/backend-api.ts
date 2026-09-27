@@ -334,9 +334,9 @@ export class BackendApiClient implements ApiClient {
   async getEntryBySlug(slug: string): Promise<DirectoryEntry | undefined> {
     const endpoint = `${env.apiUrl}/api/v1/directory/slug/${slug}`;
 
-    // Use ISR with 30 minute cache for individual entries
+    // 30-minute entry, tagged so a directory edit or a hero change reaches it
     const response = await fetch(endpoint, {
-      next: CacheConfig.INDIVIDUAL_ENTRY,
+      next: CacheConfig.ENTRY_RECORD,
     });
 
     if (!response.ok) {
@@ -535,9 +535,11 @@ export class BackendApiClient implements ApiClient {
   async getMediaByEntry(entryId: string): Promise<PublicUserUploadMedia[]> {
     const endpoint = `${env.apiUrl}/api/v1/gallery/entry/${entryId}`;
 
+    // The `gallery`-tagged entry: the place page carries the tag, and an untagged
+    // fetch would re-render it from the rows an admin just archived or rejected.
     const response = await fetch(endpoint, {
       method: "GET",
-      next: CacheConfig.INDIVIDUAL_ENTRY,
+      next: CacheConfig.GALLERY,
     });
 
     if (!response.ok) {

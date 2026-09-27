@@ -16,10 +16,14 @@ import com.nosilha.core.gallery.domain.YouTubeSnippet
 import com.nosilha.core.gallery.domain.YouTubeThumbnail
 import com.nosilha.core.gallery.domain.YouTubeThumbnails
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
+import com.nosilha.core.shared.service.FrontendRevalidationService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.never
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -68,6 +72,9 @@ class YouTubeSyncIntegrationTest {
 
     @MockitoBean
     private lateinit var youTubeApiClient: YouTubeApiClient
+
+    @MockitoBean
+    private lateinit var revalidationService: FrontendRevalidationService
 
     private val testAdminId = UUID.fromString("00000000-0000-0000-0000-000000000001")
 
@@ -133,6 +140,9 @@ class YouTubeSyncIntegrationTest {
         assertEquals(ExternalPlatform.YOUTUBE, video1.platform)
         assertEquals(MediaType.VIDEO, video1.mediaType)
         assertEquals(GalleryMediaStatus.ACTIVE, video1.status)
+
+        // One revalidation for the whole sync, not one per video (spec 038 T-13)
+        verify(revalidationService, times(1)).revalidateGallery()
     }
 
     @Test
@@ -224,6 +234,9 @@ class YouTubeSyncIntegrationTest {
         assertEquals("BRAVA 4K drone", row["title"])
         assertEquals("Brava from the air", row["display_title"])
         assertEquals(townId, row["place_id"])
+
+        // Nothing new was created, so nothing public changed
+        verify(revalidationService, never()).revalidateGallery()
     }
 
     @Test

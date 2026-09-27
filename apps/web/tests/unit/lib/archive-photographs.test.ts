@@ -88,6 +88,9 @@ function photo(overrides: Partial<ArchivePhoto> = {}): ArchivePhoto {
     title: null,
     description: null,
     near: null,
+    located: (overrides.near ?? null) !== null,
+    placeName: null,
+    credit: null,
     monthYear: null,
     dateLabel: null,
     camera: null,
@@ -137,6 +140,25 @@ describe("toArchivePhoto", () => {
     expect(p.monthYear).toBe("sometime in the sixties");
     expect(p.alt).toBe("A photograph of Brava");
     expect(p.missing.photographer).toBe(false);
+    expect(p.credit).toBe("Ana");
+    expect(p.located).toBe(false);
+  });
+
+  it("keeps the recorded place name, and coordinates far from every settlement", () => {
+    // The Ponta Nhô Martinho lighthouse: ~0.035° from the nearest settlement.
+    const far = toArchivePhoto(
+      upload({ latitude: 14.80268, longitude: -24.70162 }),
+      TOWNS
+    );
+    expect(far.near).toBeNull();
+    expect(far.located).toBe(true);
+
+    const named = toArchivePhoto(
+      upload({ locationName: "  Fajã d'Água, by the harbour " }),
+      TOWNS
+    );
+    expect(named.placeName).toBe("Fajã d'Água, by the harbour");
+    expect(named.located).toBe(false);
   });
 
   it("drops films from the dataset", () => {
@@ -252,6 +274,12 @@ describe("featureOfDay", () => {
     expect(featureOfDay(photos, day(3))?.id).toBe("b");
   });
 
+  it("falls back to a located photograph even with no settlement near", () => {
+    const photos = [photo({ id: "a" }), photo({ id: "b", located: true })];
+    expect(featureOfDay(photos, day(2))?.id).toBe("b");
+    expect(featureOfDay(photos, day(3))?.id).toBe("b");
+  });
+
   it("falls back to any photograph, and skips unvouched people", () => {
     expect(featureOfDay([photo({ id: "x" })], day(5))?.id).toBe("x");
     expect(
@@ -349,6 +377,21 @@ describe("copy", () => {
     expect(
       firstMissingField(photo({ missing: { photographer: false, date: true } }))
     ).toBe("place");
+  });
+
+  it("does not ask where for a place the record holds", () => {
+    const complete = { photographer: false, date: false };
+    // Coordinates with no settlement within 2 km: placed nowhere, but recorded.
+    expect(
+      viewerHelpLine(photo({ located: true, missing: complete }))
+    ).toBeNull();
+    expect(
+      firstMissingField(photo({ located: true, missing: complete }))
+    ).toBeNull();
+    // A place name written by a person, with no coordinates.
+    expect(
+      viewerHelpLine(photo({ placeName: "Fajã d'Água", missing: complete }))
+    ).toBeNull();
   });
 
   it("follows the real counts in the index help line", () => {

@@ -5,6 +5,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { PhotoViewer } from "@/components/photographs/viewer/photo-viewer";
 import { getGalleryMediaById } from "@/lib/api";
 import { toArchivePhoto } from "@/lib/archive-photographs";
+import { isMediaId } from "@/lib/gallery-mappers";
 import { getArchivePhotographs } from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
 import { photoTitle } from "@/lib/photo-facts";
@@ -24,6 +25,7 @@ export async function generateMetadata({
   params,
 }: PhotoPageProps): Promise<Metadata> {
   const { id } = await params;
+  if (!isMediaId(id)) return {};
   const media = await getGalleryMediaById(id).catch(() => undefined);
   if (!media) return {};
 
@@ -60,6 +62,10 @@ async function cachedPhoto(id: string) {
   cacheLife("entry");
   cacheTag("gallery");
   cacheTag("towns");
+
+  // Anything but a record id is a 404, before either request: a literal such as
+  // `featured` would otherwise reach a backend list route and render as a record.
+  if (!isMediaId(id)) notFound();
 
   // Both requests start together, but the 404 is settled on the media alone: for an
   // id the archive does not hold, a dataset request that fails for any other reason

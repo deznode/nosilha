@@ -135,6 +135,28 @@ class AdminFilmCurationIntegrationTest {
         }
 
         @Test
+        fun `a blank description or category clears it`() {
+            val media =
+                galleryMediaRepository
+                    .save(
+                        ExternalMedia().apply {
+                            title = "Brava film"
+                            externalId = UUID.randomUUID().toString().take(11)
+                            status = GalleryMediaStatus.ACTIVE
+                            description = "Raw YouTube description"
+                            category = "Film"
+                        },
+                    ).also { created += it.id!! }
+
+            patchJson(media.id, """{"description": "", "category": "  "}""")
+                .andExpect(status().isOk)
+
+            val reloaded = reloadFilm(media.id)
+            assertThat(reloaded.description).isNull()
+            assertThat(reloaded.category).isNull()
+        }
+
+        @Test
         fun `a PATCH without the fields leaves them unchanged`() {
             val media = film(displayTitle = "Brava from the air", placeId = townId)
 

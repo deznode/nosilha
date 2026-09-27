@@ -2,6 +2,7 @@ package com.nosilha.core.gallery
 
 import com.nosilha.core.gallery.domain.ExternalMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
+import com.nosilha.core.gallery.domain.UserUploadedMedia
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.service.FrontendRevalidationService
 import org.junit.jupiter.api.AfterEach
@@ -25,6 +26,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
 
@@ -89,11 +91,31 @@ class GalleryRevalidationIntegrationTest {
                 },
             ).also { created += it.id!! }
 
+    private fun upload(mediaStatus: GalleryMediaStatus): UserUploadedMedia =
+        galleryMediaRepository
+            .save(
+                UserUploadedMedia().apply {
+                    storageKey = "uploads/2026/09/${UUID.randomUUID()}.jpg"
+                    contentType = "image/jpeg"
+                    status = mediaStatus
+                },
+            ).also { created += it.id!! }
+
     private fun patchJson(
         path: String,
         body: String,
     ) = mockMvc.perform(
         patch(path)
+            .with(adminAuth())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body),
+    )
+
+    private fun postJson(
+        path: String,
+        body: String,
+    ) = mockMvc.perform(
+        post(path)
             .with(adminAuth())
             .contentType(MediaType.APPLICATION_JSON)
             .content(body),
@@ -175,6 +197,39 @@ class GalleryRevalidationIntegrationTest {
             .andExpect(status().is4xxClientError)
 
         verify(revalidationService, never()).revalidateGallery()
+    }
+
+    @Test
+    fun `applying EXIF to a public upload revalidates the gallery tag`() {
+        val media = upload(GalleryMediaStatus.ACTIVE)
+
+        postJson("/api/v1/admin/gallery/${media.id}/update-exif", """{"latitude": 14.87, "longitude": -24.69}""")
+            .andExpect(status().isOk)
+
+        verify(revalidationService, times(1)).revalidateGallery()
+    }
+
+    @Test
+    fun `applying EXIF to an upload that isn't public does not revalidate`() {
+        val media = upload(GalleryMediaStatus.PENDING_REVIEW)
+
+        postJson("/api/v1/admin/gallery/${media.id}/update-exif", """{"latitude": 14.87, "longitude": -24.69}""")
+            .andExpect(status().isOk)
+
+        verify(revalidationService, never()).revalidateGallery()
+    }
+
+    @Test
+    fun `creating external media revalidates the gallery tag`() {
+        val externalId = UUID.randomUUID().toString().take(11)
+
+        postJson(
+            "/api/v1/admin/gallery/external",
+            """{"mediaType": "VIDEO", "platform": "YOUTUBE", "externalId": "$externalId", "title": "New film"}""",
+        ).andExpect(status().isCreated)
+
+        created += jdbcTemplate.queryForObject("SELECT id FROM gallery_media WHERE external_id = ?", UUID::class.java, externalId)!!
+        verify(revalidationService, times(1)).revalidateGallery()
     }
 
     @Test

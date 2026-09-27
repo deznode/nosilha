@@ -117,9 +117,14 @@ export function useFilmHost(
   useLayoutEffect(() => {
     if (!engaged) return;
     return () => {
-      handleRef.current?.pause();
-      if (stopActive === stop) stopActive = null;
-      setState("idle");
+      // A host that fails here must not abort the hide: a throw from a layout
+      // cleanup reaches the route's error boundary when the page is shown again.
+      try {
+        handleRef.current?.pause();
+      } finally {
+        if (stopActive === stop) stopActive = null;
+        setState("idle");
+      }
     };
   }, [engaged, stop]);
 
@@ -142,8 +147,10 @@ export function useFilmHost(
     setState("playing");
   }, []);
 
+  // Nothing moves while the host is still loading, and a host that isn't ready
+  // can't take a command, so there is nothing to pause until it plays.
   const toggle = useCallback(() => {
-    if (state === "playing" || state === "loading") pause();
+    if (state === "playing") pause();
     else if (state === "paused") play();
     else if (state === "ended") replay();
     else if (state === "idle") start();

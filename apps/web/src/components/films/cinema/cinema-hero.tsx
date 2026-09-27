@@ -96,8 +96,10 @@ export function CinemaHero({ film }: { film: Film }) {
         />
       )}
 
-      {running && (
-        // Moving content that starts on its own must be stoppable (WCAG 2.2.2).
+      {state === "playing" && (
+        // Moving content that starts on its own must be stoppable (WCAG 2.2.2). Shown
+        // once the film moves: while it loads nothing moves yet, and a host that isn't
+        // ready would drop the command and start anyway.
         <div className="absolute top-4 right-4 flex gap-2 md:right-7">
           <button
             type="button"
@@ -116,7 +118,9 @@ export function CinemaHero({ film }: { film: Film }) {
         </div>
       )}
 
-      <div className="absolute bottom-0 left-0 flex max-w-[820px] flex-col gap-2.5 px-4 pb-[30px] text-[#F6F1E9] md:px-7">
+      {/* Taps pass through the text to the play button it can overlap on a phone; only
+          the links take them. */}
+      <div className="pointer-events-none absolute bottom-0 left-0 flex max-w-[820px] flex-col gap-2.5 px-4 pb-[30px] text-[#F6F1E9] md:px-7">
         <span
           aria-live="polite"
           className="flex items-center gap-2 text-[11px] tracking-[.18em] uppercase opacity-90"
@@ -128,11 +132,13 @@ export function CinemaHero({ film }: { film: Film }) {
         </h1>
         {place && <span className="text-sm opacity-[.88]">{place}</span>}
         {film.description && (
-          <span className="max-w-[56ch] text-[15px] leading-normal opacity-90">
+          // Clamped: a host description can run to 2,048 characters, and the band's
+          // height is fixed, so an unclamped one pushes the title off its top.
+          <span className="line-clamp-2 max-w-[56ch] text-[15px] leading-normal opacity-90 md:line-clamp-4">
             {film.description}
           </span>
         )}
-        <div className="mt-1.5 flex flex-wrap gap-2">
+        <div className="pointer-events-auto mt-1.5 flex flex-wrap gap-2">
           <Link
             href={filmHref(film.id, { play: true })}
             className="focus-ring rounded-lg bg-[#F6F1E9] px-5 py-3 text-sm font-medium text-[#16130F] transition-opacity hover:opacity-[.92]"

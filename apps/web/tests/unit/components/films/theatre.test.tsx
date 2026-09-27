@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { HostCallbacks } from "@/components/films/hosts/types";
 import { FilmTheatre } from "@/components/films/theatre/film-theatre";
 import { upNextTag } from "@/components/films/theatre/up-next";
+import type { Film } from "@/lib/films";
 
 import { makeFilm } from "./film-fixture";
 
@@ -61,15 +62,15 @@ const BLOCKED = makeFilm("blocked", {
 });
 const FILMS = [CURRENT, BLOCKED, OTHER, SAME];
 
-function renderTheatre(film = CURRENT, autoStart = false) {
-  return render(
-    <FilmTheatre
-      film={film}
-      films={FILMS}
-      hasPlacePhotos
-      autoStart={autoStart}
-    />
-  );
+/** `autoStart` arrives the way the app sends it: `?play=1` on the live URL. */
+function renderTheatre(
+  film = CURRENT,
+  autoStart = false,
+  films: readonly Film[] | null = FILMS
+) {
+  if (autoStart)
+    window.history.replaceState(null, "", `/films/${film.id}?play=1`);
+  return render(<FilmTheatre film={film} films={films} hasPlacePhotos />);
 }
 
 /** Spec 038 FR-040 to FR-043 — the film page. */
@@ -78,7 +79,10 @@ describe("FilmTheatre", () => {
     hosts.length = 0;
     push.mockClear();
   });
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+    window.history.replaceState(null, "", "/");
+  });
 
   it("shows the record without empty rows", () => {
     renderTheatre();
@@ -156,15 +160,74 @@ describe("FilmTheatre", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("starts on arrival with ?play=1", () => {
+  it("starts on arrival with ?play=1, and drops it so Back doesn't replay", () => {
     renderTheatre(CURRENT, true);
     expect(hosts).toHaveLength(1);
+    expect(window.location.pathname).toBe("/films/cur");
+    expect(window.location.search).toBe("");
   });
 
   it("does not start the film on Space while idle", () => {
     renderTheatre();
     fireEvent.keyDown(window, { key: " " });
     expect(hosts).toHaveLength(0);
+  });
+
+  it("leaves Space alone while the host is still loading", async () => {
+    renderTheatre();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Play Walking Nova Sintra" })
+    );
+    fireEvent.keyDown(window, { key: " " });
+    expect(last().handle.pause).not.toHaveBeenCalled();
+  });
+
+  it("offers full screen where the browser supports it", async () => {
+    const enabled = Object.getOwnPropertyDescriptor(
+      Document.prototype,
+      "fullscreenEnabled"
+    );
+    Object.defineProperty(document, "fullscreenEnabled", {
+      configurable: true,
+      value: true,
+    });
+    const request = vi.fn(() => Promise.resolve());
+    HTMLElement.prototype.requestFullscreen = request;
+    try {
+      renderTheatre();
+      await userEvent.click(
+        screen.getByRole("button", { name: "Play Walking Nova Sintra" })
+      );
+      act(() => last().cb.onPlaying());
+      await userEvent.click(
+        screen.getByRole("button", { name: "Full screen" })
+      );
+      expect(request).toHaveBeenCalledTimes(1);
+      fireEvent.keyDown(window, { key: "f" });
+      expect(request).toHaveBeenCalledTimes(2);
+    } finally {
+      delete (document as { fullscreenEnabled?: boolean }).fullscreenEnabled;
+      if (enabled) {
+        Object.defineProperty(Document.prototype, "fullscreenEnabled", enabled);
+      }
+      delete (HTMLElement.prototype as { requestFullscreen?: unknown })
+        .requestFullscreen;
+    }
+  });
+
+  it("leaves Up next out when the film list is unavailable", () => {
+    renderTheatre(CURRENT, true, null);
+    expect(
+      screen.queryByRole("heading", { name: "Up next" })
+    ).not.toBeInTheDocument();
+    act(() => last().cb.onPlaying());
+    act(() => last().cb.onEnded?.());
+    expect(
+      screen.queryByText("That was the last film")
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Watch again" })
+    ).toBeInTheDocument();
   });
 
   it("counts down to the next playable film at the end", () => {

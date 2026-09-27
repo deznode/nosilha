@@ -30,20 +30,21 @@ export function FilmTheatre({
   film,
   films,
   hasPlacePhotos,
-  autoStart,
 }: {
   film: Film;
-  /** Every film in the archive, the current one included. */
-  films: readonly Film[];
+  /**
+   * Every film in the archive (the current one is skipped if present), or null when
+   * the list could not be fetched: Up next is then left out rather than claiming
+   * there are no other films.
+   */
+  films: readonly Film[] | null;
   /** Whether the film's settlement has photographs to link to. */
   hasPlacePhotos: boolean;
-  /** `?play=1`: start with sound on arrival. */
-  autoStart: boolean;
 }) {
   const router = useRouter();
   const [autoNext, setAutoNext] = useState(true);
-  const ordered = upNext(film, films);
-  const next = ordered.find(canPlay) ?? null;
+  const ordered = films === null ? null : upNext(film, films);
+  const next = ordered?.find(canPlay) ?? null;
   const source = filmSourceLine(film);
 
   const playNext = useCallback(
@@ -58,8 +59,8 @@ export function FilmTheatre({
           key={film.id}
           film={film}
           next={next}
+          lastFilm={ordered !== null && next === null}
           autoNext={autoNext}
-          autoStart={autoStart}
           onPlayNext={playNext}
           className="md:mx-auto md:max-w-[min(1280px,calc((100dvh-var(--chrome-top-bar-height)-64px)*16/9))] md:rounded-[10px] md:shadow-[0_30px_80px_rgba(0,0,0,.4)]"
         />
@@ -117,15 +118,17 @@ export function FilmTheatre({
           </div>
         </div>
 
-        <div className="min-w-0 pt-[30px] md:pt-[34px]">
-          <UpNext
-            current={film}
-            films={ordered}
-            next={next}
-            autoNext={autoNext}
-            onToggleAutoNext={() => setAutoNext((on) => !on)}
-          />
-        </div>
+        {ordered !== null && (
+          <div className="min-w-0 pt-[30px] md:pt-[34px]">
+            <UpNext
+              current={film}
+              films={ordered}
+              next={next}
+              autoNext={autoNext}
+              onToggleAutoNext={() => setAutoNext((on) => !on)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

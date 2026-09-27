@@ -14,6 +14,11 @@ export function makePhoto(
     title: null,
     description: null,
     near: null,
+    // A photograph near a settlement has coordinates; one with no settlement has none
+    // unless a test says otherwise.
+    located: (overrides.near ?? null) !== null,
+    placeName: null,
+    credit: null,
     monthYear: null,
     dateLabel: null,
     camera: null,

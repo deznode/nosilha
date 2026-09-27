@@ -140,11 +140,16 @@ export function mountYouTube(
   options: MountOptions = DEFAULT_MOUNT
 ): HostHandle {
   let player: YTPlayer | null = null;
+  // `new YT.Player()` returns at once, but its playback methods (playVideo,
+  // pauseVideo, mute, getDuration, ...) only exist once the embed reports in, just
+  // before onReady. Until then every call on the player would throw.
+  let ready = false;
   let fallback: HTMLIFrameElement | null = null;
   let done = false;
   let poll: number | null = null;
   let started = false;
   let grace: number | null = null;
+  const live = () => (ready ? player : null);
 
   const command = (func: string) =>
     fallback?.contentWindow?.postMessage(
@@ -166,9 +171,9 @@ export function mountYouTube(
   const startPoll = () => {
     if (poll !== null || !callbacks.onProgress) return;
     poll = window.setInterval(() => {
-      const duration = player?.getDuration() ?? 0;
+      const duration = live()?.getDuration() ?? 0;
       if (duration > 0) {
-        callbacks.onProgress?.((player?.getCurrentTime() ?? 0) / duration);
+        callbacks.onProgress?.((live()?.getCurrentTime() ?? 0) / duration);
       }
     }, PROGRESS_POLL_MS);
   };
@@ -198,6 +203,7 @@ export function mountYouTube(
         },
         events: {
           onReady: () => {
+            ready = true;
             if (options.muted) player?.mute();
             player?.playVideo();
             grace = window.setTimeout(() => {
@@ -216,8 +222,8 @@ export function mountYouTube(
               callbacks.onPaused?.();
             } else if (data === YT_ENDED) {
               if (options.loop) {
-                player?.seekTo(0, true);
-                player?.playVideo();
+                live()?.seekTo(0, true);
+                live()?.playVideo();
                 return;
               }
               stopPoll();
@@ -239,21 +245,21 @@ export function mountYouTube(
 
   return {
     play() {
-      player?.playVideo();
+      live()?.playVideo();
       command("playVideo");
     },
     pause() {
-      player?.pauseVideo();
+      live()?.pauseVideo();
       command("pauseVideo");
     },
     setMuted(muted) {
-      if (muted) player?.mute();
-      else player?.unMute();
+      if (muted) live()?.mute();
+      else live()?.unMute();
       command(muted ? "mute" : "unMute");
     },
     seek(fraction) {
-      const duration = player?.getDuration() ?? 0;
-      if (duration > 0) player?.seekTo(fraction * duration, true);
+      const duration = live()?.getDuration() ?? 0;
+      if (duration > 0) live()?.seekTo(fraction * duration, true);
     },
     destroy() {
       done = true;

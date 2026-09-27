@@ -11,8 +11,9 @@ describe("fieldPhrase", () => {
   });
 
   it("covers every field key the archive's screens can send", () => {
-    // Drawn from `placeFields`, the photo detail's ask rows, the settlement questions
-    // and the two cross-cutting keys. An unmapped key would ship a variable name.
+    // Drawn from `placeFields`, the photo detail's ask rows, the film page, the
+    // settlement questions and the two cross-cutting keys. An unmapped key would ship
+    // a variable name.
     const keys = [
       "settlement",
       "category",
@@ -34,6 +35,8 @@ describe("fieldPhrase", () => {
       "latitude",
       "locationName",
       "dateTaken",
+      "filmmaker",
+      "placeId",
       "population",
       "elevation",
       "founded",

@@ -124,7 +124,7 @@ describe("GalleryEditModal film curation fields", () => {
     );
     expect(
       screen.getByText(
-        "Shown in the archive. Leave blank to use the YouTube title."
+        "Shown in the archive. Leave blank to use the source title."
       )
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Description")).toHaveValue("Home movie");
@@ -216,5 +216,66 @@ describe("GalleryEditModal film curation fields", () => {
 
     expect(data.clearPlace).toBe(true);
     expect(data).not.toHaveProperty("placeId");
+  });
+
+  it("locks a published film's source title", () => {
+    render(<GalleryEditModal isOpen item={film()} onClose={() => {}} />);
+    expect(
+      screen.getByLabelText("Source title (as listed by the host)")
+    ).toHaveAttribute("readonly");
+  });
+
+  it("keeps a pending submission's title editable", () => {
+    // A contributor typed it; it is not the host's listing until a curator says so.
+    render(
+      <GalleryEditModal
+        isOpen
+        item={film({ status: "PENDING_REVIEW" })}
+        onClose={() => {}}
+      />
+    );
+    expect(
+      screen.getByLabelText("Source title (as listed by the host)")
+    ).not.toHaveAttribute("readonly");
+  });
+
+  it("treats an external still as a plain record", () => {
+    render(
+      <GalleryEditModal
+        isOpen
+        item={film({ mediaType: "IMAGE" })}
+        onClose={() => {}}
+      />
+    );
+    expect(screen.queryByLabelText("Display title")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Filmed near")).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/^Title/)).not.toHaveAttribute("readonly");
+    expect(useTownSummaries).toHaveBeenLastCalledWith({ enabled: false });
+  });
+});
+
+describe("GalleryEditModal text fields", () => {
+  beforeEach(() => {
+    mutate.mockReset();
+  });
+
+  it('sends "" to clear a description the admin emptied', async () => {
+    const user = userEvent.setup();
+    render(<GalleryEditModal isOpen item={film()} onClose={() => {}} />);
+
+    await user.clear(screen.getByLabelText("Description"));
+    const { data } = await save(user);
+
+    expect(data.description).toBe("");
+  });
+
+  it("leaves an unchanged description and category out of the PATCH", async () => {
+    const user = userEvent.setup();
+    render(<GalleryEditModal isOpen item={film()} onClose={() => {}} />);
+
+    const { data } = await save(user);
+
+    expect(data.description).toBeUndefined();
+    expect(data.category).toBeUndefined();
   });
 });

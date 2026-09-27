@@ -38,6 +38,19 @@ function getAttribution(item: GalleryMedia): string {
 }
 
 /**
+ * A free-text field for the PATCH: left out when unchanged, and sent as "" when the
+ * admin emptied it, since the backend reads a missing field as "no change".
+ */
+export function textChange(
+  previous: string | null | undefined,
+  next: string | null | undefined
+): string | undefined {
+  const before = (previous ?? "").trim();
+  const after = (next ?? "").trim();
+  return after === before ? undefined : after;
+}
+
+/**
  * The film-only fields of a PATCH (spec 038), sent only when they changed.
  *
  * - A display title emptied by the admin is sent as "" (the backend clears it).
@@ -94,9 +107,16 @@ export function GalleryEditModal({
 }: GalleryEditModalProps) {
   const toast = useToast();
   const updateMutation = useUpdateGalleryMedia();
-  const isExternal = item !== null && isExternalMedia(item);
+  // The display title and settlement are film fields (spec 038); an external still
+  // or audio record keeps the plain editable title.
+  const isFilm =
+    item !== null && isExternalMedia(item) && item.mediaType === "VIDEO";
+  // A film's title is its host's own listing, so it is read-only, except while a
+  // contributor's submission is pending: there the title is what they typed, and the
+  // curator must be able to correct it before it is published as the host's.
+  const titleLocked = isFilm && item.status !== "PENDING_REVIEW";
   const { data: towns = [], isLoading: townsLoading } = useTownSummaries({
-    enabled: isOpen && isExternal,
+    enabled: isOpen && isFilm,
   });
   // Only settlements with a stored row can be linked; the backend checks the id.
   const settlements = useMemo(
@@ -144,8 +164,10 @@ export function GalleryEditModal({
 
     const request: UpdateGalleryMediaRequest = {
       title: data.title,
-      description: data.description || undefined,
-      category: data.category || undefined,
+      // An emptied field is sent as "" so it clears; `|| undefined` dropped it and the
+      // save reported success while the old text stayed on the public pages.
+      description: textChange(item.description, data.description),
+      category: textChange(item.category, data.category),
       showInGallery: data.showInGallery,
     };
 
@@ -160,7 +182,7 @@ export function GalleryEditModal({
 
     if (isExternalMedia(item)) {
       request.featured = data.featured;
-      Object.assign(request, filmCurationChanges(item, data));
+      if (isFilm) Object.assign(request, filmCurationChanges(item, data));
     }
 
     updateMutation.mutate(
@@ -209,8 +231,8 @@ export function GalleryEditModal({
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="max-h-[70vh] space-y-4 overflow-y-auto px-6 py-4">
-                {/* Display title (external media only) */}
-                {isExternal && (
+                {/* Display title (films only) */}
+                {isFilm && (
                   <div>
                     <label
                       htmlFor="gallery-display-title"
@@ -230,8 +252,7 @@ export function GalleryEditModal({
                       id="gallery-display-title-help"
                       className="text-muted mt-1 text-xs"
                     >
-                      Shown in the archive. Leave blank to use the YouTube
-                      title.
+                      Shown in the archive. Leave blank to use the source title.
                     </p>
                     {errors.displayTitle && (
                       <p className="text-status-error mt-1 text-xs">
@@ -247,7 +268,7 @@ export function GalleryEditModal({
                     htmlFor="gallery-title"
                     className="text-body mb-1 block text-sm font-medium"
                   >
-                    {isExternal ? (
+                    {isFilm ? (
                       "Source title (as listed by the host)"
                     ) : (
                       <>
@@ -256,11 +277,12 @@ export function GalleryEditModal({
                     )}
                   </label>
                   {/* A film's title is the host's own; the archive shows the display
-                      title and cites this one as "Listed on YouTube as …". */}
+                      title and cites this one as "Listed on YouTube as …". It stays
+                      editable while a contributor's submission is pending. */}
                   <input
                     id="gallery-title"
                     type="text"
-                    readOnly={isExternal}
+                    readOnly={titleLocked}
                     {...register("title")}
                     className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-lg border px-3 py-2 text-sm read-only:opacity-70 focus:ring-1"
                   />
@@ -292,8 +314,8 @@ export function GalleryEditModal({
                   )}
                 </div>
 
-                {/* Filmed near (external media only) */}
-                {isExternal && (
+                {/* Filmed near (films only) */}
+                {isFilm && (
                   <div>
                     <label
                       htmlFor="gallery-place"

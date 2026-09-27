@@ -19,6 +19,8 @@ export const ZOOM_SCALE = 2.2;
 const CENTRE = "50% 50%";
 
 interface PointerStart {
+  /** The pointer the gesture follows; any other is ignored. */
+  id: number;
   x: number;
   y: number;
   moved: boolean;
@@ -55,6 +57,8 @@ export function useStageGestures({
   const [zoomed, setZoomed] = useState(false);
   const [origin, setOrigin] = useState(CENTRE);
   const pointer = useRef<PointerStart | null>(null);
+  /** Every pointer down on the stage, so a second finger can call the gesture off. */
+  const down = useRef(new Set<number>());
   const lastTap = useRef(0);
 
   const originOf = (event: React.PointerEvent<HTMLElement>) =>
@@ -67,8 +71,22 @@ export function useStageGestures({
   const onPointerDown = (event: React.PointerEvent<HTMLElement>) => {
     const target = event.target as HTMLElement | null;
     if (target?.closest?.("button, a")) return;
-    pointer.current = { x: event.clientX, y: event.clientY, moved: false };
+    down.current.add(event.pointerId);
     onActivity?.();
+    // A second finger (a pinch, a two-finger tap) is not a drag: measured against the
+    // first finger's start it would read as a swipe and step to another photograph.
+    if (down.current.size > 1) {
+      pointer.current = null;
+      setDragX(0);
+      setDragging(false);
+      return;
+    }
+    pointer.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      moved: false,
+    };
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
     } catch {
@@ -79,6 +97,7 @@ export function useStageGestures({
   const onPointerMove = (event: React.PointerEvent<HTMLElement>) => {
     onActivity?.();
     const start = pointer.current;
+    if (start && event.pointerId !== start.id) return;
     if (zoomed) {
       setOrigin(originOf(event));
       if (start) start.moved = true;
@@ -94,9 +113,10 @@ export function useStageGestures({
   };
 
   const onPointerUp = (event: React.PointerEvent<HTMLElement>) => {
+    down.current.delete(event.pointerId);
     const start = pointer.current;
+    if (!start || event.pointerId !== start.id) return;
     pointer.current = null;
-    if (!start) return;
     const dx = event.clientX - start.x;
     const dir = zoomed ? 0 : swipeDirection(dx);
     setDragging(false);
@@ -118,7 +138,8 @@ export function useStageGestures({
     }
   };
 
-  const onPointerCancel = () => {
+  const onPointerCancel = (event: React.PointerEvent<HTMLElement>) => {
+    down.current.delete(event.pointerId);
     pointer.current = null;
     setDragX(0);
     setDragging(false);
@@ -127,6 +148,7 @@ export function useStageGestures({
   /** Back to fit and centred, no drag: on every step and every restore. */
   const resetGestures = useCallback(() => {
     pointer.current = null;
+    down.current.clear();
     setDragX(0);
     setDragging(false);
     setZoomed(false);

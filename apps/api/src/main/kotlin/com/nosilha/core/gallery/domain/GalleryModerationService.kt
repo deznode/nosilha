@@ -275,8 +275,10 @@ class GalleryModerationService(
         }
 
         request.title?.let { media.title = it }
-        request.description?.let { media.description = it }
-        request.category?.let { media.category = it }
+        // Blank clears: an emptied field arrives as "", and a stored "" category would be
+        // listed as a category of its own.
+        request.description?.let { media.description = it.ifBlank { null } }
+        request.category?.let { media.category = it.ifBlank { null } }
         request.showInGallery?.let { media.showInGallery = it }
         request.identifiablePerson?.let { media.identifiablePerson = it }
 
@@ -439,12 +441,15 @@ class GalleryModerationService(
      *
      * @param request Request containing external media details
      * @param adminId Admin creating the media
+     * @param revalidate Whether to revalidate the frontend's `gallery` tag after commit. A batch
+     *   caller (YouTube sync) passes false and revalidates once when the batch is done.
      * @return Created ExternalMedia DTO
      */
     @Transactional
     fun createExternalMedia(
         request: CreateExternalMediaRequest,
         adminId: UUID,
+        revalidate: Boolean = true,
     ): GalleryMediaDto.External {
         logger.info { "Admin $adminId creating external media: ${request.title}" }
 
@@ -471,6 +476,11 @@ class GalleryModerationService(
 
         val saved = repository.save(media)
         logger.info { "Created ExternalMedia as ACTIVE: id=${saved.id}" }
+
+        // Created ACTIVE, so it is public at once: /films, the home strip and the films band.
+        if (revalidate) {
+            revalidateGalleryAfterCommit()
+        }
 
         val displayName = userProfileQueryService.findDisplayName(adminId)
 
@@ -665,6 +675,11 @@ class GalleryModerationService(
         auditRepository.save(audit)
 
         logger.info { "EXIF metadata updated for media $mediaId by admin $adminId" }
+
+        // Coordinates and date decide a public photograph's place and date line (spec 038).
+        if (saved.status == GalleryMediaStatus.ACTIVE) {
+            revalidateGalleryAfterCommit()
+        }
 
         val displayNames = resolveDisplayNames(listOf(saved))
         return saved.toDto(displayNames)

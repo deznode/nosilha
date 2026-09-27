@@ -104,6 +104,7 @@ describe("mountYouTube", () => {
       loop: true,
     });
     await Promise.resolve();
+    events.onReady();
     events.onStateChange({ data: 0 });
     expect(player.seekTo).toHaveBeenCalledWith(0, true);
     expect(cb.onEnded).not.toHaveBeenCalled();
@@ -120,6 +121,7 @@ describe("mountYouTube", () => {
     );
     await Promise.resolve();
     await Promise.resolve();
+    events.onReady();
     events.onStateChange({ data: 1 });
     vi.advanceTimersByTime(PROGRESS_POLL_MS);
     expect(cb.onProgress).toHaveBeenCalledWith(0.25);
@@ -180,6 +182,8 @@ describe("mountYouTube", () => {
     const container = document.createElement("div");
     const handle = mountYouTube(container, "abc", "A film", callbacks());
     await Promise.resolve();
+    events.onReady();
+    player.playVideo.mockClear();
 
     handle.play();
     handle.pause();
@@ -194,6 +198,34 @@ describe("mountYouTube", () => {
     expect(player.seekTo).toHaveBeenCalledWith(60, true);
     expect(player.destroy).toHaveBeenCalled();
     expect(container.childElementCount).toBe(0);
+  });
+
+  it("leaves a player that isn't ready alone", async () => {
+    // The real API adds playVideo, pauseVideo and the rest only when the embed
+    // reports in, just before onReady; until then only destroy exists.
+    const early = { destroy: vi.fn() };
+    window.YT = {
+      Player: vi.fn(function (_el: HTMLElement, opts: typeof options) {
+        events = opts.events as typeof events;
+        return early;
+      }) as never,
+    };
+    const handle = mountYouTube(
+      document.createElement("div"),
+      "abc",
+      "A film",
+      callbacks()
+    );
+    await Promise.resolve();
+
+    expect(() => {
+      handle.pause();
+      handle.play();
+      handle.setMuted(false);
+      handle.seek(0.5);
+    }).not.toThrow();
+    handle.destroy();
+    expect(early.destroy).toHaveBeenCalled();
   });
 
   it("falls back to a plain iframe with the host's controls", () => {

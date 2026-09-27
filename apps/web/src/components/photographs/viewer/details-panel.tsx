@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -61,6 +62,15 @@ export function DetailsPanel({
   const more = moreFrom(photo, photos);
   const help = viewerHelpLine(photo);
   const missingField = firstMissingField(photo);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  // The thumb just activated is replaced by the photograph that was showing, so focus
+  // would drop to the page: hand it to the new record's heading instead. Without
+  // scrolling to it: the viewer brings the stage and heading into view itself.
+  const showOther = (other: ArchivePhoto) => {
+    onShow(other);
+    headingRef.current?.focus({ preventScroll: true });
+  };
 
   return (
     <div className="flex flex-col gap-[18px] px-4 pt-[22px] pb-12 md:gap-5 md:px-[26px] md:pt-[26px] md:pb-10">
@@ -77,7 +87,11 @@ export function DetailsPanel({
         <span className="text-ocean-blue text-[10px] tracking-[.18em] uppercase">
           {photoEyebrow(photo)}
         </span>
-        <h1 className="text-body m-0 font-serif text-[28px] leading-[1.1] font-normal tracking-[-0.015em] text-pretty md:text-[32px]">
+        <h1
+          ref={headingRef}
+          tabIndex={-1}
+          className="text-body m-0 font-serif text-[28px] leading-[1.1] font-normal tracking-[-0.015em] text-pretty md:text-[32px]"
+        >
           {heading}
         </h1>
       </div>
@@ -88,7 +102,15 @@ export function DetailsPanel({
         </p>
       )}
 
-      {meta && <div className="text-muted text-xs">{meta}</div>}
+      {/* What the record holds about the picture itself; the credit travels with it
+          (the archive publishes under CC BY-SA with the credit attached). */}
+      {(meta || photo.placeName || photo.credit) && (
+        <div className="text-muted flex flex-col gap-1 text-xs">
+          {meta && <span>{meta}</span>}
+          {photo.placeName && <span>{photo.placeName}</span>}
+          {photo.credit && <span>Photograph by {photo.credit}</span>}
+        </div>
+      )}
 
       {photo.near && (
         <div className="flex flex-wrap gap-2">
@@ -111,7 +133,7 @@ export function DetailsPanel({
               <button
                 key={other.id}
                 type="button"
-                onClick={() => onShow(other)}
+                onClick={() => showOther(other)}
                 aria-label={photoHeading(other)}
                 className="focus-ring bg-muted relative aspect-square overflow-hidden rounded-md transition-transform duration-[220ms] ease-(--ease-archive) hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
