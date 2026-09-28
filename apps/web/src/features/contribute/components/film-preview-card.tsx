@@ -1,0 +1,57 @@
+import Image from "next/image";
+
+export type FilmPreviewPlatform = "YOUTUBE" | "VIMEO";
+
+interface FilmPreviewCardProps {
+  platform: FilmPreviewPlatform;
+  externalId: string;
+}
+
+/**
+ * The recognised-link preview under the film URL field (F2/F3).
+ *
+ * YouTube shows its thumbnail straight from `i.ytimg.com` — no lookup, no
+ * app-side fetch. Vimeo doesn't publish a thumbnail endpoint, so it never
+ * requests an image at all: the designed ochre dashed frame stands in for
+ * it. Spec 039, `.claude-design/design_handoff_contribution_flow`.
+ */
+export function FilmPreviewCard({
+  platform,
+  externalId,
+}: FilmPreviewCardProps) {
+  const platformLabel = platform === "YOUTUBE" ? "YouTube" : "Vimeo";
+
+  return (
+    <div className="border-hairline overflow-hidden rounded-[10px] border">
+      {platform === "YOUTUBE" ? (
+        <div className="bg-surface-alt relative aspect-video">
+          <Image
+            src={`https://i.ytimg.com/vi/${externalId}/hqdefault.jpg`}
+            alt="YouTube thumbnail"
+            fill
+            sizes="340px"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <div className="bg-surface-alt aspect-video p-3.5">
+          <div className="border-sobrado-ochre flex h-full flex-col items-center justify-center gap-1 rounded-md border-[1.5px] border-dashed text-center">
+            <span className="text-sobrado-ochre font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
+              Vimeo
+            </span>
+            <span className="text-muted text-[13px]">
+              Vimeo doesn&apos;t share a preview image
+            </span>
+          </div>
+        </div>
+      )}
+      <div className="text-muted flex items-center justify-between px-3 py-2.5 text-[13px]">
+        <span>
+          <span className="text-valley-green font-semibold">✓</span>{" "}
+          {platformLabel} link recognised
+        </span>
+        <span className="font-mono">{externalId}</span>
+      </div>
+    </div>
+  );
+}

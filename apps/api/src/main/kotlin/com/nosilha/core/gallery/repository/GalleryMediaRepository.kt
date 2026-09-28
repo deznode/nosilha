@@ -384,4 +384,34 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun placeExists(
         @Param("placeId") placeId: UUID,
     ): Boolean
+
+    /**
+     * Finds the earliest ACTIVE photograph linked to a settlement, for the town picker's
+     * confirmation tile (spec 039). "Photograph" means a USER_UPLOAD row whose content type
+     * is an image, or a curated EXTERNAL row whose media type is IMAGE.
+     *
+     * Native SQL over `gallery_media` directly: a null result covers both an unknown
+     * `placeId` and a known one with no matching photo, since the gallery module does not
+     * import places to tell the two apart.
+     *
+     * @param placeId Settlement (towns.id) to search for
+     * @return The oldest matching record, or null if none exists
+     */
+    @Query(
+        value = """
+        SELECT gm.* FROM gallery_media gm
+        WHERE gm.place_id = :placeId
+        AND gm.status = 'ACTIVE'
+        AND (
+            (gm.media_source = 'USER_UPLOAD' AND gm.content_type LIKE 'image/%')
+            OR (gm.media_source = 'EXTERNAL' AND gm.media_type = 'IMAGE')
+        )
+        ORDER BY gm.created_at ASC
+        LIMIT 1
+        """,
+        nativeQuery = true,
+    )
+    fun findFirstActivePhotoByPlaceId(
+        @Param("placeId") placeId: UUID,
+    ): GalleryMedia?
 }

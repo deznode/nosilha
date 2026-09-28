@@ -14,7 +14,9 @@ import com.nosilha.core.feedback.domain.SuggestionStatus
 import com.nosilha.core.feedback.domain.SuggestionType
 import com.nosilha.core.feedback.events.SuggestionStatusChangedEvent
 import com.nosilha.core.feedback.repository.SuggestionRepository
+import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.domain.GalleryService
+import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
@@ -154,6 +156,81 @@ class SuggestionService(
                     "and will be reviewed by our team.",
         )
     }
+
+    /**
+     * Submits a correction to an existing public gallery media item (spec 039).
+     *
+     * Stored as a `Suggestion` of type `CORRECTION` with `mediaId`, reviewed in the same
+     * admin suggestions queue as every other suggestion. Reuses the per-IP rate limit
+     * bucket that [submitSuggestion] uses, so the two endpoints share one budget per IP.
+     *
+     * @param mediaId Gallery media being corrected; must be an ACTIVE (public) record
+     * @param message The correction, already validated 1..2000 characters at the DTO layer
+     * @param name Submitter's name, resolved from the authenticated principal
+     * @param email Submitter's email, resolved from the authenticated principal
+     * @param ipAddress IP address of the submitter (for rate limiting)
+     * @return Response DTO with confirmation message
+     * @throws ResourceNotFoundException if the media does not exist or is not ACTIVE
+     * @throws RateLimitExceededException if the per-IP submission limit is exceeded
+     */
+    @Transactional
+    fun submitMediaCorrection(
+        mediaId: UUID,
+        message: String,
+        name: String,
+        email: String,
+        ipAddress: String?,
+    ): SuggestionResponseDto {
+        logger.info { "Processing media correction for $mediaId from IP: $ipAddress" }
+
+        val media = galleryService.getByIdPublic(mediaId)
+            ?: throw ResourceNotFoundException("Gallery media with id $mediaId not found")
+
+        if (ipAddress != null) {
+            val bucket = getBucketForIp(ipAddress)
+            val probe = bucket.tryConsumeAndReturnRemaining(1)
+            if (!probe.isConsumed) {
+                logger.warn { "Rate limit exceeded for IP: $ipAddress" }
+                throw RateLimitExceededException(
+                    "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
+                        "Please try again later.",
+                    retryAfterSeconds = RateLimitExceededException.retryAfterSecondsFrom(probe.nanosToWaitForRefill),
+                )
+            }
+        }
+
+        val sanitizedName = ContentSanitizer.sanitizeStrict(name.trim())
+        val sanitizedMessage = ContentSanitizer.sanitize(message.trim())
+
+        val suggestion =
+            Suggestion(
+                contentId = mediaId,
+                pageTitle = media.title?.trim()?.ifBlank { null } ?: "Gallery media",
+                pageUrl = mediaPageUrl(media),
+                contentType = "gallery-media",
+                name = sanitizedName,
+                email = email.trim().lowercase(),
+                suggestionType = SuggestionType.CORRECTION,
+                message = sanitizedMessage,
+                ipAddress = ipAddress,
+                mediaId = mediaId,
+            )
+
+        val savedSuggestion = suggestionRepository.save(suggestion)
+        logger.info { "Media correction suggestion ${savedSuggestion.id} created for media $mediaId" }
+
+        return SuggestionResponseDto(
+            id = savedSuggestion.id!!,
+            message = "Thank you for the correction. Our team will review it.",
+        )
+    }
+
+    /** The public page a corrected media item is shown on, if any (spec 039). */
+    private fun mediaPageUrl(media: PublicGalleryMediaDto): String? =
+        when (media) {
+            is PublicGalleryMediaDto.UserUpload -> "/photographs/${media.id}"
+            is PublicGalleryMediaDto.External -> if (media.mediaType == MediaType.VIDEO) "/films/${media.id}" else null
+        }
 
     /**
      * Gets or creates a rate limit bucket for the given IP address.

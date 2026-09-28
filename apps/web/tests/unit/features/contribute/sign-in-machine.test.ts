@@ -277,6 +277,12 @@ describe("signInReducer — noEmail (S7)", () => {
     const next = signInReducer(noEmail, { type: "CHANGE_EMAIL" });
     expect(next.view).toBe("start");
   });
+
+  it("BACK returns to the code (S3)", () => {
+    const next = signInReducer(noEmail, { type: "BACK" });
+    expect(next.view).toBe("code");
+    expect(next.email).toBe("a@b.com");
+  });
 });
 
 describe("signInReducer — leaving (S8)", () => {
@@ -290,6 +296,15 @@ describe("signInReducer — leaving (S8)", () => {
       email: "x@y.com",
     });
     expect(next).toBe(leaving);
+  });
+
+  it("GOOGLE_FAILED (the OAuth redirect errored) moves to googleBlocked (S11)", () => {
+    const leaving = signInReducer(initialSignInState(), {
+      type: "GOOGLE_PROBE_OK",
+    });
+    const next = signInReducer(leaving, { type: "GOOGLE_FAILED" });
+    expect(next.view).toBe("googleBlocked");
+    expect(next.googleDisabledReason).toBe("blocked");
   });
 });
 

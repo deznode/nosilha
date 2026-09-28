@@ -1,16 +1,35 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { safeNext } from "@/features/contribute/lib/safe-next";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
+  const nextParam = searchParams.get("next");
 
-  // Handle OAuth errors
+  // Handle OAuth errors (e.g. the user closed the Google popup, or Google
+  // itself returned an error). When we know where they were headed — a safe
+  // `next`, from the contribute sign-in flow (spec 039) — send them back
+  // there with `auth_error=1` instead of the generic /login page, so that
+  // page can show its own "you didn't finish signing in with Google" state
+  // (S10) rather than losing the in-progress contribution. `next` missing or
+  // unsafe (safeNext falls back to "/", which has no such state to show)
+  // keeps the existing /login?error= behaviour.
   if (error) {
     console.error("[Auth Callback] OAuth error:", error, errorDescription);
+
+    if (nextParam) {
+      const target = safeNext(nextParam, origin);
+      if (target !== "/") {
+        const redirectUrl = new URL(target, origin);
+        redirectUrl.searchParams.set("auth_error", "1");
+        return NextResponse.redirect(redirectUrl);
+      }
+    }
+
     const loginUrl = new URL("/login", origin);
     loginUrl.searchParams.set("error", errorDescription || error);
     return NextResponse.redirect(loginUrl);
@@ -51,6 +70,11 @@ export async function GET(request: Request) {
       await supabase.auth.exchangeCodeForSession(code);
 
     if (!exchangeError) {
+      // Resolve `next` against this same origin, rejecting anything that
+      // isn't a same-origin path (open-redirect protection). Missing or
+      // unsafe falls back to "/". Spec 039.
+      const target = safeNext(nextParam, origin);
+
       // Use x-forwarded-host to get the correct origin behind load balancer/reverse proxy.
       // Behind Cloud Run (or similar), request.url resolves to the internal container address
       // (e.g. http://0.0.0.0:3000) instead of the public domain. The x-forwarded-host header
@@ -59,11 +83,11 @@ export async function GET(request: Request) {
       const forwardedHost = request.headers.get("x-forwarded-host");
       const isLocalEnv = process.env.NODE_ENV === "development";
       if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}/`);
+        return NextResponse.redirect(`${origin}${target}`);
       } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}/`);
+        return NextResponse.redirect(`https://${forwardedHost}${target}`);
       } else {
-        return NextResponse.redirect(`${origin}/`);
+        return NextResponse.redirect(`${origin}${target}`);
       }
     }
 

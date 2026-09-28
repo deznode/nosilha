@@ -93,6 +93,7 @@ export type SignInEvent =
   | { type: "USE_PASSWORD" }
   | { type: "GOOGLE_PROBE_OK" }
   | { type: "GOOGLE_PROBE_FAILED" }
+  | { type: "GOOGLE_FAILED" }
   | { type: "SIGNED_IN" }
   | { type: "PASSWORD_ERROR"; message: string }
   | { type: "BACK" }
@@ -284,6 +285,9 @@ export function signInReducer(
 
     case "noEmail":
       switch (event.type) {
+        case "BACK":
+          // "← Back to the code": the sent code is still valid.
+          return { ...state, view: "code" };
         case "RESENT":
           return {
             ...state,
@@ -309,7 +313,15 @@ export function signInReducer(
       }
 
     case "leaving":
-      // Terminal: the page is redirecting to Google.
+      // Terminal while the page redirects to Google, unless the redirect
+      // itself errors out: then Google is treated as blocked (S11).
+      if (event.type === "GOOGLE_FAILED") {
+        return {
+          ...state,
+          view: "googleBlocked",
+          googleDisabledReason: "blocked",
+        };
+      }
       return state;
 
     default:

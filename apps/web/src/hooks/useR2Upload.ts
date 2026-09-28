@@ -78,8 +78,21 @@ export interface UseR2UploadReturn {
   progress: UploadProgress;
   /** Error message if upload failed */
   error: string | null;
+  /**
+   * The error object thrown by the last failed attempt (presign, R2 PUT or
+   * confirm), preserved as-is rather than reduced to `error`'s message. Lets
+   * a caller narrow with `instanceof ApiError` to read `status` /
+   * `retryAfterSeconds` (e.g. to show a 429 countdown). Spec 039.
+   */
+  lastError: Error | null;
   /** Uploads a file to R2 storage with progress tracking */
   upload: (file: File, options?: UploadOptions) => Promise<UploadResult | null>;
+  /**
+   * Re-runs the last `upload()` call with the same file and options.
+   * Resolves `null` without doing anything if no upload has been attempted
+   * yet. Spec 039 (P6 "Try again").
+   */
+  retry: () => Promise<UploadResult | null>;
   /** Cancels the current upload */
   cancel: () => void;
   /** Resets the hook state */
@@ -127,9 +140,14 @@ export function useR2Upload(): UseR2UploadReturn {
     percentage: 0,
   });
   const [error, setError] = useState<string | null>(null);
+  const [lastError, setLastError] = useState<Error | null>(null);
 
   const xhrRef = useRef<XMLHttpRequest | null>(null);
   const apiClient = useRef(new BackendApiClient());
+  /** The file + options of the last `upload()` call, so `retry()` can repeat it exactly. */
+  const lastAttemptRef = useRef<{ file: File; options?: UploadOptions } | null>(
+    null
+  );
 
   /**
    * Validates file before upload
@@ -214,7 +232,10 @@ export function useR2Upload(): UseR2UploadReturn {
     ): Promise<UploadResult | null> => {
       // Reset state
       setError(null);
+      setLastError(null);
       setProgress({ loaded: 0, total: 0, percentage: 0 });
+      // Remember this attempt so retry() can repeat it with the same file/options.
+      lastAttemptRef.current = { file, options };
 
       // Validate file
       const validationError = validateFile(file);
@@ -277,22 +298,32 @@ export function useR2Upload(): UseR2UploadReturn {
           publicUrl: media.publicUrl ?? "",
         };
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Upload failed unexpectedly";
+        const caughtError =
+          err instanceof Error ? err : new Error("Upload failed unexpectedly");
 
         // Don't show error for cancellation
-        if (message === "Upload cancelled") {
+        if (caughtError.message === "Upload cancelled") {
           setState("idle");
           return null;
         }
 
-        setError(message);
+        setError(caughtError.message);
+        setLastError(caughtError);
         setState("error");
         return null;
       }
     },
     [validateFile, uploadToR2]
   );
+
+  /**
+   * Re-runs the last `upload()` call with the same file and options.
+   */
+  const retry = useCallback((): Promise<UploadResult | null> => {
+    const attempt = lastAttemptRef.current;
+    if (!attempt) return Promise.resolve(null);
+    return upload(attempt.file, attempt.options);
+  }, [upload]);
 
   /**
    * Cancels the current upload
@@ -314,16 +345,20 @@ export function useR2Upload(): UseR2UploadReturn {
       xhrRef.current.abort();
       xhrRef.current = null;
     }
+    lastAttemptRef.current = null;
     setState("idle");
     setProgress({ loaded: 0, total: 0, percentage: 0 });
     setError(null);
+    setLastError(null);
   }, []);
 
   return {
     state,
     progress,
     error,
+    lastError,
     upload,
+    retry,
     cancel,
     reset,
   };

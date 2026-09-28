@@ -42,8 +42,12 @@ export type PhotoUploadState =
  */
 export interface PhotoUploadOptions extends ManualMetadata {
   category?: string;
+  /** "What is it called?" — optional title, spec 039. */
+  title?: string;
   description?: string;
   photographerCredit?: string;
+  /** The settlement to attach the photo to (`towns.id`), spec 039. */
+  townId?: string;
 }
 
 /**
@@ -58,6 +62,13 @@ export interface UsePhotoUploadReturn {
 
   /** Error message if any */
   error: string | null;
+
+  /**
+   * The error object thrown by the last failed upload attempt (e.g.
+   * `ApiError` for a 429), preserved as-is so a caller can read `status` /
+   * `retryAfterSeconds` instead of only the message. Spec 039.
+   */
+  lastError: Error | null;
 
   /** Selected file */
   file: File | null;
@@ -98,6 +109,13 @@ export interface UsePhotoUploadReturn {
   upload: (options?: PhotoUploadOptions) => Promise<UploadResult | null>;
 
   /**
+   * Re-runs the last `upload()` call with the same options. The file,
+   * preview and metadata are kept after a failed upload (P6 "Try again"),
+   * spec 039.
+   */
+  retry: () => Promise<UploadResult | null>;
+
+  /**
    * Clear the selected file and reset state
    */
   reset: () => void;
@@ -136,7 +154,9 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     state: uploadState,
     progress: uploadProgress,
     error: uploadError,
+    lastError: uploadLastError,
     upload: r2Upload,
+    retry: r2Retry,
     reset: r2Reset,
   } = useR2Upload();
 
@@ -292,7 +312,9 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
       // Call R2 upload with extended metadata
       const result = await r2Upload(file, {
         category: options?.category,
+        title: options?.title,
         description: options?.description,
+        townId: options?.townId,
         // Pass metadata to be included in confirm request
         ...(confirmMetadata as Record<string, unknown>),
       });
@@ -301,6 +323,13 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     },
     [file, metadata, naturalSize, r2Upload]
   );
+
+  /**
+   * Re-runs the last upload attempt with the same options.
+   */
+  const retry = useCallback((): Promise<UploadResult | null> => {
+    return r2Retry();
+  }, [r2Retry]);
 
   /**
    * Reset all state
@@ -324,6 +353,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     state: effectiveState,
     progress: uploadProgress.percentage,
     error: effectiveError,
+    lastError: uploadLastError,
     file,
     previewUrl,
     metadata,
@@ -334,6 +364,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     setPhotoType,
     setManualMetadata,
     upload,
+    retry,
     reset,
   };
 }

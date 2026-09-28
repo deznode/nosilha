@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.DecadeGroupDto
+import com.nosilha.core.gallery.api.dto.FilmSubmissionLookupDto
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
@@ -677,6 +678,40 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun getByIdPublic(id: UUID): PublicGalleryMediaDto? {
         val media = queryActiveById(id) ?: return null
+        val displayNames = resolveDisplayNames(listOf(media))
+        return media.toPublicDto(displayNames)
+    }
+
+    /**
+     * Checks whether an external film has already been submitted, by platform and external id
+     * (spec 039). Used to warn a submitter of a duplicate before they send.
+     *
+     * `public` (with id and url) only for an ACTIVE row; `pending` for PENDING_REVIEW with no
+     * id or content exposed; `none` for every other status and an unknown pair.
+     */
+    @Transactional(readOnly = true)
+    fun lookupSubmission(
+        platform: ExternalPlatform,
+        externalId: String,
+    ): FilmSubmissionLookupDto {
+        val media = repository.findExternalMediaByPlatformAndExternalId(platform, externalId)
+            ?: return FilmSubmissionLookupDto.noMedia()
+
+        return when (media.status) {
+            GalleryMediaStatus.ACTIVE -> FilmSubmissionLookupDto.activeMedia(media.id!!)
+            GalleryMediaStatus.PENDING_REVIEW -> FilmSubmissionLookupDto.pendingMedia()
+            else -> FilmSubmissionLookupDto.noMedia()
+        }
+    }
+
+    /**
+     * Gets the earliest ACTIVE photograph linked to a settlement, for the town picker's
+     * confirmation tile (spec 039). Native SQL on `gallery_media`; a null result covers both
+     * an unknown `townId` and a known one with no matching photo.
+     */
+    @Transactional(readOnly = true)
+    fun getTownFirstPhotoPublic(townId: UUID): PublicGalleryMediaDto? {
+        val media = repository.findFirstActivePhotoByPlaceId(townId) ?: return null
         val displayNames = resolveDisplayNames(listOf(media))
         return media.toPublicDto(displayNames)
     }
