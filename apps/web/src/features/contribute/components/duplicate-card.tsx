@@ -151,7 +151,7 @@ export function DuplicateCard({
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="text-brand text-[14px] font-semibold"
+          className="text-ocean-blue text-[14px] font-semibold"
         >
           See it in the archive →
         </a>
@@ -224,7 +224,7 @@ function CorrectionForm({
         onChange={(e) => setText(e.target.value)}
         disabled={status === "submitting"}
         placeholder="A better title, who is in it, where or when it was filmed"
-        className="border-border-strong bg-card rounded-badge min-h-20 border px-3 py-[11px] text-[15px] leading-[1.45] outline-none"
+        className="border-border-strong bg-card text-body placeholder:text-muted-foreground focus:border-ocean-blue rounded-badge min-h-20 border px-3 py-[11px] text-[15px] leading-[1.45] outline-none focus:border-[1.5px]"
       />
       {tooLong && (
         <p className="text-status-error text-[12.5px]">

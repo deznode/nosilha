@@ -14,7 +14,7 @@ export const HINT = "text-muted mt-1.5 text-[12.5px] leading-[1.45]";
 export const PAGE_HEADING =
   "text-body m-0 font-serif text-[25px] leading-[1.12] font-normal md:text-[34px]";
 const FIELD =
-  "bg-card text-body placeholder:text-muted-foreground w-full rounded-lg border px-3 text-[15px] outline-none focus:border-[1.5px] focus:border-ocean-blue";
+  "bg-card text-body placeholder:text-muted-foreground w-full rounded-lg border px-3 text-[15px] outline-none focus:border-[1.5px]";
 
 export function TextField({
   id,
@@ -41,7 +41,9 @@ export function TextField({
         className={clsx(
           FIELD,
           "min-h-11 py-[11px] leading-[1.4]",
-          invalid ? "border-status-error border-[1.5px]" : "border-edge"
+          invalid
+            ? "border-status-error border-[1.5px]"
+            : "border-edge focus:border-ocean-blue"
         )}
       />
       {hint}
@@ -70,7 +72,10 @@ export function TextAreaField({
         id={id}
         {...props}
         style={{ minHeight }}
-        className={clsx(FIELD, "border-edge block py-[11px] leading-[1.45]")}
+        className={clsx(
+          FIELD,
+          "border-edge focus:border-ocean-blue block py-[11px] leading-[1.45]"
+        )}
       />
       {hint && <p className={HINT}>{hint}</p>}
     </div>

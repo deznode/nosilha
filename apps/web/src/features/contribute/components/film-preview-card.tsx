@@ -22,7 +22,7 @@ export function FilmPreviewCard({
   const platformLabel = platform === "YOUTUBE" ? "YouTube" : "Vimeo";
 
   return (
-    <div className="border-hairline overflow-hidden rounded-[10px] border">
+    <div className="border-hairline bg-card overflow-hidden rounded-[10px] border">
       {platform === "YOUTUBE" ? (
         <div className="bg-surface-alt relative aspect-video">
           <Image
@@ -34,7 +34,7 @@ export function FilmPreviewCard({
           />
         </div>
       ) : (
-        <div className="bg-surface-alt aspect-video p-3.5">
+        <div className="bg-surface aspect-video p-3.5">
           <div className="border-sobrado-ochre flex h-full flex-col items-center justify-center gap-1 rounded-md border-[1.5px] border-dashed text-center">
             <span className="text-sobrado-ochre font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
               Vimeo

@@ -551,10 +551,8 @@ function MediaContribution() {
 
 function PageShell({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-canvas">
-      <div className="mx-auto max-w-[1040px] px-[18px] pt-[22px] pb-8 md:px-14 md:pt-11 md:pb-16">
-        {children}
-      </div>
+    <div className="bg-canvas px-[18px] pt-[22px] pb-8 md:px-14 md:pt-11 md:pb-16">
+      <div className="mx-auto max-w-[1040px]">{children}</div>
     </div>
   );
 }
