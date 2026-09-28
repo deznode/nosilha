@@ -28,6 +28,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import tools.jackson.databind.json.JsonMapper
@@ -311,6 +312,126 @@ class GalleryUploadIntegrationTest {
         assertThat(media.photographerCredit).isEqualTo("not known")
         assertThat(media.creditPlatform).isNull()
         assertThat(media.creditHandle).isNull()
+    }
+
+    @Test
+    @DisplayName("Should store place_id when confirm carries a valid townId")
+    fun `confirm with valid townId should store place_id`() {
+        setupDefaultMocks()
+        val townId = jdbcTemplate.queryForObject("SELECT id FROM towns ORDER BY slug LIMIT 1", UUID::class.java)!!
+
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-town.jpg",
+            originalName = "town.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            photographerCredit = "Test Photographer",
+            townId = townId,
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isCreated)
+            .andExpect(jsonPath("$.data.placeId").value(townId.toString()))
+
+        val media = galleryMediaRepository.findAll().single() as UserUploadedMedia
+        assertThat(media.placeId).isEqualTo(townId)
+    }
+
+    @Test
+    @DisplayName("Should reject confirm with an unknown townId")
+    fun `confirm with unknown townId should return 400`() {
+        setupDefaultMocks()
+
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-unknown-town.jpg",
+            originalName = "unknown-town.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            photographerCredit = "Test Photographer",
+            townId = UUID.randomUUID(),
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isBadRequest)
+
+        assertThat(galleryMediaRepository.findAll()).isEmpty()
+    }
+
+    @Test
+    @DisplayName("Should confirm successfully when townId is omitted")
+    fun `confirm without townId should still work`() {
+        setupDefaultMocks()
+
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-no-town.jpg",
+            originalName = "no-town.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            photographerCredit = "Test Photographer",
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isCreated)
+            .andExpect(jsonPath("$.data.placeId").isEmpty)
+
+        val media = galleryMediaRepository.findAll().single() as UserUploadedMedia
+        assertThat(media.placeId).isNull()
+    }
+
+    @Test
+    @DisplayName("Should carry a Retry-After header once the presign rate limit is exceeded")
+    fun `presign exceeding rate limit should return 429 with Retry-After`() {
+        setupDefaultMocks()
+        val user = UUID.randomUUID()
+        jdbcTemplate.update("INSERT INTO users (id, email) VALUES (?, 'presign-limit@test.com') ON CONFLICT DO NOTHING", user)
+
+        val presignRequest = PresignRequest(
+            fileName = "test-image.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+        )
+
+        // The presign bucket allows 20 uploads/hour; the 21st request is rejected.
+        repeat(20) {
+            mockMvc
+                .perform(
+                    post("/api/v1/gallery/upload/presign")
+                        .with(userAuth(user))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(presignRequest)),
+                ).andExpect(status().isOk)
+        }
+
+        val result = mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/presign")
+                    .with(userAuth(user))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(presignRequest)),
+            ).andExpect(status().isTooManyRequests)
+            .andExpect(header().exists("Retry-After"))
+            .andReturn()
+
+        val retryAfter = result.response.getHeader("Retry-After")?.toLongOrNull()
+        assertThat(retryAfter).isNotNull()
+        assertThat(retryAfter!!).isGreaterThanOrEqualTo(1L)
+
+        jdbcTemplate.update("DELETE FROM users WHERE id = ?", user)
     }
 
     @Test

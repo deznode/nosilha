@@ -42,7 +42,10 @@ export interface UploadResult {
 export interface UploadOptions {
   entryId?: string;
   category?: string;
+  title?: string;
   description?: string;
+  /** The settlement to attach the photo to (`towns.id`). Spec 039. */
+  townId?: string;
   onProgress?: (progress: UploadProgress) => void;
   // EXIF metadata (privacy-processed)
   latitude?: number;
@@ -243,7 +246,9 @@ export function useR2Upload(): UseR2UploadReturn {
           fileSize: file.size,
           entryId: options?.entryId,
           category: options?.category,
+          title: options?.title,
           description: options?.description,
+          townId: options?.townId,
           // EXIF metadata (privacy-processed)
           latitude: options?.latitude,
           longitude: options?.longitude,

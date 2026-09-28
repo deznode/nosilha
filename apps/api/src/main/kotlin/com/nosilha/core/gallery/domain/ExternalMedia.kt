@@ -110,6 +110,19 @@ class ExternalMedia : GalleryMedia() {
     var placeId: UUID? = null
 
     /**
+     * Manual location name for the film, mirroring the photo upload's equivalent field
+     * (spec 039), e.g. "Vila Nova Sintra".
+     */
+    @Column(name = "location_name", length = 255)
+    var locationName: String? = null
+
+    /**
+     * Manual date entry for the film (e.g., "circa 1975") (spec 039).
+     */
+    @Column(name = "approximate_date", length = 100)
+    var approximateDate: String? = null
+
+    /**
      * Generates platform-specific embed URL for video/audio content.
      *
      * Returns:

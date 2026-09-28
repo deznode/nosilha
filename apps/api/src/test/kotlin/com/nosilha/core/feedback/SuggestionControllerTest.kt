@@ -275,14 +275,21 @@ class SuggestionControllerTest {
                 message = "This submission should be rate limited",
             )
 
-        mockMvc
-            .perform(
-                post("/api/v1/suggestions")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonMapper.writeValueAsString(dto))
-                    .header("X-Forwarded-For", ipAddress),
-            ).andExpect(status().isTooManyRequests)
-            .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("exceeded")))
+        val result =
+            mockMvc
+                .perform(
+                    post("/api/v1/suggestions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(dto))
+                        .header("X-Forwarded-For", ipAddress),
+                ).andExpect(status().isTooManyRequests)
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("exceeded")))
+                .andExpect(header().exists("Retry-After"))
+                .andReturn()
+
+        val retryAfter = result.response.getHeader("Retry-After")?.toLongOrNull()
+        assertThat(retryAfter).isNotNull()
+        assertThat(retryAfter!!).isGreaterThanOrEqualTo(1L)
 
         // Verify only 5 suggestions were persisted
         val suggestions = suggestionRepository.findAll()

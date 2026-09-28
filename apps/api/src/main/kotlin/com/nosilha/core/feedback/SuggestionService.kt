@@ -109,11 +109,13 @@ class SuggestionService(
         // Atomic rate limiting using Bucket4j token bucket algorithm
         if (ipAddress != null) {
             val bucket = getBucketForIp(ipAddress)
-            if (!bucket.tryConsume(1)) {
+            val probe = bucket.tryConsumeAndReturnRemaining(1)
+            if (!probe.isConsumed) {
                 logger.warn { "Rate limit exceeded for IP: $ipAddress" }
                 throw RateLimitExceededException(
                     "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
                         "Please try again later.",
+                    retryAfterSeconds = RateLimitExceededException.retryAfterSecondsFrom(probe.nanosToWaitForRefill),
                 )
             }
         }

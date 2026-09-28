@@ -1,23 +1,25 @@
+import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { ContributePageContent } from "@/components/pages/contribute-page-content";
 
+import { ContributeLanding } from "@/features/contribute/components/contribute-landing";
+import { generatePageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = generatePageMetadata({
+  title: "Give to the Archive",
+  description:
+    "Give a photograph or a film link of Brava Island to the Nos Ilha archive. You keep the copyright — we record who took it and who gave it.",
+  path: "/contribute",
+  keywords: [
+    "contribute to Nos Ilha",
+    "give a photograph of Brava",
+    "share Brava Island photos",
+    "Cape Verde archive contribution",
+  ],
+});
+
+/** `/contribute` (E1). Spec 039 entry points. */
 export default async function ContributePage() {
   "use cache";
   cacheLife("max");
-  return <ContributePageContent />;
-}
-
-// Generate metadata for SEO
-export async function generateMetadata() {
-  return {
-    title: "Contribute to Nos Ilha | Help Build Our Community Guide",
-    description:
-      "Help us build the most comprehensive guide to Brava Island by sharing your knowledge, photos, and experiences with the Nos Ilha community.",
-    openGraph: {
-      title: "Contribute to Nos Ilha",
-      description:
-        "Share your photos, stories, and knowledge to help preserve and showcase the beauty of Brava Island.",
-      images: ["/images/contribute/community-hero.jpg"],
-    },
-  };
+  return <ContributeLanding />;
 }

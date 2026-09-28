@@ -770,6 +770,54 @@ export interface ApiClient {
     request: import("@/types/gallery").SubmitExternalMediaRequest
   ): Promise<{ id: string; message: string }>;
 
+  /**
+   * Checks whether an external film has already been submitted, by platform
+   * and external id — used to warn a submitter of a duplicate before they send.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param platform YOUTUBE or VIMEO
+   * @param externalId The platform's video id
+   * @returns `public` (with id and url), `pending`, or `none`
+   */
+  lookupFilmSubmission(
+    platform: Extract<
+      import("@/types/gallery").ExternalPlatform,
+      "YOUTUBE" | "VIMEO"
+    >,
+    externalId: string
+  ): Promise<import("@/types/gallery").FilmSubmissionLookup>;
+
+  /**
+   * Fetches the earliest active photograph attached to a town, for the town
+   * picker's confirmation tile.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param townId UUID of the town
+   * @returns The photo, or null when the town has none (or is unknown)
+   */
+  getTownFirstPhoto(
+    townId: string
+  ): Promise<import("@/types/gallery").PublicGalleryMedia | null>;
+
+  /**
+   * Submits a correction to an existing public gallery media item.
+   *
+   * **Authenticated Endpoint**: Requires authentication.
+   *
+   * Stored as a `CORRECTION` suggestion, reviewed in the existing admin
+   * suggestions queue.
+   *
+   * @param mediaId UUID of the public media item being corrected
+   * @param message The correction, 1..2000 characters
+   * @returns Confirmation with the created suggestion id
+   */
+  submitMediaCorrection(
+    mediaId: string,
+    message: string
+  ): Promise<import("@/types/gallery").MediaCorrectionResponse>;
+
   // ================================
   // TEXT AI OPERATIONS
   // ================================

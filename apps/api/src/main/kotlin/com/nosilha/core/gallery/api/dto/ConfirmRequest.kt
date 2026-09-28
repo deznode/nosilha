@@ -43,6 +43,8 @@ import java.util.UUID
  * @property photographerCredit Photographer name, or "not known". Required: credit is part of
  *   contribution, and "not known" is an accepted answer stored as typed (spec 033 FR-004)
  * @property archiveSource Source of historical photo
+ * @property townId Settlement (towns.id) the photo was taken in or of (spec 039). Validated
+ *   against the places module via `GalleryMediaRepository.placeExists`.
  */
 data class ConfirmRequest(
     @field:NotBlank(message = "Storage key is required")
@@ -106,4 +108,5 @@ data class ConfirmRequest(
     val photographerCredit: String? = null,
     @field:Size(max = 255, message = "Archive source must be at most 255 characters")
     val archiveSource: String? = null,
+    val townId: UUID? = null,
 )

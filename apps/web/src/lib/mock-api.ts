@@ -1812,6 +1812,40 @@ ${story.content
     };
   }
 
+  /**
+   * The mock holds no submissions, so every lookup reads as a fresh
+   * platform/externalId pair — the same "no duplicate" answer the API gives
+   * when nothing matches.
+   */
+  async lookupFilmSubmission(): Promise<
+    import("@/types/gallery").FilmSubmissionLookup
+  > {
+    await this.simulateDelay(200);
+    return { status: "none" };
+  }
+
+  /**
+   * The mock has no gallery records attached to any town, so every town
+   * reads as having no first photo — the same answer a 204 gives.
+   */
+  async getTownFirstPhoto(): Promise<
+    import("@/types/gallery").PublicGalleryMedia | null
+  > {
+    await this.simulateDelay(200);
+    return null;
+  }
+
+  async submitMediaCorrection(): Promise<
+    import("@/types/gallery").MediaCorrectionResponse
+  > {
+    await this.simulateDelay(300);
+    return {
+      id: "mock-correction-id",
+      message:
+        "Thank you for helping preserve our cultural heritage. Your correction has been received.",
+    };
+  }
+
   // ================================
   // ADMIN GALLERY MODERATION - Mock Stubs
   // ================================

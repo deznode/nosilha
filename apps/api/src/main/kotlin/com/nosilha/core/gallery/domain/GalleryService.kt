@@ -69,6 +69,7 @@ class GalleryService(
     companion object {
         private const val MAX_UPLOADS_PER_HOUR = 20L
         private const val MAX_UPLOADS_PER_DAY = 100L
+        private const val MAX_SUBMISSIONS_PER_HOUR = 10L
 
         private val RAW_FILENAME_PATTERNS = listOf(
             // UUID prefix (e.g., "a1b2c3d4-e5f6-...")
@@ -136,6 +137,18 @@ class GalleryService(
      * - 100 uploads per day (long-term abuse prevention)
      */
     private val rateLimitBuckets: Cache<UUID, Bucket> = Caffeine
+        .newBuilder()
+        .maximumSize(10_000)
+        .expireAfterAccess(1, TimeUnit.DAYS)
+        .build()
+
+    /**
+     * Caffeine cache for rate limiting external media submissions ([submitExternalMedia]) by user ID.
+     *
+     * A separate bucket from [rateLimitBuckets]: submitting a film link is not a file upload
+     * and should not compete with the upload allowance.
+     */
+    private val submitRateLimitBuckets: Cache<UUID, Bucket> = Caffeine
         .newBuilder()
         .maximumSize(10_000)
         .expireAfterAccess(1, TimeUnit.DAYS)
@@ -224,10 +237,12 @@ class GalleryService(
      */
     private fun checkRateLimit(userId: UUID) {
         val bucket = getBucketForUser(userId)
-        if (!bucket.tryConsume(1)) {
+        val probe = bucket.tryConsumeAndReturnRemaining(1)
+        if (!probe.isConsumed) {
             logger.warn { "Rate limit exceeded for user $userId" }
             throw RateLimitExceededException(
                 "Upload rate limit exceeded. Please try again later.",
+                retryAfterSeconds = RateLimitExceededException.retryAfterSecondsFrom(probe.nanosToWaitForRefill),
             )
         }
     }
@@ -255,6 +270,42 @@ class GalleryService(
                     limit
                         .capacity(MAX_UPLOADS_PER_DAY)
                         .refillIntervally(MAX_UPLOADS_PER_DAY, Duration.ofDays(1))
+                }.build()
+        }
+
+    /**
+     * Checks if user is within external media submission rate limits and consumes a token.
+     *
+     * @param userId User to check
+     * @throws RateLimitExceededException if the limit is exceeded
+     */
+    private fun checkSubmitRateLimit(userId: UUID) {
+        val bucket = getBucketForSubmit(userId)
+        val probe = bucket.tryConsumeAndReturnRemaining(1)
+        if (!probe.isConsumed) {
+            logger.warn { "Submission rate limit exceeded for user $userId" }
+            throw RateLimitExceededException(
+                "Submission rate limit exceeded. Please try again later.",
+                retryAfterSeconds = RateLimitExceededException.retryAfterSecondsFrom(probe.nanosToWaitForRefill),
+            )
+        }
+    }
+
+    /**
+     * Gets or creates a submission rate limit bucket for the given user ID.
+     *
+     * @param userId User ID to get bucket for
+     * @return Bucket allowing 10 submissions per hour
+     */
+    private fun getBucketForSubmit(userId: UUID): Bucket =
+        submitRateLimitBuckets.get(userId) {
+            logger.debug { "Creating submission rate limit bucket for user: $userId" }
+            Bucket
+                .builder()
+                .addLimit { limit ->
+                    limit
+                        .capacity(MAX_SUBMISSIONS_PER_HOUR)
+                        .refillIntervally(MAX_SUBMISSIONS_PER_HOUR, Duration.ofHours(1))
                 }.build()
         }
 
@@ -287,8 +338,10 @@ class GalleryService(
      * @param locationName Manual location name
      * @param photographerCredit Photographer name
      * @param archiveSource Source of historical photo
+     * @param townId Settlement (towns.id) the photo was taken in or of
      * @return Created UserUploadedMedia DTO
      * @throws IllegalStateException if file not found in R2
+     * @throws IllegalArgumentException if townId does not reference an existing settlement
      */
     @Transactional
     @Suppress("LongParameterList")
@@ -319,9 +372,15 @@ class GalleryService(
         locationName: String? = null,
         photographerCredit: String? = null,
         archiveSource: String? = null,
+        townId: UUID? = null,
     ): GalleryMediaDto.UserUpload {
         requireR2Enabled()
         logger.info { "Confirming upload for user $userId: key=$key" }
+
+        // Validate before touching R2/DB: an unknown townId should fail fast as a 400.
+        if (townId != null) {
+            require(repository.placeExists(townId)) { "Unknown placeId: $townId" }
+        }
 
         // Verify the file was actually uploaded to R2
         if (!r2StorageService!!.objectExists(key)) {
@@ -371,6 +430,7 @@ class GalleryService(
             this.locationName = locationName
             this.photographerCredit = photographerCredit
             this.archiveSource = archiveSource
+            this.placeId = townId
             // Smart credit attribution
             if (!photographerCredit.isNullOrBlank()) {
                 val parsed = CreditParser.parseCredit(photographerCredit)
@@ -832,6 +892,8 @@ class GalleryService(
      * @param request External media submission request
      * @param userId User submitting the media
      * @return Created external media DTO
+     * @throws IllegalArgumentException if request.townId does not reference an existing settlement
+     * @throws RateLimitExceededException if the per-user submission rate limit is exceeded
      */
     @Transactional
     fun submitExternalMedia(
@@ -839,6 +901,13 @@ class GalleryService(
         userId: UUID,
     ): GalleryMediaDto.External {
         logger.info { "User $userId submitting external media: ${request.title} (${request.mediaType}, ${request.platform})" }
+
+        // Validate first, so a rejected request doesn't spend a rate-limit token.
+        if (request.townId != null) {
+            require(repository.placeExists(request.townId)) { "Unknown placeId: ${request.townId}" }
+        }
+
+        checkSubmitRateLimit(userId)
 
         val media = ExternalMedia().apply {
             this.mediaType = request.mediaType
@@ -853,6 +922,9 @@ class GalleryService(
             this.displayOrder = request.displayOrder
             this.status = GalleryMediaStatus.PENDING_REVIEW
             this.curatedBy = userId
+            this.placeId = request.townId
+            this.locationName = request.locationName
+            this.approximateDate = request.approximateDate
             // Smart credit attribution
             if (!request.author.isNullOrBlank()) {
                 val parsed = CreditParser.parseCredit(request.author)

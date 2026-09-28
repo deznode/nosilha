@@ -355,6 +355,7 @@ class GalleryController(
             locationName = request.locationName,
             photographerCredit = request.photographerCredit,
             archiveSource = request.archiveSource,
+            townId = request.townId,
         )
 
         return ApiResult(

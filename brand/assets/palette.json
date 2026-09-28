@@ -71,8 +71,8 @@
   },
   "status": {
     "error": {
-      "light": "oklch(0.63 0.22 15)",
-      "dark": "oklch(0.72 0.19 15)"
+      "light": "oklch(0.495 0.140 31.7)",
+      "dark": "oklch(0.772 0.090 33.8)"
     },
     "success": {
       "light": "oklch(0.67 0.17 165)",

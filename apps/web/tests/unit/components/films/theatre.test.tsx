@@ -278,7 +278,7 @@ describe("FilmTheatre", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Send a copy" })).toHaveAttribute(
       "href",
-      "/contribute/media"
+      "/contribute/media?kind=film"
     );
     expect(
       screen.queryByRole("button", { name: /^Play/ })

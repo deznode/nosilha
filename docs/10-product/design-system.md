@@ -103,7 +103,7 @@ Use these short aliases throughout the codebase:
 | `text-tertiary` | `basalt-600` | `basalt-600` |
 | `text-brand` | `ocean-blue` | `#7dd4fb` |
 | `border-subtle` | `mist-200` | `#334155` |
-| `border-strong` | `basalt-500` | `#475569` |
+| `border-strong` | `basalt-500` | `#6B7680` |
 
 ## Color System
 
@@ -161,7 +161,7 @@ The design system ensures WCAG AA color contrast compliance:
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `status-error` | `#f0355d` | Error states, destructive actions |
+| `status-error` | `#A23B2A` light / `#E8A08F` dark | Error states, destructive actions |
 | `status-success` | `#00b47a` | Success confirmations |
 | `status-warning` | `#f49500` | Warnings, caution |
 

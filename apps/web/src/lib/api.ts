@@ -798,6 +798,56 @@ export async function submitExternalMedia(
   return apiClient.submitExternalMedia(request);
 }
 
+/**
+ * Checks whether an external film has already been submitted, by platform
+ * and external id.
+ * Public endpoint - no authentication required.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param platform YOUTUBE or VIMEO
+ * @param externalId The platform's video id
+ * @returns A promise that resolves to `public`, `pending` or `none`
+ * @throws Error if API call fails
+ */
+export async function lookupFilmSubmission(
+  platform: Extract<
+    import("@/types/gallery").ExternalPlatform,
+    "YOUTUBE" | "VIMEO"
+  >,
+  externalId: string
+): Promise<import("@/types/gallery").FilmSubmissionLookup> {
+  return apiClient.lookupFilmSubmission(platform, externalId);
+}
+
+/**
+ * Fetches the earliest active photograph attached to a town.
+ * Public endpoint - no authentication required.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param townId UUID of the town
+ * @returns A promise that resolves to the photo, or null when there is none
+ * @throws Error if API call fails
+ */
+export async function getTownFirstPhoto(
+  townId: string
+): Promise<import("@/types/gallery").PublicGalleryMedia | null> {
+  return apiClient.getTownFirstPhoto(townId);
+}
+
+/**
+ * Submits a correction to an existing public gallery media item.
+ * Authenticated endpoint - requires a signed-in user.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param mediaId UUID of the public media item being corrected
+ * @param message The correction, 1..2000 characters
+ * @returns A promise that resolves to the confirmation
+ * @throws Error if API call fails
+ */
+export async function submitMediaCorrection(
+  mediaId: string,
+  message: string
+): Promise<import("@/types/gallery").MediaCorrectionResponse> {
+  return apiClient.submitMediaCorrection(mediaId, message);
+}
+
 // ================================
 // ADMIN GALLERY MODERATION OPERATIONS
 // ================================

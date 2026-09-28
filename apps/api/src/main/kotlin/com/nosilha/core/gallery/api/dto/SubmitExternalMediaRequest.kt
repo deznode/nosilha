@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import java.util.UUID
 
 /**
  * Request DTO for users to submit external media for review.
@@ -56,4 +57,12 @@ data class SubmitExternalMediaRequest(
     @field:Min(0, message = "Display order must be non-negative")
     @field:Max(9999, message = "Display order must not exceed 9999")
     val displayOrder: Int = 0,
+    /** Settlement (towns.id) the film was made near (spec 039). Validated with `placeExists`. */
+    val townId: UUID? = null,
+    /** Manual location name for the film, mirroring the photo upload's equivalent field (spec 039). */
+    @field:Size(max = 255, message = "Location name must not exceed 255 characters")
+    val locationName: String? = null,
+    /** Manual date entry for the film, e.g. "circa 1975" (spec 039). */
+    @field:Size(max = 100, message = "Approximate date must not exceed 100 characters")
+    val approximateDate: String? = null,
 )

@@ -98,6 +98,8 @@ sealed class GalleryMediaDto {
         val locationName: String?,
         val photographerCredit: String?,
         val archiveSource: String?,
+        /** Settlement (towns.id) the photo was taken in or of (spec 039). */
+        val placeId: UUID? = null,
         // Display name
         val uploaderDisplayName: String? = null,
         // Smart credit attribution
@@ -150,6 +152,10 @@ sealed class GalleryMediaDto {
         val displayTitle: String? = null,
         /** Settlement (towns.id) the film was made near (spec 038). */
         val placeId: UUID? = null,
+        /** Manual date entry for the film, e.g. "circa 1975" (spec 039). */
+        val approximateDate: String? = null,
+        /** Manual location name for the film (spec 039). */
+        val locationName: String? = null,
     ) : GalleryMediaDto()
 
     companion object {
@@ -197,6 +203,7 @@ sealed class GalleryMediaDto {
                 locationName = media.locationName,
                 photographerCredit = media.photographerCredit,
                 archiveSource = media.archiveSource,
+                placeId = media.placeId,
                 // Display name
                 uploaderDisplayName = uploaderDisplayName,
                 // Smart credit attribution
@@ -247,6 +254,8 @@ sealed class GalleryMediaDto {
                 featured = media.featured,
                 displayTitle = media.displayTitle,
                 placeId = media.placeId,
+                approximateDate = media.approximateDate,
+                locationName = media.locationName,
             )
     }
 }

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { clsx } from "clsx";
 
+import { InvitationCell } from "@/features/contribute/components/invitation-cell";
 import {
   photoLine,
   photographHref,
@@ -42,6 +43,9 @@ function spanClasses(i: number): string {
   );
 }
 
+const GRID =
+  "grid grid-flow-dense auto-rows-[150px] grid-cols-2 gap-2.5 md:auto-rows-[200px] md:grid-cols-[repeat(auto-fill,minmax(240px,1fr))]";
+
 /**
  * The varied grid: CSS grid with dense packing, so big tiles never leave holes. The
  * spans come from classes rather than a width listener, so the server renders the
@@ -58,17 +62,32 @@ export function ImmersionGrid({
   onOpen?: () => void;
 }) {
   return (
-    <div className="mt-4 grid grid-flow-dense auto-rows-[150px] grid-cols-2 gap-2.5 md:auto-rows-[200px] md:grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">
-      {photos.map((photo, i) => (
-        <ImmersionTile
-          key={photo.id}
-          photo={photo}
-          href={photographHref(photo.id, place)}
-          className={spanClasses(i)}
-          onOpen={onOpen}
+    <>
+      <div className={clsx("mt-4", GRID)}>
+        {photos.map((photo, i) => (
+          <ImmersionTile
+            key={photo.id}
+            photo={photo}
+            href={photographHref(photo.id, place)}
+            className={spanClasses(i)}
+            onOpen={onOpen}
+          />
+        ))}
+      </div>
+      {/* Always last (E3). Its own grid with the same columns: inside the dense
+          grid, packing would backfill it into an earlier hole whatever its
+          order. row-span-2 on the phone's 150px rows clears the 190px minimum
+          height; a single 200px desktop row already does. */}
+      <div className={clsx("mt-2.5", GRID)}>
+        <InvitationCell
+          question="Have a photograph of Brava?"
+          body="A family print, a slide, or a phone picture of one. You keep the copyright."
+          ctaLabel="Give a photograph"
+          href="/contribute/media"
+          className="col-span-1 row-span-2 md:row-span-1"
         />
-      ))}
-    </div>
+      </div>
+    </>
   );
 }
 

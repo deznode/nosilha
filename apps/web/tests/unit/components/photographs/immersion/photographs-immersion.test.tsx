@@ -109,6 +109,17 @@ describe("PhotographsImmersion", () => {
     expect(push).toHaveBeenCalledWith("/photographs/d?place=unplaced");
   });
 
+  it("always closes the grid with the dashed invitation cell (E3)", () => {
+    render(<PhotographsImmersion photos={PHOTOS} featureId="a" films={[]} />);
+    expect(screen.getByText("Have a photograph of Brava?")).toBeInTheDocument();
+    const cta = screen.getByRole("link", { name: "Give a photograph" });
+    expect(cta).toHaveAttribute("href", "/contribute/media");
+
+    // Last among the photo links themselves, dense packing aside.
+    const allLinks = screen.getAllByRole("link");
+    expect(allLinks[allLinks.length - 1]).toBe(cta);
+  });
+
   it("shows up to the films given as cards", () => {
     render(
       <PhotographsImmersion

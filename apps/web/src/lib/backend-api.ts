@@ -65,9 +65,12 @@ import type {
   UpdateGalleryStatusRequest,
   UpdateGalleryMediaRequest,
   ExternalMedia,
+  ExternalPlatform,
   GalleryFacets,
   GalleryQueryParams,
   PhotoSequence,
+  FilmSubmissionLookup,
+  MediaCorrectionResponse,
 } from "@/types/gallery";
 import type {
   AnalysisRunSummary,
@@ -103,6 +106,7 @@ import type {
   DeleteOrphanRequest,
 } from "@/types/r2-admin";
 import { CacheConfig } from "@/lib/api-contracts";
+import { apiErrorFromResponse } from "@/lib/api-error";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
 import {
@@ -468,18 +472,23 @@ export class BackendApiClient implements ApiClient {
     if (!response.ok) {
       if (response.status === 429) {
         const errorData = await response.json();
-        throw new Error(
+        throw apiErrorFromResponse(
+          response,
           errorData.message ||
             "Upload rate limit exceeded. Please try again later."
         );
       }
       if (response.status === 400) {
         const errorData = await response.json();
-        throw new Error(
+        throw apiErrorFromResponse(
+          response,
           errorData.message || "Invalid file. Please check file type and size."
         );
       }
-      throw new Error(`Failed to get upload URL: ${response.status}`);
+      throw apiErrorFromResponse(
+        response,
+        `Failed to get upload URL: ${response.status}`
+      );
     }
 
     const payload = await response.json();
@@ -512,7 +521,8 @@ export class BackendApiClient implements ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      throw new Error(
+      throw apiErrorFromResponse(
+        response,
         apiErrorMessage(
           errorData,
           `Upload confirmation failed: ${response.status}`
@@ -2706,11 +2716,113 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to submit external media: ${response.status}`);
+      throw apiErrorFromResponse(
+        response,
+        `Failed to submit external media: ${response.status}`
+      );
     }
 
     const payload = await response.json();
     return this.unwrapApiResponse<{ id: string; message: string }>(payload);
+  }
+
+  /**
+   * Checks whether an external film has already been submitted, by platform
+   * and external id — used to warn a submitter of a duplicate before they send.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param platform YOUTUBE or VIMEO
+   * @param externalId The platform's video id
+   * @returns `public` (with id and url), `pending`, or `none`
+   * @throws Error if the parameters are invalid (HTTP 400) or the call fails
+   */
+  async lookupFilmSubmission(
+    platform: Extract<ExternalPlatform, "YOUTUBE" | "VIMEO">,
+    externalId: string
+  ): Promise<FilmSubmissionLookup> {
+    const params = new URLSearchParams({ platform, externalId });
+    const endpoint = `${env.apiUrl}/api/v1/gallery/submissions/lookup?${params.toString()}`;
+
+    const response = await fetch(endpoint, { cache: "no-store" });
+
+    if (!response.ok) {
+      throw new Error(`Failed to look up film submission: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<FilmSubmissionLookup>(payload);
+  }
+
+  /**
+   * Fetches the earliest active photograph attached to a town, for the town
+   * picker's confirmation tile.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param townId UUID of the town
+   * @returns The photo, or null when the town has none (or is unknown)
+   * @throws Error if the call fails
+   */
+  async getTownFirstPhoto(townId: string): Promise<PublicGalleryMedia | null> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/towns/${townId}/first-photo`;
+
+    const response = await fetch(endpoint, { cache: "no-store" });
+
+    if (response.status === 204) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch town's first photo: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<PublicGalleryMedia>(payload);
+  }
+
+  /**
+   * Submits a correction to an existing public gallery media item.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * Stored as a `CORRECTION` suggestion, reviewed in the existing admin
+   * suggestions queue.
+   *
+   * @param mediaId UUID of the public media item being corrected
+   * @param message The correction, 1..2000 characters
+   * @returns Confirmation with the created suggestion id
+   * @throws Error if the media isn't public (HTTP 404), the message is invalid
+   * (HTTP 400), or the rate limit is exceeded (HTTP 429)
+   */
+  async submitMediaCorrection(
+    mediaId: string,
+    message: string
+  ): Promise<MediaCorrectionResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/feedback/media-corrections`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ mediaId, message }),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw apiErrorFromResponse(
+        response,
+        apiErrorMessage(
+          errorData,
+          `Failed to submit correction: ${response.status}`
+        )
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<MediaCorrectionResponse>(payload);
   }
 
   // ================================

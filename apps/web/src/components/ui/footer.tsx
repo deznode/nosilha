@@ -58,7 +58,7 @@ export function Footer({ className }: FooterProps) {
       />
 
       <div className="px-[18px] pt-5 pb-4 md:px-7 md:pt-[30px] md:pb-6">
-        <div className="mx-auto max-w-7xl md:flex md:items-start md:justify-between md:gap-8">
+        <div className="mx-auto max-w-7xl md:flex md:items-start md:gap-8">
           <div className="md:max-w-md">
             <div className="mb-[9px] flex items-center">
               <NosilhaLogo
@@ -75,6 +75,18 @@ export function Footer({ className }: FooterProps) {
               Get updates on new stories, cultural events, and ways to
               contribute.
             </p>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-2 md:mt-0 md:flex-1">
+            <span className="text-footer-muted font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
+              Have something of Brava?
+            </span>
+            <Link
+              href="/contribute"
+              className="text-accent-on-dark py-1.5 text-[15px] font-semibold hover:underline"
+            >
+              Give a photograph or a film →
+            </Link>
           </div>
 
           <div className="mt-[13px] md:mt-0 md:w-[302px] md:shrink-0">
