@@ -95,4 +95,59 @@ describe("CodeInput", () => {
       "err"
     );
   });
+
+  it("pasting exactly 123456 fills the boxes and submits once", async () => {
+    const onComplete = vi.fn();
+    render(<Harness onComplete={onComplete} />);
+    screen.getByLabelText("6-digit code").focus();
+    await userEvent.paste("123456");
+    expect(
+      boxes()
+        .map((b) => b.textContent)
+        .join("")
+    ).toBe("123456");
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(onComplete).toHaveBeenCalledWith("123456");
+  });
+
+  it("keeps the typed code when a wrong result flips it to invalid", async () => {
+    function VerifyHarness() {
+      const [value, setValue] = useState("");
+      const [invalid, setInvalid] = useState(false);
+      return (
+        <CodeInput
+          value={value}
+          onChange={setValue}
+          onComplete={() => setInvalid(true)}
+          invalid={invalid}
+        />
+      );
+    }
+    render(<VerifyHarness />);
+    const input = screen.getByLabelText("6-digit code");
+
+    await userEvent.type(input, "481902");
+
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toHaveValue("481902");
+    expect(
+      boxes()
+        .map((b) => b.textContent)
+        .join("")
+    ).toBe("481902");
+  });
+
+  it("keeps the entered value in the wrong state", () => {
+    render(<Harness onComplete={vi.fn()} initial="481902" invalid />);
+    expect(screen.getByLabelText("6-digit code")).toHaveValue("481902");
+    expect(boxes().map((b) => b.textContent)).toEqual([
+      "4",
+      "8",
+      "1",
+      "9",
+      "0",
+      "2",
+    ]);
+    expect(screen.getByText("That code doesn't match.")).toBeInTheDocument();
+  });
 });

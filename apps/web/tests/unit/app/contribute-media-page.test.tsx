@@ -598,6 +598,7 @@ describe("Contribute media page — film", () => {
       })
     ).toBeInTheDocument();
     expect(screen.getByText("In the archive, in Films")).toBeInTheDocument();
+    expect(mocks.draftClear).toHaveBeenCalled();
     expect(
       screen.getByText("YouTube · Nova Sintra · made by Djon Lopes")
     ).toBeInTheDocument();

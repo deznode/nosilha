@@ -181,6 +181,24 @@ describe("useFilmLookup", () => {
     expect(result.current).toEqual({ status: "none" });
   });
 
+  it.each([404, 500, 503])(
+    "treats an HTTP %i from the lookup as none, not stuck on checking",
+    async (status) => {
+      // The backend client throws `Failed to look up film submission: <status>`.
+      vi.mocked(api.lookupFilmSubmission).mockRejectedValue(
+        new Error(`Failed to look up film submission: ${status}`)
+      );
+
+      const { result } = renderHook(() => useFilmLookup(youtubeA));
+      expect(result.current).toEqual({ status: "checking" });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(400);
+      });
+
+      expect(result.current).toEqual({ status: "none" });
+    }
+  );
+
   it("maps a pending lookup to status pending, with no media", async () => {
     vi.mocked(api.lookupFilmSubmission).mockResolvedValue({
       status: "pending",

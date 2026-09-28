@@ -6,6 +6,7 @@ import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.gallery.domain.UserUploadedMedia
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
+import org.hamcrest.Matchers.aMapWithSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -271,6 +272,72 @@ class GallerySubmissionLookupIntegrationTest {
     @DisplayName("Should ignore a non-image user upload (e.g. video) for the town")
     fun `first photo should ignore non-image uploads`() {
         userUploadImage(townB, contentType = "video/mp4")
+
+        mockMvc
+            .perform(get("/api/v1/gallery/towns/$townB/first-photo"))
+            .andExpect(status().isNoContent)
+    }
+
+    // -- Spec 039 T-21: contract gaps --
+
+    @Test
+    @DisplayName("Should return only a status for a pending film, with no id or url keys at all")
+    fun `lookup pending data should hold only the status key`() {
+        externalFilm(ExternalPlatform.YOUTUBE, "rawpending01", GalleryMediaStatus.PENDING_REVIEW)
+
+        // doesNotExist() also passes for a present-but-null key; the map size doesn't
+        mockMvc
+            .perform(get("/api/v1/gallery/submissions/lookup").param("platform", "YOUTUBE").param("externalId", "rawpending01"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data", aMapWithSize<String, Any>(1)))
+            .andExpect(jsonPath("$.data.status").value("pending"))
+    }
+
+    @Test
+    @DisplayName("Should return none, with no id or url, for a PROCESSING film")
+    fun `lookup should return none for a processing film`() {
+        externalFilm(ExternalPlatform.YOUTUBE, "processing01", GalleryMediaStatus.PROCESSING)
+
+        mockMvc
+            .perform(get("/api/v1/gallery/submissions/lookup").param("platform", "YOUTUBE").param("externalId", "processing01"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.status").value("none"))
+            .andExpect(jsonPath("$.data.id").doesNotExist())
+            .andExpect(jsonPath("$.data.url").doesNotExist())
+    }
+
+    @Test
+    @DisplayName("Should skip an older non-ACTIVE photo and another town's photo, returning the town's ACTIVE one")
+    fun `first photo should pick the active row of this town over older non-active and other-town rows`() {
+        val pendingOlder = userUploadImage(townA, status = GalleryMediaStatus.PENDING_REVIEW)
+        val processingOlder = userUploadImage(townA, status = GalleryMediaStatus.PROCESSING)
+        val rejectedOlder = userUploadImage(townA, status = GalleryMediaStatus.REJECTED)
+        val otherTownOlder = userUploadImage(townB)
+        val active = userUploadImage(townA)
+        setCreatedAt(pendingOlder, Instant.parse("2010-01-01T00:00:00Z"))
+        setCreatedAt(processingOlder, Instant.parse("2010-02-01T00:00:00Z"))
+        setCreatedAt(rejectedOlder, Instant.parse("2010-03-01T00:00:00Z"))
+        setCreatedAt(otherTownOlder, Instant.parse("2010-04-01T00:00:00Z"))
+        setCreatedAt(active, Instant.parse("2021-01-01T00:00:00Z"))
+
+        mockMvc
+            .perform(get("/api/v1/gallery/towns/$townA/first-photo"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.id").value(active.toString()))
+    }
+
+    @Test
+    @DisplayName("Should ignore an ACTIVE external VIDEO for the town")
+    fun `first photo should ignore active external videos`() {
+        val media = ExternalMedia().apply {
+            this.title = "Fixture town film"
+            this.mediaType = MediaType.VIDEO
+            this.platform = ExternalPlatform.YOUTUBE
+            this.externalId = "townfilm001"
+            this.status = GalleryMediaStatus.ACTIVE
+            this.placeId = townB
+        }
+        created += galleryMediaRepository.save(media).id!!
 
         mockMvc
             .perform(get("/api/v1/gallery/towns/$townB/first-photo"))

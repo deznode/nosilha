@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -52,5 +53,45 @@ describe("ResponsiveSheet", () => {
     await userEvent.keyboard("{Escape}");
 
     expect(onClose).toHaveBeenCalled();
+  });
+
+  describe("focus restore", () => {
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button onClick={() => setOpen(true)}>Open sheet</button>
+          <ResponsiveSheet
+            open={open}
+            onClose={() => setOpen(false)}
+            label="Confirm it's you"
+          >
+            <button>Email me a code</button>
+          </ResponsiveSheet>
+        </>
+      );
+    }
+
+    it.each([false, true])(
+      "Escape closes the sheet and focus returns to the trigger (desktop: %s)",
+      async (desktop) => {
+        media = mockMatchMedia({ [DESKTOP_QUERY]: desktop });
+        const user = userEvent.setup();
+        render(<Harness />);
+        const trigger = screen.getByRole("button", { name: "Open sheet" });
+
+        await user.click(trigger);
+        expect(
+          await screen.findByRole("dialog", { name: "Confirm it's you" })
+        ).toBeInTheDocument();
+
+        await user.keyboard("{Escape}");
+
+        await waitFor(() =>
+          expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+        );
+        await waitFor(() => expect(trigger).toHaveFocus());
+      }
+    );
   });
 });
