@@ -80,7 +80,7 @@ export function TownPicker({
         placeholder="Search Brava's towns"
         aria-label="Search Brava's towns"
         autoFocus
-        className="bg-card text-body placeholder:text-muted border-ocean-blue h-11 w-full flex-none rounded-lg border-[1.5px] px-3 text-[15px] outline-none"
+        className="bg-card text-body placeholder:text-muted-foreground border-ocean-blue h-11 w-full flex-none rounded-lg border-[1.5px] px-3 text-[15px] outline-none"
       />
 
       <div className="flex flex-col overflow-y-auto">
