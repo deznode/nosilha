@@ -9,6 +9,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { FIELD, LABEL, STRIPE } from "./form-parts";
+
 /** What the sheet is holding while the person signs in (the S1 card). */
 export interface HeldItem {
   kind: "photo" | "film";
@@ -20,13 +22,8 @@ export interface HeldItem {
 export const SHEET_HEADING =
   "text-body m-0 font-serif text-[25px] leading-[1.2] font-normal outline-none";
 const LEAD = "text-muted m-0 text-[14px] leading-[1.55]";
-const LABEL = "text-body mb-[7px] block text-[13px] font-semibold";
-const FIELD =
-  "bg-card text-body h-11 w-full rounded-lg border px-3 text-[15px] outline-none";
-const LINK =
+export const LINK =
   "focus-ring text-ocean-blue rounded-sm font-semibold hover:underline disabled:cursor-default disabled:no-underline";
-const STRIPE =
-  "bg-[repeating-linear-gradient(135deg,var(--color-surface)_0_7px,var(--color-surface-alt)_7px_14px)] dark:bg-[repeating-linear-gradient(135deg,var(--color-card)_0_7px,var(--color-surface)_7px_14px)]";
 
 /** "{title} · {town}" for a photograph, "{film title} · film link" for a film. */
 export function heldLine({ kind, title, town }: HeldItem): string {
@@ -134,7 +131,7 @@ export function PrimaryButton({ className, ...props }: ButtonProps) {
       type="button"
       {...props}
       className={clsx(
-        "focus-ring bg-primary text-primary-foreground flex h-12 flex-none items-center justify-center rounded-lg text-[15px] font-medium disabled:opacity-60",
+        "focus-ring bg-primary text-primary-foreground flex h-12 shrink-0 items-center justify-center rounded-lg text-[15px] font-medium disabled:opacity-60",
         className
       )}
     />
@@ -148,7 +145,7 @@ export function SecondaryButton({ className, ...props }: ButtonProps) {
       type="button"
       {...props}
       className={clsx(
-        "focus-ring border-edge flex h-12 flex-none items-center justify-center rounded-lg border text-[15px] font-medium",
+        "focus-ring border-edge flex h-12 shrink-0 items-center justify-center rounded-lg border text-[15px] font-medium",
         props.disabled ? "text-muted" : "text-body",
         className
       )}
@@ -216,12 +213,10 @@ export function EmailField({
   value,
   onChange,
   error,
-  autoFocus,
 }: {
   value: string;
   onChange: (value: string) => void;
   error?: string | null;
-  autoFocus?: boolean;
 }) {
   const id = useId();
   const errorId = `${id}-error`;
@@ -236,16 +231,11 @@ export function EmailField({
         name="email"
         autoComplete="email"
         required
-        autoFocus={autoFocus}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className={clsx(
-          FIELD,
-          "focus:border-ocean-blue focus:border-[1.5px]",
-          error ? "border-status-error" : "border-edge"
-        )}
+        className={clsx(FIELD, "h-11")}
       />
       {error && (
         <p

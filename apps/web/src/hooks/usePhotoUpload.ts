@@ -109,13 +109,6 @@ export interface UsePhotoUploadReturn {
   upload: (options?: PhotoUploadOptions) => Promise<UploadResult | null>;
 
   /**
-   * Re-runs the last `upload()` call with the same options. The file,
-   * preview and metadata are kept after a failed upload (P6 "Try again"),
-   * spec 039.
-   */
-  retry: () => Promise<UploadResult | null>;
-
-  /**
    * Clear the selected file and reset state
    */
   reset: () => void;
@@ -156,7 +149,6 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     error: uploadError,
     lastError: uploadLastError,
     upload: r2Upload,
-    retry: r2Retry,
     reset: r2Reset,
   } = useR2Upload();
 
@@ -325,13 +317,6 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
   );
 
   /**
-   * Re-runs the last upload attempt with the same options.
-   */
-  const retry = useCallback((): Promise<UploadResult | null> => {
-    return r2Retry();
-  }, [r2Retry]);
-
-  /**
    * Reset all state
    */
   const reset = useCallback(() => {
@@ -364,7 +349,6 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     setPhotoType,
     setManualMetadata,
     upload,
-    retry,
     reset,
   };
 }

@@ -47,14 +47,13 @@ import {
 } from "@/features/contribute/lib/contribution-form";
 import { isNewUser } from "@/features/contribute/lib/new-user";
 import {
+  FILM_PLATFORM_LABEL,
   filmThumbnailUrl,
   parseVideoUrl,
 } from "@/features/contribute/lib/parse-video-url";
 
 /** F7 when a 429 carries no `Retry-After`. */
 const DEFAULT_WAIT_SECONDS = 600;
-
-const PLATFORM_LABEL = { YOUTUBE: "YouTube", VIMEO: "Vimeo" } as const;
 
 /**
  * `/contribute/media`: give a photograph (P1–P6) or a film link (F1–F7).
@@ -205,12 +204,16 @@ function MediaContribution() {
 
   useEffect(() => {
     if (rateLimitedUntil === null) return;
-    const id = setInterval(() => {
-      const t = Date.now();
-      setNow(t);
-      if (t >= rateLimitedUntil) setRateLimitedUntil(null);
-    }, 1000);
-    return () => clearInterval(id);
+    // The wait is shown in whole minutes, so the page only needs a minute tick
+    const tick = setInterval(() => setNow(Date.now()), 60_000);
+    const unlock = setTimeout(
+      () => setRateLimitedUntil(null),
+      rateLimitedUntil - Date.now()
+    );
+    return () => {
+      clearInterval(tick);
+      clearTimeout(unlock);
+    };
   }, [rateLimitedUntil]);
 
   function lockFor(seconds: number | undefined) {
@@ -249,7 +252,11 @@ function MediaContribution() {
     const where = town ?? (form.place.detail.trim() || null);
     const who = form.photographer.trim();
     const meta = isFilm
-      ? [link && PLATFORM_LABEL[link.platform], where, who && `made by ${who}`]
+      ? [
+          link && FILM_PLATFORM_LABEL[link.platform],
+          where,
+          who && `made by ${who}`,
+        ]
       : [where, form.date.trim(), who && `taken by ${who}`];
     setSent({
       kind,

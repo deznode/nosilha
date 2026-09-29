@@ -87,11 +87,6 @@ describe("signInReducer — password (S2)", () => {
     expect(next.passwordError).toBe("Wrong password");
   });
 
-  it("SIGNED_IN is a terminal no-op (the caller closes the sheet)", () => {
-    const next = signInReducer(password, { type: "SIGNED_IN" });
-    expect(next).toBe(password);
-  });
-
   it("BACK returns to start (S1)", () => {
     const next = signInReducer(password, { type: "BACK" });
     expect(next.view).toBe("start");
@@ -123,11 +118,6 @@ describe("signInReducer — code (S3)", () => {
     const next = signInReducer(code, { type: "DIGITS_CHANGED", digits: "123" });
     expect(next.view).toBe("code");
     expect(next.digits).toBe("123");
-  });
-
-  it("VERIFIED is a terminal no-op (the caller closes the sheet)", () => {
-    const next = signInReducer(code, { type: "VERIFIED" });
-    expect(next).toBe(code);
   });
 
   it("WRONG moves to codeWrong (S4) and keeps the digits", () => {
@@ -176,7 +166,7 @@ describe("signInReducer — code (S3)", () => {
 });
 
 describe("signInReducer — codeWrong (S4)", () => {
-  it("keeps its own transitions: VERIFIED / WRONG / EXPIRED / RESENT", () => {
+  it("keeps its own transitions: WRONG / EXPIRED / RESENT", () => {
     const code = signInReducer(initialSignInState(), {
       type: "EMAIL_SENT",
       email: "a@b.com",
@@ -197,9 +187,6 @@ describe("signInReducer — codeWrong (S4)", () => {
 
     const resent = signInReducer(wrong, { type: "RESENT" });
     expect(resent.view).toBe("codeResent");
-
-    const verified = signInReducer(wrong, { type: "VERIFIED" });
-    expect(verified).toBe(wrong);
   });
 });
 
@@ -241,9 +228,6 @@ describe("signInReducer — codeResent (S6, behaves as code)", () => {
 
     const wrong = signInReducer(resent, { type: "WRONG" });
     expect(wrong.view).toBe("codeWrong");
-
-    const verified = signInReducer(resent, { type: "VERIFIED" });
-    expect(verified).toBe(resent);
 
     const noEmail = signInReducer(resent, { type: "NO_EMAIL" });
     expect(noEmail.view).toBe("noEmail");

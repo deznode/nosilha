@@ -22,14 +22,12 @@ describe("DuplicateCard", () => {
           status="public"
           platform="YOUTUBE"
           externalId="k3Zq8XfT0aE"
-          title="Festa de São João, 1987"
           mediaId="media-1"
           url="https://nosilha.com/films/media-1"
         />
       );
 
       expect(screen.getByText("Already in the archive")).toBeInTheDocument();
-      expect(screen.getByText("Festa de São João, 1987")).toBeInTheDocument();
       expect(
         screen.getByText(/already in the archive, so there's no need/)
       ).toBeInTheDocument();
@@ -263,14 +261,12 @@ describe("DuplicateCard", () => {
           status="pending"
           platform="YOUTUBE"
           externalId="k3Zq8XfT0aE"
-          title="Festa de São João, 1987"
         />
       );
 
       expect(
         screen.getByText("Already sent · waiting for review")
       ).toBeInTheDocument();
-      expect(screen.getByText("Festa de São João, 1987")).toBeInTheDocument();
       expect(screen.getByText("YouTube · not public yet")).toBeInTheDocument();
       expect(
         screen.getByText(/A person will review it soon/)

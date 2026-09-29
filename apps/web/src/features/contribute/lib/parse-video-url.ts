@@ -1,4 +1,12 @@
-import type { ParsedFilmLink } from "../hooks/use-film-lookup";
+import type {
+  FilmLookupPlatform,
+  ParsedFilmLink,
+} from "../hooks/use-film-lookup";
+
+export const FILM_PLATFORM_LABEL: Record<FilmLookupPlatform, string> = {
+  YOUTUBE: "YouTube",
+  VIMEO: "Vimeo",
+};
 
 /**
  * Recognises a YouTube or Vimeo link and pulls out its video id (F2/F3).

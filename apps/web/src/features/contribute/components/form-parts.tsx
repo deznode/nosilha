@@ -11,10 +11,14 @@ import type { ContributionKind } from "../lib/contribution-draft";
 
 export const LABEL = "text-body mb-[7px] block text-[13px] font-semibold";
 export const HINT = "text-muted mt-1.5 text-[12.5px] leading-[1.45]";
+/** The hatched stand-in where there is no picture yet. */
+export const STRIPE =
+  "bg-[repeating-linear-gradient(135deg,var(--color-surface)_0_7px,var(--color-surface-alt)_7px_14px)] dark:bg-[repeating-linear-gradient(135deg,var(--color-card)_0_7px,var(--color-surface)_7px_14px)]";
 export const PAGE_HEADING =
   "text-body m-0 font-serif text-[25px] leading-[1.12] font-normal md:text-[34px]";
-const FIELD =
-  "bg-card text-body placeholder:text-muted-foreground w-full rounded-lg border px-3 text-[15px] outline-none focus:border-[1.5px]";
+/** Blue on focus; `aria-invalid` keeps the error border, focused or not. */
+export const FIELD =
+  "bg-card text-body placeholder:text-muted-foreground border-edge focus:border-ocean-blue aria-invalid:border-status-error aria-invalid:focus:border-status-error w-full rounded-lg border px-3 text-[15px] outline-none focus:border-[1.5px] aria-invalid:border-[1.5px]";
 
 export function TextField({
   id,
@@ -38,13 +42,7 @@ export function TextField({
         type="text"
         {...props}
         aria-invalid={invalid || undefined}
-        className={clsx(
-          FIELD,
-          "min-h-11 py-[11px] leading-[1.4]",
-          invalid
-            ? "border-status-error border-[1.5px]"
-            : "border-edge focus:border-ocean-blue"
-        )}
+        className={clsx(FIELD, "min-h-11 py-[11px] leading-[1.4]")}
       />
       {hint}
     </div>
@@ -72,10 +70,7 @@ export function TextAreaField({
         id={id}
         {...props}
         style={{ minHeight }}
-        className={clsx(
-          FIELD,
-          "border-edge focus:border-ocean-blue block py-[11px] leading-[1.45]"
-        )}
+        className={clsx(FIELD, "block py-[11px] leading-[1.45]")}
       />
       {hint && <p className={HINT}>{hint}</p>}
     </div>

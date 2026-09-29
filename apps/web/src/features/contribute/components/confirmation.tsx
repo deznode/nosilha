@@ -3,11 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import type { ContributionKind } from "../lib/contribution-draft";
-import { PAGE_HEADING } from "./form-parts";
+import { PAGE_HEADING, STRIPE } from "./form-parts";
 import { PrimaryButton } from "./sign-in-parts";
-
-const STRIPE =
-  "bg-[repeating-linear-gradient(135deg,var(--color-surface)_0_7px,var(--color-surface-alt)_7px_14px)] dark:bg-[repeating-linear-gradient(135deg,var(--color-card)_0_7px,var(--color-surface)_7px_14px)]";
 
 /**
  * The picture a record is shown with: the chosen photograph (a local object
@@ -142,12 +139,9 @@ export function Confirmation({
       </ol>
 
       <div className="flex flex-wrap gap-2.5">
-        {/* PrimaryButton is flex-none, so the wrapper takes the flex basis */}
-        <div className="flex-[1_1_200px]">
-          <PrimaryButton onClick={onAgain} className="w-full">
-            {copy.again}
-          </PrimaryButton>
-        </div>
+        <PrimaryButton onClick={onAgain} className="flex-[1_1_200px]">
+          {copy.again}
+        </PrimaryButton>
         <Link
           href={copy.href}
           className="focus-ring border-edge text-body flex h-12 flex-[1_1_200px] items-center justify-center rounded-lg border text-[15px] font-medium"

@@ -1,11 +1,7 @@
 import Image from "next/image";
 
-export type FilmPreviewPlatform = "YOUTUBE" | "VIMEO";
-
-interface FilmPreviewCardProps {
-  platform: FilmPreviewPlatform;
-  externalId: string;
-}
+import type { ParsedFilmLink } from "../hooks/use-film-lookup";
+import { FILM_PLATFORM_LABEL, filmThumbnailUrl } from "../lib/parse-video-url";
 
 /**
  * The recognised-link preview under the film URL field (F2/F3).
@@ -15,18 +11,15 @@ interface FilmPreviewCardProps {
  * requests an image at all: the designed ochre dashed frame stands in for
  * it. Spec 039, `.claude-design/design_handoff_contribution_flow`.
  */
-export function FilmPreviewCard({
-  platform,
-  externalId,
-}: FilmPreviewCardProps) {
-  const platformLabel = platform === "YOUTUBE" ? "YouTube" : "Vimeo";
+export function FilmPreviewCard({ platform, externalId }: ParsedFilmLink) {
+  const thumbnail = filmThumbnailUrl({ platform, externalId });
 
   return (
     <div className="border-hairline bg-card overflow-hidden rounded-[10px] border">
-      {platform === "YOUTUBE" ? (
+      {thumbnail ? (
         <div className="bg-surface-alt relative aspect-video">
           <Image
-            src={`https://i.ytimg.com/vi/${externalId}/hqdefault.jpg`}
+            src={thumbnail}
             alt="YouTube thumbnail"
             fill
             sizes="340px"
@@ -48,7 +41,7 @@ export function FilmPreviewCard({
       <div className="text-muted flex items-center justify-between px-3 py-2.5 text-[13px]">
         <span>
           <span className="text-valley-green font-semibold">✓</span>{" "}
-          {platformLabel} link recognised
+          {FILM_PLATFORM_LABEL[platform]} link recognised
         </span>
         <span className="font-mono">{externalId}</span>
       </div>

@@ -21,6 +21,7 @@ import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
 import com.nosilha.core.shared.events.MediaAnalysisCompletedEvent
 import com.nosilha.core.shared.events.MediaAnalysisFailedEvent
 import com.nosilha.core.shared.exception.RateLimitExceededException
+import com.nosilha.core.shared.exception.consumeOrThrow
 import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Counter
@@ -237,14 +238,8 @@ class GalleryService(
      * @throws RateLimitExceededException if either limit exceeded
      */
     private fun checkRateLimit(userId: UUID) {
-        val bucket = getBucketForUser(userId)
-        val probe = bucket.tryConsumeAndReturnRemaining(1)
-        if (!probe.isConsumed) {
+        getBucketForUser(userId).consumeOrThrow("Upload rate limit exceeded. Please try again later.") {
             logger.warn { "Rate limit exceeded for user $userId" }
-            throw RateLimitExceededException(
-                "Upload rate limit exceeded. Please try again later.",
-                retryAfterSeconds = RateLimitExceededException.retryAfterSecondsFrom(probe.nanosToWaitForRefill),
-            )
         }
     }
 
@@ -281,14 +276,8 @@ class GalleryService(
      * @throws RateLimitExceededException if the limit is exceeded
      */
     private fun checkSubmitRateLimit(userId: UUID) {
-        val bucket = getBucketForSubmit(userId)
-        val probe = bucket.tryConsumeAndReturnRemaining(1)
-        if (!probe.isConsumed) {
+        getBucketForSubmit(userId).consumeOrThrow("Submission rate limit exceeded. Please try again later.") {
             logger.warn { "Submission rate limit exceeded for user $userId" }
-            throw RateLimitExceededException(
-                "Submission rate limit exceeded. Please try again later.",
-                retryAfterSeconds = RateLimitExceededException.retryAfterSecondsFrom(probe.nanosToWaitForRefill),
-            )
         }
     }
 

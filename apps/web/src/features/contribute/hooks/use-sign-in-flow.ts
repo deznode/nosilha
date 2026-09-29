@@ -205,7 +205,6 @@ export function useSignInFlow({
           });
           return;
         }
-        dispatch({ type: "VERIFIED" });
         finish(data.user ?? data.session?.user ?? null, state.email);
       } catch {
         dispatch({ type: "WRONG" });
@@ -233,7 +232,6 @@ export function useSignInFlow({
           });
           return;
         }
-        dispatch({ type: "SIGNED_IN" });
         finish(data.user ?? data.session?.user ?? null, state.email.trim());
       } catch (error) {
         dispatch({
@@ -309,12 +307,7 @@ export function useSignInFlow({
     /** S2 "Forgotten it? Email me a code instead": back to S1, then send. */
     chooseCodeInstead: async () => {
       dispatch({ type: "USE_CODE" });
-      const email = state.email.trim();
-      if (!email) return;
-      const result = await requestCode(email);
-      if (result === "sent") dispatch({ type: "EMAIL_SENT", email });
-      if (result === "rateLimited")
-        dispatch({ type: "SEND_RATE_LIMITED", email });
+      await sendCode();
     },
     back: () => dispatch({ type: "BACK" }),
     changeEmail: () => dispatch({ type: "CHANGE_EMAIL" }),

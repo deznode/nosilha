@@ -5,7 +5,7 @@ import type { UploadResult } from "@/hooks/useR2Upload";
 
 /**
  * usePhotoUpload wires the new title/townId fields (P5/P6, spec 039) and the
- * progress/retry/lastError surface through to `useR2Upload`, which is
+ * progress/lastError surface through to `useR2Upload`, which is
  * exercised directly (with real XHR/fetch behaviour) in useR2Upload.test.ts.
  * Here `useR2Upload` is mocked so the wiring can be asserted in isolation
  * from EXIF extraction and image decoding.
@@ -13,7 +13,6 @@ import type { UploadResult } from "@/hooks/useR2Upload";
 
 const mocks = vi.hoisted(() => ({
   r2Upload: vi.fn(),
-  r2Retry: vi.fn(),
   r2Reset: vi.fn(),
   extractMetadata: vi.fn(),
   readImageDimensions: vi.fn(),
@@ -37,7 +36,6 @@ vi.mock("@/hooks/useR2Upload", () => ({
   useR2Upload: () => ({
     ...mocks.r2State,
     upload: mocks.r2Upload,
-    retry: mocks.r2Retry,
     cancel: vi.fn(),
     reset: mocks.r2Reset,
   }),
@@ -84,7 +82,6 @@ describe("usePhotoUpload", () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:held-preview");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
     mocks.r2Upload.mockReset().mockResolvedValue(uploadResult);
-    mocks.r2Retry.mockReset().mockResolvedValue(uploadResult);
     mocks.r2Reset.mockReset();
     mocks.extractMetadata.mockReset().mockResolvedValue(null);
     mocks.readImageDimensions.mockReset().mockResolvedValue(null);
@@ -158,17 +155,5 @@ describe("usePhotoUpload", () => {
     expect(result.current.lastError).toBeInstanceOf(ApiError);
     expect((result.current.lastError as ApiError).status).toBe(429);
     expect((result.current.lastError as ApiError).retryAfterSeconds).toBe(120);
-  });
-
-  it("retry() re-runs the last upload via useR2Upload's retry", async () => {
-    const { result } = renderHook(() => usePhotoUpload());
-    await selectAndWait(result, pngFile());
-
-    await act(async () => {
-      await result.current.retry();
-    });
-
-    expect(mocks.r2Retry).toHaveBeenCalledTimes(1);
-    expect(mocks.r2Upload).not.toHaveBeenCalled();
   });
 });

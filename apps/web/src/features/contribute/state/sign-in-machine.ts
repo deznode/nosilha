@@ -6,8 +6,7 @@
  * dispatches events here. S9 and S10b are page states, not sheet states, and
  * are not represented.
  *
- * `SIGNED_IN` and `VERIFIED` are terminal signals: the reducer returns the
- * state unchanged, and the caller closes the sheet and fires
+ * Signing in has no event: the caller closes the sheet and fires
  * `onSignedIn({ isNewUser })` itself rather than modelling a "done" view.
  */
 
@@ -28,7 +27,8 @@ export type SignInView =
 /** Why the Google button is disabled, or null when it's offered. */
 export type GoogleDisabledReason = "blocked" | "noSave" | null;
 
-interface SignInBase {
+export interface SignInState {
+  view: SignInView;
   email: string;
   digits: string;
   /** True on the S6/S3 "too many codes sent" notice variant. */
@@ -37,53 +37,6 @@ interface SignInBase {
   passwordError: string | null;
   googleDisabledReason: GoogleDisabledReason;
 }
-
-export interface SignInStartState extends SignInBase {
-  view: "start";
-}
-export interface SignInPasswordState extends SignInBase {
-  view: "password";
-}
-export interface SignInCodeState extends SignInBase {
-  view: "code";
-}
-export interface SignInCodeWrongState extends SignInBase {
-  view: "codeWrong";
-}
-export interface SignInCodeExpiredState extends SignInBase {
-  view: "codeExpired";
-}
-export interface SignInCodeResentState extends SignInBase {
-  view: "codeResent";
-}
-export interface SignInNoEmailState extends SignInBase {
-  view: "noEmail";
-}
-export interface SignInLeavingState extends SignInBase {
-  view: "leaving";
-}
-export interface SignInCancelledState extends SignInBase {
-  view: "cancelled";
-}
-export interface SignInGoogleBlockedState extends SignInBase {
-  view: "googleBlocked";
-}
-export interface SignInNoSaveState extends SignInBase {
-  view: "noSave";
-}
-
-export type SignInState =
-  | SignInStartState
-  | SignInPasswordState
-  | SignInCodeState
-  | SignInCodeWrongState
-  | SignInCodeExpiredState
-  | SignInCodeResentState
-  | SignInNoEmailState
-  | SignInLeavingState
-  | SignInCancelledState
-  | SignInGoogleBlockedState
-  | SignInNoSaveState;
 
 export type SignInEvent =
   | { type: "EMAIL_CHANGED"; email: string }
@@ -94,11 +47,9 @@ export type SignInEvent =
   | { type: "GOOGLE_PROBE_OK" }
   | { type: "GOOGLE_PROBE_FAILED" }
   | { type: "GOOGLE_FAILED" }
-  | { type: "SIGNED_IN" }
   | { type: "PASSWORD_ERROR"; message: string }
   | { type: "BACK" }
   | { type: "USE_CODE" }
-  | { type: "VERIFIED" }
   | { type: "WRONG" }
   | { type: "EXPIRED" }
   | { type: "RESENT"; rateLimited?: boolean }
@@ -114,7 +65,7 @@ export type SignInEvent =
 export function initialSignInState(
   opts: { googleBlocked?: boolean; cancelled?: boolean } = {}
 ): SignInState {
-  const base: SignInBase = {
+  const base = {
     email: "",
     digits: "",
     sendRateLimited: false,
@@ -144,14 +95,6 @@ export function signInReducer(
   state: SignInState,
   event: SignInEvent
 ): SignInState {
-  const {
-    email,
-    digits,
-    sendRateLimited,
-    passwordError,
-    googleDisabledReason,
-  } = state;
-
   switch (state.view) {
     // "start"-like views: entering an email, sending a code, switching to
     // the password form, or attempting Google. A failed Google probe sticks
@@ -166,49 +109,33 @@ export function signInReducer(
           return { ...state, email: event.email };
         case "EMAIL_SENT":
           return {
+            ...state,
             view: "code",
             email: event.email,
             digits: "",
             sendRateLimited: false,
             passwordError: null,
-            googleDisabledReason,
           };
         case "SEND_RATE_LIMITED":
           return {
+            ...state,
             view: "code",
-            email: event.email ?? email,
+            email: event.email ?? state.email,
             digits: "",
             sendRateLimited: true,
             passwordError: null,
-            googleDisabledReason,
           };
         case "USE_PASSWORD":
           return {
+            ...state,
             view: "password",
-            email,
             digits: "",
-            sendRateLimited,
             passwordError: null,
-            googleDisabledReason,
           };
         case "GOOGLE_PROBE_OK":
-          return {
-            view: "leaving",
-            email,
-            digits,
-            sendRateLimited,
-            passwordError,
-            googleDisabledReason,
-          };
+          return { ...state, view: "leaving" };
         case "GOOGLE_PROBE_FAILED":
-          return {
-            view: "noSave",
-            email,
-            digits,
-            sendRateLimited,
-            passwordError,
-            googleDisabledReason: "noSave",
-          };
+          return { ...state, view: "noSave", googleDisabledReason: "noSave" };
         default:
           return state;
       }
@@ -217,17 +144,13 @@ export function signInReducer(
       switch (event.type) {
         case "PASSWORD_ERROR":
           return { ...state, passwordError: event.message };
-        case "SIGNED_IN":
-          return state; // terminal signal; caller closes the sheet
         case "BACK":
         case "USE_CODE":
           return {
-            view: startLikeView(googleDisabledReason),
-            email,
+            ...state,
+            view: startLikeView(state.googleDisabledReason),
             digits: "",
-            sendRateLimited,
             passwordError: null,
-            googleDisabledReason,
           };
         default:
           return state;
@@ -241,8 +164,6 @@ export function signInReducer(
       switch (event.type) {
         case "DIGITS_CHANGED":
           return { ...state, digits: event.digits };
-        case "VERIFIED":
-          return state; // terminal signal; caller closes the sheet
         case "WRONG":
           // Acceptance: a wrong code keeps the digits (S4).
           return { ...state, view: "codeWrong" };
@@ -259,12 +180,11 @@ export function signInReducer(
           return { ...state, view: "noEmail", digits: "" };
         case "CHANGE_EMAIL":
           return {
-            view: startLikeView(googleDisabledReason),
-            email,
+            ...state,
+            view: startLikeView(state.googleDisabledReason),
             digits: "",
             sendRateLimited: false,
             passwordError: null,
-            googleDisabledReason,
           };
         default:
           return state;
@@ -301,12 +221,10 @@ export function signInReducer(
           return { ...state, view: "noSave", googleDisabledReason: "noSave" };
         case "CHANGE_EMAIL":
           return {
-            view: startLikeView(googleDisabledReason),
-            email,
+            ...state,
+            view: startLikeView(state.googleDisabledReason),
             digits: "",
-            sendRateLimited,
             passwordError: null,
-            googleDisabledReason,
           };
         default:
           return state;

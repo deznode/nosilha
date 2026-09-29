@@ -20,6 +20,7 @@ import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
+import com.nosilha.core.shared.exception.consumeOrThrow
 import com.nosilha.core.shared.util.ContentSanitizer
 import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -110,15 +111,11 @@ class SuggestionService(
 
         // Atomic rate limiting using Bucket4j token bucket algorithm
         if (ipAddress != null) {
-            val bucket = getBucketForIp(ipAddress)
-            val probe = bucket.tryConsumeAndReturnRemaining(1)
-            if (!probe.isConsumed) {
+            getBucketForIp(ipAddress).consumeOrThrow(
+                "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
+                    "Please try again later.",
+            ) {
                 logger.warn { "Rate limit exceeded for IP: $ipAddress" }
-                throw RateLimitExceededException(
-                    "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
-                        "Please try again later.",
-                    retryAfterSeconds = RateLimitExceededException.retryAfterSecondsFrom(probe.nanosToWaitForRefill),
-                )
             }
         }
 
@@ -187,15 +184,11 @@ class SuggestionService(
             ?: throw ResourceNotFoundException("Gallery media with id $mediaId not found")
 
         if (ipAddress != null) {
-            val bucket = getBucketForIp(ipAddress)
-            val probe = bucket.tryConsumeAndReturnRemaining(1)
-            if (!probe.isConsumed) {
+            getBucketForIp(ipAddress).consumeOrThrow(
+                "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
+                    "Please try again later.",
+            ) {
                 logger.warn { "Rate limit exceeded for IP: $ipAddress" }
-                throw RateLimitExceededException(
-                    "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
-                        "Please try again later.",
-                    retryAfterSeconds = RateLimitExceededException.retryAfterSecondsFrom(probe.nanosToWaitForRefill),
-                )
             }
         }
 

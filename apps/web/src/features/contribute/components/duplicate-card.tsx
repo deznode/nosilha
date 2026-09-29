@@ -5,15 +5,11 @@ import Image from "next/image";
 import { submitMediaCorrection } from "@/lib/api";
 import { ApiError } from "@/lib/api-error";
 
-export type DuplicateStatus = "public" | "pending";
-export type DuplicatePlatform = "YOUTUBE" | "VIMEO";
+import type { ParsedFilmLink } from "../hooks/use-film-lookup";
+import { FILM_PLATFORM_LABEL, filmThumbnailUrl } from "../lib/parse-video-url";
 
-interface DuplicateCardProps {
-  status: DuplicateStatus;
-  platform: DuplicatePlatform;
-  externalId: string;
-  /** The archive's title for the existing media, if known. */
-  title?: string;
+interface DuplicateCardProps extends ParsedFilmLink {
+  status: "public" | "pending";
   /** The public media's id — required to post a correction (F5 only). */
   mediaId?: string;
   /** The archive URL for the existing media — shown only when `status` is `public`. */
@@ -24,28 +20,19 @@ interface DuplicateCardProps {
 
 const MAX_CORRECTION_LENGTH = 2000;
 
-function platformLabel(platform: DuplicatePlatform): string {
-  return platform === "YOUTUBE" ? "YouTube" : "Vimeo";
-}
-
 /**
  * The 96px 16:9 thumbnail shared by both duplicate-card states. YouTube gets
  * its real thumbnail from `i.ytimg.com`; Vimeo never requests an image (it
  * has no thumbnail endpoint), so it gets a miniature of the ochre dashed
  * frame from the link preview instead. Spec 039 F5/F6.
  */
-function DuplicateThumb({
-  platform,
-  externalId,
-}: {
-  platform: DuplicatePlatform;
-  externalId: string;
-}) {
+function DuplicateThumb(link: ParsedFilmLink) {
+  const thumbnail = filmThumbnailUrl(link);
   return (
     <div className="bg-surface-alt relative aspect-video w-24 flex-none overflow-hidden rounded-md">
-      {platform === "YOUTUBE" ? (
+      {thumbnail ? (
         <Image
-          src={`https://i.ytimg.com/vi/${externalId}/hqdefault.jpg`}
+          src={thumbnail}
           alt=""
           fill
           sizes="96px"
@@ -66,20 +53,14 @@ function DuplicateThumb({
 function DuplicateMediaRow({
   platform,
   externalId,
-  title,
   meta,
-}: {
-  platform: DuplicatePlatform;
-  externalId: string;
-  title?: string;
-  meta: string;
-}) {
+}: ParsedFilmLink & { meta: string }) {
   return (
     <div className="flex items-center gap-3">
       <DuplicateThumb platform={platform} externalId={externalId} />
       <div className="min-w-0">
         <div className="truncate text-[15px] font-medium">
-          {title ?? platformLabel(platform)}
+          {FILM_PLATFORM_LABEL[platform]}
         </div>
         <div className="text-muted mt-[3px] text-[13px]">{meta}</div>
       </div>
@@ -103,7 +84,6 @@ export function DuplicateCard({
   status,
   platform,
   externalId,
-  title,
   mediaId,
   url,
   onNeedsSignIn,
@@ -117,8 +97,7 @@ export function DuplicateCard({
         <DuplicateMediaRow
           platform={platform}
           externalId={externalId}
-          title={title}
-          meta={`${platformLabel(platform)} · not public yet`}
+          meta={`${FILM_PLATFORM_LABEL[platform]} · not public yet`}
         />
         <p className="text-muted text-[14px] leading-[1.55]">
           Someone has already sent this link. A person will review it soon, so
@@ -139,8 +118,7 @@ export function DuplicateCard({
       <DuplicateMediaRow
         platform={platform}
         externalId={externalId}
-        title={title}
-        meta={platformLabel(platform)}
+        meta={FILM_PLATFORM_LABEL[platform]}
       />
       <p className="text-muted text-[14px] leading-[1.55]">
         This film is already in the archive, so there&apos;s no need to send it
@@ -172,11 +150,10 @@ function CorrectionForm({
 }) {
   const [text, setText] = useState("");
   const [status, setStatus] = useState<
-    "idle" | "submitting" | "sent" | "error"
+    "idle" | "submitting" | "sent" | "error" | "hidden"
   >("idle");
-  const [hidden, setHidden] = useState(false);
 
-  if (hidden) return null;
+  if (status === "hidden") return null;
 
   if (status === "sent") {
     return (
@@ -206,7 +183,7 @@ function CorrectionForm({
           return;
         }
         if (err.status === 404 || err.status >= 500) {
-          setHidden(true);
+          setStatus("hidden");
           return;
         }
       }

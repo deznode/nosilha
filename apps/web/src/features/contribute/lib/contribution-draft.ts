@@ -10,9 +10,9 @@
 
 export type ContributionKind = "photo" | "film";
 
-export interface ContributionDraft<F = Record<string, unknown>> {
+export interface ContributionDraft {
   kind: ContributionKind;
-  form: F;
+  form: Record<string, unknown>;
   file: File | null;
   savedAt: number;
 }

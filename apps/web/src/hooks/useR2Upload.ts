@@ -87,12 +87,6 @@ export interface UseR2UploadReturn {
   lastError: Error | null;
   /** Uploads a file to R2 storage with progress tracking */
   upload: (file: File, options?: UploadOptions) => Promise<UploadResult | null>;
-  /**
-   * Re-runs the last `upload()` call with the same file and options.
-   * Resolves `null` without doing anything if no upload has been attempted
-   * yet. Spec 039 (P6 "Try again").
-   */
-  retry: () => Promise<UploadResult | null>;
   /** Cancels the current upload */
   cancel: () => void;
   /** Resets the hook state */
@@ -144,10 +138,6 @@ export function useR2Upload(): UseR2UploadReturn {
 
   const xhrRef = useRef<XMLHttpRequest | null>(null);
   const apiClient = useRef(new BackendApiClient());
-  /** The file + options of the last `upload()` call, so `retry()` can repeat it exactly. */
-  const lastAttemptRef = useRef<{ file: File; options?: UploadOptions } | null>(
-    null
-  );
 
   /**
    * Validates file before upload
@@ -234,8 +224,6 @@ export function useR2Upload(): UseR2UploadReturn {
       setError(null);
       setLastError(null);
       setProgress({ loaded: 0, total: 0, percentage: 0 });
-      // Remember this attempt so retry() can repeat it with the same file/options.
-      lastAttemptRef.current = { file, options };
 
       // Validate file
       const validationError = validateFile(file);
@@ -317,15 +305,6 @@ export function useR2Upload(): UseR2UploadReturn {
   );
 
   /**
-   * Re-runs the last `upload()` call with the same file and options.
-   */
-  const retry = useCallback((): Promise<UploadResult | null> => {
-    const attempt = lastAttemptRef.current;
-    if (!attempt) return Promise.resolve(null);
-    return upload(attempt.file, attempt.options);
-  }, [upload]);
-
-  /**
    * Cancels the current upload
    */
   const cancel = useCallback(() => {
@@ -345,7 +324,6 @@ export function useR2Upload(): UseR2UploadReturn {
       xhrRef.current.abort();
       xhrRef.current = null;
     }
-    lastAttemptRef.current = null;
     setState("idle");
     setProgress({ loaded: 0, total: 0, percentage: 0 });
     setError(null);
@@ -358,7 +336,6 @@ export function useR2Upload(): UseR2UploadReturn {
     error,
     lastError,
     upload,
-    retry,
     cancel,
     reset,
   };

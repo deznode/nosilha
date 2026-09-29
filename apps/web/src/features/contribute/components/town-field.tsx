@@ -9,6 +9,7 @@ import { getTowns, getTownFirstPhoto } from "@/lib/api";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import type { Town } from "@/types/town";
 
+import { HINT, LABEL } from "./form-parts";
 import { TownPicker } from "./town-picker";
 
 /** The place a photo or film records: a town from the picker, or free text. */
@@ -26,10 +27,8 @@ interface TownFieldProps {
   label: string;
 }
 
-const LABEL = "text-body mb-[7px] block text-[13px] font-semibold";
 const FIELD =
   "bg-card h-11 w-full rounded-lg border px-3 text-[15px] outline-none focus:border-[1.5px] focus:border-ocean-blue";
-const HINT = "text-muted mt-1.5 text-[12.5px] leading-[1.45]";
 const LINK = "focus-ring text-ocean-blue rounded-sm font-semibold";
 
 let townsCache: Promise<Town[]> | null = null;

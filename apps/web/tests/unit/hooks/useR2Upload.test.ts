@@ -5,8 +5,7 @@ import type { PresignResponse, MediaMetadataDto } from "@/types/api";
 
 /**
  * useR2Upload drives the presign → XHR PUT → confirm flow (spec 039 P5/P6):
- * upload progress as a percentage, keeping the file/options of a failed
- * attempt so retry() can repeat it, and surfacing the thrown error object
+ * upload progress as a percentage, and surfacing the thrown error object
  * (e.g. `ApiError` for a 429) rather than only its message.
  */
 
@@ -169,53 +168,5 @@ describe("useR2Upload", () => {
     expect(result.current.lastError).toBeInstanceOf(ApiError);
     expect((result.current.lastError as ApiError).status).toBe(429);
     expect((result.current.lastError as ApiError).retryAfterSeconds).toBe(120);
-  });
-
-  it("keeps the file and options for retry() to repeat", async () => {
-    mocks.getPresignedUploadUrl.mockRejectedValueOnce(
-      new ApiError("Upload rate limit exceeded", 429, 5)
-    );
-
-    const { result } = renderHook(() => useR2Upload());
-    const file = pngFile();
-
-    await act(async () => {
-      await result.current.upload(file, { title: "Fajã church" });
-    });
-
-    expect(result.current.state).toBe("error");
-    expect(mocks.getPresignedUploadUrl).toHaveBeenCalledTimes(1);
-
-    // The second attempt (via retry) succeeds.
-    mocks.getPresignedUploadUrl.mockResolvedValueOnce(presignResponse);
-
-    const retryPromise = result.current.retry();
-    const xhr = await nextXhr();
-    await act(async () => {
-      xhr.status = 200;
-      xhr.onload?.();
-      await Promise.resolve();
-    });
-    const retryResult = await retryPromise;
-
-    expect(mocks.getPresignedUploadUrl).toHaveBeenCalledTimes(2);
-    expect(mocks.confirmUpload).toHaveBeenCalledWith(
-      expect.objectContaining({
-        originalName: file.name,
-        title: "Fajã church",
-      })
-    );
-    expect(retryResult?.publicUrl).toBe(mediaDto.publicUrl);
-    expect(result.current.state).toBe("completed");
-    expect(result.current.lastError).toBeNull();
-  });
-
-  it("resolves null and does nothing when retry() is called before any upload", async () => {
-    const { result } = renderHook(() => useR2Upload());
-
-    const retryResult = await act(async () => result.current.retry());
-
-    expect(retryResult).toBeNull();
-    expect(mocks.getPresignedUploadUrl).not.toHaveBeenCalled();
   });
 });
