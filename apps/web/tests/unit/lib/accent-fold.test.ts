@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { foldAccents } from "@/features/contribute/lib/accent-fold";
+import { foldAccents } from "@/lib/accent-fold";
 
 describe("foldAccents", () => {
   it("lower-cases and strips diacritics", () => {
@@ -8,6 +8,11 @@ describe("foldAccents", () => {
 
   it("matches a plain-ASCII search term against an accented town name", () => {
     expect(foldAccents("Fajã d'Água")).toContain(foldAccents("faja"));
+  });
+
+  it("strips a spacing accent typed in place of an apostrophe", () => {
+    expect(foldAccents("Fajã d´Água")).toBe("faja dagua");
+    expect(foldAccents("Fajã dʼÁgua")).toBe("faja dagua");
   });
 
   it("leaves already-plain text unchanged aside from casing", () => {

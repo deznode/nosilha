@@ -266,6 +266,22 @@ describe("submitMediaCorrection", () => {
       );
     expect((error as ApiError).status).toBe(404);
   });
+
+  it("surfaces a 401 as an ApiError, without signing out or leaving the page", async () => {
+    mocks.getSession.mockResolvedValue({ data: { session: null } });
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    const error = await new BackendApiClient()
+      .submitMediaCorrection(MEDIA_ID, "x")
+      .then(
+        () => null,
+        (e: unknown) => e
+      );
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).status).toBe(401);
+    expect(mocks.signOut).not.toHaveBeenCalled();
+  });
 });
 
 describe("extended submit and confirm bodies", () => {

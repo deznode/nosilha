@@ -50,9 +50,9 @@ export function parseRetryAfterSeconds(
 
 /**
  * Builds an {@link ApiError} from a failed `fetch` `Response`, reading
- * `retryAfterSeconds` from its `Retry-After` header. The message is resolved
- * by the caller (typically via `apiErrorMessage` in `backend-api.ts`) since
- * that requires the already-parsed error body.
+ * `retryAfterSeconds` from its `Retry-After` header. The message comes from
+ * the caller: `apiErrorFrom` in `backend-api.ts` reads it from the error body
+ * (via `apiErrorMessage`) before calling this.
  */
 export function apiErrorFromResponse(
   response: Response,

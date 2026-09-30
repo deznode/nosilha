@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { safeNext } from "@/features/contribute/lib/safe-next";
+import { safeNext } from "@/lib/safe-next";
 
 const ORIGIN = "https://nosilha.com";
 
@@ -26,6 +26,13 @@ describe("safeNext", () => {
 
   it("rejects a backslash trick", () => {
     expect(safeNext("/\\evil.com", ORIGIN)).toBe("/");
+  });
+
+  it("rejects a path that dot segments collapse into a protocol-relative URL", () => {
+    expect(safeNext("/.//evil.com", ORIGIN)).toBe("/");
+    expect(safeNext("/..//evil.com", ORIGIN)).toBe("/");
+    expect(safeNext("/%2e//evil.com", ORIGIN)).toBe("/");
+    expect(safeNext("/a/..//evil.com", ORIGIN)).toBe("/");
   });
 
   it("rejects an absolute URL to another origin", () => {

@@ -2,11 +2,9 @@
 
 import type { ReactNode } from "react";
 
-import type {
-  FilmLookupResult,
-  ParsedFilmLink,
-} from "../hooks/use-film-lookup";
+import type { FilmLookupResult } from "../hooks/use-film-lookup";
 import type { ContributionForm } from "../lib/contribution-form";
+import type { ParsedFilmLink } from "../lib/parse-video-url";
 import { DuplicateCard } from "./duplicate-card";
 import { FilmPreviewCard } from "./film-preview-card";
 import {
@@ -89,6 +87,9 @@ export function FilmForm({
 
           {link && duplicate && (
             <DuplicateCard
+              // A fresh card per film, so a correction typed or sent for one
+              // never carries over to the next
+              key={`${link.platform}:${link.externalId}`}
               status={duplicate}
               platform={link.platform}
               externalId={link.externalId}

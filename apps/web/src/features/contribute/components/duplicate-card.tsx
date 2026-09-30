@@ -5,8 +5,11 @@ import Image from "next/image";
 import { submitMediaCorrection } from "@/lib/api";
 import { ApiError } from "@/lib/api-error";
 
-import type { ParsedFilmLink } from "../hooks/use-film-lookup";
-import { FILM_PLATFORM_LABEL, filmThumbnailUrl } from "../lib/parse-video-url";
+import {
+  FILM_PLATFORM_LABEL,
+  filmThumbnailUrl,
+  type ParsedFilmLink,
+} from "../lib/parse-video-url";
 
 interface DuplicateCardProps extends ParsedFilmLink {
   status: "public" | "pending";

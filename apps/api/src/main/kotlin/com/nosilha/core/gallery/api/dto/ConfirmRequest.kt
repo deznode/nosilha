@@ -22,6 +22,8 @@ import java.util.UUID
  * @property fileSize Actual file size uploaded
  * @property entryId Optional directory entry association
  * @property category Optional media category (e.g., "hero", "gallery")
+ * @property title Optional title the contributor gave the photo (spec 039). Without one, the
+ *   description stands in as the title
  * @property description Optional user-provided description
  *
  * EXIF Metadata (extracted client-side, privacy-processed):
@@ -65,6 +67,8 @@ data class ConfirmRequest(
     val entryId: UUID? = null,
     @field:Size(max = 100, message = "Category must be at most 100 characters")
     val category: String? = null,
+    @field:Size(max = 255, message = "Title must be at most 255 characters")
+    val title: String? = null,
     @field:Size(max = 2048, message = "Description must be at most 2048 characters")
     val description: String? = null,
     // --- EXIF Metadata (extracted client-side, privacy-processed) ---

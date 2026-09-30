@@ -26,7 +26,7 @@ export const LINK =
   "focus-ring text-ocean-blue rounded-sm font-semibold hover:underline disabled:cursor-default disabled:no-underline";
 
 /** "{title} · {town}" for a photograph, "{film title} · film link" for a film. */
-export function heldLine({ kind, title, town }: HeldItem): string {
+function heldLine({ kind, title, town }: HeldItem): string {
   const name = title?.trim();
   if (kind === "film") return name ? `${name} · film link` : "Film link";
   const parts = [name, town?.trim()].filter(Boolean);

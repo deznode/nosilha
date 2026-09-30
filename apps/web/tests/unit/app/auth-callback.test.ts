@@ -195,6 +195,37 @@ describe("GET /auth/callback", () => {
       expect(location.pathname).toBe("/login");
       expect(location.searchParams.get("auth_error")).toBeNull();
     });
+
+    it("returns to the forwarded host in production, not the container address", async () => {
+      vi.stubEnv("NODE_ENV", "production");
+      // Behind Cloud Run the handler sees the container's own address
+      const url = new URL("https://0.0.0.0:3000/auth/callback");
+      url.searchParams.set("error", "access_denied");
+      url.searchParams.set("next", "/contribute/media?resume=1");
+
+      const response = await GET(
+        new Request(url, { headers: { "x-forwarded-host": "nosilha.com" } })
+      );
+
+      const location = new URL(response.headers.get("location")!);
+      expect(location.origin).toBe("https://nosilha.com");
+      expect(location.pathname).toBe("/contribute/media");
+      expect(location.searchParams.get("auth_error")).toBe("1");
+    });
+
+    it("stays on the origin when dot segments collapse next to //evil.com", async () => {
+      const response = await GET(
+        callbackRequest({
+          error: "access_denied",
+          error_description: "The user cancelled Google sign-in",
+          next: "/.//evil.com",
+        })
+      );
+
+      const location = new URL(response.headers.get("location")!);
+      expect(location.origin).toBe("https://nosilha.com");
+      expect(location.pathname).toBe("/login");
+    });
   });
 
   describe("neither code nor error", () => {

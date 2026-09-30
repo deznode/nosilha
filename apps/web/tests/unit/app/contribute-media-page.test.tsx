@@ -565,6 +565,34 @@ describe("Contribute media page — film", () => {
     ).toBeNull();
   });
 
+  it("starts a fresh correction when the link moves to another public film", () => {
+    mocks.lookup = {
+      status: "public",
+      media: { id: "m1", url: "/films/m1" },
+    };
+    const { rerender } = render(<MediaContributionPage />);
+    fireEvent.change(screen.getByLabelText("Link to the film"), {
+      target: { value: "https://youtu.be/k3Zq8XfT0aE" },
+    });
+    fireEvent.change(
+      screen.getByPlaceholderText(/A better title, who is in it/),
+      { target: { value: "This one is from 1975" } }
+    );
+
+    mocks.lookup = {
+      status: "public",
+      media: { id: "m2", url: "/films/m2" },
+    };
+    rerender(<MediaContributionPage />);
+    fireEvent.change(screen.getByLabelText("Link to the film"), {
+      target: { value: "https://youtu.be/aB3dE5fG7hJ" },
+    });
+
+    expect(
+      screen.getByPlaceholderText(/A better title, who is in it/)
+    ).toHaveValue("");
+  });
+
   it("sends the film's place, date and description, then confirms with A3", async () => {
     signIn();
     render(<MediaContributionPage />);
@@ -791,6 +819,29 @@ describe("Contribute media page — resuming after Google", () => {
     expect(mocks.replace).toHaveBeenCalledWith("/contribute/media?kind=film", {
       scroll: false,
     });
+  });
+
+  it("shows the duplicate card when a restored film link is already sent", async () => {
+    signIn();
+    mocks.photo.file = null;
+    mocks.lookup = { status: "pending" };
+    mocks.draftLoad.mockResolvedValue(
+      draft({
+        kind: "film",
+        file: null,
+        form: { ...draft().form, filmUrl: "https://vimeo.com/218447301" },
+      })
+    );
+    render(<MediaContributionPage />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Send to the archive" })
+    );
+
+    expect(
+      screen.getByText("Already sent · waiting for review")
+    ).toBeInTheDocument();
+    expect(mocks.submitExternalMedia).not.toHaveBeenCalled();
   });
 
   it("waits for the session before choosing", async () => {

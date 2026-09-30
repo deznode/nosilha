@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 
+import { formatDuration } from "@/lib/format-duration";
 import { supabase } from "@/lib/supabase-client";
 
 import {
@@ -41,8 +42,7 @@ interface UseSignInFlowOptions {
 
 /** `0:42`, `1:00`. */
 export function formatCountdown(seconds: number): string {
-  const s = Math.max(0, Math.ceil(seconds));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  return formatDuration(Math.max(0, Math.ceil(seconds)));
 }
 
 function isRateLimited(error: AuthErrorLike): boolean {

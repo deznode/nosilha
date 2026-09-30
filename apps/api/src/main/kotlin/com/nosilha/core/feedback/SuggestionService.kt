@@ -109,15 +109,7 @@ class SuggestionService(
             }
         }
 
-        // Atomic rate limiting using Bucket4j token bucket algorithm
-        if (ipAddress != null) {
-            getBucketForIp(ipAddress).consumeOrThrow(
-                "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
-                    "Please try again later.",
-            ) {
-                logger.warn { "Rate limit exceeded for IP: $ipAddress" }
-            }
-        }
+        consumeSubmissionToken(ipAddress)
 
         // Sanitize user input to prevent XSS
         val sanitizedPageTitle = ContentSanitizer.sanitizeStrict(dto.pageTitle.trim())
@@ -183,14 +175,7 @@ class SuggestionService(
         val media = galleryService.getByIdPublic(mediaId)
             ?: throw ResourceNotFoundException("Gallery media with id $mediaId not found")
 
-        if (ipAddress != null) {
-            getBucketForIp(ipAddress).consumeOrThrow(
-                "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
-                    "Please try again later.",
-            ) {
-                logger.warn { "Rate limit exceeded for IP: $ipAddress" }
-            }
-        }
+        consumeSubmissionToken(ipAddress)
 
         val sanitizedName = ContentSanitizer.sanitizeStrict(name.trim())
         val sanitizedMessage = ContentSanitizer.sanitize(message.trim())
@@ -216,6 +201,17 @@ class SuggestionService(
             id = savedSuggestion.id!!,
             message = "Thank you for the correction. Our team will review it.",
         )
+    }
+
+    /** Spends one of the per-IP submission tokens shared by suggestions and media corrections. */
+    private fun consumeSubmissionToken(ipAddress: String?) {
+        if (ipAddress == null) return
+        getBucketForIp(ipAddress).consumeOrThrow(
+            "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
+                "Please try again later.",
+        ) {
+            logger.warn { "Rate limit exceeded for IP: $ipAddress" }
+        }
     }
 
     /** The public page a corrected media item is shown on, if any (spec 039). */

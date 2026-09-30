@@ -23,6 +23,9 @@ export type MediaType = "IMAGE" | "VIDEO" | "AUDIO";
 export type ExternalPlatform =
   "YOUTUBE" | "VIMEO" | "SOUNDCLOUD" | "SELF_HOSTED";
 
+/** The platforms a contributed film link can come from. Spec 039 F2/F3. */
+export type FilmPlatform = Extract<ExternalPlatform, "YOUTUBE" | "VIMEO">;
+
 export type MediaSource = "LOCAL" | "GOOGLE_PHOTOS" | "ADOBE_LIGHTROOM";
 
 /**

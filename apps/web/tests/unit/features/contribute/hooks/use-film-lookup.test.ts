@@ -170,6 +170,76 @@ describe("useFilmLookup", () => {
     });
   });
 
+  it("ignores a late response once the link has gone back to a cached one", async () => {
+    let resolveA!: (
+      v: Awaited<ReturnType<typeof api.lookupFilmSubmission>>
+    ) => void;
+    vi.mocked(api.lookupFilmSubmission)
+      .mockResolvedValueOnce({ status: "none" })
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveA = resolve;
+          })
+      );
+
+    const { result, rerender } = renderHook(
+      ({ parsed }) => useFilmLookup(parsed),
+      {
+        initialProps: { parsed: youtubeB as typeof youtubeA | typeof youtubeB },
+      }
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+    expect(result.current).toEqual({ status: "none" });
+
+    // A is looked up and still in flight when the link goes back to B.
+    rerender({ parsed: youtubeA });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+    rerender({ parsed: youtubeB });
+    expect(result.current).toEqual({ status: "none" });
+
+    await act(async () => {
+      resolveA({
+        status: "public",
+        id: "media-a",
+        url: "https://example.com/a",
+      });
+      await Promise.resolve();
+    });
+    expect(result.current).toEqual({ status: "none" });
+  });
+
+  it("ignores a late response once the link has been cleared", async () => {
+    let resolveA!: (
+      v: Awaited<ReturnType<typeof api.lookupFilmSubmission>>
+    ) => void;
+    vi.mocked(api.lookupFilmSubmission).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveA = resolve;
+        })
+    );
+
+    const { result, rerender } = renderHook(
+      ({ parsed }) => useFilmLookup(parsed),
+      { initialProps: { parsed: youtubeA as typeof youtubeA | null } }
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+    rerender({ parsed: null });
+
+    await act(async () => {
+      resolveA({ status: "pending" });
+      await Promise.resolve();
+    });
+    expect(result.current).toEqual({ status: "idle" });
+  });
+
   it("treats a rejected lookup as no duplicate", async () => {
     vi.mocked(api.lookupFilmSubmission).mockRejectedValue(new Error("network"));
 

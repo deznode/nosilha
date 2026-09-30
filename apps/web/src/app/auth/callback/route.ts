@@ -1,10 +1,27 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { safeNext } from "@/features/contribute/lib/safe-next";
+import { safeNext } from "@/lib/safe-next";
+
+/**
+ * The origin the browser used, for every redirect below. Behind Cloud Run (or
+ * similar), request.url resolves to the internal container address (e.g.
+ * https://0.0.0.0:3000) instead of the public domain; the x-forwarded-host
+ * header contains the original host from the client request.
+ * See: https://supabase.com/docs/guides/auth/social-login/auth-zoom
+ */
+function publicOrigin(request: Request, requestOrigin: string): string {
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const isLocalEnv = process.env.NODE_ENV === "development";
+  return !isLocalEnv && forwardedHost
+    ? `https://${forwardedHost}`
+    : requestOrigin;
+}
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const requestUrl = new URL(request.url);
+  const { searchParams } = requestUrl;
+  const origin = publicOrigin(request, requestUrl.origin);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
@@ -74,21 +91,7 @@ export async function GET(request: Request) {
       // isn't a same-origin path (open-redirect protection). Missing or
       // unsafe falls back to "/". Spec 039.
       const target = safeNext(nextParam, origin);
-
-      // Use x-forwarded-host to get the correct origin behind load balancer/reverse proxy.
-      // Behind Cloud Run (or similar), request.url resolves to the internal container address
-      // (e.g. http://0.0.0.0:3000) instead of the public domain. The x-forwarded-host header
-      // contains the original host from the client request.
-      // See: https://supabase.com/docs/guides/auth/social-login/auth-zoom
-      const forwardedHost = request.headers.get("x-forwarded-host");
-      const isLocalEnv = process.env.NODE_ENV === "development";
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${target}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${target}`);
-      } else {
-        return NextResponse.redirect(`${origin}${target}`);
-      }
+      return NextResponse.redirect(`${origin}${target}`);
     }
 
     console.error(

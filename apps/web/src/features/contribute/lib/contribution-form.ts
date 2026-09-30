@@ -20,7 +20,7 @@ export type ContributionForm = {
   filmUrl: string;
 };
 
-export const EMPTY_PLACE: PlaceValue = {
+const EMPTY_PLACE: PlaceValue = {
   townId: null,
   townName: null,
   detail: "",

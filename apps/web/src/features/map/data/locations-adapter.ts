@@ -11,6 +11,7 @@ import {
   photoIsLocated,
   photoTitle,
 } from "@/lib/photo-facts";
+import { foldAccents } from "@/lib/accent-fold";
 import { trimmed } from "@/lib/text";
 import {
   getEntryStatus,
@@ -139,28 +140,22 @@ export function photoItems(
   return items;
 }
 
-/** Lower case, accents stripped, so "faja" finds "Fajã". */
-function fold(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .trim();
-}
-
-/** The status chip and the search box, applied to one mode's items. */
+/**
+ * The status chip and the search box, applied to one mode's items. The search
+ * ignores case and accents, so "faja" finds "Fajã".
+ */
 export function filterItems(
   items: MapItem[],
   status: StatusFilter,
   query: string
 ): MapItem[] {
-  const needle = fold(query);
+  const needle = foldAccents(query).trim();
   if (status === "all" && !needle) return items;
 
   return items.filter(
     (item) =>
       (status === "all" || item.status === status) &&
-      (!needle || fold(item.name).includes(needle))
+      (!needle || foldAccents(item.name).includes(needle))
   );
 }
 

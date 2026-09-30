@@ -2,15 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { lookupFilmSubmission } from "@/lib/api";
-import type { ExternalPlatform } from "@/types/gallery";
 
-/** Only the two platforms the film form recognises a link for. Spec 039 F2/F3. */
-export type FilmLookupPlatform = Extract<ExternalPlatform, "YOUTUBE" | "VIMEO">;
-
-export interface ParsedFilmLink {
-  platform: FilmLookupPlatform;
-  externalId: string;
-}
+import type { ParsedFilmLink } from "../lib/parse-video-url";
 
 export interface FilmLookupResult {
   status: "idle" | "checking" | "public" | "pending" | "none";
@@ -37,6 +30,11 @@ export function useFilmLookup(parsed: ParsedFilmLink | null): FilmLookupResult {
   const requestIdRef = useRef(0);
 
   useEffect(() => {
+    // Every change of link, to none or to a cached one included, supersedes
+    // a lookup still in flight for the previous link.
+    requestIdRef.current += 1;
+    const requestId = requestIdRef.current;
+
     if (!parsed) {
       setResult(IDLE);
       return;
@@ -49,8 +47,6 @@ export function useFilmLookup(parsed: ParsedFilmLink | null): FilmLookupResult {
       return;
     }
 
-    requestIdRef.current += 1;
-    const requestId = requestIdRef.current;
     setResult({ status: "checking" });
 
     const timer = setTimeout(() => {

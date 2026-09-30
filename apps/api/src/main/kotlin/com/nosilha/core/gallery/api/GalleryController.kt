@@ -287,24 +287,19 @@ class GalleryController(
      * (no id or content). `none` covers every other status and an unknown pair.
      *
      * @throws IllegalArgumentException (400) if externalId is blank or platform is not
-     * YOUTUBE or VIMEO
+     * YOUTUBE or VIMEO; an unrecognised platform value is a 400 type mismatch
      */
     @GetMapping("/submissions/lookup")
     fun lookupSubmission(
-        @RequestParam(required = false) platform: String?,
+        @RequestParam(required = false) platform: ExternalPlatform?,
         @RequestParam(required = false) externalId: String?,
     ): ApiResult<FilmSubmissionLookupDto> {
         require(!externalId.isNullOrBlank()) { "externalId is required" }
-        require(!platform.isNullOrBlank()) { "platform is required" }
-
-        val platformEnum = runCatching { ExternalPlatform.valueOf(platform) }.getOrElse {
-            throw IllegalArgumentException("Unknown platform: $platform")
-        }
-        require(platformEnum == ExternalPlatform.YOUTUBE || platformEnum == ExternalPlatform.VIMEO) {
+        require(platform == ExternalPlatform.YOUTUBE || platform == ExternalPlatform.VIMEO) {
             "platform must be YOUTUBE or VIMEO"
         }
 
-        return ApiResult(data = galleryService.lookupSubmission(platformEnum, externalId))
+        return ApiResult(data = galleryService.lookupSubmission(platform, externalId))
     }
 
     /**
@@ -383,6 +378,7 @@ class GalleryController(
             fileSize = request.fileSize,
             entryId = request.entryId,
             category = request.category,
+            title = request.title,
             description = request.description,
             userId = userId,
             // EXIF metadata (privacy-processed)

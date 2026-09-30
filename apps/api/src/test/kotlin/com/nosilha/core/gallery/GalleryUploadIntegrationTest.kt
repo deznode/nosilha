@@ -760,6 +760,63 @@ class GalleryUploadIntegrationTest {
     }
 
     @Test
+    @DisplayName("A title the contributor gave is kept, and the description stays the description (spec 039)")
+    fun `confirm keeps the contributor's title`() {
+        setupDefaultMocks()
+
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-harbour.jpg",
+            originalName = "harbour.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            title = "Harbour at dawn",
+            description = "Taken from the pier",
+            photographerCredit = "not known",
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isCreated)
+            .andExpect(jsonPath("$.data.title").value("Harbour at dawn"))
+
+        val media = galleryMediaRepository.findAll().single() as UserUploadedMedia
+        assertThat(media.title).isEqualTo("Harbour at dawn")
+        assertThat(media.description).isEqualTo("Taken from the pier")
+    }
+
+    @Test
+    @DisplayName("A description longer than the title column still confirms; its start becomes the title")
+    fun `confirm cuts a description-derived title to the column`() {
+        setupDefaultMocks()
+
+        val description = "Festa ".repeat(60)
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-long.jpg",
+            originalName = "long.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            description = description,
+            photographerCredit = "not known",
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isCreated)
+
+        val media = galleryMediaRepository.findAll().single() as UserUploadedMedia
+        assertThat(media.title).isEqualTo(description.take(255))
+        assertThat(media.description).isEqualTo(description)
+    }
+
+    @Test
     @DisplayName("Records the dimensions the browser read and shows them with the file name")
     fun `confirm records dimensions and the public DTO exposes them`() {
         setupDefaultMocks()

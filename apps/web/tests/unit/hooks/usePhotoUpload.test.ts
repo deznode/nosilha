@@ -144,6 +144,14 @@ describe("usePhotoUpload", () => {
     expect(result.current.metadata).not.toBeNull();
   });
 
+  it("drops the last attempt's error state when another file is picked", async () => {
+    const { result } = renderHook(() => usePhotoUpload());
+
+    await selectAndWait(result, pngFile("another.png"));
+
+    expect(mocks.r2Reset).toHaveBeenCalledTimes(1);
+  });
+
   it("exposes the ApiError thrown by the last attempt via lastError", () => {
     const apiError = new ApiError("Too many uploads", 429, 120);
     mocks.r2State.error = "Too many uploads";

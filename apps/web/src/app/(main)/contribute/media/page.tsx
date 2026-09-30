@@ -126,6 +126,9 @@ function MediaContribution() {
   const lookup = useFilmLookup(link);
   const duplicate =
     isFilm && (lookup.status === "public" || lookup.status === "pending");
+  // The record's picture: the chosen photo, a YouTube thumbnail, or none (Vimeo)
+  const recordImage = isFilm ? filmThumbnailUrl(link) : previewUrl;
+  const vimeo = link?.platform === "VIMEO";
 
   function resetForm(nextKind: ContributionKind) {
     setKind(nextKind);
@@ -264,8 +267,8 @@ function MediaContribution() {
       meta: meta.filter(Boolean).join(" · "),
       town,
       giverFirstName: firstName(form.source),
-      imageSrc: isFilm ? filmThumbnailUrl(link) : previewUrl,
-      vimeo: link?.platform === "VIMEO",
+      imageSrc: recordImage,
+      vimeo,
       newAccountEmail: newAccountRef.current,
     });
     newAccountRef.current = null;
@@ -291,17 +294,16 @@ function MediaContribution() {
       return;
     }
 
-    const parsed = parseVideoUrl(form.filmUrl);
-    if (!parsed) return;
+    if (!link) return;
     setFilmSubmitting(true);
     try {
       await submitExternalMedia({
         title: form.title.trim(),
         description: form.description.trim() || undefined,
         mediaType: "VIDEO",
-        platform: parsed.platform,
+        platform: link.platform,
         url: form.filmUrl.trim(),
-        externalId: parsed.externalId,
+        externalId: link.externalId,
         author: form.photographer.trim(),
         approximateDate: form.date.trim() || undefined,
         ...placeFields(form.place),
@@ -329,11 +331,13 @@ function MediaContribution() {
   }
 
   function send() {
-    if (!ready) {
+    // The form shows why it can't send: the missing field, or the duplicate
+    // card for a film already in the archive (the restored view shows neither)
+    if (!ready || duplicate) {
       setView("form");
       return;
     }
-    if (sending || locked || duplicate) return;
+    if (sending || locked) return;
     if (!user) {
       askToSignIn();
       return;
@@ -388,7 +392,7 @@ function MediaContribution() {
         kind,
         title: form.title,
         town: linkedTown(form.place) ?? undefined,
-        thumbnailUrl: isFilm ? filmThumbnailUrl(link) : previewUrl,
+        thumbnailUrl: recordImage,
       }}
       getDraft={() => ({ kind, form, file: isFilm ? null : file })}
     />
@@ -409,8 +413,8 @@ function MediaContribution() {
           kind={kind}
           email={user?.email ?? null}
           rows={rows}
-          imageSrc={isFilm ? filmThumbnailUrl(link) : previewUrl}
-          vimeo={link?.platform === "VIMEO"}
+          imageSrc={recordImage}
+          vimeo={vimeo}
           sendLabel={
             sending
               ? isFilm

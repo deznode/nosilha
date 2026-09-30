@@ -1,7 +1,10 @@
 import Image from "next/image";
 
-import type { ParsedFilmLink } from "../hooks/use-film-lookup";
-import { FILM_PLATFORM_LABEL, filmThumbnailUrl } from "../lib/parse-video-url";
+import {
+  FILM_PLATFORM_LABEL,
+  filmThumbnailUrl,
+  type ParsedFilmLink,
+} from "../lib/parse-video-url";
 
 /**
  * The recognised-link preview under the film URL field (F2/F3).

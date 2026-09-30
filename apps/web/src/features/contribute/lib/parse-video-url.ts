@@ -1,9 +1,11 @@
-import type {
-  FilmLookupPlatform,
-  ParsedFilmLink,
-} from "../hooks/use-film-lookup";
+import type { FilmPlatform } from "@/types/gallery";
 
-export const FILM_PLATFORM_LABEL: Record<FilmLookupPlatform, string> = {
+export interface ParsedFilmLink {
+  platform: FilmPlatform;
+  externalId: string;
+}
+
+export const FILM_PLATFORM_LABEL: Record<FilmPlatform, string> = {
   YOUTUBE: "YouTube",
   VIMEO: "Vimeo",
 };

@@ -79,10 +79,10 @@ export interface UseR2UploadReturn {
   /** Error message if upload failed */
   error: string | null;
   /**
-   * The error object thrown by the last failed attempt (presign, R2 PUT or
-   * confirm), preserved as-is rather than reduced to `error`'s message. Lets
-   * a caller narrow with `instanceof ApiError` to read `status` /
-   * `retryAfterSeconds` (e.g. to show a 429 countdown). Spec 039.
+   * The error behind `error`: the one thrown by the last failed attempt
+   * (presign, R2 PUT or confirm), or a plain Error for a file that failed
+   * validation. Lets a caller narrow with `instanceof ApiError` to read
+   * `status` / `retryAfterSeconds` (e.g. to show a 429 countdown). Spec 039.
    */
   lastError: Error | null;
   /** Uploads a file to R2 storage with progress tracking */
@@ -133,8 +133,8 @@ export function useR2Upload(): UseR2UploadReturn {
     total: 0,
     percentage: 0,
   });
-  const [error, setError] = useState<string | null>(null);
   const [lastError, setLastError] = useState<Error | null>(null);
+  const error = lastError?.message ?? null;
 
   const xhrRef = useRef<XMLHttpRequest | null>(null);
   const apiClient = useRef(new BackendApiClient());
@@ -221,14 +221,13 @@ export function useR2Upload(): UseR2UploadReturn {
       options?: UploadOptions
     ): Promise<UploadResult | null> => {
       // Reset state
-      setError(null);
       setLastError(null);
       setProgress({ loaded: 0, total: 0, percentage: 0 });
 
       // Validate file
       const validationError = validateFile(file);
       if (validationError) {
-        setError(validationError);
+        setLastError(new Error(validationError));
         setState("error");
         return null;
       }
@@ -295,7 +294,6 @@ export function useR2Upload(): UseR2UploadReturn {
           return null;
         }
 
-        setError(caughtError.message);
         setLastError(caughtError);
         setState("error");
         return null;
@@ -326,7 +324,6 @@ export function useR2Upload(): UseR2UploadReturn {
     }
     setState("idle");
     setProgress({ loaded: 0, total: 0, percentage: 0 });
-    setError(null);
     setLastError(null);
   }, []);
 

@@ -781,10 +781,7 @@ export interface ApiClient {
    * @returns `public` (with id and url), `pending`, or `none`
    */
   lookupFilmSubmission(
-    platform: Extract<
-      import("@/types/gallery").ExternalPlatform,
-      "YOUTUBE" | "VIMEO"
-    >,
+    platform: import("@/types/gallery").FilmPlatform,
     externalId: string
   ): Promise<import("@/types/gallery").FilmSubmissionLookup>;
 

@@ -65,10 +65,10 @@ import type {
   UpdateGalleryStatusRequest,
   UpdateGalleryMediaRequest,
   ExternalMedia,
-  ExternalPlatform,
   GalleryFacets,
   GalleryQueryParams,
   PhotoSequence,
+  FilmPlatform,
   FilmSubmissionLookup,
   MediaCorrectionResponse,
 } from "@/types/gallery";
@@ -106,7 +106,7 @@ import type {
   DeleteOrphanRequest,
 } from "@/types/r2-admin";
 import { CacheConfig } from "@/lib/api-contracts";
-import { apiErrorFromResponse } from "@/lib/api-error";
+import { type ApiError, apiErrorFromResponse } from "@/lib/api-error";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
 import {
@@ -144,16 +144,34 @@ export function apiErrorMessage(body: unknown, fallback: string): string {
 }
 
 /**
+ * The {@link ApiError} for a failed response: the body's message (see
+ * {@link apiErrorMessage}), or `fallback` when there is none or the body isn't
+ * JSON, plus the status and `Retry-After`.
+ */
+async function apiErrorFrom(
+  response: Response,
+  fallback: string
+): Promise<ApiError> {
+  const body = await response.json().catch(() => null);
+  return apiErrorFromResponse(response, apiErrorMessage(body, fallback));
+}
+
+/**
  * Backend API Client - Pure implementation without fallbacks
  * This implementation handles all communication with the Spring Boot backend API
  */
 export class BackendApiClient implements ApiClient {
   /**
-   * Creates an authenticated fetch request with JWT token from Supabase session
+   * Creates an authenticated fetch request with JWT token from Supabase session.
+   *
+   * A 401 signs the user out and reloads into /login, unless the caller
+   * handles it itself (`redirectOn401: false`): then the 401 comes back like
+   * any other failed response.
    */
   private async authenticatedFetch(
     url: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    { redirectOn401 = true }: { redirectOn401?: boolean } = {}
   ): Promise<Response> {
     const {
       data: { session },
@@ -176,7 +194,7 @@ export class BackendApiClient implements ApiClient {
     });
 
     // Handle authentication errors
-    if (response.status === 401) {
+    if (response.status === 401 && redirectOn401) {
       // Token expired or invalid - sign out user
       await supabase.auth.signOut();
 
@@ -470,25 +488,13 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        const errorData = await response.json();
-        throw apiErrorFromResponse(
-          response,
-          errorData.message ||
-            "Upload rate limit exceeded. Please try again later."
-        );
-      }
-      if (response.status === 400) {
-        const errorData = await response.json();
-        throw apiErrorFromResponse(
-          response,
-          errorData.message || "Invalid file. Please check file type and size."
-        );
-      }
-      throw apiErrorFromResponse(
-        response,
-        `Failed to get upload URL: ${response.status}`
-      );
+      const fallback =
+        response.status === 429
+          ? "Upload rate limit exceeded. Please try again later."
+          : response.status === 400
+            ? "Invalid file. Please check file type and size."
+            : `Failed to get upload URL: ${response.status}`;
+      throw await apiErrorFrom(response, fallback);
     }
 
     const payload = await response.json();
@@ -520,13 +526,9 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw apiErrorFromResponse(
+      throw await apiErrorFrom(
         response,
-        apiErrorMessage(
-          errorData,
-          `Upload confirmation failed: ${response.status}`
-        )
+        `Upload confirmation failed: ${response.status}`
       );
     }
 
@@ -2716,7 +2718,7 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      throw apiErrorFromResponse(
+      throw await apiErrorFrom(
         response,
         `Failed to submit external media: ${response.status}`
       );
@@ -2738,7 +2740,7 @@ export class BackendApiClient implements ApiClient {
    * @throws Error if the parameters are invalid (HTTP 400) or the call fails
    */
   async lookupFilmSubmission(
-    platform: Extract<ExternalPlatform, "YOUTUBE" | "VIMEO">,
+    platform: FilmPlatform,
     externalId: string
   ): Promise<FilmSubmissionLookup> {
     const params = new URLSearchParams({ platform, externalId });
@@ -2801,23 +2803,25 @@ export class BackendApiClient implements ApiClient {
   ): Promise<MediaCorrectionResponse> {
     const endpoint = `${env.apiUrl}/api/v1/feedback/media-corrections`;
 
-    const response = await this.authenticatedFetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    // A 401 comes back as an ApiError, so the duplicate card can open the
+    // sign-in sheet over the film form instead of reloading into /login.
+    const response = await this.authenticatedFetch(
+      endpoint,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mediaId, message }),
+        cache: "no-store",
       },
-      body: JSON.stringify({ mediaId, message }),
-      cache: "no-store",
-    });
+      { redirectOn401: false }
+    );
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw apiErrorFromResponse(
+      throw await apiErrorFrom(
         response,
-        apiErrorMessage(
-          errorData,
-          `Failed to submit correction: ${response.status}`
-        )
+        `Failed to submit correction: ${response.status}`
       );
     }
 

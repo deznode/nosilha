@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import { useId, useState, type ClipboardEvent } from "react";
 
-export const CODE_LENGTH = 6;
+const CODE_LENGTH = 6;
 
 interface CodeInputProps {
   value: string;

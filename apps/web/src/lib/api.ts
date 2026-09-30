@@ -809,10 +809,7 @@ export async function submitExternalMedia(
  * @throws Error if API call fails
  */
 export async function lookupFilmSubmission(
-  platform: Extract<
-    import("@/types/gallery").ExternalPlatform,
-    "YOUTUBE" | "VIMEO"
-  >,
+  platform: import("@/types/gallery").FilmPlatform,
   externalId: string
 ): Promise<import("@/types/gallery").FilmSubmissionLookup> {
   return apiClient.lookupFilmSubmission(platform, externalId);

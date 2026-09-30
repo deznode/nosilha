@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { foldAccents } from "@/features/contribute/lib/accent-fold";
+import { foldAccents } from "@/lib/accent-fold";
 import type { Town } from "@/types/town";
 
 import { ResponsiveSheet } from "./responsive-sheet";

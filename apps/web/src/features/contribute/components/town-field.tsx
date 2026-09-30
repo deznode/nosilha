@@ -27,9 +27,9 @@ interface TownFieldProps {
   label: string;
 }
 
-const FIELD =
+const TOWN_INPUT =
   "bg-card h-11 w-full rounded-lg border px-3 text-[15px] outline-none focus:border-[1.5px] focus:border-ocean-blue";
-const LINK = "focus-ring text-ocean-blue rounded-sm font-semibold";
+const TOWN_LINK = "focus-ring text-ocean-blue rounded-sm font-semibold";
 
 let townsCache: Promise<Town[]> | null = null;
 
@@ -128,7 +128,7 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
             <button
               type="button"
               onClick={() => setPickerOpen(true)}
-              className={clsx(LINK, "text-[13px]")}
+              className={clsx(TOWN_LINK, "text-[13px]")}
             >
               Change
             </button>
@@ -172,7 +172,7 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
                     onChange({ ...value, detail: event.target.value })
                   }
                   aria-label="More exactly, in your own words"
-                  className={clsx(FIELD, "text-body border-edge")}
+                  className={clsx(TOWN_INPUT, "text-body border-edge")}
                 />
                 <p className={HINT}>
                   More exactly, in your own words. Optional.
@@ -190,7 +190,7 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
             onClick={() => setPickerOpen(true)}
             aria-haspopup="dialog"
             className={clsx(
-              FIELD,
+              TOWN_INPUT,
               "text-muted border-edge flex items-center justify-between"
             )}
           >
@@ -202,7 +202,7 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
             <button
               type="button"
               onClick={() => onChange({ ...value, mode: "free" })}
-              className={LINK}
+              className={TOWN_LINK}
             >
               describe the place in your own words
             </button>
@@ -221,7 +221,7 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
             }
             aria-label={label}
             className={clsx(
-              FIELD,
+              TOWN_INPUT,
               "text-body border-ocean-blue border-[1.5px]"
             )}
           />
@@ -230,7 +230,7 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
             <button
               type="button"
               onClick={() => setPickerOpen(true)}
-              className={LINK}
+              className={TOWN_LINK}
             >
               Choose a town as well
             </button>

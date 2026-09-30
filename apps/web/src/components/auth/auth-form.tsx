@@ -16,6 +16,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { safeNext } from "@/lib/safe-next";
 import { supabase } from "@/lib/supabase-client";
 import { loginSchema, type LoginInput } from "@/schemas/authSchema";
 import { Button } from "@/components/catalyst-ui/button";
@@ -171,17 +172,11 @@ export default function NosIlhaAuth({
 
         if (error) throw error;
 
-        // Redirect to the return URL or homepage on success
-        const redirectTo = searchParams.get("returnUrl");
-        // Validate redirect URL to prevent open redirect attacks
-        // Only allow relative paths that start with /
-        const safeRedirect =
-          redirectTo &&
-          redirectTo.startsWith("/") &&
-          !redirectTo.startsWith("//")
-            ? redirectTo
-            : "/";
-        router.push(safeRedirect);
+        // Redirect to the return URL or homepage on success. safeNext keeps it
+        // on this origin (open-redirect protection), `/\evil.com` included.
+        router.push(
+          safeNext(searchParams.get("returnUrl"), window.location.origin)
+        );
         router.refresh();
       } else {
         // Signup

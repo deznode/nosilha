@@ -4,9 +4,10 @@
  * can't be sent somewhere else via an open-redirect `next` param.
  *
  * Only a same-origin path (with optional search/hash) is accepted.
- * Anything else — a protocol-relative URL (`//evil.com`), a backslash
- * trick (`/\evil.com`), an absolute URL to another origin, a
- * `javascript:` URL, or an empty/missing value — falls back to `/`.
+ * Anything else — a protocol-relative URL (`//evil.com`), one that dot
+ * segments collapse into (`/.//evil.com`), a backslash trick
+ * (`/\evil.com`), an absolute URL to another origin, a `javascript:` URL,
+ * or an empty/missing value — falls back to `/`.
  */
 export function safeNext(
   next: string | null | undefined,
@@ -23,6 +24,9 @@ export function safeNext(
     const base = new URL(origin);
     const resolved = new URL(next, base);
     if (resolved.origin !== base.origin) return "/";
+    // Resolving drops dot segments, so "/.//evil.com" comes back as the path
+    // "//evil.com": protocol-relative again once it's used on its own.
+    if (resolved.pathname.startsWith("//")) return "/";
     return `${resolved.pathname}${resolved.search}${resolved.hash}`;
   } catch {
     return "/";

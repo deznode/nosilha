@@ -242,20 +242,21 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun clearAllFeaturedVideos()
 
     /**
-     * Finds an external media item by platform and external ID.
+     * Finds the external media items with a platform and external ID, for the film duplicate
+     * check (spec 039).
      *
-     * Used for duplicate detection during YouTube channel sync to avoid
-     * creating duplicate records on repeated sync operations.
+     * The pair is not unique: a rejected film can be submitted again, and two people can send
+     * the same link. So this returns every match, in any status.
      *
      * @param platform The external platform (e.g., YOUTUBE)
      * @param externalId The platform-specific identifier (e.g., YouTube video ID)
-     * @return The matching entity, or null if no record exists
+     * @return The matching entities, empty if no record exists
      */
     @Query("SELECT m FROM ExternalMedia m WHERE m.platform = :platform AND m.externalId = :externalId")
     fun findExternalMediaByPlatformAndExternalId(
         @Param("platform") platform: ExternalPlatform,
         @Param("externalId") externalId: String,
-    ): ExternalMedia?
+    ): List<ExternalMedia>
 
     /**
      * Batch lookup of existing external IDs for a given platform.
@@ -414,4 +415,15 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun findFirstActivePhotoByPlaceId(
         @Param("placeId") placeId: UUID,
     ): GalleryMedia?
+}
+
+/**
+ * Rejects an unknown settlement id with a 400 (IllegalArgumentException, via
+ * GlobalExceptionHandler); null means no settlement was given. Shared by the upload
+ * confirm, the film submit and the admin metadata edit.
+ */
+internal fun GalleryMediaRepository.requireKnownPlace(placeId: UUID?) {
+    if (placeId != null) {
+        require(placeExists(placeId)) { "Unknown placeId: $placeId" }
+    }
 }

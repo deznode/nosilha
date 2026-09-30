@@ -171,6 +171,32 @@ class GallerySubmissionLookupIntegrationTest {
     }
 
     @Test
+    @DisplayName("Should return pending when a rejected film was sent again")
+    fun `lookup should return pending for a rejected film submitted again`() {
+        externalFilm(ExternalPlatform.YOUTUBE, "resent00001", GalleryMediaStatus.REJECTED)
+        externalFilm(ExternalPlatform.YOUTUBE, "resent00001", GalleryMediaStatus.PENDING_REVIEW)
+
+        mockMvc
+            .perform(get("/api/v1/gallery/submissions/lookup").param("platform", "YOUTUBE").param("externalId", "resent00001"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.status").value("pending"))
+    }
+
+    @Test
+    @DisplayName("Should return the ACTIVE row when the same film has several rows")
+    fun `lookup should prefer the active row among duplicates`() {
+        externalFilm(ExternalPlatform.YOUTUBE, "dupfilm0001", GalleryMediaStatus.PENDING_REVIEW)
+        val active = externalFilm(ExternalPlatform.YOUTUBE, "dupfilm0001", GalleryMediaStatus.ACTIVE)
+        externalFilm(ExternalPlatform.YOUTUBE, "dupfilm0001", GalleryMediaStatus.REJECTED)
+
+        mockMvc
+            .perform(get("/api/v1/gallery/submissions/lookup").param("platform", "YOUTUBE").param("externalId", "dupfilm0001"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.status").value("public"))
+            .andExpect(jsonPath("$.data.id").value(active.toString()))
+    }
+
+    @Test
     @DisplayName("Should return 400 when externalId is missing")
     fun `lookup should return 400 when externalId is missing`() {
         mockMvc

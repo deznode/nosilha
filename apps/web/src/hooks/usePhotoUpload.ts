@@ -64,9 +64,10 @@ export interface UsePhotoUploadReturn {
   error: string | null;
 
   /**
-   * The error object thrown by the last failed upload attempt (e.g.
-   * `ApiError` for a 429), preserved as-is so a caller can read `status` /
-   * `retryAfterSeconds` instead of only the message. Spec 039.
+   * The error behind the last failed upload attempt (e.g. `ApiError` for a
+   * 429), preserved as-is so a caller can read `status` / `retryAfterSeconds`
+   * instead of only the message; a plain Error when the file failed
+   * validation before sending. Spec 039.
    */
   lastError: Error | null;
 
@@ -228,6 +229,8 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
 
       setFile(newFile);
       setError(null);
+      // A new file hasn't failed yet: drop the last attempt's error state
+      r2Reset();
       setManualMetadataState({});
       setNaturalSize(null);
       setState("extracting");
@@ -250,7 +253,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
       setNaturalSize(await sizeRead);
       setState("ready");
     },
-    [previewUrl]
+    [previewUrl, r2Reset]
   );
 
   /**
