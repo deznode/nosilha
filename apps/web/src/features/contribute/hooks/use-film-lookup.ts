@@ -22,14 +22,28 @@ const IDLE: FilmLookupResult = { status: "idle" };
  * lifetime, so revisiting a link already resolved shows its cached status
  * instead of re-querying. A response for a link the caller has since moved
  * on from is ignored, and a failed lookup resolves to `none` rather than
- * leaving the caller stuck on `checking`.
+ * leaving the caller stuck on `checking`; a failure isn't cached, so the next
+ * visit to that link asks again.
+ *
+ * `sends` counts the caller's successful sends. A change clears the cache: a
+ * link just sent is no longer `none`, and must show as waiting (F6) if pasted
+ * again.
  */
-export function useFilmLookup(parsed: ParsedFilmLink | null): FilmLookupResult {
+export function useFilmLookup(
+  parsed: ParsedFilmLink | null,
+  sends = 0
+): FilmLookupResult {
   const [result, setResult] = useState<FilmLookupResult>(IDLE);
   const cacheRef = useRef(new Map<string, FilmLookupResult>());
+  const cachedSendsRef = useRef(sends);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
+    if (cachedSendsRef.current !== sends) {
+      cachedSendsRef.current = sends;
+      cacheRef.current.clear();
+    }
+
     // Every change of link, to none or to a cached one included, supersedes
     // a lookup still in flight for the previous link.
     requestIdRef.current += 1;
@@ -63,9 +77,12 @@ export function useFilmLookup(parsed: ParsedFilmLink | null): FilmLookupResult {
           }
           return { status: "none" };
         })
-        .catch((): FilmLookupResult => ({ status: "none" }))
         .then((next) => {
           cacheRef.current.set(key, next);
+          return next;
+        })
+        .catch((): FilmLookupResult => ({ status: "none" }))
+        .then((next) => {
           // A later request for a different link may have started (and even
           // finished) while this one was in flight — don't clobber its result.
           if (requestIdRef.current === requestId) setResult(next);
@@ -77,7 +94,7 @@ export function useFilmLookup(parsed: ParsedFilmLink | null): FilmLookupResult {
     // effect from re-running when the caller re-renders with an equivalent
     // but newly-created object for the same link.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [parsed?.platform, parsed?.externalId]);
+  }, [parsed?.platform, parsed?.externalId, sends]);
 
   return result;
 }

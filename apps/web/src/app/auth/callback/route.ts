@@ -1,27 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { publicOrigin } from "@/lib/public-origin";
 import { safeNext } from "@/lib/safe-next";
-
-/**
- * The origin the browser used, for every redirect below. Behind Cloud Run (or
- * similar), request.url resolves to the internal container address (e.g.
- * https://0.0.0.0:3000) instead of the public domain; the x-forwarded-host
- * header contains the original host from the client request.
- * See: https://supabase.com/docs/guides/auth/social-login/auth-zoom
- */
-function publicOrigin(request: Request, requestOrigin: string): string {
-  const forwardedHost = request.headers.get("x-forwarded-host");
-  const isLocalEnv = process.env.NODE_ENV === "development";
-  return !isLocalEnv && forwardedHost
-    ? `https://${forwardedHost}`
-    : requestOrigin;
-}
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const { searchParams } = requestUrl;
-  const origin = publicOrigin(request, requestUrl.origin);
+  const origin = publicOrigin(request);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");

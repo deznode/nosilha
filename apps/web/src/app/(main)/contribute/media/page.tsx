@@ -83,6 +83,8 @@ function MediaContribution() {
   const [form, setForm] = useState<ContributionForm>(EMPTY_FORM);
   const [view, setView] = useState<"form" | "restored">("form");
   const [sent, setSent] = useState<SentRecord | null>(null);
+  // Successful sends; each one clears the film lookup's cache
+  const [sends, setSends] = useState(0);
   const [noDraftNotice, setNoDraftNotice] = useState(false);
   const [signIn, setSignIn] = useState<{
     open: boolean;
@@ -123,7 +125,7 @@ function MediaContribution() {
 
   const isFilm = kind === "film";
   const link = isFilm ? parseVideoUrl(form.filmUrl) : null;
-  const lookup = useFilmLookup(link);
+  const lookup = useFilmLookup(link, sends);
   const duplicate =
     isFilm && (lookup.status === "public" || lookup.status === "pending");
   // The record's picture: the chosen photo, a YouTube thumbnail, or none (Vimeo)
@@ -261,6 +263,7 @@ function MediaContribution() {
           who && `made by ${who}`,
         ]
       : [where, form.date.trim(), who && `taken by ${who}`];
+    setSends((n) => n + 1);
     setSent({
       kind,
       title: form.title.trim() || (isFilm ? "Film link" : "Your photograph"),

@@ -178,6 +178,8 @@ class SecurityConfig(
             allowedOriginPatterns = this@SecurityConfig.allowedOrigins
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
+            // Lets the web client read how long a 429 asks it to wait
+            exposedHeaders = listOf("Retry-After")
             allowCredentials = true
         }
 }

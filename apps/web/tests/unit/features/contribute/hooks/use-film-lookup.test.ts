@@ -251,6 +251,58 @@ describe("useFilmLookup", () => {
     expect(result.current).toEqual({ status: "none" });
   });
 
+  it("asks again after a failed lookup instead of caching it", async () => {
+    vi.mocked(api.lookupFilmSubmission)
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValue({ status: "pending" });
+
+    const { result, rerender } = renderHook(
+      ({ parsed }) => useFilmLookup(parsed),
+      { initialProps: { parsed: youtubeA as typeof youtubeA | null } }
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+    expect(result.current).toEqual({ status: "none" });
+
+    rerender({ parsed: null });
+    rerender({ parsed: youtubeA });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+    expect(api.lookupFilmSubmission).toHaveBeenCalledTimes(2);
+    expect(result.current).toEqual({ status: "pending" });
+  });
+
+  it("forgets cached answers after a send, so a link just sent shows as pending", async () => {
+    vi.mocked(api.lookupFilmSubmission)
+      .mockResolvedValueOnce({ status: "none" })
+      .mockResolvedValue({ status: "pending" });
+
+    const { result, rerender } = renderHook(
+      ({ parsed, sends }) => useFilmLookup(parsed, sends),
+      {
+        initialProps: {
+          parsed: youtubeA as typeof youtubeA | null,
+          sends: 0,
+        },
+      }
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+    expect(result.current).toEqual({ status: "none" });
+
+    // Sent, then "Give another": the form empties, then the same link again
+    rerender({ parsed: null, sends: 1 });
+    rerender({ parsed: youtubeA, sends: 1 });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+    expect(api.lookupFilmSubmission).toHaveBeenCalledTimes(2);
+    expect(result.current).toEqual({ status: "pending" });
+  });
+
   it.each([404, 500, 503])(
     "treats an HTTP %i from the lookup as none, not stuck on checking",
     async (status) => {

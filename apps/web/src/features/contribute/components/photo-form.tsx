@@ -69,7 +69,9 @@ export function PhotoForm({
           <input
             id={FILE_INPUT_ID}
             type="file"
-            accept="image/*,.heic,.heif"
+            // The types the upload takes. Leaving HEIC out also makes iOS
+            // hand over a JPEG instead of a file the upload would refuse.
+            accept="image/jpeg,image/png,image/webp,image/gif"
             className="peer sr-only"
             disabled={busy}
             onChange={(e) => {
