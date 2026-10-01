@@ -162,17 +162,19 @@ resource "cloudflare_dns_record" "apex_txt_google_verification" {
   ttl     = 1
 }
 
-# Resend DKIM key
-resource "cloudflare_dns_record" "resend_dkim_txt" {
-  zone_id = var.cloudflare_zone_id
-  name    = "resend._domainkey.nosilha.com"
-  type    = "TXT"
-  content = "\"p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDNv3IPWr9IXDVsW+LF59l8CqDKPfa7Zw+J4gvba2UV8gmzPetoLbbxAU7xt5W7oq9xu1Qez63PXQ+ddrBZctO4NlCCXDW6TmFevV+vnAZ/NcveybZp5MJHm2139Y+cEtOT2gY/d7qv+VvlMz52362DAch8xWe5qiSgaA+B5CcdUQIDAQAB\""
-  proxied = false
-  ttl     = 3600
-}
+# Resend (sending domain for Supabase auth email) is not managed here. Its
+# records were created through Resend's Cloudflare setup on 2026-09-30:
+#   TXT   resend._domainkey -> DKIM public key
+#   CNAME send              -> send.forge.rmta.net
+#   CNAME rsend             -> rsend.forge.rmta.net
+# Do not add MX or TXT records on send.nosilha.com: they conflict with the
+# CNAME and fail Resend's verification.
 
-# Resend SPF/return-path: CNAMEs `send` -> send.forge.rmta.net and
-# `rsend` -> rsend.forge.rmta.net, created by Resend's Cloudflare auto-configure
-# (2026-09-30) and not managed here. Do not add MX or TXT records on
-# send.nosilha.com: they conflict with the CNAME and fail Resend's verification.
+# Drop the DKIM record from state without deleting it in Cloudflare.
+removed {
+  from = cloudflare_dns_record.resend_dkim_txt
+
+  lifecycle {
+    destroy = false
+  }
+}
