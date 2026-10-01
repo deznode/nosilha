@@ -131,17 +131,6 @@ resource "cloudflare_dns_record" "www_cname" {
   ttl     = 1
 }
 
-# MX record — Resend email sending
-resource "cloudflare_dns_record" "send_mx" {
-  zone_id  = var.cloudflare_zone_id
-  name     = "send.nosilha.com"
-  type     = "MX"
-  content  = "feedback-smtp.us-east-1.amazonses.com"
-  priority = 10
-  proxied  = false
-  ttl      = 3600
-}
-
 # NS records — legacy nameserver delegation
 resource "cloudflare_dns_record" "apex_ns_1" {
   zone_id = var.cloudflare_zone_id
@@ -183,12 +172,7 @@ resource "cloudflare_dns_record" "resend_dkim_txt" {
   ttl     = 3600
 }
 
-# Resend SPF record
-resource "cloudflare_dns_record" "send_spf_txt" {
-  zone_id = var.cloudflare_zone_id
-  name    = "send.nosilha.com"
-  type    = "TXT"
-  content = "\"v=spf1 include:amazonses.com ~all\""
-  proxied = false
-  ttl     = 3600
-}
+# Resend SPF/return-path: CNAMEs `send` -> send.forge.rmta.net and
+# `rsend` -> rsend.forge.rmta.net, created by Resend's Cloudflare auto-configure
+# (2026-09-30) and not managed here. Do not add MX or TXT records on
+# send.nosilha.com: they conflict with the CNAME and fail Resend's verification.
