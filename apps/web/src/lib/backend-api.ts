@@ -68,6 +68,9 @@ import type {
   GalleryFacets,
   GalleryQueryParams,
   PhotoSequence,
+  FilmPlatform,
+  FilmSubmissionLookup,
+  MediaCorrectionResponse,
 } from "@/types/gallery";
 import type {
   AnalysisRunSummary,
@@ -103,6 +106,7 @@ import type {
   DeleteOrphanRequest,
 } from "@/types/r2-admin";
 import { CacheConfig } from "@/lib/api-contracts";
+import { type ApiError, apiErrorFromResponse } from "@/lib/api-error";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
 import {
@@ -140,16 +144,34 @@ export function apiErrorMessage(body: unknown, fallback: string): string {
 }
 
 /**
+ * The {@link ApiError} for a failed response: the body's message (see
+ * {@link apiErrorMessage}), or `fallback` when there is none or the body isn't
+ * JSON, plus the status and `Retry-After`.
+ */
+async function apiErrorFrom(
+  response: Response,
+  fallback: string
+): Promise<ApiError> {
+  const body = await response.json().catch(() => null);
+  return apiErrorFromResponse(response, apiErrorMessage(body, fallback));
+}
+
+/**
  * Backend API Client - Pure implementation without fallbacks
  * This implementation handles all communication with the Spring Boot backend API
  */
 export class BackendApiClient implements ApiClient {
   /**
-   * Creates an authenticated fetch request with JWT token from Supabase session
+   * Creates an authenticated fetch request with JWT token from Supabase session.
+   *
+   * A 401 signs the user out and reloads into /login, unless the caller
+   * handles it itself (`redirectOn401: false`): then the 401 comes back like
+   * any other failed response.
    */
   private async authenticatedFetch(
     url: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    { redirectOn401 = true }: { redirectOn401?: boolean } = {}
   ): Promise<Response> {
     const {
       data: { session },
@@ -172,7 +194,7 @@ export class BackendApiClient implements ApiClient {
     });
 
     // Handle authentication errors
-    if (response.status === 401) {
+    if (response.status === 401 && redirectOn401) {
       // Token expired or invalid - sign out user
       await supabase.auth.signOut();
 
@@ -466,20 +488,13 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message ||
-            "Upload rate limit exceeded. Please try again later."
-        );
-      }
-      if (response.status === 400) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || "Invalid file. Please check file type and size."
-        );
-      }
-      throw new Error(`Failed to get upload URL: ${response.status}`);
+      const fallback =
+        response.status === 429
+          ? "Upload rate limit exceeded. Please try again later."
+          : response.status === 400
+            ? "Invalid file. Please check file type and size."
+            : `Failed to get upload URL: ${response.status}`;
+      throw await apiErrorFrom(response, fallback);
     }
 
     const payload = await response.json();
@@ -511,12 +526,9 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(
-        apiErrorMessage(
-          errorData,
-          `Upload confirmation failed: ${response.status}`
-        )
+      throw await apiErrorFrom(
+        response,
+        `Upload confirmation failed: ${response.status}`
       );
     }
 
@@ -2706,11 +2718,115 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to submit external media: ${response.status}`);
+      throw await apiErrorFrom(
+        response,
+        `Failed to submit external media: ${response.status}`
+      );
     }
 
     const payload = await response.json();
     return this.unwrapApiResponse<{ id: string; message: string }>(payload);
+  }
+
+  /**
+   * Checks whether an external film has already been submitted, by platform
+   * and external id — used to warn a submitter of a duplicate before they send.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param platform YOUTUBE or VIMEO
+   * @param externalId The platform's video id
+   * @returns `public` (with id and url), `pending`, or `none`
+   * @throws Error if the parameters are invalid (HTTP 400) or the call fails
+   */
+  async lookupFilmSubmission(
+    platform: FilmPlatform,
+    externalId: string
+  ): Promise<FilmSubmissionLookup> {
+    const params = new URLSearchParams({ platform, externalId });
+    const endpoint = `${env.apiUrl}/api/v1/gallery/submissions/lookup?${params.toString()}`;
+
+    const response = await fetch(endpoint, { cache: "no-store" });
+
+    if (!response.ok) {
+      throw new Error(`Failed to look up film submission: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<FilmSubmissionLookup>(payload);
+  }
+
+  /**
+   * Fetches the earliest active photograph attached to a town, for the town
+   * picker's confirmation tile.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param townId UUID of the town
+   * @returns The photo, or null when the town has none (or is unknown)
+   * @throws Error if the call fails
+   */
+  async getTownFirstPhoto(townId: string): Promise<PublicGalleryMedia | null> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/towns/${townId}/first-photo`;
+
+    const response = await fetch(endpoint, { cache: "no-store" });
+
+    if (response.status === 204) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch town's first photo: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<PublicGalleryMedia>(payload);
+  }
+
+  /**
+   * Submits a correction to an existing public gallery media item.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * Stored as a `CORRECTION` suggestion, reviewed in the existing admin
+   * suggestions queue.
+   *
+   * @param mediaId UUID of the public media item being corrected
+   * @param message The correction, 1..2000 characters
+   * @returns Confirmation with the created suggestion id
+   * @throws Error if the media isn't public (HTTP 404), the message is invalid
+   * (HTTP 400), or the rate limit is exceeded (HTTP 429)
+   */
+  async submitMediaCorrection(
+    mediaId: string,
+    message: string
+  ): Promise<MediaCorrectionResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/feedback/media-corrections`;
+
+    // A 401 comes back as an ApiError, so the duplicate card can open the
+    // sign-in sheet over the film form instead of reloading into /login.
+    const response = await this.authenticatedFetch(
+      endpoint,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mediaId, message }),
+        cache: "no-store",
+      },
+      { redirectOn401: false }
+    );
+
+    if (!response.ok) {
+      throw await apiErrorFrom(
+        response,
+        `Failed to submit correction: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<MediaCorrectionResponse>(payload);
   }
 
   // ================================

@@ -136,7 +136,7 @@ describe("site chrome top bars", () => {
 
       expect(screen.getByRole("link", { name: "Contribute" })).toHaveAttribute(
         "href",
-        "/contribute/story"
+        "/contribute"
       );
       expect(screen.getByRole("link", { name: "Sign in" })).toBeInTheDocument();
     });
@@ -253,7 +253,7 @@ describe("site chrome top bars", () => {
 
       expect(screen.getByRole("link", { name: "Contribute" })).toHaveAttribute(
         "href",
-        "/contribute/story"
+        "/contribute"
       );
       expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute(
         "href",

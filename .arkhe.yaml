@@ -2,3 +2,6 @@ develop:
   specs_dir: plan/arkhe/specs
   numbering: true
   ticket_format: full
+roadmap:
+  status_file: plan/spec-status.md
+  plan_file: docs/PROJECT-ROADMAP.md

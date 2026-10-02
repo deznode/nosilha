@@ -1,6 +1,7 @@
 package com.nosilha.core.gallery.api
 
 import com.nosilha.core.gallery.api.dto.ConfirmRequest
+import com.nosilha.core.gallery.api.dto.FilmSubmissionLookupDto
 import com.nosilha.core.gallery.api.dto.GalleryFacetsDto
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.PhotoSequenceDto
@@ -10,6 +11,7 @@ import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.TimelineDto
 import com.nosilha.core.gallery.domain.ArchiveFilter
+import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryFacetsService
 import com.nosilha.core.gallery.domain.GalleryService
 import com.nosilha.core.gallery.domain.MediaType
@@ -53,6 +55,8 @@ private val logger = KotlinLogging.logger {}
  * - GET /weekly - Weekly discovery photos (seeded by ISO week)
  * - GET /timeline - Decade-grouped timeline aggregation
  * - GET /videos/featured - Currently featured video for gallery hero
+ * - GET /submissions/lookup - Film duplicate check by platform and external id
+ * - GET /towns/{townId}/first-photo - Earliest active photograph linked to a settlement
  * - POST /upload/presign - Presigned URL for user upload
  * - POST /upload/confirm - Confirm user upload
  * - POST /submit - Submit external media for review
@@ -276,6 +280,45 @@ class GalleryController(
     }
 
     /**
+     * Checks whether an external film has already been submitted, by platform and external id
+     * (spec 039). Used to warn a submitter of a duplicate before they send.
+     *
+     * `public` means an ACTIVE row (id and url included). `pending` means a PENDING_REVIEW row
+     * (no id or content). `none` covers every other status and an unknown pair.
+     *
+     * @throws IllegalArgumentException (400) if externalId is blank or platform is not
+     * YOUTUBE or VIMEO; an unrecognised platform value is a 400 type mismatch
+     */
+    @GetMapping("/submissions/lookup")
+    fun lookupSubmission(
+        @RequestParam(required = false) platform: ExternalPlatform?,
+        @RequestParam(required = false) externalId: String?,
+    ): ApiResult<FilmSubmissionLookupDto> {
+        require(!externalId.isNullOrBlank()) { "externalId is required" }
+        require(platform == ExternalPlatform.YOUTUBE || platform == ExternalPlatform.VIMEO) {
+            "platform must be YOUTUBE or VIMEO"
+        }
+
+        return ApiResult(data = galleryService.lookupSubmission(platform, externalId))
+    }
+
+    /**
+     * Returns the earliest ACTIVE photograph linked to a settlement, for the town picker's
+     * confirmation tile (spec 039).
+     *
+     * Returns 204 when the settlement has no matching photo, or is unknown.
+     */
+    @GetMapping("/towns/{townId}/first-photo")
+    fun getTownFirstPhoto(
+        @PathVariable townId: UUID,
+    ): ResponseEntity<ApiResult<PublicGalleryMediaDto>> {
+        val media = galleryService.getTownFirstPhotoPublic(townId)
+            ?: return ResponseEntity.noContent().build()
+
+        return ResponseEntity.ok(ApiResult(data = media))
+    }
+
+    /**
      * Generates a presigned URL for direct browser-to-R2 upload.
      *
      * The URL expires in 10 minutes. After successful upload to R2,
@@ -335,6 +378,7 @@ class GalleryController(
             fileSize = request.fileSize,
             entryId = request.entryId,
             category = request.category,
+            title = request.title,
             description = request.description,
             userId = userId,
             // EXIF metadata (privacy-processed)
@@ -355,6 +399,7 @@ class GalleryController(
             locationName = request.locationName,
             photographerCredit = request.photographerCredit,
             archiveSource = request.archiveSource,
+            townId = request.townId,
         )
 
         return ApiResult(

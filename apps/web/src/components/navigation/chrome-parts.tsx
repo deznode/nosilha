@@ -70,7 +70,7 @@ export function ContributeAction({
 }) {
   return (
     <Button
-      href="/contribute/story"
+      href="/contribute"
       size="lg"
       color="blue"
       className={className}

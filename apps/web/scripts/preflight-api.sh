@@ -44,12 +44,14 @@ fi
 #   - drop the query string, so `/gallery/random?count=${n}` probes as `/gallery/random`
 #   - drop paths left with a trailing `/`, i.e. those whose next segment is templated
 #   - drop admin and authenticated routes, which are not part of prerender
-#   - drop write-only endpoints, which are POST and would 405
+#   - drop write-only endpoints, which are POST and would 405 (or 401 when authenticated)
+#   - drop `/gallery/submissions/lookup`, which is called only from the browser and
+#     answers 400 without its `platform` and `externalId` query parameters
 PATHS=$(grep -oE '\$\{env\.apiUrl\}/api/v1/[^`"$]*' "$CLIENT" \
   | sed 's|${env.apiUrl}||; s|?.*$||' \
   | grep -vE '/$' \
   | grep -vE '^/api/v1/(admin|users|bookmarks|reactions|ai|suggestions|contact|stories)(/|$)' \
-  | grep -vE '^/api/v1/(gallery/(submit|upload/.*)|directory/submissions)$' \
+  | grep -vE '^/api/v1/(gallery/(submit|upload/.*|submissions/lookup)|directory/submissions|feedback/media-corrections)$' \
   | sort -u)
 
 if [ -z "$PATHS" ]; then

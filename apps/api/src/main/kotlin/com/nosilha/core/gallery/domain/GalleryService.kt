@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.DecadeGroupDto
+import com.nosilha.core.gallery.api.dto.FilmSubmissionLookupDto
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
@@ -13,6 +14,7 @@ import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.api.dto.toPublicDto
 import com.nosilha.core.gallery.repository.GalleryArchiveQueries
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
+import com.nosilha.core.gallery.repository.requireKnownPlace
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.events.AiResultsApprovedEvent
@@ -20,6 +22,7 @@ import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
 import com.nosilha.core.shared.events.MediaAnalysisCompletedEvent
 import com.nosilha.core.shared.events.MediaAnalysisFailedEvent
 import com.nosilha.core.shared.exception.RateLimitExceededException
+import com.nosilha.core.shared.exception.consumeOrThrow
 import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Counter
@@ -69,6 +72,10 @@ class GalleryService(
     companion object {
         private const val MAX_UPLOADS_PER_HOUR = 20L
         private const val MAX_UPLOADS_PER_DAY = 100L
+        private const val MAX_SUBMISSIONS_PER_HOUR = 10L
+
+        /** gallery_media.title is VARCHAR(255); a longer description can't stand in whole. */
+        private const val TITLE_MAX_LENGTH = 255
 
         private val RAW_FILENAME_PATTERNS = listOf(
             // UUID prefix (e.g., "a1b2c3d4-e5f6-...")
@@ -136,6 +143,18 @@ class GalleryService(
      * - 100 uploads per day (long-term abuse prevention)
      */
     private val rateLimitBuckets: Cache<UUID, Bucket> = Caffeine
+        .newBuilder()
+        .maximumSize(10_000)
+        .expireAfterAccess(1, TimeUnit.DAYS)
+        .build()
+
+    /**
+     * Caffeine cache for rate limiting external media submissions ([submitExternalMedia]) by user ID.
+     *
+     * A separate bucket from [rateLimitBuckets]: submitting a film link is not a file upload
+     * and should not compete with the upload allowance.
+     */
+    private val submitRateLimitBuckets: Cache<UUID, Bucket> = Caffeine
         .newBuilder()
         .maximumSize(10_000)
         .expireAfterAccess(1, TimeUnit.DAYS)
@@ -223,12 +242,8 @@ class GalleryService(
      * @throws RateLimitExceededException if either limit exceeded
      */
     private fun checkRateLimit(userId: UUID) {
-        val bucket = getBucketForUser(userId)
-        if (!bucket.tryConsume(1)) {
+        getBucketForUser(userId).consumeOrThrow("Upload rate limit exceeded. Please try again later.") {
             logger.warn { "Rate limit exceeded for user $userId" }
-            throw RateLimitExceededException(
-                "Upload rate limit exceeded. Please try again later.",
-            )
         }
     }
 
@@ -259,6 +274,36 @@ class GalleryService(
         }
 
     /**
+     * Checks if user is within external media submission rate limits and consumes a token.
+     *
+     * @param userId User to check
+     * @throws RateLimitExceededException if the limit is exceeded
+     */
+    private fun checkSubmitRateLimit(userId: UUID) {
+        getBucketForSubmit(userId).consumeOrThrow("Submission rate limit exceeded. Please try again later.") {
+            logger.warn { "Submission rate limit exceeded for user $userId" }
+        }
+    }
+
+    /**
+     * Gets or creates a submission rate limit bucket for the given user ID.
+     *
+     * @param userId User ID to get bucket for
+     * @return Bucket allowing 10 submissions per hour
+     */
+    private fun getBucketForSubmit(userId: UUID): Bucket =
+        submitRateLimitBuckets.get(userId) {
+            logger.debug { "Creating submission rate limit bucket for user: $userId" }
+            Bucket
+                .builder()
+                .addLimit { limit ->
+                    limit
+                        .capacity(MAX_SUBMISSIONS_PER_HOUR)
+                        .refillIntervally(MAX_SUBMISSIONS_PER_HOUR, Duration.ofHours(1))
+                }.build()
+        }
+
+    /**
      * Confirms a completed upload and creates the UserUploadedMedia metadata record.
      *
      * Verifies the file exists in R2 before creating the record.
@@ -270,6 +315,7 @@ class GalleryService(
      * @param fileSize File size in bytes
      * @param entryId Optional directory entry association
      * @param category Optional media category
+     * @param title Optional title the contributor gave the photo; the description stands in without one
      * @param description Optional description
      * @param userId User who uploaded
      * @param latitude GPS latitude (privacy-processed)
@@ -287,8 +333,10 @@ class GalleryService(
      * @param locationName Manual location name
      * @param photographerCredit Photographer name
      * @param archiveSource Source of historical photo
+     * @param townId Settlement (towns.id) the photo was taken in or of
      * @return Created UserUploadedMedia DTO
      * @throws IllegalStateException if file not found in R2
+     * @throws IllegalArgumentException if townId does not reference an existing settlement
      */
     @Transactional
     @Suppress("LongParameterList")
@@ -299,6 +347,7 @@ class GalleryService(
         fileSize: Long,
         entryId: UUID?,
         category: String?,
+        title: String?,
         description: String?,
         userId: UUID,
         // EXIF metadata (privacy-processed)
@@ -319,9 +368,13 @@ class GalleryService(
         locationName: String? = null,
         photographerCredit: String? = null,
         archiveSource: String? = null,
+        townId: UUID? = null,
     ): GalleryMediaDto.UserUpload {
         requireR2Enabled()
         logger.info { "Confirming upload for user $userId: key=$key" }
+
+        // Validate before touching R2/DB: an unknown townId should fail fast as a 400.
+        repository.requireKnownPlace(townId)
 
         // Verify the file was actually uploaded to R2
         if (!r2StorageService!!.objectExists(key)) {
@@ -346,8 +399,9 @@ class GalleryService(
             this.entryId = entryId
             this.category = category
             this.description = description
-            // The filename is never a title: an upload with no description is untitled (spec 034 FR-019)
-            this.title = description?.ifBlank { null }
+            // The contributor's title, else the description cut to the column; never the filename,
+            // so an upload with neither is untitled (spec 034 FR-019, spec 039)
+            this.title = title?.ifBlank { null } ?: description?.ifBlank { null }?.take(TITLE_MAX_LENGTH)
             this.status = GalleryMediaStatus.PENDING_REVIEW
             this.source = MediaSource.LOCAL
             this.uploadedBy = userId
@@ -371,6 +425,7 @@ class GalleryService(
             this.locationName = locationName
             this.photographerCredit = photographerCredit
             this.archiveSource = archiveSource
+            this.placeId = townId
             // Smart credit attribution
             if (!photographerCredit.isNullOrBlank()) {
                 val parsed = CreditParser.parseCredit(photographerCredit)
@@ -622,6 +677,41 @@ class GalleryService(
     }
 
     /**
+     * Checks whether an external film has already been submitted, by platform and external id
+     * (spec 039). Used to warn a submitter of a duplicate before they send.
+     *
+     * `public` (with id and url) only for an ACTIVE row; `pending` for PENDING_REVIEW with no
+     * id or content exposed; `none` for every other status and an unknown pair. The pair can
+     * match several rows (a rejected film sent again), so an ACTIVE row wins, then a pending one.
+     */
+    @Transactional(readOnly = true)
+    fun lookupSubmission(
+        platform: ExternalPlatform,
+        externalId: String,
+    ): FilmSubmissionLookupDto {
+        val rows = repository.findExternalMediaByPlatformAndExternalId(platform, externalId)
+        val active = rows.firstOrNull { it.status == GalleryMediaStatus.ACTIVE }
+
+        return when {
+            active != null -> FilmSubmissionLookupDto.activeMedia(active.id!!)
+            rows.any { it.status == GalleryMediaStatus.PENDING_REVIEW } -> FilmSubmissionLookupDto.pendingMedia()
+            else -> FilmSubmissionLookupDto.noMedia()
+        }
+    }
+
+    /**
+     * Gets the earliest ACTIVE photograph linked to a settlement, for the town picker's
+     * confirmation tile (spec 039). Native SQL on `gallery_media`; a null result covers both
+     * an unknown `townId` and a known one with no matching photo.
+     */
+    @Transactional(readOnly = true)
+    fun getTownFirstPhotoPublic(townId: UUID): PublicGalleryMediaDto? {
+        val media = repository.findFirstActivePhotoByPlaceId(townId) ?: return null
+        val displayNames = resolveDisplayNames(listOf(media))
+        return media.toPublicDto(displayNames)
+    }
+
+    /**
      * Gets all ACTIVE archive uploads for a directory entry (public API). The entry's hero heads
      * its record and is not one of its photographs (spec 034 FR-023).
      */
@@ -832,6 +922,8 @@ class GalleryService(
      * @param request External media submission request
      * @param userId User submitting the media
      * @return Created external media DTO
+     * @throws IllegalArgumentException if request.townId does not reference an existing settlement
+     * @throws RateLimitExceededException if the per-user submission rate limit is exceeded
      */
     @Transactional
     fun submitExternalMedia(
@@ -839,6 +931,11 @@ class GalleryService(
         userId: UUID,
     ): GalleryMediaDto.External {
         logger.info { "User $userId submitting external media: ${request.title} (${request.mediaType}, ${request.platform})" }
+
+        // Validate first, so a rejected request doesn't spend a rate-limit token.
+        repository.requireKnownPlace(request.townId)
+
+        checkSubmitRateLimit(userId)
 
         val media = ExternalMedia().apply {
             this.mediaType = request.mediaType
@@ -853,6 +950,9 @@ class GalleryService(
             this.displayOrder = request.displayOrder
             this.status = GalleryMediaStatus.PENDING_REVIEW
             this.curatedBy = userId
+            this.placeId = request.townId
+            this.locationName = request.locationName
+            this.approximateDate = request.approximateDate
             // Smart credit attribution
             if (!request.author.isNullOrBlank()) {
                 val parsed = CreditParser.parseCredit(request.author)

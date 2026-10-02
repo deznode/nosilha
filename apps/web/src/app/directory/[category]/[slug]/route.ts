@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getEntryBySlug, getTownStatusSummary } from "@/lib/api";
 import { placeRecordPath } from "@/lib/place-path";
+import { publicOrigin } from "@/lib/public-origin";
 
 /** Entry slugs are lowercase words and hyphens; anything else is not looked up. */
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/i;
@@ -22,10 +23,8 @@ export async function GET(
   { params }: { params: Promise<{ category: string; slug: string }> }
 ) {
   const { slug } = await params;
-  const fallback = NextResponse.redirect(
-    new URL("/settlements", request.url),
-    307
-  );
+  const origin = publicOrigin(request);
+  const fallback = NextResponse.redirect(new URL("/settlements", origin), 307);
   if (!SLUG_PATTERN.test(slug)) return fallback;
 
   try {
@@ -36,7 +35,7 @@ export async function GET(
     const path = entry ? placeRecordPath(entry, towns) : null;
     if (!path) return fallback;
 
-    return NextResponse.redirect(new URL(path, request.url), 308);
+    return NextResponse.redirect(new URL(path, origin), 308);
   } catch (error) {
     console.error(`Could not resolve legacy entry address "${slug}":`, error);
     return fallback;

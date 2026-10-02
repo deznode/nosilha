@@ -242,20 +242,21 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun clearAllFeaturedVideos()
 
     /**
-     * Finds an external media item by platform and external ID.
+     * Finds the external media items with a platform and external ID, for the film duplicate
+     * check (spec 039).
      *
-     * Used for duplicate detection during YouTube channel sync to avoid
-     * creating duplicate records on repeated sync operations.
+     * The pair is not unique: a rejected film can be submitted again, and two people can send
+     * the same link. So this returns every match, in any status.
      *
      * @param platform The external platform (e.g., YOUTUBE)
      * @param externalId The platform-specific identifier (e.g., YouTube video ID)
-     * @return The matching entity, or null if no record exists
+     * @return The matching entities, empty if no record exists
      */
     @Query("SELECT m FROM ExternalMedia m WHERE m.platform = :platform AND m.externalId = :externalId")
     fun findExternalMediaByPlatformAndExternalId(
         @Param("platform") platform: ExternalPlatform,
         @Param("externalId") externalId: String,
-    ): ExternalMedia?
+    ): List<ExternalMedia>
 
     /**
      * Batch lookup of existing external IDs for a given platform.
@@ -384,4 +385,45 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun placeExists(
         @Param("placeId") placeId: UUID,
     ): Boolean
+
+    /**
+     * Finds the earliest ACTIVE photograph linked to a settlement, for the town picker's
+     * confirmation tile (spec 039). "Photograph" means a USER_UPLOAD row whose content type
+     * is an image, or a curated EXTERNAL row whose media type is IMAGE.
+     *
+     * Native SQL over `gallery_media` directly: a null result covers both an unknown
+     * `placeId` and a known one with no matching photo, since the gallery module does not
+     * import places to tell the two apart.
+     *
+     * @param placeId Settlement (towns.id) to search for
+     * @return The oldest matching record, or null if none exists
+     */
+    @Query(
+        value = """
+        SELECT gm.* FROM gallery_media gm
+        WHERE gm.place_id = :placeId
+        AND gm.status = 'ACTIVE'
+        AND (
+            (gm.media_source = 'USER_UPLOAD' AND gm.content_type LIKE 'image/%')
+            OR (gm.media_source = 'EXTERNAL' AND gm.media_type = 'IMAGE')
+        )
+        ORDER BY gm.created_at ASC
+        LIMIT 1
+        """,
+        nativeQuery = true,
+    )
+    fun findFirstActivePhotoByPlaceId(
+        @Param("placeId") placeId: UUID,
+    ): GalleryMedia?
+}
+
+/**
+ * Rejects an unknown settlement id with a 400 (IllegalArgumentException, via
+ * GlobalExceptionHandler); null means no settlement was given. Shared by the upload
+ * confirm, the film submit and the admin metadata edit.
+ */
+internal fun GalleryMediaRepository.requireKnownPlace(placeId: UUID?) {
+    if (placeId != null) {
+        require(placeExists(placeId)) { "Unknown placeId: $placeId" }
+    }
 }

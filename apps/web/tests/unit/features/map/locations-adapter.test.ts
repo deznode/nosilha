@@ -304,6 +304,13 @@ describe("filterItems", () => {
     ]);
   });
 
+  it("ignores a spacing accent typed as an apostrophe in a name", () => {
+    const titled = [item("p:1", "Fajã d´Água", "name")];
+    expect(filterItems(titled, "all", "faja dagua").map((i) => i.key)).toEqual([
+      "p:1",
+    ]);
+  });
+
   it("applies status and query together", () => {
     expect(filterItems(items, "partial", "furna")).toEqual([]);
   });

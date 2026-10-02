@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FilmCard } from "@/components/films/film-card";
 import { ChipRow } from "@/components/ui/chip-row";
+import { InvitationCell } from "@/features/contribute/components/invitation-cell";
 import {
   FILM_FACETS,
   facetCounts,
@@ -51,6 +52,14 @@ export function AllFilmsGrid({ films }: { films: readonly Film[] }) {
               sizes="(max-width: 767px) 100vw, (max-width: 1199px) 50vw, 25vw"
             />
           ))}
+          {/* Always last (E4), a plain row/column grid so appending it here is
+              already the last position — no dense-packing reorder to fight. */}
+          <InvitationCell
+            question="Have a film of Brava?"
+            body="A link is enough."
+            ctaLabel="Send a film link"
+            href="/contribute/media?kind=film"
+          />
         </div>
       )}
     </>

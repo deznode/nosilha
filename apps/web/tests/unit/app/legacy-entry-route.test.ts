@@ -15,9 +15,15 @@ import { GET } from "@/app/directory/[category]/[slug]/route";
 
 const TOWNS = [{ id: "t-1", slug: "nova-sintra", name: "Nova Sintra" }];
 
-async function visit(category: string, slug: string) {
+async function visit(
+  category: string,
+  slug: string,
+  base = "https://nosilha.com",
+  headers?: HeadersInit
+) {
   const request = new NextRequest(
-    `https://nosilha.com/directory/${category}/${slug}?ref=old`
+    `${base}/directory/${category}/${slug}?ref=old`,
+    { headers }
   );
   return GET(request, { params: Promise.resolve({ category, slug }) });
 }
@@ -46,6 +52,33 @@ describe("GET /directory/[category]/[slug]", () => {
     expect(response.status).toBe(308);
     expect(response.headers.get("location")).toBe(
       "https://nosilha.com/nova-sintra/igreja"
+    );
+  });
+
+  it("redirects to the public host behind a proxy, not the container address", async () => {
+    mocks.getEntryBySlug.mockResolvedValue({
+      slug: "igreja",
+      townId: "t-1",
+      town: "Nova Sintra",
+    });
+
+    const moved = await visit("heritage", "igreja", "https://0.0.0.0:3000", {
+      "x-forwarded-host": "www.nosilha.com",
+    });
+    expect(moved.headers.get("location")).toBe(
+      "https://www.nosilha.com/nova-sintra/igreja"
+    );
+
+    const fallback = await visit(
+      "heritage",
+      "not a slug",
+      "https://0.0.0.0:3000",
+      {
+        "x-forwarded-host": "www.nosilha.com",
+      }
+    );
+    expect(fallback.headers.get("location")).toBe(
+      "https://www.nosilha.com/settlements"
     );
   });
 

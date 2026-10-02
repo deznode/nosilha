@@ -21,8 +21,8 @@ const noSubscription = () => () => {};
 const canFullScreen = () => document.fullscreenEnabled === true;
 const cannotFullScreenOnServer = () => false;
 
-/** Where "Send a copy" goes: the existing media contribution flow. */
-export const SEND_A_COPY_HREF = "/contribute/media";
+/** Where "Send a copy" goes: the film form of the media contribution flow. */
+export const SEND_A_COPY_HREF = "/contribute/media?kind=film";
 
 export const COUNTDOWN_SECONDS = 5;
 

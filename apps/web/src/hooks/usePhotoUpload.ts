@@ -42,8 +42,12 @@ export type PhotoUploadState =
  */
 export interface PhotoUploadOptions extends ManualMetadata {
   category?: string;
+  /** "What is it called?" — optional title, spec 039. */
+  title?: string;
   description?: string;
   photographerCredit?: string;
+  /** The settlement to attach the photo to (`towns.id`), spec 039. */
+  townId?: string;
 }
 
 /**
@@ -58,6 +62,14 @@ export interface UsePhotoUploadReturn {
 
   /** Error message if any */
   error: string | null;
+
+  /**
+   * The error behind the last failed upload attempt (e.g. `ApiError` for a
+   * 429), preserved as-is so a caller can read `status` / `retryAfterSeconds`
+   * instead of only the message; a plain Error when the file failed
+   * validation before sending. Spec 039.
+   */
+  lastError: Error | null;
 
   /** Selected file */
   file: File | null;
@@ -136,6 +148,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     state: uploadState,
     progress: uploadProgress,
     error: uploadError,
+    lastError: uploadLastError,
     upload: r2Upload,
     reset: r2Reset,
   } = useR2Upload();
@@ -216,6 +229,8 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
 
       setFile(newFile);
       setError(null);
+      // A new file hasn't failed yet: drop the last attempt's error state
+      r2Reset();
       setManualMetadataState({});
       setNaturalSize(null);
       setState("extracting");
@@ -238,7 +253,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
       setNaturalSize(await sizeRead);
       setState("ready");
     },
-    [previewUrl]
+    [previewUrl, r2Reset]
   );
 
   /**
@@ -292,7 +307,9 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
       // Call R2 upload with extended metadata
       const result = await r2Upload(file, {
         category: options?.category,
+        title: options?.title,
         description: options?.description,
+        townId: options?.townId,
         // Pass metadata to be included in confirm request
         ...(confirmMetadata as Record<string, unknown>),
       });
@@ -324,6 +341,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     state: effectiveState,
     progress: uploadProgress.percentage,
     error: effectiveError,
+    lastError: uploadLastError,
     file,
     previewUrl,
     metadata,

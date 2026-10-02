@@ -23,6 +23,9 @@ export type MediaType = "IMAGE" | "VIDEO" | "AUDIO";
 export type ExternalPlatform =
   "YOUTUBE" | "VIMEO" | "SOUNDCLOUD" | "SELF_HOSTED";
 
+/** The platforms a contributed film link can come from. Spec 039 F2/F3. */
+export type FilmPlatform = Extract<ExternalPlatform, "YOUTUBE" | "VIMEO">;
+
 export type MediaSource = "LOCAL" | "GOOGLE_PHOTOS" | "ADOBE_LIGHTROOM";
 
 /**
@@ -329,6 +332,35 @@ export interface SubmitExternalMediaRequest {
   thumbnailUrl?: string;
   author?: string;
   category?: string;
+  /** The settlement the film was made near (a `towns.id`). Spec 039. */
+  townId?: string;
+  /** Free-text location, used alongside or instead of `townId`. Max 255. Spec 039. */
+  locationName?: string;
+  /** Free-text date, e.g. "circa 1985". Max 100. Spec 039. */
+  approximateDate?: string;
+}
+
+/**
+ * Result of a duplicate check for an external film submission, by platform and
+ * external id. Matches `GET /api/v1/gallery/submissions/lookup`. Spec 039.
+ *
+ * `public` means an ACTIVE row — safe to link to. `pending` means a
+ * PENDING_REVIEW row: no id or url is exposed, only that it exists. `none`
+ * covers every other status and an unknown id.
+ */
+export type FilmSubmissionLookup =
+  | { status: "public"; id: string; url: string }
+  | { status: "pending" }
+  | { status: "none" };
+
+/**
+ * Response from `POST /api/v1/feedback/media-corrections`. Matches the
+ * backend's `SuggestionResponseDto` — the correction is stored as a
+ * `CORRECTION` suggestion. Spec 039.
+ */
+export interface MediaCorrectionResponse {
+  id: string | null;
+  message: string;
 }
 
 /**

@@ -42,7 +42,10 @@ export interface UploadResult {
 export interface UploadOptions {
   entryId?: string;
   category?: string;
+  title?: string;
   description?: string;
+  /** The settlement to attach the photo to (`towns.id`). Spec 039. */
+  townId?: string;
   onProgress?: (progress: UploadProgress) => void;
   // EXIF metadata (privacy-processed)
   latitude?: number;
@@ -75,6 +78,13 @@ export interface UseR2UploadReturn {
   progress: UploadProgress;
   /** Error message if upload failed */
   error: string | null;
+  /**
+   * The error behind `error`: the one thrown by the last failed attempt
+   * (presign, R2 PUT or confirm), or a plain Error for a file that failed
+   * validation. Lets a caller narrow with `instanceof ApiError` to read
+   * `status` / `retryAfterSeconds` (e.g. to show a 429 countdown). Spec 039.
+   */
+  lastError: Error | null;
   /** Uploads a file to R2 storage with progress tracking */
   upload: (file: File, options?: UploadOptions) => Promise<UploadResult | null>;
   /** Cancels the current upload */
@@ -123,7 +133,8 @@ export function useR2Upload(): UseR2UploadReturn {
     total: 0,
     percentage: 0,
   });
-  const [error, setError] = useState<string | null>(null);
+  const [lastError, setLastError] = useState<Error | null>(null);
+  const error = lastError?.message ?? null;
 
   const xhrRef = useRef<XMLHttpRequest | null>(null);
   const apiClient = useRef(new BackendApiClient());
@@ -210,13 +221,13 @@ export function useR2Upload(): UseR2UploadReturn {
       options?: UploadOptions
     ): Promise<UploadResult | null> => {
       // Reset state
-      setError(null);
+      setLastError(null);
       setProgress({ loaded: 0, total: 0, percentage: 0 });
 
       // Validate file
       const validationError = validateFile(file);
       if (validationError) {
-        setError(validationError);
+        setLastError(new Error(validationError));
         setState("error");
         return null;
       }
@@ -243,7 +254,9 @@ export function useR2Upload(): UseR2UploadReturn {
           fileSize: file.size,
           entryId: options?.entryId,
           category: options?.category,
+          title: options?.title,
           description: options?.description,
+          townId: options?.townId,
           // EXIF metadata (privacy-processed)
           latitude: options?.latitude,
           longitude: options?.longitude,
@@ -272,16 +285,16 @@ export function useR2Upload(): UseR2UploadReturn {
           publicUrl: media.publicUrl ?? "",
         };
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Upload failed unexpectedly";
+        const caughtError =
+          err instanceof Error ? err : new Error("Upload failed unexpectedly");
 
         // Don't show error for cancellation
-        if (message === "Upload cancelled") {
+        if (caughtError.message === "Upload cancelled") {
           setState("idle");
           return null;
         }
 
-        setError(message);
+        setLastError(caughtError);
         setState("error");
         return null;
       }
@@ -311,13 +324,14 @@ export function useR2Upload(): UseR2UploadReturn {
     }
     setState("idle");
     setProgress({ loaded: 0, total: 0, percentage: 0 });
-    setError(null);
+    setLastError(null);
   }, []);
 
   return {
     state,
     progress,
     error,
+    lastError,
     upload,
     cancel,
     reset,

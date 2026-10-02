@@ -13,6 +13,7 @@ import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.gallery.repository.MediaModerationAuditRepository
+import com.nosilha.core.gallery.repository.requireKnownPlace
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.events.MediaAnalysisBatchRequestedEvent
@@ -271,7 +272,7 @@ class GalleryModerationService(
         // a half-applied entity. IllegalArgumentException maps to 400 in GlobalExceptionHandler.
         val newPlaceId = request.placeId.takeIf { media is ExternalMedia && request.clearPlace != true }
         if (newPlaceId != null && newPlaceId != (media as ExternalMedia).placeId) {
-            require(repository.placeExists(newPlaceId)) { "Unknown placeId: $newPlaceId" }
+            repository.requireKnownPlace(newPlaceId)
         }
 
         request.title?.let { media.title = it }

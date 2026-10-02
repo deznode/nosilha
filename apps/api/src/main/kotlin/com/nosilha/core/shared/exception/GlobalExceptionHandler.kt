@@ -195,10 +195,13 @@ class GlobalExceptionHandler {
 
     /**
      * Handles rate limit violations (429 errors) from content action services.
+     *
+     * Sets the `Retry-After` header (whole seconds) whenever the exception carries
+     * [RateLimitExceededException.retryAfterSeconds], so clients can back off precisely.
      */
     @ExceptionHandler(RateLimitExceededException::class)
     fun handleRateLimitExceeded(
-        ex: RuntimeException,
+        ex: RateLimitExceededException,
         request: HttpServletRequest,
     ): ResponseEntity<ErrorResponse> {
         logger.warn { "Rate limit exceeded: ${ex.message}" }
@@ -212,7 +215,9 @@ class GlobalExceptionHandler {
                 timestamp = LocalDateTime.now(),
             )
 
-        return ResponseEntity(errorResponse, HttpStatus.TOO_MANY_REQUESTS)
+        val responseBuilder = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+        ex.retryAfterSeconds?.let { responseBuilder.header("Retry-After", it.toString()) }
+        return responseBuilder.body(errorResponse)
     }
 
     /**
@@ -271,10 +276,26 @@ class BusinessException(
 /**
  * Indicates callers exceeded a defined rate limit.
  * Allows feature modules to communicate the violation without coupling.
+ *
+ * @property retryAfterSeconds Whole seconds until the bucket refills, echoed in the
+ *   `Retry-After` response header by [GlobalExceptionHandler.handleRateLimitExceeded].
+ *   Null when the caller has not computed a wait time.
  */
 class RateLimitExceededException(
-    message: String
-) : RuntimeException(message)
+    message: String,
+    val retryAfterSeconds: Long? = null,
+) : RuntimeException(message) {
+    companion object {
+        private const val NANOS_PER_SECOND = 1_000_000_000L
+
+        /**
+         * Converts Bucket4j's `ConsumptionProbe.nanosToWaitForRefill` into whole seconds for
+         * the `Retry-After` header: rounded up, and never below 1.
+         */
+        fun retryAfterSecondsFrom(nanosToWaitForRefill: Long): Long =
+            ((nanosToWaitForRefill + NANOS_PER_SECOND - 1) / NANOS_PER_SECOND).coerceAtLeast(1L)
+    }
+}
 
 /**
  * Indicates YouTube sync feature is not enabled.

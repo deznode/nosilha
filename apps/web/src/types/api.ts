@@ -209,7 +209,10 @@ export interface ConfirmRequest {
   fileSize: number;
   entryId?: string;
   category?: string;
+  title?: string;
   description?: string;
+  /** The settlement to attach the photo to (`towns.id`), validated with `placeExists`. Spec 039. */
+  townId?: string;
   // EXIF metadata (privacy-processed)
   latitude?: number;
   longitude?: number;

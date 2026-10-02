@@ -19,7 +19,8 @@ import java.util.UUID
  *   <li>Name: 2-255 characters</li>
  *   <li>Email: Valid email format (RFC 5322)</li>
  *   <li>Suggestion type: CORRECTION, ADDITION, FEEDBACK, or PHOTO_IDENTIFICATION</li>
- *   <li>Message: 10-5000 characters (minimum substance, maximum prevent abuse)</li>
+ *   <li>Message: 1-5000 characters. The public suggestion form enforces a 10-character minimum in
+ *   SuggestionCreateDto; media corrections accept shorter notes (1-2000).</li>
  *   <li>Rate limiting: Maximum 5 submissions per hour per IP address (enforced in service layer)</li>
  *   <li>Honeypot validation: Client-side field must be empty (enforced in controller)</li>
  * </ul>
@@ -55,8 +56,11 @@ class Suggestion(
     @Enumerated(EnumType.STRING)
     @Column(name = "suggestion_type", nullable = false, length = 20)
     val suggestionType: SuggestionType,
+    // min = 1, not 10: a media correction (spec 039) validates its own 1..2000 range at the
+    // DTO layer via MediaCorrectionCreateDto. The public suggestion form still enforces its
+    // stricter 10-char floor at the SuggestionCreateDto layer, before persistence.
     @NotBlank
-    @Size(min = 10, max = 5000)
+    @Size(min = 1, max = 5000)
     @Column(name = "message", nullable = false, columnDefinition = "TEXT")
     val message: String,
     @Column(name = "page_title", length = 512)

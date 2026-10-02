@@ -144,6 +144,13 @@ class UserUploadedMedia : GalleryMedia() {
     @Column(name = "archive_source", length = 255)
     var archiveSource: String? = null
 
+    /**
+     * Settlement (towns.id) the photo was taken in or of (spec 039). A plain column with no
+     * JPA association, so the gallery module never depends on places.
+     */
+    @Column(name = "place_id")
+    var placeId: UUID? = null
+
     // --- AI-generated fields (populated on moderation approval) ---
 
     /** AI-generated concise title for display. */

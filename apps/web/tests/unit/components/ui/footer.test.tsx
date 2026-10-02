@@ -67,6 +67,21 @@ describe("Footer", () => {
     expect(screen.getByTestId("newsletter")).toBeInTheDocument();
   });
 
+  // Spec 039 E5.
+  it("invites a photograph or a film, to /contribute", () => {
+    render(<Footer />);
+    const footer = screen.getByRole("contentinfo");
+
+    expect(
+      within(footer).getByText("Have something of Brava?")
+    ).toBeInTheDocument();
+    expect(
+      within(footer).getByRole("link", {
+        name: "Give a photograph or a film →",
+      })
+    ).toHaveAttribute("href", "/contribute");
+  });
+
   // FR-009: a component dropped in here later must not be able to reintroduce
   // the audit's contrast failures, so nothing in the footer may resolve against
   // the page's light/dark tokens.

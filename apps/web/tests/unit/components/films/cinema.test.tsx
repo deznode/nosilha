@@ -3,7 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FilmsCinema } from "@/components/films/cinema/films-cinema";
-import { narrowingFacets } from "@/components/films/cinema/all-films-grid";
+import {
+  AllFilmsGrid,
+  narrowingFacets,
+} from "@/components/films/cinema/all-films-grid";
 import { heroMayAutoplay } from "@/components/films/cinema/cinema-hero";
 import { FilmsStrip } from "@/components/films/films-strip";
 import type {
@@ -117,6 +120,20 @@ describe("FilmsCinema", () => {
     expect(screen.getByRole("link", { name: /Film f2/ })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Film f3/ })).toBeInTheDocument();
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+  });
+});
+
+/** Spec 039 E4 — the films grid always ends with the dashed invitation cell. */
+describe("AllFilmsGrid invitation cell", () => {
+  it("closes the grid with a link to the film form", () => {
+    render(<AllFilmsGrid films={[makeFilm("a"), makeFilm("b")]} />);
+    const links = screen.getAllByRole("link");
+    const last = links[links.length - 1];
+
+    expect(screen.getByText("Have a film of Brava?")).toBeInTheDocument();
+    expect(screen.getByText("A link is enough.")).toBeInTheDocument();
+    expect(last).toHaveAccessibleName("Send a film link");
+    expect(last).toHaveAttribute("href", "/contribute/media?kind=film");
   });
 });
 

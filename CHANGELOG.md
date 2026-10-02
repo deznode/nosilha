@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Media immersion (spec 038)** — photographs and films rebuilt as immersion screens: a photograph viewing room with crossfade and a details panel, a films cinema hero and theatre player with an up-next rail, and curated film display titles and settlements (V23) that YouTube sync never overwrites (#234)
+- Facebook domain verification meta tag (#235)
 - **Media and map redesign (spec 034)** — heritage fields and settlement completeness on directory entries, entry heroes stored as gallery media, public gallery facets and sequence endpoints, redesigned archive screens with legacy redirects, and admin data tools for broken objects and backfills (#216)
 - **Films section (spec 035)** — `/films` index with host facets and pagination, film pages that play YouTube, Vimeo or archive files in place, and a films strip on the archive home (#217, shipped in #216)
 - **Instagram on the archive home (spec 036)** — a "From Instagram" section beside the films strip that shows an unavailable state instead of disappearing (shipped in #216)
@@ -34,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Mobile map selection, bottom sheet and photo viewer touch handling (#236)
+- Place and settlement coordinates moved onto their OSM points (V22); upload filenames no longer shown on photographs (#231)
 - Map page freeze on re-navigation (react-map-gl `reuseMaps` with Activity), and recovery from Activity restore crashes (#98)
 - CI quality gates that reported success while failing: frontend lint and type-check, the unit test suite, and eight other gates (#165)
 - Frontend Trivy dependency gate now scans the root `pnpm-lock.yaml` instead of finding nothing in `apps/web` (#181)
