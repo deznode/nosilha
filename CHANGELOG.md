@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-04
+
 ### Added
 
+- **Contribution flow (spec 039)** — a `/contribute` landing page with photograph and film-link forms that ask for sign-in only at "Send to the archive" (emailed code, password or Google, with the draft kept across the Google round trip), an accent-insensitive town picker, a check for film links already in the archive, and media corrections stored as suggestions (#237)
 - **Media immersion (spec 038)** — photographs and films rebuilt as immersion screens: a photograph viewing room with crossfade and a details panel, a films cinema hero and theatre player with an up-next rail, and curated film display titles and settlements (V23) that YouTube sync never overwrites (#234)
 - Facebook domain verification meta tag (#235)
 - **Media and map redesign (spec 034)** — heritage fields and settlement completeness on directory entries, entry heroes stored as gallery media, public gallery facets and sequence endpoints, redesigned archive screens with legacy redirects, and admin data tools for broken objects and backfills (#216)
@@ -33,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Design system token compliance across UI components; domain components moved out of `components/ui/` (#140)
 - Cap Artifact Registry growth from ~8.5 GB to ~1 GB (#174)
 - Remove obsolete root tooling, the empty `libs/` package, and docs for shipped work (#221)
+- Dependency updates, including Kotlin 2.4.10, Gradle 9.8.0 and Next.js 16.3.7 (#238, #239)
 
 ### Fixed
 
@@ -48,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Remove public read access from the unused GCS media bucket (#240)
 - Patch `next`, `sharp` and `fast-uri` CVEs (#215)
 - Override `shell-quote` to clear the last critical Dependabot alert (#180)
 - Share environment files through SOPS + age encryption (#140)
@@ -135,6 +140,7 @@ First public release of Nos Ilha — a community-driven cultural heritage hub fo
 - Disable Docker Compose auto-detection in production profile
 - Add `.sdkmanrc` for Java 25 version pinning
 
-[Unreleased]: https://github.com/deznode/nosilha/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/deznode/nosilha/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/deznode/nosilha/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/deznode/nosilha/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/deznode/nosilha/commits/v1.0.0
