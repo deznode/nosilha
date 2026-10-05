@@ -55,20 +55,6 @@ resource "google_storage_bucket" "media_storage" {
   }
 }
 
-# --- IAM Permissions ---
-
-# Granting public read access to all objects in the bucket.
-# This allows the Next.js frontend to display images and videos directly.
-resource "google_storage_bucket_iam_member" "public_reader" {
-  bucket = google_storage_bucket.media_storage.name
-  role   = "roles/storage.objectViewer"
-  member = "allUsers"
-
-  depends_on = [
-    google_storage_bucket.media_storage
-  ]
-}
-
 
 
 
