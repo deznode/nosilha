@@ -29,7 +29,7 @@ test.describe("Map explorer", () => {
 
     await expect(
       page
-        .getByRole("navigation", { name: "Archive", exact: true })
+        .getByRole("navigation", { name: "Primary", exact: true })
         .getByRole("link", {
           name: "Map",
         })
