@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- The unused GCS media bucket, its service-account grants and the `GCS_BUCKET_NAME` setting; media has been served from Cloudflare R2 since the migration (#242)
+
 ## [1.2.0] - 2026-10-04
 
 ### Added
