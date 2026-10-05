@@ -13,12 +13,6 @@ variable "gcp_region" {
   default     = "us-east1"
 }
 
-variable "media_bucket_name" {
-  type        = string
-  description = "The suffix for the media storage bucket name."
-  default     = "media-storage-useast1"
-}
-
 
 variable "billing_account_id" {
   type        = string

@@ -1,9 +1,5 @@
 # Defines the outputs from our Terraform configuration.
 
-output "gcs_media_bucket_name" {
-  description = "The fully-qualified name of the created GCS bucket for media storage."
-  value       = google_storage_bucket.media_storage.url
-}
 output "backend_api_service_url" {
   description = "The publicly accessible URL of the deployed backend API service."
   value       = google_cloud_run_v2_service.nosilha_backend_api.uri
@@ -84,15 +80,6 @@ output "dns_records" {
     www_domain     = google_cloud_run_domain_mapping.nosilha-www-domain-mapping.status[0].resource_records
     api_domain     = google_cloud_run_domain_mapping.nosilha-backend-domain-mapping.status[0].resource_records
   }
-}
-
-# ------------------------------------------------------------------------------
-# Storage Outputs
-# ------------------------------------------------------------------------------
-
-output "gcs_media_bucket_name_only" {
-  description = "The name of the GCS bucket for media storage (bucket name only)"
-  value       = google_storage_bucket.media_storage.name
 }
 
 # ------------------------------------------------------------------------------

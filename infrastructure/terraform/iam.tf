@@ -211,13 +211,6 @@ resource "google_secret_manager_secret_iam_member" "grant_revalidate_secret_fron
   member    = google_service_account.frontend_runner.member
 }
 
-# Grant backend service account access to GCS bucket
-resource "google_storage_bucket_iam_member" "grant_gcs_access" {
-  bucket = google_storage_bucket.media_storage.name
-  role   = "roles/storage.objectAdmin"
-  member = google_service_account.backend_runner.member
-}
-
 # ------------------------------------------------------------------------------
 # IAM Roles for CI/CD Service Account
 # ------------------------------------------------------------------------------
@@ -246,17 +239,6 @@ resource "google_project_iam_member" "cicd_secret_accessor" {
 # Allow CI/CD to manage Terraform state in GCS
 resource "google_storage_bucket_iam_member" "cicd_terraform_state_admin" {
   bucket = google_storage_bucket.terraform_state.name
-  role   = "roles/storage.objectAdmin"
-  member = google_service_account.cicd_deployer.member
-
-  depends_on = [
-    google_project_iam_member.cicd_storage_admin
-  ]
-}
-
-# Allow CI/CD to read/write to the media storage bucket (for integration tests)
-resource "google_storage_bucket_iam_member" "cicd_media_storage_access" {
-  bucket = google_storage_bucket.media_storage.name
   role   = "roles/storage.objectAdmin"
   member = google_service_account.cicd_deployer.member
 
