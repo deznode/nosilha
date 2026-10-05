@@ -82,13 +82,6 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value = var.gcp_project_id
       }
 
-      # Provides the application with the name of the GCS bucket for media storage.
-      # This value is sourced from the GCS bucket resource we defined earlier.
-      env {
-        name  = "GCS_BUCKET_NAME"
-        value = google_storage_bucket.media_storage.name
-      }
-
       # CORS configuration for frontend API access
       # Allows both the root domain and www subdomain to access the backend API
       env {

@@ -36,25 +36,6 @@ data "google_project" "project" {
   project_id = var.gcp_project_id
 }
 
-# --- Google Cloud Storage (GCS) Bucket ---
-
-resource "google_storage_bucket" "media_storage" {
-  # Creates a globally unique bucket name. e.g., "nosilha-com-media-storage-useast1"
-  name          = "nosilha-com-${var.media_bucket_name}"
-  location      = var.gcp_region
-  force_destroy = false # Set to false in production to prevent accidental deletion of non-empty buckets.
-
-  # Enables Uniform Bucket-Level Access for simpler and more consistent permission management.
-  uniform_bucket_level_access = true
-
-  website {
-    # Although we are not hosting a static site, these settings are sometimes
-    # useful for direct linking. They don't affect the IAM permissions.
-    main_page_suffix = "index.html"
-    not_found_page   = "404.html"
-  }
-}
-
 
 
 

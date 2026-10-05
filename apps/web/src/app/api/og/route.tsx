@@ -8,11 +8,7 @@ import { OgTemplate } from "./og-template";
 
 const log = createComponentLogger("OGRoute");
 
-const ALLOWED_IMAGE_HOSTS = [
-  "storage.googleapis.com",
-  "media.nosilha.com",
-  "images.unsplash.com",
-];
+const ALLOWED_IMAGE_HOSTS = ["media.nosilha.com", "images.unsplash.com"];
 
 function isSafeImageUrl(url: string): boolean {
   try {
