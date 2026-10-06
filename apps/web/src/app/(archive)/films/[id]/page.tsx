@@ -12,6 +12,7 @@ import { FILMS_FETCH_SIZE, toFilm, toFilms } from "@/lib/films";
 import { isMediaId } from "@/lib/gallery-mappers";
 import { getArchivePhotographs } from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
+import { sharePreviewImage } from "@/lib/share";
 import { excerpt } from "@/lib/text";
 
 /**
@@ -37,6 +38,8 @@ export async function generateMetadata({
   const film = media ? toFilm(media) : null;
   if (!film) return {};
 
+  const image = sharePreviewImage(film.thumbnailUrl, film.displayTitle);
+
   return generatePageMetadata({
     title: film.displayTitle,
     description: film.description
@@ -44,6 +47,7 @@ export async function generateMetadata({
       : "A film of Brava Island from the archive, played in place.",
     path: `/films/${film.id}`,
     keywords: ["Brava Island", "Cape Verde", "archive film"],
+    images: image ? [image] : [],
   });
 }
 

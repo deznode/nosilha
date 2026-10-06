@@ -47,6 +47,12 @@ const RESIZE_ORIGIN = "https://nosilha.com";
 const RESIZED_HOSTS = ["media.nosilha.com"];
 /** Already small JPEGs on the host's own CDN; the resizer adds nothing. */
 const DIRECT_HOSTS = ["img.youtube.com", "i.ytimg.com"];
+/** What YouTube serves under each thumbnail name; any other name is 480×360. */
+const YOUTUBE_SIZES: Record<string, [number, number]> = {
+  "maxresdefault.jpg": [1280, 720],
+  "sddefault.jpg": [640, 480],
+  "mqdefault.jpg": [320, 180],
+};
 
 /**
  * The image a chat app shows beside a shared link, or null to keep the text card.
@@ -71,7 +77,9 @@ export function sharePreviewImage(
   if (parsed.protocol !== "https:") return null;
 
   if (DIRECT_HOSTS.includes(parsed.hostname)) {
-    return { url: src, width: 480, height: 360, alt, type: "image/jpeg" };
+    const file = parsed.pathname.slice(parsed.pathname.lastIndexOf("/") + 1);
+    const [width, height] = YOUTUBE_SIZES[file] ?? [480, 360];
+    return { url: src, width, height, alt, type: "image/jpeg" };
   }
   if (!RESIZED_HOSTS.includes(parsed.hostname)) return null;
 

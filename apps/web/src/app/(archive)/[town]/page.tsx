@@ -3,9 +3,17 @@ import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { SettlementDetail } from "@/components/settlements/settlement-detail/settlement-detail";
-import { getEntries, getTownBySlug, getTownStatusSummary } from "@/lib/api";
+import {
+  getEntries,
+  getTownBySlug,
+  getTownFirstPhoto,
+  getTownStatusSummary,
+} from "@/lib/api";
+import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { generatePageMetadata } from "@/lib/metadata";
 import { isReservedSlug } from "@/lib/reserved-slugs";
+import { sharePreviewImage } from "@/lib/share";
+import { townHoldings } from "@/lib/share-copy";
 
 /**
  * A settlement that may not exist cannot have a useful static shell, and streaming one
@@ -29,16 +37,32 @@ export async function generateMetadata({
   const { town: slug } = await params;
   if (isReservedSlug(slug)) return {};
 
-  const town = await getTownBySlug(slug).catch(() => undefined);
+  const [town, summaries] = await Promise.all([
+    getTownBySlug(slug).catch(() => undefined),
+    // Optional here: without it the preview keeps the text card and plain description.
+    getTownStatusSummary().catch(() => []),
+  ]);
   if (!town) return {};
+
+  const summary = summaries.find((item) => item.slug === slug);
+  const first = summary?.id
+    ? await getTownFirstPhoto(summary.id).catch(() => null)
+    : null;
+  const image = sharePreviewImage(
+    first ? resolvePublicImageUrl(first) : null,
+    town.name
+  );
+  const holdings = summary ? townHoldings(summary) : null;
+  const about =
+    town.description?.trim() ||
+    `What the archive holds about ${town.name}, a settlement on Brava Island, Cape Verde.`;
 
   return generatePageMetadata({
     title: town.name,
-    description:
-      town.description?.trim() ||
-      `What the archive holds about ${town.name}, a settlement on Brava Island, Cape Verde.`,
+    description: holdings ? `${holdings}. ${about}` : about,
     path: `/${town.slug}`,
     keywords: [town.name, "Brava Island", "Cape Verde", "settlement"],
+    images: image ? [image] : [],
   });
 }
 

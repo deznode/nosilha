@@ -96,6 +96,23 @@ describe("sharePreviewImage", () => {
     ).toBe("https://i.ytimg.com/vi/abc123/hqdefault.jpg");
   });
 
+  it("declares the size YouTube serves under each thumbnail name", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const size = (file: string) => {
+      const image = sharePreviewImage(
+        `https://i.ytimg.com/vi/abc123/${file}`,
+        "A film"
+      );
+      return [image?.width, image?.height];
+    };
+
+    expect(size("maxresdefault.jpg")).toEqual([1280, 720]);
+    expect(size("sddefault.jpg")).toEqual([640, 480]);
+    expect(size("mqdefault.jpg")).toEqual([320, 180]);
+    expect(size("hqdefault.jpg")).toEqual([480, 360]);
+    expect(size("0.jpg")).toEqual([480, 360]);
+  });
+
   it("gives null for anything it cannot vouch for", () => {
     vi.stubEnv("NODE_ENV", "production");
 
