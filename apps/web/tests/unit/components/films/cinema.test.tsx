@@ -131,7 +131,9 @@ describe("AllFilmsGrid invitation cell", () => {
     const last = links[links.length - 1];
 
     expect(screen.getByText("Have a film of Brava?")).toBeInTheDocument();
-    expect(screen.getByText("A link is enough.")).toBeInTheDocument();
+    expect(
+      screen.getByText("A YouTube or Vimeo link is enough.")
+    ).toBeInTheDocument();
     expect(last).toHaveAccessibleName("Send a film link");
     expect(last).toHaveAttribute("href", "/contribute/media?kind=film");
   });

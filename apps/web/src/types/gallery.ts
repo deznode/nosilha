@@ -344,14 +344,24 @@ export interface SubmitExternalMediaRequest {
  * Result of a duplicate check for an external film submission, by platform and
  * external id. Matches `GET /api/v1/gallery/submissions/lookup`. Spec 039.
  *
- * `public` means an ACTIVE row — safe to link to. `pending` means a
- * PENDING_REVIEW row: no id or url is exposed, only that it exists. `none`
- * covers every other status and an unknown id.
+ * `public` means an ACTIVE row — safe to link to, with whatever title, place
+ * and date the record holds, to name the film on the duplicate card.
+ * `pending` means a PENDING_REVIEW row: no id or content is exposed, only
+ * that it exists. `none` covers every other status and an unknown id.
  */
 export type FilmSubmissionLookup =
-  | { status: "public"; id: string; url: string }
-  | { status: "pending" }
-  | { status: "none" };
+  PublicFilmLookup | { status: "pending" } | { status: "none" };
+
+export interface PublicFilmLookup {
+  status: "public";
+  id: string;
+  url: string;
+  /** The curated title, else the host's. */
+  title?: string;
+  /** The settlement's name, else the record's own location text. */
+  place?: string;
+  approximateDate?: string;
+}
 
 /**
  * Response from `POST /api/v1/feedback/media-corrections`. Matches the

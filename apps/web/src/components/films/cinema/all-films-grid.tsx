@@ -56,7 +56,7 @@ export function AllFilmsGrid({ films }: { films: readonly Film[] }) {
               already the last position — no dense-packing reorder to fight. */}
           <InvitationCell
             question="Have a film of Brava?"
-            body="A link is enough."
+            body="A YouTube or Vimeo link is enough."
             ctaLabel="Send a film link"
             href="/contribute/media?kind=film"
           />

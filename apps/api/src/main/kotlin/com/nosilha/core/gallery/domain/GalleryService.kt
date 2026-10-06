@@ -693,7 +693,10 @@ class GalleryService(
         val active = rows.firstOrNull { it.status == GalleryMediaStatus.ACTIVE }
 
         return when {
-            active != null -> FilmSubmissionLookupDto.activeMedia(active.id!!)
+            active != null -> FilmSubmissionLookupDto.activeMedia(
+                active,
+                active.placeId?.let { repository.findTownNameById(it) },
+            )
             rows.any { it.status == GalleryMediaStatus.PENDING_REVIEW } -> FilmSubmissionLookupDto.pendingMedia()
             else -> FilmSubmissionLookupDto.noMedia()
         }

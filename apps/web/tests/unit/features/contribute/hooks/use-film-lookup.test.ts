@@ -321,6 +321,33 @@ describe("useFilmLookup", () => {
     }
   );
 
+  it("carries a public film's title, place and date through to the media", async () => {
+    vi.mocked(api.lookupFilmSubmission).mockResolvedValue({
+      status: "public",
+      id: "media-a",
+      url: "/films/media-a",
+      title: "Festa de São João",
+      place: "Nova Sintra",
+      approximateDate: "1987",
+    });
+
+    const { result } = renderHook(() => useFilmLookup(youtubeA));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+
+    expect(result.current).toEqual({
+      status: "public",
+      media: {
+        id: "media-a",
+        url: "/films/media-a",
+        title: "Festa de São João",
+        place: "Nova Sintra",
+        approximateDate: "1987",
+      },
+    });
+  });
+
   it("maps a pending lookup to status pending, with no media", async () => {
     vi.mocked(api.lookupFilmSubmission).mockResolvedValue({
       status: "pending",

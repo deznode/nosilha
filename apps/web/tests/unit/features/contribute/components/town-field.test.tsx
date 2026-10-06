@@ -172,6 +172,26 @@ describe("TownField", () => {
     ).toBeInTheDocument();
   });
 
+  it("free text wraps in a textarea and keeps a pasted line break as a space", async () => {
+    const user = userEvent.setup();
+    const { onChange } = renderField({
+      value: { townId: null, townName: null, detail: "", mode: "free" },
+    });
+
+    const field = screen.getByRole("textbox");
+    expect(field.tagName).toBe("TEXTAREA");
+
+    await user.click(field);
+    await user.paste("Above the harbour,\nbehind the old school");
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      townId: null,
+      townName: null,
+      detail: "Above the harbour, behind the old school",
+      mode: "free",
+    });
+  });
+
   it("picking a town from the picker's free-text link switches to free mode and clears the town", async () => {
     const user = userEvent.setup();
     const { onChange } = renderField({

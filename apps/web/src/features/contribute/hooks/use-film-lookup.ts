@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { lookupFilmSubmission } from "@/lib/api";
+import type { PublicFilmLookup } from "@/types/gallery";
 
 import type { ParsedFilmLink } from "../lib/parse-video-url";
 
 export interface FilmLookupResult {
   status: "idle" | "checking" | "public" | "pending" | "none";
-  media?: { id: string; url: string };
+  /** The public film the link matches — set only when `status` is `public`. */
+  media?: Omit<PublicFilmLookup, "status">;
 }
 
 const DEBOUNCE_MS = 400;
@@ -67,10 +69,8 @@ export function useFilmLookup(
       lookupFilmSubmission(parsed.platform, parsed.externalId)
         .then((lookup): FilmLookupResult => {
           if (lookup.status === "public") {
-            return {
-              status: "public",
-              media: { id: lookup.id, url: lookup.url },
-            };
+            const { status, ...media } = lookup;
+            return { status, media };
           }
           if (lookup.status === "pending") {
             return { status: "pending" };

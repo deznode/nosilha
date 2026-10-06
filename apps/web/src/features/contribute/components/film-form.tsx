@@ -93,8 +93,7 @@ export function FilmForm({
               status={duplicate}
               platform={link.platform}
               externalId={link.externalId}
-              mediaId={lookup.media?.id}
-              url={lookup.media?.url}
+              media={lookup.media}
               onNeedsSignIn={onNeedsSignIn}
             />
           )}

@@ -387,6 +387,18 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     ): Boolean
 
     /**
+     * A settlement's name, for the film duplicate check (spec 039). Reads the towns table
+     * directly, as [placeExists] does. Null for an unknown id.
+     */
+    @Query(
+        value = "SELECT name FROM towns WHERE id = :placeId",
+        nativeQuery = true,
+    )
+    fun findTownNameById(
+        @Param("placeId") placeId: UUID,
+    ): String?
+
+    /**
      * Finds the earliest ACTIVE photograph linked to a settlement, for the town picker's
      * confirmation tile (spec 039). "Photograph" means a USER_UPLOAD row whose content type
      * is an image, or a curated EXTERNAL row whose media type is IMAGE.

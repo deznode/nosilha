@@ -60,7 +60,7 @@ export interface Film {
   watchUrl: string | null;
 }
 
-const UNTITLED_FILM = "Untitled film";
+export const UNTITLED_FILM = "Untitled film";
 
 /**
  * How many films a screen asks the API for: its page cap. The index filters, sorts
