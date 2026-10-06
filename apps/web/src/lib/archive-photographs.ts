@@ -356,26 +356,36 @@ function placeRecorded(
   return photo.located || photo.placeName !== null;
 }
 
+/** What a photograph's record can lack, in the order the archive asks about it. */
+export type MissingField = "photographer" | "place" | "date";
+
+/** Every field the record lacks; empty when it is complete. */
+export function missingFields(photo: ArchivePhoto): MissingField[] {
+  const missing: MissingField[] = [];
+  if (photo.missing.photographer) missing.push("photographer");
+  if (!placeRecorded(photo)) missing.push("place");
+  if (photo.missing.date) missing.push("date");
+  return missing;
+}
+
+const HELP_WORDS: Record<MissingField, string> = {
+  photographer: "who took it",
+  place: "where",
+  date: "when",
+};
+
 /**
  * `Not yet recorded: who took it, where and when.`, naming only what is missing; null
  * when the record is complete.
  */
 export function viewerHelpLine(photo: ArchivePhoto): string | null {
-  const missing: string[] = [];
-  if (photo.missing.photographer) missing.push("who took it");
-  if (!placeRecorded(photo)) missing.push("where");
-  if (photo.missing.date) missing.push("when");
+  const missing = missingFields(photo).map((field) => HELP_WORDS[field]);
   return missing.length ? `Not yet recorded: ${joinAnd(missing)}.` : null;
 }
 
 /** Which field the viewer's help link asks about first. */
-export function firstMissingField(
-  photo: ArchivePhoto
-): "photographer" | "place" | "date" | null {
-  if (photo.missing.photographer) return "photographer";
-  if (!placeRecorded(photo)) return "place";
-  if (photo.missing.date) return "date";
-  return null;
+export function firstMissingField(photo: ArchivePhoto): MissingField | null {
+  return missingFields(photo)[0] ?? null;
 }
 
 /**
