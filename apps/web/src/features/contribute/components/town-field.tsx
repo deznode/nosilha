@@ -213,17 +213,19 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
 
       {showFree && (
         <div>
-          <input
-            type="text"
+          {/* Wraps as the board draws it; the text is still one line of
+              `location_name`, so a line break becomes a space. */}
+          <textarea
+            rows={2}
             value={value.detail}
             onChange={(event) =>
-              onChange({ ...value, detail: event.target.value })
+              onChange({
+                ...value,
+                detail: event.target.value.replace(/[^\S\n]*\n\s*/g, " "),
+              })
             }
             aria-label={label}
-            className={clsx(
-              TOWN_INPUT,
-              "text-body border-ocean-blue border-[1.5px]"
-            )}
+            className="bg-card text-body border-ocean-blue block field-sizing-content min-h-11 w-full resize-none rounded-lg border-[1.5px] px-3 py-[10px] text-[15px] leading-[1.4] outline-none"
           />
           <p className={clsx(HINT, "leading-[1.5]")}>
             In your words. It won&apos;t be linked to a town page.{" "}

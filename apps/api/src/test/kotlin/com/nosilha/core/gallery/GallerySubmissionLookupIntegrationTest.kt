@@ -67,14 +67,16 @@ class GallerySubmissionLookupIntegrationTest {
         platform: ExternalPlatform,
         externalId: String,
         status: GalleryMediaStatus,
+        customize: ExternalMedia.() -> Unit = {},
     ): UUID {
-        val media = ExternalMedia().apply {
-            this.title = "Fixture film"
-            this.mediaType = MediaType.VIDEO
-            this.platform = platform
-            this.externalId = externalId
-            this.status = status
-        }
+        val media = ExternalMedia()
+            .apply {
+                this.title = "Fixture film"
+                this.mediaType = MediaType.VIDEO
+                this.platform = platform
+                this.externalId = externalId
+                this.status = status
+            }.apply(customize)
         val saved = galleryMediaRepository.save(media)
         created += saved.id!!
         return saved.id!!
@@ -134,6 +136,42 @@ class GallerySubmissionLookupIntegrationTest {
             .andExpect(jsonPath("$.data.status").value("public"))
             .andExpect(jsonPath("$.data.id").value(id.toString()))
             .andExpect(jsonPath("$.data.url").value("/films/$id"))
+    }
+
+    @Test
+    @DisplayName("Should return the curated title, settlement name and date for an ACTIVE film")
+    fun `lookup should describe an active film as its public page does`() {
+        val townName = jdbcTemplate.queryForObject("SELECT name FROM towns WHERE id = ?", String::class.java, townA)
+        externalFilm(ExternalPlatform.YOUTUBE, "described001", GalleryMediaStatus.ACTIVE) {
+            title = "VID_0042.mp4"
+            displayTitle = "Festa de São João"
+            placeId = townA
+            locationName = "By the harbour"
+            approximateDate = "1987"
+        }
+
+        mockMvc
+            .perform(get("/api/v1/gallery/submissions/lookup").param("platform", "YOUTUBE").param("externalId", "described001"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.title").value("Festa de São João"))
+            .andExpect(jsonPath("$.data.place").value(townName))
+            .andExpect(jsonPath("$.data.approximateDate").value("1987"))
+    }
+
+    @Test
+    @DisplayName("Should fall back to the host title and location text, and omit an unrecorded date")
+    fun `lookup should fall back to the host title and location text`() {
+        externalFilm(ExternalPlatform.VIMEO, "fallback0001", GalleryMediaStatus.ACTIVE) {
+            title = "Brava 1975"
+            locationName = "By the harbour"
+        }
+
+        mockMvc
+            .perform(get("/api/v1/gallery/submissions/lookup").param("platform", "VIMEO").param("externalId", "fallback0001"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.title").value("Brava 1975"))
+            .andExpect(jsonPath("$.data.place").value("By the harbour"))
+            .andExpect(jsonPath("$.data.approximateDate").doesNotExist())
     }
 
     @Test
@@ -309,7 +347,11 @@ class GallerySubmissionLookupIntegrationTest {
     @Test
     @DisplayName("Should return only a status for a pending film, with no id or url keys at all")
     fun `lookup pending data should hold only the status key`() {
-        externalFilm(ExternalPlatform.YOUTUBE, "rawpending01", GalleryMediaStatus.PENDING_REVIEW)
+        externalFilm(ExternalPlatform.YOUTUBE, "rawpending01", GalleryMediaStatus.PENDING_REVIEW) {
+            placeId = townA
+            locationName = "By the harbour"
+            approximateDate = "1987"
+        }
 
         // doesNotExist() also passes for a present-but-null key; the map size doesn't
         mockMvc

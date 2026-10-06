@@ -4,6 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import { submitMediaCorrection } from "@/lib/api";
 import { ApiError } from "@/lib/api-error";
+import { UNTITLED_FILM } from "@/lib/films";
+
+import type { FilmLookupResult } from "../hooks/use-film-lookup";
 
 import {
   FILM_PLATFORM_LABEL,
@@ -13,10 +16,12 @@ import {
 
 interface DuplicateCardProps extends ParsedFilmLink {
   status: "public" | "pending";
-  /** The public media's id — required to post a correction (F5 only). */
-  mediaId?: string;
-  /** The archive URL for the existing media — shown only when `status` is `public`. */
-  url?: string;
+  /**
+   * The public film the link matches (F5 only): its archive URL, the id a
+   * correction is posted against, and whatever title, place and date the
+   * record holds.
+   */
+  media?: FilmLookupResult["media"];
   /** Called when posting a correction comes back 401 — the parent owns sign-in. */
   onNeedsSignIn?: () => void;
 }
@@ -56,15 +61,14 @@ function DuplicateThumb(link: ParsedFilmLink) {
 function DuplicateMediaRow({
   platform,
   externalId,
+  title,
   meta,
-}: ParsedFilmLink & { meta: string }) {
+}: ParsedFilmLink & { title: string; meta: string }) {
   return (
     <div className="flex items-center gap-3">
       <DuplicateThumb platform={platform} externalId={externalId} />
       <div className="min-w-0">
-        <div className="truncate text-[15px] font-medium">
-          {FILM_PLATFORM_LABEL[platform]}
-        </div>
+        <div className="truncate text-[15px] font-medium">{title}</div>
         <div className="text-muted mt-[3px] text-[13px]">{meta}</div>
       </div>
     </div>
@@ -79,16 +83,16 @@ function DuplicateMediaRow({
  * `pending` submission leaks nothing about the record beyond what's already
  * on the page.
  *
- * `public` (F5) additionally shows a link into the archive and a form to
- * send a correction. `pending` (F6) is status only — the item isn't public
+ * `public` (F5) additionally names the film (its title, then
+ * `YouTube · Nova Sintra · 1987` from whatever the record holds), and shows
+ * a link into the archive and a form to send a correction. `pending` (F6) is status only — the item isn't public
  * yet, so there's no archive link and no correction target. Spec 039.
  */
 export function DuplicateCard({
   status,
   platform,
   externalId,
-  mediaId,
-  url,
+  media,
   onNeedsSignIn,
 }: DuplicateCardProps) {
   if (status === "pending") {
@@ -100,6 +104,7 @@ export function DuplicateCard({
         <DuplicateMediaRow
           platform={platform}
           externalId={externalId}
+          title={FILM_PLATFORM_LABEL[platform]}
           meta={`${FILM_PLATFORM_LABEL[platform]} · not public yet`}
         />
         <p className="text-muted text-[14px] leading-[1.55]">
@@ -121,15 +126,22 @@ export function DuplicateCard({
       <DuplicateMediaRow
         platform={platform}
         externalId={externalId}
-        meta={FILM_PLATFORM_LABEL[platform]}
+        title={media?.title ?? UNTITLED_FILM}
+        meta={[
+          FILM_PLATFORM_LABEL[platform],
+          media?.place,
+          media?.approximateDate,
+        ]
+          .filter(Boolean)
+          .join(" · ")}
       />
       <p className="text-muted text-[14px] leading-[1.55]">
         This film is already in the archive, so there&apos;s no need to send it
         again.
       </p>
-      {url && (
+      {media && (
         <a
-          href={url}
+          href={media.url}
           target="_blank"
           rel="noreferrer"
           className="text-ocean-blue text-[14px] font-semibold"
@@ -137,8 +149,8 @@ export function DuplicateCard({
           See it in the archive →
         </a>
       )}
-      {mediaId && (
-        <CorrectionForm mediaId={mediaId} onNeedsSignIn={onNeedsSignIn} />
+      {media && (
+        <CorrectionForm mediaId={media.id} onNeedsSignIn={onNeedsSignIn} />
       )}
     </div>
   );

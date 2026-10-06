@@ -22,8 +22,7 @@ describe("DuplicateCard", () => {
           status="public"
           platform="YOUTUBE"
           externalId="k3Zq8XfT0aE"
-          mediaId="media-1"
-          url="https://nosilha.com/films/media-1"
+          media={{ id: "media-1", url: "https://nosilha.com/films/media-1" }}
         />
       );
 
@@ -55,7 +54,61 @@ describe("DuplicateCard", () => {
       ).toBeInTheDocument();
     });
 
-    it("omits the archive link when no url is known, and the correction form when no mediaId is known", () => {
+    it("names the film by its title, with the host, place and date beneath", () => {
+      render(
+        <DuplicateCard
+          status="public"
+          platform="YOUTUBE"
+          externalId="k3Zq8XfT0aE"
+          media={{
+            id: "media-1",
+            url: "/films/media-1",
+            title: "Festa de São João",
+            place: "Nova Sintra",
+            approximateDate: "1987",
+          }}
+        />
+      );
+
+      expect(screen.getByText("Festa de São João")).toBeInTheDocument();
+      expect(
+        screen.getByText("YouTube · Nova Sintra · 1987")
+      ).toBeInTheDocument();
+    });
+
+    it("leaves out whatever the record doesn't hold", () => {
+      render(
+        <DuplicateCard
+          status="public"
+          platform="VIMEO"
+          externalId="218447301"
+          media={{
+            id: "media-1",
+            url: "/films/media-1",
+            title: "Brava 1975",
+            approximateDate: "1975",
+          }}
+        />
+      );
+
+      expect(screen.getByText("Brava 1975")).toBeInTheDocument();
+      expect(screen.getByText("Vimeo · 1975")).toBeInTheDocument();
+    });
+
+    it("calls a film with no recorded title untitled, not by its host", () => {
+      render(
+        <DuplicateCard
+          status="public"
+          platform="YOUTUBE"
+          externalId="k3Zq8XfT0aE"
+          media={{ id: "media-1", url: "/films/media-1" }}
+        />
+      );
+
+      expect(screen.getByText("Untitled film")).toBeInTheDocument();
+    });
+
+    it("omits the archive link and the correction form when the film isn't known", () => {
       render(
         <DuplicateCard
           status="public"
@@ -79,7 +132,7 @@ describe("DuplicateCard", () => {
           status="public"
           platform="YOUTUBE"
           externalId="abc"
-          mediaId="media-1"
+          media={{ id: "media-1", url: "/films/media-1" }}
         />
       );
 
@@ -102,7 +155,7 @@ describe("DuplicateCard", () => {
           status="public"
           platform="YOUTUBE"
           externalId="abc"
-          mediaId="media-1"
+          media={{ id: "media-1", url: "/films/media-1" }}
         />
       );
 
@@ -129,7 +182,7 @@ describe("DuplicateCard", () => {
           status="public"
           platform="YOUTUBE"
           externalId="abc"
-          mediaId="media-1"
+          media={{ id: "media-1", url: "/films/media-1" }}
         />
       );
 
@@ -164,7 +217,7 @@ describe("DuplicateCard", () => {
           status="public"
           platform="YOUTUBE"
           externalId="abc"
-          mediaId="media-1"
+          media={{ id: "media-1", url: "/films/media-1" }}
         />
       );
 
@@ -199,7 +252,7 @@ describe("DuplicateCard", () => {
           status="public"
           platform="YOUTUBE"
           externalId="abc"
-          mediaId="media-1"
+          media={{ id: "media-1", url: "/films/media-1" }}
         />
       );
 
@@ -232,8 +285,8 @@ describe("DuplicateCard", () => {
           status="public"
           platform="YOUTUBE"
           externalId="abc"
-          mediaId="media-1"
           onNeedsSignIn={onNeedsSignIn}
+          media={{ id: "media-1", url: "/films/media-1" }}
         />
       );
 
