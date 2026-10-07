@@ -1,4 +1,4 @@
-import { capitalise, plural, toWords } from "@/lib/copy/number-words";
+import { capitalise, joinList, plural, toWords } from "@/lib/copy/number-words";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { nearestSettlement } from "@/lib/nearest-settlement";
 import { formatCameraInfo } from "@/lib/exif-utils";
@@ -341,11 +341,6 @@ export function photoEyebrow(photo: Pick<ArchivePhoto, "category">): string {
   return ["Photograph", photo.category].filter(Boolean).join(" · ");
 }
 
-function joinAnd(parts: string[]): string {
-  if (parts.length <= 1) return parts.join("");
-  return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
-}
-
 /**
  * Whether the record says where it was taken: coordinates or a place name. Being far
  * from every settlement (no `near`) is not the same as the place being unrecorded.
@@ -380,7 +375,9 @@ const HELP_WORDS: Record<MissingField, string> = {
  */
 export function viewerHelpLine(photo: ArchivePhoto): string | null {
   const missing = missingFields(photo).map((field) => HELP_WORDS[field]);
-  return missing.length ? `Not yet recorded: ${joinAnd(missing)}.` : null;
+  return missing.length
+    ? `Not yet recorded: ${joinList(missing, "and")}.`
+    : null;
 }
 
 /** Which field the viewer's help link asks about first. */

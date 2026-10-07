@@ -1,3 +1,4 @@
+import { YOUTUBE_THUMBNAIL_HOSTS } from "@/lib/cloudflare-image-loader";
 import type { OpenGraphImage } from "@/types/metadata";
 
 /**
@@ -9,6 +10,13 @@ import type { OpenGraphImage } from "@/types/metadata";
 export type ShareMoment = "photo" | "film" | "town" | "entry" | "ask";
 
 const SHARE_SOURCE = "share";
+const ASK_PARAM = "ask";
+const ASK_VALUE = "1";
+
+/** Whether a page's `ask` query value marks the link as an ask. */
+export function isAskLink(ask: string | null | undefined): boolean {
+  return ask === ASK_VALUE;
+}
 
 /**
  * The link a share control sends: the address with this share's tags and no one
@@ -25,12 +33,12 @@ export function buildShareLink(url: string, moment: ShareMoment): string {
 
   // A link that was itself shared arrives carrying tags; they describe that share.
   for (const key of [...parsed.searchParams.keys()]) {
-    if (key.startsWith("utm_") || key === "ask") {
+    if (key.startsWith("utm_") || key === ASK_PARAM) {
       parsed.searchParams.delete(key);
     }
   }
 
-  if (moment === "ask") parsed.searchParams.set("ask", "1");
+  if (moment === "ask") parsed.searchParams.set(ASK_PARAM, ASK_VALUE);
   parsed.searchParams.set("utm_source", SHARE_SOURCE);
   parsed.searchParams.set("utm_medium", "link");
   parsed.searchParams.set("utm_campaign", moment);
@@ -45,8 +53,6 @@ export function isShareArrival(search: string): boolean {
 /** `/cdn-cgi/image/` exists only behind Cloudflare, on the production origin. */
 const RESIZE_ORIGIN = "https://nosilha.com";
 const RESIZED_HOSTS = ["media.nosilha.com"];
-/** Already small JPEGs on the host's own CDN; the resizer adds nothing. */
-const DIRECT_HOSTS = ["img.youtube.com", "i.ytimg.com"];
 /** What YouTube serves under each thumbnail name; any other name is 480×360. */
 const YOUTUBE_SIZES: Record<string, [number, number]> = {
   "maxresdefault.jpg": [1280, 720],
@@ -76,7 +82,8 @@ export function sharePreviewImage(
   }
   if (parsed.protocol !== "https:") return null;
 
-  if (DIRECT_HOSTS.includes(parsed.hostname)) {
+  // Already small JPEGs on YouTube's own CDN; the resizer adds nothing.
+  if (YOUTUBE_THUMBNAIL_HOSTS.includes(parsed.hostname)) {
     const file = parsed.pathname.slice(parsed.pathname.lastIndexOf("/") + 1);
     const [width, height] = YOUTUBE_SIZES[file] ?? [480, 360];
     return { url: src, width, height, alt, type: "image/jpeg" };

@@ -5,6 +5,7 @@ import {
   type ArchivePhoto,
   type MissingField,
 } from "@/lib/archive-photographs";
+import { joinList, plural } from "@/lib/copy/number-words";
 import type { Film } from "@/lib/films";
 import type { TownStatusSummary } from "@/types/town";
 
@@ -25,16 +26,11 @@ const ASK_WORDS: Record<MissingField, string> = {
   date: "when it was taken",
 };
 
-function joinOr(parts: string[]): string {
-  if (parts.length <= 1) return parts.join("");
-  return `${parts.slice(0, -1).join(", ")} or ${parts[parts.length - 1]}`;
-}
-
 /** What the archive does not know about a photograph; null when it knows it all. */
 export function askDescription(photo: ArchivePhoto): string | null {
   const missing = missingFields(photo).map((field) => ASK_WORDS[field]);
   return missing.length
-    ? `The Brava archive does not know ${joinOr(missing)}.`
+    ? `The Brava archive does not know ${joinList(missing, "or")}.`
     : null;
 }
 
@@ -59,8 +55,7 @@ export function filmShareText(film: Pick<Film, "displayTitle">): string {
 }
 
 function counted(n: number, one: string, many: string): string | null {
-  if (n <= 0) return null;
-  return `${n} ${n === 1 ? one : many}`;
+  return n > 0 ? `${n} ${plural(n, one, many)}` : null;
 }
 
 /** `23 photographs · 5 place records`; null when the archive holds neither. */
@@ -119,7 +114,7 @@ export function filmArrivalLine(
   film: Pick<Film, "id">,
   films: readonly Pick<Film, "id">[] | null
 ): ArrivalLine {
-  const others = films ? films.filter((f) => f.id !== film.id).length : 0;
+  const others = films?.filter((f) => f.id !== film.id).length ?? 0;
   const more = counted(others, "more film", "more films") ?? "more films";
   return { text: `From ${ARCHIVE} · ${more}`, href: "/films" };
 }

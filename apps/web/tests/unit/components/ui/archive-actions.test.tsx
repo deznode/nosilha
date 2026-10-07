@@ -13,11 +13,6 @@ vi.mock("@/hooks/use-toast", () => ({
   }),
 }));
 
-const trackEvent = vi.fn();
-vi.mock("@/lib/ga", () => ({
-  trackEvent: (...args: unknown[]) => trackEvent(...args),
-}));
-
 const writeText = vi.fn();
 const nativeShare = vi.fn();
 
@@ -44,7 +39,6 @@ describe("archive actions", () => {
     setNativeShare(nativeShare);
     toastSuccess.mockReset();
     toastError.mockReset();
-    trackEvent.mockReset();
   });
 
   afterEach(() => setNativeShare(undefined));

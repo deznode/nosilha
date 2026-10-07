@@ -9,7 +9,7 @@ import { isMediaId } from "@/lib/gallery-mappers";
 import { getArchivePhotographs } from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
 import { photoTitle } from "@/lib/photo-facts";
-import { sharePreviewImage } from "@/lib/share";
+import { isAskLink, sharePreviewImage } from "@/lib/share";
 import { ASK_TITLE, askDescription } from "@/lib/share-copy";
 
 /**
@@ -36,7 +36,7 @@ export async function generateMetadata({
   // No settlements: the preview needs what is missing and the image, not "Near X".
   const photo = toArchivePhoto(media, []);
   // An ask link to a record that has since been completed is a plain link.
-  const asking = ask === "1" ? askDescription(photo) : null;
+  const asking = isAskLink(ask) ? askDescription(photo) : null;
   const image = sharePreviewImage(photo.src, photo.alt);
 
   return generatePageMetadata({
