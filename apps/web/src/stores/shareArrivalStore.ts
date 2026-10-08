@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
 import type { ShareMoment } from "@/lib/share";
+import type { ArrivalLine } from "@/lib/share-copy";
 
 /**
  * Whether this visit began on a shared link, and what the page it is on has to say
@@ -11,10 +12,8 @@ import type { ShareMoment } from "@/lib/share";
  * viewer rewrites the URL without the share tags as the reader steps.
  */
 
-export interface ShareArrivalLineData {
+export interface ShareArrivalLineData extends ArrivalLine {
   moment: ShareMoment;
-  text: string;
-  href: string;
 }
 
 interface ShareArrivalState {

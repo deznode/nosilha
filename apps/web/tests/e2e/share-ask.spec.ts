@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { API_URL } from "../utils/archive-data";
+import { stubSuggestionPosts } from "../utils/network";
 
 /**
  * Spec 040 FR-007, FR-008 — a visitor follows an ask link from a group chat, with no
@@ -23,16 +24,7 @@ test("answers an ask link signed out", async ({ page, request }) => {
     "no photograph in this archive is missing its photographer"
   );
 
-  const posts: unknown[] = [];
-  await page.route("**/api/v1/suggestions", async (route) => {
-    if (route.request().method() !== "POST") return route.fallback();
-    posts.push(route.request().postDataJSON());
-    await route.fulfill({
-      status: 201,
-      contentType: "application/json",
-      body: JSON.stringify({ status: 201, data: { id: null, message: "ok" } }),
-    });
-  });
+  const posts = await stubSuggestionPosts(page);
 
   await page.goto(
     `/photographs/${photo!.id}?ask=1&utm_source=share&utm_medium=link&utm_campaign=ask`

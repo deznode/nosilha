@@ -144,3 +144,24 @@ export async function clearNetworkThrottle(
 ): Promise<void> {
   await context.unroute("**/*");
 }
+
+/**
+ * Stub the public suggestions POST so a run writes nothing to the archive and never
+ * meets the rate limit. The reply is the API's `ApiResult` envelope, which
+ * `submitSuggestion` unwraps.
+ *
+ * @returns The JSON body of each post, in the order they were sent
+ */
+export async function stubSuggestionPosts(page: Page): Promise<unknown[]> {
+  const posts: unknown[] = [];
+  await page.route("**/api/v1/suggestions", async (route) => {
+    if (route.request().method() !== "POST") return route.fallback();
+    posts.push(route.request().postDataJSON());
+    await route.fulfill({
+      status: 201,
+      contentType: "application/json",
+      body: JSON.stringify({ status: 201, data: { id: null, message: "ok" } }),
+    });
+  });
+  return posts;
+}

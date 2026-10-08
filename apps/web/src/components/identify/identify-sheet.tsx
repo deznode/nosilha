@@ -6,6 +6,7 @@ import { clsx } from "clsx";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { submitSuggestion } from "@/lib/api";
+import { ApiError } from "@/lib/api-error";
 import { fieldPhrase } from "@/lib/field-labels";
 import { trackEvent } from "@/lib/ga";
 import { supabase } from "@/lib/supabase-client";
@@ -60,9 +61,7 @@ const PEOPLE_QUESTION: Question = {
   placeholder: "A name, a family, or “my grandmother’s sister”",
 };
 
-function questionsFor(contentType: string): Question[] {
-  return contentType === "media" ? [...QUESTIONS, PEOPLE_QUESTION] : QUESTIONS;
-}
+const MEDIA_QUESTIONS: Question[] = [...QUESTIONS, PEOPLE_QUESTION];
 
 const EMPTY_ANSWERS: Record<string, string> = {
   place: "",
@@ -75,8 +74,6 @@ const EMPTY_ANSWERS: Record<string, string> = {
 const EMPTY_GUEST = { name: "", email: "", website: "" };
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-/** The API's 429 wording, and the client's fallback when a 429 carries no message. */
-const RATE_LIMITED = /exceeded the maximum|rate limit|too many/i;
 
 const FIELD_STYLE: React.CSSProperties = {
   background: "var(--card)",
@@ -127,6 +124,9 @@ export function IdentifySheet() {
   const [error, setError] = useState<string | null>(null);
   const [signInOpen, setSignInOpen] = useState(false);
 
+  const questions =
+    context?.contentType === "media" ? MEDIA_QUESTIONS : QUESTIONS;
+
   // Keyed on the subject, not just on mount: Activity destroys effects on hide and
   // re-creates them on show (so this still runs on every return visit), and opening
   // the sheet over a different record now clears the previous one's answers rather
@@ -160,105 +160,94 @@ export function IdentifySheet() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [context, handleClose, signInOpen]);
 
-  const send = useCallback(
-    async (
-      current: Record<string, string>,
-      from: typeof EMPTY_GUEST | null
-    ) => {
-      if (!context) return;
+  const setGuestField =
+    (key: keyof typeof EMPTY_GUEST) =>
+    (event: React.ChangeEvent<HTMLInputElement>) =>
+      setGuest((previous) => ({ ...previous, [key]: event.target.value }));
 
-      setSubmitting(true);
-      setError(null);
+  /** `from` is who a signed-out answer is from; null sends as the account. */
+  const send = async (from: typeof EMPTY_GUEST | null) => {
+    if (!context) return;
 
-      try {
-        let name: string;
-        let email: string;
+    setSubmitting(true);
+    setError(null);
 
-        if (from) {
-          name = from.name.trim();
-          email = from.email.trim().toLowerCase();
-        } else {
-          // Read the session rather than the store: `AuthProvider` fills the store
-          // later from `onAuthStateChange`, and a submission built before then posted
-          // an empty name and email, which the API rejects with a 400.
-          const { data } = await supabase.auth.getSession();
-          const account = (
-            data.session?.user?.email ??
-            user?.email ??
-            ""
-          ).trim();
+    try {
+      let name: string;
+      let email: string;
 
-          if (!account) {
-            setError("We could not read your account. Please sign in again.");
-            return;
-          }
-          // The session carries an email and no display name, so that is what the
-          // curators see. Inventing a name would fabricate an attribution.
-          name = account;
-          email = account.toLowerCase();
+      if (from) {
+        name = from.name.trim();
+        email = from.email.trim().toLowerCase();
+      } else {
+        // The session is the authority on the account's email; the store's copy
+        // is optional and filled later by `AuthProvider`, so it is the fallback.
+        const { data } = await supabase.auth.getSession();
+        const account = (data.session?.user?.email ?? user?.email ?? "").trim();
+
+        if (!account) {
+          setError("We could not read your account. Please sign in again.");
+          return;
         }
+        // The session carries an email and no display name, so that is what the
+        // curators see. Inventing a name would fabricate an attribution.
+        name = account;
+        email = account.toLowerCase();
+      }
 
-        await submitSuggestion({
-          contentId: context.contentId,
-          pageTitle: context.pageTitle,
-          pageUrl: typeof window === "undefined" ? "" : window.location.href,
-          contentType: context.contentType,
-          name,
-          email,
-          suggestionType:
-            context.contentType === "media"
-              ? "PHOTO_IDENTIFICATION"
-              : "ADDITION",
-          message: composeMessage(
-            context.field,
-            current,
-            questionsFor(context.contentType)
-          ),
-          ...(context.mediaId ? { mediaId: context.mediaId } : {}),
-          ...(from ? { honeypot: from.website } : {}),
+      await submitSuggestion({
+        contentId: context.contentId,
+        pageTitle: context.pageTitle,
+        pageUrl: typeof window === "undefined" ? "" : window.location.href,
+        contentType: context.contentType,
+        name,
+        email,
+        suggestionType:
+          context.contentType === "media" ? "PHOTO_IDENTIFICATION" : "ADDITION",
+        message: composeMessage(context.field, answers, questions),
+        ...(context.mediaId ? { mediaId: context.mediaId } : {}),
+        ...(from ? { honeypot: from.website } : {}),
+      });
+
+      if (useShareArrivalStore.getState().arrived) {
+        trackEvent({
+          action: "share_arrival_answer",
+          content_type: context.contentType,
         });
+      }
 
-        if (useShareArrivalStore.getState().arrived) {
-          trackEvent({
-            action: "share_arrival_answer",
-            content_type: context.contentType,
-          });
-        }
-
-        toast.success("Thank you — a curator will read this.").show();
-        handleClose();
-      } catch (caught) {
-        // The typed answers stay on screen: they are the thing worth keeping
-        const message =
+      toast.success("Thank you — a curator will read this.").show();
+      handleClose();
+    } catch (caught) {
+      // The typed answers stay on screen: they are the thing worth keeping
+      if (caught instanceof ApiError && caught.status === 429) {
+        setError(
+          "Too many answers from this connection. Please try again in an hour."
+        );
+      } else {
+        setError(
           caught instanceof Error
             ? caught.message
-            : "Could not send that. Please try again.";
-        setError(
-          RATE_LIMITED.test(message)
-            ? "Too many answers from this connection. Please try again in an hour."
-            : message
+            : "Could not send that. Please try again."
         );
-      } finally {
-        setSubmitting(false);
       }
-    },
-    [context, handleClose, toast, user]
-  );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (submitting || !context) return;
 
-    const hasAnswer = questionsFor(context.contentType).some((q) =>
-      answers[q.key]?.trim()
-    );
+    const hasAnswer = questions.some((q) => answers[q.key]?.trim());
     if (!hasAnswer) {
       setError("Answer at least one question, even if it is a guess.");
       return;
     }
 
     if (isAuthenticated && user) {
-      void send(answers, null);
+      void send(null);
       return;
     }
 
@@ -268,7 +257,7 @@ export function IdentifySheet() {
       setError("Add your name and an email a curator can reach you at.");
       return;
     }
-    void send(answers, guest);
+    void send(guest);
   };
 
   // Signing in sends nothing by itself: the reader comes back to the sheet, now
@@ -349,7 +338,7 @@ export function IdentifySheet() {
           </p>
 
           <div className="flex flex-col" style={{ gap: "14px" }}>
-            {questionsFor(context.contentType).map((question) => (
+            {questions.map((question) => (
               <label
                 key={question.key}
                 className="flex flex-col"
@@ -386,12 +375,7 @@ export function IdentifySheet() {
                 <input
                   value={guest.name}
                   autoComplete="name"
-                  onChange={(event) =>
-                    setGuest((previous) => ({
-                      ...previous,
-                      name: event.target.value,
-                    }))
-                  }
+                  onChange={setGuestField("name")}
                   style={FIELD_STYLE}
                 />
               </label>
@@ -402,12 +386,7 @@ export function IdentifySheet() {
                   inputMode="email"
                   value={guest.email}
                   autoComplete="email"
-                  onChange={(event) =>
-                    setGuest((previous) => ({
-                      ...previous,
-                      email: event.target.value,
-                    }))
-                  }
+                  onChange={setGuestField("email")}
                   style={FIELD_STYLE}
                 />
               </label>
@@ -419,12 +398,7 @@ export function IdentifySheet() {
                 aria-hidden="true"
                 autoComplete="off"
                 value={guest.website}
-                onChange={(event) =>
-                  setGuest((previous) => ({
-                    ...previous,
-                    website: event.target.value,
-                  }))
-                }
+                onChange={setGuestField("website")}
                 style={{
                   position: "absolute",
                   left: "-9999px",

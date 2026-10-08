@@ -19,24 +19,24 @@ const LINE = {
   href: "/photographs?place=furna",
 };
 
-function renderPage(search: string) {
-  window.history.replaceState(null, "", `/photographs/abc${search}`);
-  return render(
+function page(text = LINE.text) {
+  return (
     <>
       <ShareArrivalStrip />
-      <ShareArrivalLine {...LINE} />
+      <ShareArrivalLine {...LINE} text={text} />
     </>
   );
+}
+
+function renderPage(search: string) {
+  window.history.replaceState(null, "", `/photographs/abc${search}`);
+  return render(page());
 }
 
 describe("share arrival strip", () => {
   beforeEach(() => {
     trackEvent.mockReset();
-    useShareArrivalStore.setState({
-      arrived: false,
-      dismissed: false,
-      line: null,
-    });
+    useShareArrivalStore.setState(useShareArrivalStore.getInitialState());
   });
 
   it("shows the page's line on a visit from a shared link", () => {
@@ -67,12 +67,7 @@ describe("share arrival strip", () => {
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(trackEvent).not.toHaveBeenCalled();
 
-    view.rerender(
-      <>
-        <ShareArrivalStrip />
-        <ShareArrivalLine {...LINE} text="Another line" />
-      </>
-    );
+    view.rerender(page("Another line"));
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
@@ -91,15 +86,7 @@ describe("share arrival strip", () => {
 
   it("follows the page as its line changes, and clears when the page leaves", () => {
     const view = renderPage("?utm_source=share");
-    view.rerender(
-      <>
-        <ShareArrivalStrip />
-        <ShareArrivalLine
-          {...LINE}
-          text="From the Brava archive · 9 more films"
-        />
-      </>
-    );
+    view.rerender(page("From the Brava archive · 9 more films"));
     expect(
       screen.getByRole("link", { name: /9 more films/ })
     ).toBeInTheDocument();

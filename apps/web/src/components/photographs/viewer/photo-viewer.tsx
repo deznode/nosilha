@@ -27,6 +27,14 @@ import { ViewerStage } from "./viewer-stage";
 
 const PHOTO_PATH = /^\/photographs\/([^/?#]+)$/;
 
+interface PhotoViewerProps {
+  photos: ArchivePhoto[];
+  initialId: string;
+  place: string | undefined;
+  /** The visitor followed an ask link: put its question beside the photograph. */
+  ask?: boolean;
+}
+
 /**
  * The viewing room. Spec 038 FR-020 to FR-026.
  *
@@ -39,13 +47,7 @@ const PHOTO_PATH = /^\/photographs\/([^/?#]+)$/;
  * key throws that state away on restore, so the viewer never comes back zoomed, in
  * full screen, or on a photograph the URL doesn't name.
  */
-export function PhotoViewer(props: {
-  photos: ArchivePhoto[];
-  initialId: string;
-  place: string | undefined;
-  /** The visitor followed an ask link: put its question beside the photograph. */
-  ask?: boolean;
-}) {
+export function PhotoViewer(props: PhotoViewerProps) {
   const remountKey = useActivityRemountKey();
   return <ViewingRoom key={remountKey} {...props} />;
 }
@@ -54,13 +56,8 @@ function ViewingRoom({
   photos,
   initialId,
   place: placeParam,
-  ask = false,
-}: {
-  photos: ArchivePhoto[];
-  initialId: string;
-  place: string | undefined;
-  ask?: boolean;
-}) {
+  ask,
+}: PhotoViewerProps) {
   const router = useRouter();
   const pathname = usePathname();
   const identifyOpen = useIdentifyContext() !== null;
@@ -161,11 +158,7 @@ function ViewingRoom({
       ref={boxRef}
       className="h-full overflow-y-auto md:flex md:overflow-hidden"
     >
-      <ShareArrivalLine
-        moment="photo"
-        text={arrival.text}
-        href={arrival.href}
-      />
+      <ShareArrivalLine moment="photo" {...arrival} />
       <ViewerStage
         photo={current}
         neighbours={neighbours}

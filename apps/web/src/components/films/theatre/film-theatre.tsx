@@ -58,7 +58,7 @@ export function FilmTheatre({
 
   return (
     <div className="pb-14 md:pb-[72px]">
-      <ShareArrivalLine moment="film" text={arrival.text} href={arrival.href} />
+      <ShareArrivalLine moment="film" {...arrival} />
       <div className="md:bg-stage bg-[#0A0908] md:p-7">
         <TheatrePlayer
           key={film.id}

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { addressedRecord, type EntrySummary } from "../utils/archive-data";
+import { stubSuggestionPosts } from "../utils/network";
 
 /**
  * The seeded Igreja records six of its nine heritage fields (spec 034 FR-016), so
@@ -22,30 +23,7 @@ test.describe("Identify sheet, signed out", () => {
   }) => {
     const { path, record } = await addressedRecord(request, HAS_EMPTY_FIELD);
 
-    const suggestionPosts: string[] = [];
-    page.on("request", (sent) => {
-      if (
-        sent.method() === "POST" &&
-        sent.url().includes("/api/v1/suggestions")
-      ) {
-        suggestionPosts.push(sent.url());
-      }
-    });
-
-    // Stubbed so the run writes nothing and never meets the rate limit. The body is
-    // the API's `ApiResult` envelope, which `submitSuggestion` unwraps.
-    await page.route("**/api/v1/suggestions", (route) =>
-      route.request().method() === "POST"
-        ? route.fulfill({
-            status: 201,
-            contentType: "application/json",
-            body: JSON.stringify({
-              status: 201,
-              data: { id: null, message: "ok" },
-            }),
-          })
-        : route.fallback()
-    );
+    const suggestionPosts = await stubSuggestionPosts(page);
 
     await page.goto(path);
     await expect(

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { IdentifySheet } from "@/components/identify/identify-sheet";
+import { ApiError } from "@/lib/api-error";
 import { useIdentifyStore, type IdentifyContext } from "@/stores/identifyStore";
 import { useShareArrivalStore } from "@/stores/shareArrivalStore";
 
@@ -85,11 +86,7 @@ describe("IdentifySheet", () => {
     toastShow.mockReset();
     signInDialog.mockReset();
     trackEvent.mockReset();
-    useShareArrivalStore.setState({
-      arrived: false,
-      dismissed: false,
-      line: null,
-    });
+    useShareArrivalStore.setState(useShareArrivalStore.getInitialState());
     useIdentifyStore.setState({ context: null });
   });
 
@@ -101,6 +98,30 @@ describe("IdentifySheet", () => {
     const view = render(<IdentifySheet />);
     act(() => useIdentifyStore.getState().open(context));
     return view;
+  }
+
+  function signInAs(email = "ana@example.com") {
+    authState.user = { id: "u1", email };
+    authState.isAuthenticated = true;
+    sessionEmail.current = email;
+  }
+
+  async function answer() {
+    await userEvent.type(
+      screen.getByLabelText("Roughly when?"),
+      "sometime in the sixties"
+    );
+  }
+
+  async function fillGuest(name = "Ana Lopes", email = "ana@example.com") {
+    if (name) await userEvent.type(screen.getByLabelText("Your name"), name);
+    if (email) await userEvent.type(screen.getByLabelText("Your email"), email);
+  }
+
+  async function pressSend() {
+    await userEvent.click(
+      screen.getByRole("button", { name: "Send to the curators" })
+    );
   }
 
   it("renders nothing until something asks a question", () => {
@@ -200,9 +221,7 @@ describe("IdentifySheet", () => {
   describe("empty submissions", () => {
     it("posts nothing and says so when every answer is blank", async () => {
       const user = userEvent.setup();
-      authState.user = { id: "u1", email: "a@b.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "a@b.test";
+      signInAs("a@b.test");
       openSheet();
 
       await user.click(
@@ -217,9 +236,7 @@ describe("IdentifySheet", () => {
 
     it("accepts a single answer", async () => {
       const user = userEvent.setup();
-      authState.user = { id: "u1", email: "a@b.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "a@b.test";
+      signInAs("a@b.test");
       openSheet();
 
       await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
@@ -232,24 +249,11 @@ describe("IdentifySheet", () => {
   });
 
   describe("signed out", () => {
-    async function answer() {
-      await userEvent.type(
-        screen.getByLabelText("Roughly when?"),
-        "sometime in the sixties"
-      );
-    }
-
     it("asks for a name and an email, and sends without an account", async () => {
       openSheet();
       await answer();
-      await userEvent.type(screen.getByLabelText("Your name"), "Ana Lopes");
-      await userEvent.type(
-        screen.getByLabelText("Your email"),
-        " Ana@Example.com "
-      );
-      await userEvent.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await fillGuest("Ana Lopes", " Ana@Example.com ");
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
       expect(submitSuggestion.mock.calls[0][0]).toMatchObject({
@@ -271,13 +275,8 @@ describe("IdentifySheet", () => {
       async (_, name, email) => {
         openSheet();
         await answer();
-        if (name)
-          await userEvent.type(screen.getByLabelText("Your name"), name);
-        if (email)
-          await userEvent.type(screen.getByLabelText("Your email"), email);
-        await userEvent.click(
-          screen.getByRole("button", { name: "Send to the curators" })
-        );
+        await fillGuest(name, email);
+        await pressSend();
 
         expect(screen.getByRole("alert")).toHaveTextContent(
           "Add your name and an email a curator can reach you at."
@@ -291,14 +290,8 @@ describe("IdentifySheet", () => {
 
     it("still refuses an empty answer first", async () => {
       openSheet();
-      await userEvent.type(screen.getByLabelText("Your name"), "Ana Lopes");
-      await userEvent.type(
-        screen.getByLabelText("Your email"),
-        "ana@example.com"
-      );
-      await userEvent.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await fillGuest();
+      await pressSend();
 
       expect(screen.getByRole("alert")).toHaveTextContent(
         "Answer at least one question, even if it is a guess."
@@ -333,21 +326,17 @@ describe("IdentifySheet", () => {
       expect(screen.getByTestId("identify-overlay")).toHaveClass("z-40");
     });
 
-    it.each([
-      "You have exceeded the maximum number of submissions (5 per hour). Please try again later.",
-      "Rate limit exceeded. Please try again later.",
-    ])("says so when the connection has sent too many: %s", async (message) => {
-      submitSuggestion.mockRejectedValue(new Error(message));
+    it("says so when the connection has sent too many", async () => {
+      submitSuggestion.mockRejectedValue(
+        new ApiError(
+          "You have exceeded the maximum number of submissions (5 per hour). Please try again later.",
+          429
+        )
+      );
       openSheet();
       await answer();
-      await userEvent.type(screen.getByLabelText("Your name"), "Ana Lopes");
-      await userEvent.type(
-        screen.getByLabelText("Your email"),
-        "ana@example.com"
-      );
-      await userEvent.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await fillGuest();
+      await pressSend();
 
       await waitFor(() =>
         expect(screen.getByRole("alert")).toHaveTextContent(
@@ -361,11 +350,7 @@ describe("IdentifySheet", () => {
   });
 
   describe("signed in", () => {
-    beforeEach(() => {
-      authState.user = { id: "u1", email: "ana@example.com" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "ana@example.com";
-    });
+    beforeEach(() => signInAs());
 
     it("asks for no name or email", () => {
       openSheet();
@@ -379,11 +364,7 @@ describe("IdentifySheet", () => {
   });
 
   describe("the fourth question", () => {
-    beforeEach(() => {
-      authState.user = { id: "u1", email: "ana@example.com" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "ana@example.com";
-    });
+    beforeEach(() => signInAs());
 
     it("sends who is in a photograph with the other answers", async () => {
       openSheet();
@@ -391,9 +372,7 @@ describe("IdentifySheet", () => {
         screen.getByLabelText("Who is in it?"),
         "My grandmother, Maria"
       );
-      await userEvent.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
       expect(submitSuggestion.mock.calls[0][0].message).toContain(
@@ -414,21 +393,12 @@ describe("IdentifySheet", () => {
   });
 
   describe("answers from a share arrival", () => {
-    beforeEach(() => {
-      authState.user = { id: "u1", email: "ana@example.com" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "ana@example.com";
-    });
+    beforeEach(() => signInAs());
 
     async function send() {
       openSheet();
-      await userEvent.type(
-        screen.getByLabelText("Roughly when?"),
-        "the sixties"
-      );
-      await userEvent.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await answer();
+      await pressSend();
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
     }
 
@@ -451,9 +421,7 @@ describe("IdentifySheet", () => {
 
   describe("payload", () => {
     beforeEach(() => {
-      authState.user = { id: "u1", email: "reader@example.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "reader@example.test";
+      signInAs("reader@example.test");
     });
 
     it("sends the session identity with the entity and field", async () => {
@@ -563,9 +531,7 @@ describe("IdentifySheet", () => {
   describe("failure", () => {
     it("reports the error and keeps what was typed", async () => {
       const user = userEvent.setup();
-      authState.user = { id: "u1", email: "a@b.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "a@b.test";
+      signInAs("a@b.test");
       submitSuggestion.mockRejectedValue(new Error("Network down"));
       openSheet();
 
@@ -614,9 +580,7 @@ describe("IdentifySheet", () => {
 
     it("clears a previous error when the subject changes", async () => {
       const user = userEvent.setup();
-      authState.user = { id: "u1", email: "a@b.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "a@b.test";
+      signInAs("a@b.test");
       openSheet();
 
       await user.click(
