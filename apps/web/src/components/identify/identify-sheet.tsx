@@ -75,7 +75,8 @@ const EMPTY_ANSWERS: Record<string, string> = {
 const EMPTY_GUEST = { name: "", email: "", website: "" };
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const RATE_LIMITED = /rate limit|too many/i;
+/** The API's 429 wording, and the client's fallback when a 429 carries no message. */
+const RATE_LIMITED = /exceeded the maximum|rate limit|too many/i;
 
 const FIELD_STYLE: React.CSSProperties = {
   background: "var(--card)",

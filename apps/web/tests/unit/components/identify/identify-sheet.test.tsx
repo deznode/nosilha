@@ -333,10 +333,11 @@ describe("IdentifySheet", () => {
       expect(screen.getByTestId("identify-overlay")).toHaveClass("z-40");
     });
 
-    it("says so when the connection has sent too many", async () => {
-      submitSuggestion.mockRejectedValue(
-        new Error("Rate limit exceeded. Please try again later.")
-      );
+    it.each([
+      "You have exceeded the maximum number of submissions (5 per hour). Please try again later.",
+      "Rate limit exceeded. Please try again later.",
+    ])("says so when the connection has sent too many: %s", async (message) => {
+      submitSuggestion.mockRejectedValue(new Error(message));
       openSheet();
       await answer();
       await userEvent.type(screen.getByLabelText("Your name"), "Ana Lopes");
