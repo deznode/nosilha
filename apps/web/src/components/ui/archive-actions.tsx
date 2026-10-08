@@ -3,7 +3,8 @@
 import { clsx } from "clsx";
 
 import { useToast } from "@/hooks/use-toast";
-import { buildShareLink } from "@/lib/share";
+import { trackEvent } from "@/lib/ga";
+import { buildShareLink, type ShareMoment } from "@/lib/share";
 
 /**
  * Share and copy-link in the archive's own voice. Spec 034 FR-010, FR-013.
@@ -25,9 +26,9 @@ function currentUrl(): string {
   return typeof window === "undefined" ? "" : window.location.href;
 }
 
-async function copyToClipboard(url: string): Promise<boolean> {
+async function copyToClipboard(value: string): Promise<boolean> {
   try {
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(value);
     return true;
   } catch {
     return false;
@@ -37,6 +38,14 @@ async function copyToClipboard(url: string): Promise<boolean> {
 export interface ArchiveActionProps {
   /** The page's title, for the native share sheet. */
   title: string;
+  /** The message the share sheet opens with; the sender can edit it. */
+  text?: string;
+  /** What is being shared; names the campaign a visit is counted under. */
+  moment?: ShareMoment;
+  /** The record id or town slug, for the `share` event. */
+  itemId?: string;
+  /** The button's words. */
+  label?: string;
   className?: string;
   /** Pill styling for the photo detail's action row; plain text elsewhere. */
   variant?: "text" | "pill";
@@ -61,29 +70,51 @@ const TEXT: React.CSSProperties = {
   color: "var(--foreground-secondary)",
 };
 
+/** GA4's recommended `share` event; `method` says how the link left the page. */
+function trackShare(
+  moment: ShareMoment,
+  itemId: string | undefined,
+  method: "native" | "copy"
+) {
+  trackEvent({
+    action: "share",
+    content_type: moment,
+    item_id: itemId,
+    method,
+  });
+}
+
 export function ShareAction({
   title,
+  text,
+  moment = "entry",
+  itemId,
+  label = "Share",
   className,
   variant = "text",
 }: ArchiveActionProps) {
   const toast = useToast();
 
   async function share() {
-    const target = buildShareLink(currentUrl(), "entry");
+    const target = buildShareLink(currentUrl(), moment);
 
     if (navigator.share) {
       try {
-        await navigator.share({ title, url: target });
+        await navigator.share({ title, text, url: target });
+        trackShare(moment, itemId, "native");
         return;
-      } catch {
-        // A dismissed share sheet rejects, and so does an unsupported payload. Either
-        // way, falling through to the clipboard leaves the reader with the link.
+      } catch (error) {
+        // A dismissed sheet is the reader changing their mind, not a failure: it
+        // leaves nothing behind. Any other rejection is an unsupported payload, and
+        // falling through to the clipboard still leaves the reader with the link.
+        if ((error as { name?: string } | null)?.name === "AbortError") return;
       }
     }
 
-    const copied = await copyToClipboard(target);
+    const copied = await copyToClipboard(text ? `${text}\n${target}` : target);
     if (copied) {
-      toast.success("Link copied").show();
+      toast.success(text ? "Message and link copied" : "Link copied").show();
+      trackShare(moment, itemId, "copy");
     } else {
       toast.error("Could not copy the link").show();
     }
@@ -96,21 +127,24 @@ export function ShareAction({
       className={clsx("cursor-pointer", className)}
       style={variant === "pill" ? PILL : TEXT}
     >
-      Share
+      {label}
     </button>
   );
 }
 
 export function CopyLinkAction({
+  moment = "entry",
+  itemId,
   className,
   variant = "text",
-}: Omit<ArchiveActionProps, "title">) {
+}: Omit<ArchiveActionProps, "title" | "text" | "label">) {
   const toast = useToast();
 
   async function copy() {
-    const target = buildShareLink(currentUrl(), "entry");
+    const target = buildShareLink(currentUrl(), moment);
     if (await copyToClipboard(target)) {
       toast.success("Link copied").show();
+      trackShare(moment, itemId, "copy");
     } else {
       toast.error("Could not copy the link").show();
     }

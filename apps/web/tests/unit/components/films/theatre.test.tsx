@@ -35,6 +35,13 @@ function fakeMount(
   hosts.push({ cb, handle });
   return handle;
 }
+vi.mock("@/hooks/use-toast", () => ({
+  useToast: () => ({
+    success: () => ({ show: vi.fn() }),
+    error: () => ({ show: vi.fn() }),
+  }),
+}));
+
 vi.mock("@/components/films/hosts/youtube", () => ({
   mountYouTube: fakeMount,
 }));
@@ -295,6 +302,12 @@ describe("FilmTheatre", () => {
     expect(
       screen.getByRole("link", { name: "Watch on YouTube" })
     ).toBeInTheDocument();
+  });
+
+  it("offers Share on the film's record", () => {
+    renderTheatre();
+
+    expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
   });
 });
 

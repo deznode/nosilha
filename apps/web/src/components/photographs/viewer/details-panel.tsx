@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
+import { CopyLinkAction, ShareAction } from "@/components/ui/archive-actions";
 import {
   firstMissingField,
   moreFrom,
@@ -18,9 +19,10 @@ import {
   type ArchivePhoto,
   type PlaceFilter,
 } from "@/lib/archive-photographs";
+import { ASK_TITLE, askShareText, photoShareText } from "@/lib/share-copy";
 
 /** The identify sheet's field for each thing a photograph can be missing. */
-const IDENTIFY_FIELD = {
+export const IDENTIFY_FIELD = {
   photographer: "photographerCredit",
   place: "latitude",
   date: "dateTaken",
@@ -62,6 +64,7 @@ export function DetailsPanel({
   const more = moreFrom(photo, photos);
   const help = viewerHelpLine(photo);
   const missingField = firstMissingField(photo);
+  const askText = askShareText(photo);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   // The thumb just activated is replaced by the photograph that was showing, so focus
@@ -123,6 +126,23 @@ export function DetailsPanel({
         </div>
       )}
 
+      <div className="flex flex-wrap gap-2">
+        <ShareAction
+          title={heading}
+          text={photoShareText(photo)}
+          moment="photo"
+          itemId={photo.id}
+          variant="pill"
+          className="focus-ring"
+        />
+        <CopyLinkAction
+          moment="photo"
+          itemId={photo.id}
+          variant="pill"
+          className="focus-ring"
+        />
+      </div>
+
       {more.length > 0 && (
         <div className="flex flex-col gap-2.5">
           <span className="text-muted text-[10px] tracking-[.18em] uppercase">
@@ -167,6 +187,16 @@ export function DetailsPanel({
             >
               Help complete this record
             </IdentifyQuestion>
+          )}
+          {askText && (
+            <ShareAction
+              title={ASK_TITLE}
+              text={askText}
+              label="Ask someone who might know"
+              moment="ask"
+              itemId={photo.id}
+              className="hit-area focus-ring self-start"
+            />
           )}
         </div>
       )}

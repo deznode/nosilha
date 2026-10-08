@@ -7,6 +7,13 @@ import { useIdentifyStore } from "@/stores/identifyStore";
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town, TownStatusSummary } from "@/types/town";
 
+vi.mock("@/hooks/use-toast", () => ({
+  useToast: () => ({
+    success: () => ({ show: vi.fn() }),
+    error: () => ({ show: vi.fn() }),
+  }),
+}));
+
 vi.mock("@/features/map/components/mini-map", () => ({
   MiniMap: ({
     lat,
@@ -236,5 +243,15 @@ describe("SettlementDetail", () => {
     expect(
       screen.getByRole("link", { name: "Open in the map explorer" })
     ).toHaveAttribute("href", "/map?mode=settlements&sel=s%3Anova-sintra");
+  });
+
+  it("offers to share the village", () => {
+    render(
+      <SettlementDetail town={town()} summary={summary()} entries={ENTRIES} />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Share this village" })
+    ).toBeInTheDocument();
   });
 });
