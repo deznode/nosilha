@@ -20,6 +20,13 @@ vi.mock("next/navigation", () => ({
 }));
 
 let pointerFine = true;
+vi.mock("@/hooks/use-toast", () => ({
+  useToast: () => ({
+    success: () => ({ show: vi.fn() }),
+    error: () => ({ show: vi.fn() }),
+  }),
+}));
+
 vi.mock("@/hooks/use-pointer-fine", () => ({
   usePointerFine: () => pointerFine,
 }));
@@ -290,6 +297,47 @@ describe("PhotoViewer", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Near Furna" })
     ).toBeInTheDocument();
+  });
+
+  describe("sharing", () => {
+    it("offers Share and Copy link on every photograph", () => {
+      renderViewer();
+
+      expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Copy link" })
+      ).toBeInTheDocument();
+    });
+
+    it("offers to ask someone when the record is missing something", () => {
+      renderViewer();
+
+      expect(
+        screen.getByRole("button", { name: "Ask someone who might know" })
+      ).toBeInTheDocument();
+    });
+
+    it("does not offer to ask about a complete record", () => {
+      pathname = "/photographs/z";
+      render(
+        <PhotoViewer
+          photos={[
+            makePhoto("z", {
+              located: true,
+              credit: "Ana",
+              dateLabel: "July 12, 2024",
+              missing: { photographer: false, date: false },
+            }),
+          ]}
+          initialId="z"
+          place={undefined}
+        />
+      );
+
+      expect(
+        screen.queryByRole("button", { name: "Ask someone who might know" })
+      ).not.toBeInTheDocument();
+    });
   });
 });
 

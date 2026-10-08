@@ -1,9 +1,11 @@
 import Link from "next/link";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
+import { CopyLinkAction, ShareAction } from "@/components/ui/archive-actions";
 import { MiniMap } from "@/features/map/components/mini-map";
 import { categoryLabel } from "@/lib/category-label";
 import { formatCoordinates } from "@/lib/coordinates";
+import { townShareText } from "@/lib/share-copy";
 import { getEntryStatus, getTownStatus, statusVar } from "@/lib/status";
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town, TownStatusSummary } from "@/types/town";
@@ -93,6 +95,24 @@ export function SettlementDetail({
             }}
           >
             {settlementSubLine(summary)}
+          </div>
+          <div
+            className="flex flex-wrap gap-[18px]"
+            style={{ marginTop: "12px" }}
+          >
+            <ShareAction
+              title={summary.name}
+              text={townShareText(summary)}
+              label="Share this village"
+              moment="town"
+              itemId={summary.slug}
+              className="hit-area focus-ring"
+            />
+            <CopyLinkAction
+              moment="town"
+              itemId={summary.slug}
+              className="hit-area focus-ring"
+            />
           </div>
         </div>
       </div>

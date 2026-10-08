@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
+import { ShareAction } from "@/components/ui/archive-actions";
 import { photographsHref } from "@/lib/archive-photographs";
 import {
   canPlay,
@@ -16,6 +17,7 @@ import {
   upNext,
   type Film,
 } from "@/lib/films";
+import { filmShareText } from "@/lib/share-copy";
 
 import { TheatrePlayer } from "./theatre-player";
 import { UpNext } from "./up-next";
@@ -115,6 +117,13 @@ export function FilmTheatre({
             >
               Help complete this record
             </IdentifyQuestion>
+            <ShareAction
+              title={film.displayTitle}
+              text={filmShareText(film)}
+              moment="film"
+              itemId={film.id}
+              className="hit-area focus-ring"
+            />
           </div>
         </div>
 

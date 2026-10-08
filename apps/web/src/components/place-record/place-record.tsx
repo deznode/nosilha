@@ -401,8 +401,8 @@ export function PlaceRecord({
               borderTopColor: "var(--border-subtle)",
             }}
           >
-            <ShareAction title={entry.name} />
-            <CopyLinkAction />
+            <ShareAction title={entry.name} itemId={entry.id} />
+            <CopyLinkAction itemId={entry.id} />
             <IdentifyQuestion
               {...identify}
               field="correction"
