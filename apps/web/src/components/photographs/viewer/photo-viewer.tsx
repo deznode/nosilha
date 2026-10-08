@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+import { ShareArrivalLine } from "@/components/share/share-arrival";
 import {
   ALL_PLACES,
   filterByPlace,
@@ -14,6 +15,7 @@ import {
   stepWithin,
   type ArchivePhoto,
 } from "@/lib/archive-photographs";
+import { photoArrivalLine } from "@/lib/share-copy";
 import { useActivityRemountKey } from "@/lib/hooks/use-activity-remount-key";
 import { readPanelOpen, writePanelOpen } from "@/lib/viewer-storage";
 import { useIdentifyContext } from "@/stores/identifyStore";
@@ -82,6 +84,7 @@ function ViewingRoom({
     list.findIndex((p) => p.id === current.id)
   );
   const label = labelOf(place, photos);
+  const arrival = photoArrivalLine(current, photos);
 
   const show = useCallback(
     (photo: ArchivePhoto) => {
@@ -149,6 +152,11 @@ function ViewingRoom({
       ref={boxRef}
       className="h-full overflow-y-auto md:flex md:overflow-hidden"
     >
+      <ShareArrivalLine
+        moment="photo"
+        text={arrival.text}
+        href={arrival.href}
+      />
       <ViewerStage
         photo={current}
         neighbours={neighbours}

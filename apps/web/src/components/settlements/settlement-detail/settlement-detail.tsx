@@ -1,11 +1,12 @@
 import Link from "next/link";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
+import { ShareArrivalLine } from "@/components/share/share-arrival";
 import { CopyLinkAction, ShareAction } from "@/components/ui/archive-actions";
 import { MiniMap } from "@/features/map/components/mini-map";
 import { categoryLabel } from "@/lib/category-label";
 import { formatCoordinates } from "@/lib/coordinates";
-import { townShareText } from "@/lib/share-copy";
+import { TOWN_ARRIVAL_LINE, townShareText } from "@/lib/share-copy";
 import { getEntryStatus, getTownStatus, statusVar } from "@/lib/status";
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town, TownStatusSummary } from "@/types/town";
@@ -51,6 +52,7 @@ export function SettlementDetail({
         padding: "40px 22px 80px",
       }}
     >
+      <ShareArrivalLine moment="town" {...TOWN_ARRIVAL_LINE} />
       <Link
         href="/settlements"
         className="inline-block transition-colors hover:text-[var(--foreground)]"

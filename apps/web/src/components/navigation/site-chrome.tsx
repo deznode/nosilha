@@ -4,6 +4,7 @@ import { DesktopTopBar } from "@/components/navigation/desktop-top-bar";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 import { MobileTopBar } from "@/components/navigation/mobile-top-bar";
 import { TabletTopBar } from "@/components/navigation/tablet-top-bar";
+import { ShareArrivalStrip } from "@/components/share/share-arrival";
 
 /**
  * The site's chrome, for every public route group.
@@ -55,6 +56,7 @@ export function SiteChrome({
       <MobileTopBar className="md:hidden" />
       <TabletTopBar className="hidden md:flex lg:hidden" />
       <DesktopTopBar className="hidden lg:flex" />
+      <ShareArrivalStrip />
 
       {showBottomNav && <MobileBottomNav />}
     </Suspense>
