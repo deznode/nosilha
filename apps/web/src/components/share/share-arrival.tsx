@@ -47,7 +47,7 @@ export function ShareArrivalStrip() {
         }}
         className="focus-ring hit-area min-w-0 flex-1 underline underline-offset-[3px]"
       >
-        {line.text} →
+        {line.text}&nbsp;→
       </Link>
       <button
         type="button"

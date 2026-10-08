@@ -306,6 +306,10 @@ export function IdentifySheet() {
             borderRadius: "16px",
             padding: "26px",
             width: "min(520px, 100%)",
+            // Four questions and the guest fields outgrow a phone: scroll inside the
+            // sheet so the title and Send both stay reachable.
+            maxHeight: "calc(100dvh - 40px)",
+            overflowY: "auto",
             boxShadow: "0 -20px 60px rgba(0,0,0,.6)",
           }}
         >
