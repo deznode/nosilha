@@ -60,14 +60,15 @@ export default async function PhotoPage({
   params,
   searchParams,
 }: PhotoPageProps) {
-  const [{ id }, { place }] = await Promise.all([params, searchParams]);
+  const [{ id }, { place, ask }] = await Promise.all([params, searchParams]);
   const { photos, initialId } = await cachedPhoto(id);
-  // `?place=` stays out of the cache key: the viewer checks it against the dataset.
+  // `?place=` and `?ask=` stay out of the cache key: the viewer checks them itself.
   return (
     <PhotoViewer
       photos={photos}
       initialId={initialId}
       place={typeof place === "string" ? place : undefined}
+      ask={isAskLink(ask)}
     />
   );
 }

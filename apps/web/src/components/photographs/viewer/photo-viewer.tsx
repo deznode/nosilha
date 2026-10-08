@@ -7,6 +7,7 @@ import { ShareArrivalLine } from "@/components/share/share-arrival";
 import {
   ALL_PLACES,
   filterByPlace,
+  firstMissingField,
   parsePlaceParam,
   photoHeading,
   photographHref,
@@ -20,6 +21,7 @@ import { useActivityRemountKey } from "@/lib/hooks/use-activity-remount-key";
 import { readPanelOpen, writePanelOpen } from "@/lib/viewer-storage";
 import { useIdentifyContext } from "@/stores/identifyStore";
 
+import { AskBar } from "./ask-bar";
 import { DetailsPanel } from "./details-panel";
 import { ViewerStage } from "./viewer-stage";
 
@@ -41,6 +43,8 @@ export function PhotoViewer(props: {
   photos: ArchivePhoto[];
   initialId: string;
   place: string | undefined;
+  /** The visitor followed an ask link: put its question beside the photograph. */
+  ask?: boolean;
 }) {
   const remountKey = useActivityRemountKey();
   return <ViewingRoom key={remountKey} {...props} />;
@@ -50,10 +54,12 @@ function ViewingRoom({
   photos,
   initialId,
   place: placeParam,
+  ask = false,
 }: {
   photos: ArchivePhoto[];
   initialId: string;
   place: string | undefined;
+  ask?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -85,6 +91,9 @@ function ViewingRoom({
   );
   const label = labelOf(place, photos);
   const arrival = photoArrivalLine(current, photos);
+  // The question belongs to the photograph the link named, not the ones stepped to.
+  const askField =
+    ask && current.id === initialId ? firstMissingField(current) : null;
 
   const show = useCallback(
     (photo: ArchivePhoto) => {
@@ -189,6 +198,9 @@ function ViewingRoom({
           onShow={showFromPanel}
         />
       </aside>
+      {askField && !identifyOpen && !fullScreen && (
+        <AskBar photo={current} field={askField} />
+      )}
     </div>
   );
 }

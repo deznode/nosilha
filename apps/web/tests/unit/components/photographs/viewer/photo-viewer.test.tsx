@@ -299,6 +299,79 @@ describe("PhotoViewer", () => {
     ).toBeInTheDocument();
   });
 
+  describe("arriving on an ask link", () => {
+    function renderAsk(photos = PHOTOS, initialId = "a") {
+      pathname = `/photographs/${initialId}`;
+      return render(
+        <PhotoViewer
+          photos={photos}
+          initialId={initialId}
+          place={undefined}
+          ask
+        />
+      );
+    }
+
+    it("asks the question without opening the sheet", () => {
+      renderAsk();
+
+      expect(
+        screen.getByText("Do you recognise this photograph?")
+      ).toBeInTheDocument();
+      expect(useIdentifyStore.getState().context).toBeNull();
+    });
+
+    it("opens the sheet on the first missing field from Tell us", async () => {
+      renderAsk();
+      await userEvent.click(screen.getByRole("button", { name: "Tell us" }));
+
+      expect(useIdentifyStore.getState().context).toMatchObject({
+        contentType: "media",
+        contentId: "a",
+        mediaId: "a",
+        field: "photographerCredit",
+      });
+    });
+
+    it("shows no bar without the ask flag", () => {
+      renderViewer();
+
+      expect(
+        screen.queryByRole("button", { name: "Tell us" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows no bar for a record that is now complete", () => {
+      renderAsk(
+        [
+          makePhoto("z", {
+            located: true,
+            credit: "Ana",
+            dateLabel: "July 12, 2024",
+            missing: { photographer: false, date: false },
+          }),
+        ],
+        "z"
+      );
+
+      expect(
+        screen.queryByRole("button", { name: "Tell us" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("removes the bar once the reader steps to another photograph", () => {
+      const view = renderAsk();
+      pathname = "/photographs/b";
+      view.rerender(
+        <PhotoViewer photos={PHOTOS} initialId="a" place={undefined} ask />
+      );
+
+      expect(
+        screen.queryByRole("button", { name: "Tell us" })
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe("sharing", () => {
     it("offers Share and Copy link on every photograph", () => {
       renderViewer();
