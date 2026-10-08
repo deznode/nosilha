@@ -9,6 +9,8 @@ import { isMediaId } from "@/lib/gallery-mappers";
 import { getArchivePhotographs } from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
 import { photoTitle } from "@/lib/photo-facts";
+import { isAskLink, sharePreviewImage } from "@/lib/share";
+import { ASK_TITLE, askDescription } from "@/lib/share-copy";
 
 /**
  * Blocking rather than streaming a shell, so an unknown id answers 404 rather than 200
@@ -18,26 +20,39 @@ export const instant = false;
 
 interface PhotoPageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ place?: string }>;
+  searchParams: Promise<{ place?: string; ask?: string }>;
 }
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: PhotoPageProps): Promise<Metadata> {
-  const { id } = await params;
+  const [{ id }, { ask }] = await Promise.all([params, searchParams]);
   if (!isMediaId(id)) return {};
   const media = await getGalleryMediaById(id).catch(() => undefined);
   if (!media) return {};
 
   const title = photoTitle(media);
+  // No settlements: the preview needs what is missing and the image, not "Near X".
+  const photo = toArchivePhoto(media, []);
+  // An ask link to a record that has since been completed is a plain link.
+  const asking = isAskLink(ask) ? askDescription(photo) : null;
+  const image = sharePreviewImage(photo.src, photo.alt);
 
   return generatePageMetadata({
-    title: title.untitled ? "An untitled photograph of Brava" : title.text,
+    title: asking
+      ? ASK_TITLE
+      : title.untitled
+        ? "An untitled photograph of Brava"
+        : title.text,
     description:
-      media.description?.trim() ||
-      "A record in the Brava Island archive, with what it is still missing.",
+      asking ??
+      (media.description?.trim() ||
+        "A record in the Brava Island archive, with what it is still missing."),
+    // The canonical address never carries `ask` or a share tag.
     path: `/photographs/${media.id}`,
     keywords: ["Brava Island", "Cape Verde", "archive photograph"],
+    images: image ? [image] : [],
   });
 }
 

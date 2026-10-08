@@ -1,4 +1,4 @@
-import { capitalise, plural, toWords } from "@/lib/copy/number-words";
+import { capitalise, joinList, plural, toWords } from "@/lib/copy/number-words";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { nearestSettlement } from "@/lib/nearest-settlement";
 import { formatCameraInfo } from "@/lib/exif-utils";
@@ -341,11 +341,6 @@ export function photoEyebrow(photo: Pick<ArchivePhoto, "category">): string {
   return ["Photograph", photo.category].filter(Boolean).join(" · ");
 }
 
-function joinAnd(parts: string[]): string {
-  if (parts.length <= 1) return parts.join("");
-  return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
-}
-
 /**
  * Whether the record says where it was taken: coordinates or a place name. Being far
  * from every settlement (no `near`) is not the same as the place being unrecorded.
@@ -356,26 +351,38 @@ function placeRecorded(
   return photo.located || photo.placeName !== null;
 }
 
+/** What a photograph's record can lack, in the order the archive asks about it. */
+export type MissingField = "photographer" | "place" | "date";
+
+/** Every field the record lacks; empty when it is complete. */
+export function missingFields(photo: ArchivePhoto): MissingField[] {
+  const missing: MissingField[] = [];
+  if (photo.missing.photographer) missing.push("photographer");
+  if (!placeRecorded(photo)) missing.push("place");
+  if (photo.missing.date) missing.push("date");
+  return missing;
+}
+
+const HELP_WORDS: Record<MissingField, string> = {
+  photographer: "who took it",
+  place: "where",
+  date: "when",
+};
+
 /**
  * `Not yet recorded: who took it, where and when.`, naming only what is missing; null
  * when the record is complete.
  */
 export function viewerHelpLine(photo: ArchivePhoto): string | null {
-  const missing: string[] = [];
-  if (photo.missing.photographer) missing.push("who took it");
-  if (!placeRecorded(photo)) missing.push("where");
-  if (photo.missing.date) missing.push("when");
-  return missing.length ? `Not yet recorded: ${joinAnd(missing)}.` : null;
+  const missing = missingFields(photo).map((field) => HELP_WORDS[field]);
+  return missing.length
+    ? `Not yet recorded: ${joinList(missing, "and")}.`
+    : null;
 }
 
 /** Which field the viewer's help link asks about first. */
-export function firstMissingField(
-  photo: ArchivePhoto
-): "photographer" | "place" | "date" | null {
-  if (photo.missing.photographer) return "photographer";
-  if (!placeRecorded(photo)) return "place";
-  if (photo.missing.date) return "date";
-  return null;
+export function firstMissingField(photo: ArchivePhoto): MissingField | null {
+  return missingFields(photo)[0] ?? null;
 }
 
 /**

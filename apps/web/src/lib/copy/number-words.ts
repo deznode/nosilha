@@ -64,6 +64,12 @@ export function plural(n: number, one: string, many: string): string {
   return n === 1 ? one : many;
 }
 
+/** `a`, `a and b`, `a, b and c`, with the last pair joined by `word`. */
+export function joinList(parts: string[], word: "and" | "or"): string {
+  if (parts.length <= 1) return parts.join("");
+  return `${parts.slice(0, -1).join(", ")} ${word} ${parts[parts.length - 1]}`;
+}
+
 /** Upper-cases the first character only. */
 export function capitalise(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);

@@ -3,6 +3,7 @@
 import { clsx } from "clsx";
 
 import { useToast } from "@/hooks/use-toast";
+import { buildShareLink } from "@/lib/share";
 
 /**
  * Share and copy-link in the archive's own voice. Spec 034 FR-010, FR-013.
@@ -68,7 +69,7 @@ export function ShareAction({
   const toast = useToast();
 
   async function share() {
-    const target = currentUrl();
+    const target = buildShareLink(currentUrl(), "entry");
 
     if (navigator.share) {
       try {
@@ -107,7 +108,7 @@ export function CopyLinkAction({
   const toast = useToast();
 
   async function copy() {
-    const target = currentUrl();
+    const target = buildShareLink(currentUrl(), "entry");
     if (await copyToClipboard(target)) {
       toast.success("Link copied").show();
     } else {

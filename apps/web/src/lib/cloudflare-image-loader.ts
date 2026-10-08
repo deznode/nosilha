@@ -11,9 +11,10 @@ import type { ImageLoaderProps } from "next/image";
  *
  * An entry starting with a dot matches the host and any subdomain of it.
  */
+export const YOUTUBE_THUMBNAIL_HOSTS = ["i.ytimg.com", "img.youtube.com"];
+
 const DIRECT_HOSTS = [
-  "i.ytimg.com",
-  "img.youtube.com",
+  ...YOUTUBE_THUMBNAIL_HOSTS,
   ".cdninstagram.com",
   ".fbcdn.net",
 ];

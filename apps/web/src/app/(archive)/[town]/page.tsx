@@ -3,9 +3,17 @@ import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { SettlementDetail } from "@/components/settlements/settlement-detail/settlement-detail";
-import { getEntries, getTownBySlug, getTownStatusSummary } from "@/lib/api";
+import {
+  getEntries,
+  getTownBySlug,
+  getTownFirstPhoto,
+  getTownStatusSummary,
+} from "@/lib/api";
+import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { generatePageMetadata } from "@/lib/metadata";
 import { isReservedSlug } from "@/lib/reserved-slugs";
+import { sharePreviewImage } from "@/lib/share";
+import { townHoldings } from "@/lib/share-copy";
 
 /**
  * A settlement that may not exist cannot have a useful static shell, and streaming one
@@ -29,17 +37,45 @@ export async function generateMetadata({
   const { town: slug } = await params;
   if (isReservedSlug(slug)) return {};
 
-  const town = await getTownBySlug(slug).catch(() => undefined);
+  const [town, summaries] = await Promise.all([
+    getTownBySlug(slug).catch(() => undefined),
+    // Optional here: without it the preview keeps the text card and plain description.
+    getTownStatusSummary().catch(() => []),
+  ]);
   if (!town) return {};
+
+  const summary = summaries.find((item) => item.slug === slug);
+  const src = summary?.id
+    ? await cachedTownPreviewSource(summary.id).catch(() => null)
+    : null;
+  const image = sharePreviewImage(src, town.name);
+  const holdings = summary ? townHoldings(summary) : null;
+  const about =
+    town.description?.trim() ||
+    `What the archive holds about ${town.name}, a settlement on Brava Island, Cape Verde.`;
 
   return generatePageMetadata({
     title: town.name,
-    description:
-      town.description?.trim() ||
-      `What the archive holds about ${town.name}, a settlement on Brava Island, Cape Verde.`,
+    description: holdings ? `${holdings}. ${about}` : about,
     path: `/${town.slug}`,
     keywords: [town.name, "Brava Island", "Cape Verde", "settlement"],
+    images: image ? [image] : [],
   });
+}
+
+/**
+ * The town's first photograph, for its link preview. The lookup itself is never
+ * stored (the town picker needs it fresh), so it is cached here: a crawler's request
+ * must not wait on the API for an answer that rarely changes. No `catch` inside: a
+ * swallowed failure would be cached as "no photograph".
+ */
+async function cachedTownPreviewSource(townId: string): Promise<string | null> {
+  "use cache";
+  cacheLife("content");
+  cacheTag("gallery");
+
+  const first = await getTownFirstPhoto(townId);
+  return first ? resolvePublicImageUrl(first) : null;
 }
 
 export default async function SettlementPage({ params }: SettlementPageProps) {
