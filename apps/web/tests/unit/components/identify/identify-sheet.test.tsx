@@ -1,4 +1,10 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -77,7 +83,7 @@ describe("IdentifySheet", () => {
     toastShow.mockReset();
     trackEvent.mockReset();
     useShareArrivalStore.setState(useShareArrivalStore.getInitialState());
-    useIdentifyStore.setState({ context: null });
+    useIdentifyStore.setState(useIdentifyStore.getInitialState());
   });
 
   afterEach(() => {
@@ -195,6 +201,38 @@ describe("IdentifySheet", () => {
       await user.click(screen.getByTestId("identify-overlay"));
 
       expect(screen.queryByText("Help identify")).not.toBeInTheDocument();
+    });
+
+    it("keeps Escape from the page underneath", async () => {
+      const onWindowKey = vi.fn();
+      window.addEventListener("keydown", onWindowKey);
+      openSheet();
+
+      await userEvent.keyboard("{Escape}");
+      window.removeEventListener("keydown", onWindowKey);
+
+      // The photo viewer listens on window and reads Escape as "go back"
+      expect(onWindowKey).not.toHaveBeenCalled();
+    });
+
+    it("takes focus when it opens", () => {
+      openSheet();
+
+      expect(screen.getByTestId("identify-panel")).toHaveFocus();
+    });
+
+    it("stays open when a drag that began in a field ends on the overlay", async () => {
+      openSheet();
+      await answer();
+
+      // Selecting text and letting go outside the panel: the press is on the
+      // field, the click lands on the common ancestor
+      fireEvent.mouseDown(screen.getByLabelText("Roughly when?"));
+      fireEvent.click(screen.getByTestId("identify-overlay"));
+
+      expect(screen.getByLabelText("Roughly when?")).toHaveValue(
+        "sometime in the sixties"
+      );
     });
 
     it("does not close when the panel itself is clicked", async () => {
@@ -522,14 +560,75 @@ describe("IdentifySheet", () => {
     });
   });
 
+  describe("a send still in flight when the sheet closes", () => {
+    beforeEach(() => signInAs());
+
+    async function sendThenReopen() {
+      let settle!: { resolve: () => void; reject: (error: Error) => void };
+      submitSuggestion.mockReturnValue(
+        new Promise<void>((resolve, reject) => {
+          settle = { resolve, reject };
+        })
+      );
+      openSheet();
+      await answer();
+      await pressSend();
+      await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
+
+      await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+      act(() => useIdentifyStore.getState().open(MEDIA_CONTEXT));
+      await userEvent.type(screen.getByLabelText("Who took it?"), "Maria");
+      return settle;
+    }
+
+    it("leaves the reopened sheet and its answers alone when it lands", async () => {
+      const settle = await sendThenReopen();
+
+      await act(async () => settle.resolve());
+
+      expect(toastShow).toHaveBeenCalledTimes(1);
+      expect(screen.getByLabelText("Who took it?")).toHaveValue("Maria");
+    });
+
+    it("says so in a toast when it fails, since its sheet is gone", async () => {
+      const settle = await sendThenReopen();
+
+      await act(async () => settle.reject(new Error("Network down")));
+
+      expect(toastShow).toHaveBeenCalledTimes(1);
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      expect(screen.getByLabelText("Who took it?")).toHaveValue("Maria");
+    });
+  });
+
+  it("records that the subject was answered", async () => {
+    signInAs();
+    openSheet();
+    await answer();
+    await pressSend();
+
+    await waitFor(() =>
+      expect(useIdentifyStore.getState().answered).toEqual([
+        MEDIA_CONTEXT.contentId,
+      ])
+    );
+  });
+
   describe("state reset", () => {
-    /**
-     * The previous version of this test unmounted and re-rendered, which a fresh
-     * `useState(EMPTY_ANSWERS)` satisfies on its own — it passed with the reset
-     * effect deleted entirely. These exercise the effect without remounting, which
-     * is the situation it exists for: Activity keeps `useState` across a hide/show
-     * and re-runs effects on show.
-     */
+    it("clears answers when the sheet is closed and reopened over the same record", async () => {
+      openSheet();
+      await answer();
+      await fillGuest();
+
+      await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+      act(() => useIdentifyStore.getState().open(MEDIA_CONTEXT));
+
+      expect(screen.getByLabelText("Roughly when?")).toHaveValue("");
+      expect(screen.getByLabelText("Your name")).toHaveValue("");
+      expect(screen.getByLabelText("Your email")).toHaveValue("");
+    });
+
+    // The sheet itself stays mounted here; only the keyed form inside it changes.
     it("clears answers when the sheet reopens over a different record", async () => {
       const user = userEvent.setup();
       openSheet();

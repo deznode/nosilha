@@ -24,7 +24,11 @@ interface SignInDialogProps {
   onClose: () => void;
   /** Called once a session exists; the caller resumes whatever sign-in interrupted. */
   onSignedIn: () => void;
-  held: HeldContribution;
+  /**
+   * The contribution sign-in interrupted, which signing in submits. Omit it when
+   * signing in sends nothing by itself, and the dialog makes no such promise.
+   */
+  held?: HeldContribution;
 }
 
 const labelClass = "text-foreground mb-[7px] block text-[11.5px] font-semibold";
@@ -78,38 +82,40 @@ export function SignInDialog({
 
   return (
     <Dialog open={open} onClose={onClose} size="md">
-      <div className="border-ocean-blue mb-6 rounded-[11px] border px-[18px] py-4">
-        <div className="text-ocean-blue mb-2.5 font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
-          Your {held.noun ?? "photograph"} is held, not lost
-        </div>
-        <div className="text-muted-foreground flex flex-col gap-[5px] text-[12.5px]">
-          <div>
-            Photographer ·{" "}
-            <span className="text-foreground">
-              {held.photographer.trim() || "not recorded"}
-            </span>
+      {held && (
+        <div className="border-ocean-blue mb-6 rounded-[11px] border px-[18px] py-4">
+          <div className="text-ocean-blue mb-2.5 font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
+            Your {held.noun ?? "photograph"} is held, not lost
           </div>
-          {held.source !== undefined && (
+          <div className="text-muted-foreground flex flex-col gap-[5px] text-[12.5px]">
             <div>
-              Given by ·{" "}
+              Photographer ·{" "}
               <span className="text-foreground">
-                {held.source.trim() || "not recorded"}
+                {held.photographer.trim() || "not recorded"}
               </span>
             </div>
-          )}
-          {held.place !== undefined && (
-            <div>
-              Place ·{" "}
-              <span className="text-foreground">
-                {held.place.trim() || "not yet recorded"}
-              </span>
-            </div>
-          )}
+            {held.source !== undefined && (
+              <div>
+                Given by ·{" "}
+                <span className="text-foreground">
+                  {held.source.trim() || "not recorded"}
+                </span>
+              </div>
+            )}
+            {held.place !== undefined && (
+              <div>
+                Place ·{" "}
+                <span className="text-foreground">
+                  {held.place.trim() || "not yet recorded"}
+                </span>
+              </div>
+            )}
+          </div>
+          <p className="text-muted-foreground mt-[11px] text-xs leading-[1.6]">
+            Signing in submits it. Nothing was uploaded before you got here.
+          </p>
         </div>
-        <p className="text-muted-foreground mt-[11px] text-xs leading-[1.6]">
-          Signing in submits it. Nothing was uploaded before you got here.
-        </p>
-      </div>
+      )}
 
       <DialogTitle className="text-foreground! mb-2 font-serif text-[29px]/[1.12]! font-normal!">
         Sign in
@@ -184,7 +190,7 @@ export function SignInDialog({
           isLoading={isSubmitting}
           className="mt-1 w-full"
         >
-          Sign in and submit
+          {held ? "Sign in and submit" : "Sign in"}
         </AnimatedButton>
       </form>
 
@@ -201,8 +207,9 @@ export function SignInDialog({
           </Link>
         </div>
         <p className="text-muted-foreground mt-2 text-xs leading-[1.6]">
-          Creating an account opens a new page, and the photograph is not kept —
-          you will need to add it again afterwards.
+          {held
+            ? "Creating an account opens a new page, and the photograph is not kept — you will need to add it again afterwards."
+            : "Creating an account opens a new page, and what you have typed is not kept."}
         </p>
       </div>
 

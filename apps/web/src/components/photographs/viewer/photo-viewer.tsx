@@ -19,7 +19,7 @@ import {
 import { photoArrivalLine } from "@/lib/share-copy";
 import { useActivityRemountKey } from "@/lib/hooks/use-activity-remount-key";
 import { readPanelOpen, writePanelOpen } from "@/lib/viewer-storage";
-import { useIdentifyContext } from "@/stores/identifyStore";
+import { useIdentifyContext, useWasAnswered } from "@/stores/identifyStore";
 
 import { AskBar } from "./ask-bar";
 import { DetailsPanel } from "./details-panel";
@@ -88,9 +88,13 @@ function ViewingRoom({
   );
   const label = labelOf(place, photos);
   const arrival = photoArrivalLine(current, photos);
-  // The question belongs to the photograph the link named, not the ones stepped to.
+  const answered = useWasAnswered(current.id);
+  // The question belongs to the photograph the link named, not the ones stepped to,
+  // and is not asked again of someone who has just answered it.
   const askField =
-    ask && current.id === initialId ? firstMissingField(current) : null;
+    ask && current.id === initialId && !answered
+      ? firstMissingField(current)
+      : null;
 
   const show = useCallback(
     (photo: ArchivePhoto) => {

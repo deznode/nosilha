@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { clsx } from "clsx";
 
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
@@ -11,7 +11,12 @@ import { fieldPhrase } from "@/lib/field-labels";
 import { trackEvent } from "@/lib/ga";
 import { supabase } from "@/lib/supabase-client";
 import { useUser } from "@/stores/authStore";
-import { useIdentifyStore } from "@/stores/identifyStore";
+import {
+  useCloseIdentify,
+  useIdentifyContext,
+  useIdentifyStore,
+  type IdentifyContext,
+} from "@/stores/identifyStore";
 import { useShareArrivalStore } from "@/stores/shareArrivalStore";
 
 /**
@@ -111,11 +116,28 @@ function composeMessage(
 }
 
 export function IdentifySheet() {
-  const context = useIdentifyStore((state) => state.context);
-  const close = useIdentifyStore((state) => state.close);
+  const context = useIdentifyContext();
+  if (!context) return null;
+
+  // Keyed on the subject: closing unmounts the form, and opening the sheet over a
+  // different record mounts a new one, so a half-typed guess about one photograph
+  // is never carried onto another.
+  return (
+    <IdentifyForm
+      key={`${context.contentId}:${context.field}`}
+      context={context}
+    />
+  );
+}
+
+function IdentifyForm({ context }: { context: IdentifyContext }) {
+  const close = useCloseIdentify();
   const user = useUser();
   const toast = useToast();
   const titleId = useId();
+  const panelRef = useRef<HTMLFormElement>(null);
+  /** Whether the press that became this click began on the overlay itself. */
+  const pressedOverlay = useRef(false);
 
   const [answers, setAnswers] = useState(EMPTY_ANSWERS);
   const [guest, setGuest] = useState(EMPTY_GUEST);
@@ -124,33 +146,35 @@ export function IdentifySheet() {
   const [signInOpen, setSignInOpen] = useState(false);
 
   const questions =
-    context?.contentType === "media" ? MEDIA_QUESTIONS : QUESTIONS;
+    context.contentType === "media" ? MEDIA_QUESTIONS : QUESTIONS;
 
-  // Keyed on the subject, not just on mount: Activity destroys effects on hide and
-  // re-creates them on show (so this still runs on every return visit), and opening
-  // the sheet over a different record now clears the previous one's answers rather
-  // than carrying a half-typed guess about one photograph onto another. Closing
-  // clears the subject, so this is also the reset on close.
+  // The button that opened the sheet may be gone (the ask bar unmounts), leaving
+  // focus on <body>. The panel takes it rather than a field, so a phone's keyboard
+  // does not cover the photograph before anyone has chosen to type.
   useEffect(() => {
-    setAnswers(EMPTY_ANSWERS);
-    setGuest(EMPTY_GUEST);
-    setSubmitting(false);
-    setError(null);
-    setSignInOpen(false);
-  }, [context?.contentId, context?.field]);
+    panelRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     // While sign-in is open, Escape belongs to that dialog: closing the sheet under
     // it would discard the answers the sign-in was meant to carry.
-    if (!context || signInOpen) return;
+    if (signInOpen) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
+      if (event.key !== "Escape") return;
+      // This Escape is the sheet's. Left to reach window, the photo viewer reads
+      // the same keypress as "Esc to go back" and leaves the photograph.
+      event.stopPropagation();
+      close();
     };
 
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [context, close, signInOpen]);
+  }, [close, signInOpen]);
+
+  // A send can outlive the sheet: Cancel and Escape stay live while it is in
+  // flight. Its result belongs to this open only, not to whatever is open by then.
+  const stillOpen = () => useIdentifyStore.getState().context === context;
 
   const setGuestField =
     (key: keyof typeof EMPTY_GUEST) =>
@@ -159,8 +183,6 @@ export function IdentifySheet() {
 
   /** `from` is who a signed-out answer is from; null sends as the account. */
   const send = async (from: typeof EMPTY_GUEST | null) => {
-    if (!context) return;
-
     setSubmitting(true);
     setError(null);
 
@@ -208,9 +230,15 @@ export function IdentifySheet() {
         });
       }
 
+      useIdentifyStore.getState().markAnswered(context.contentId);
       toast.success("Thank you — a curator will read this.").show();
-      close();
+      if (stillOpen()) close();
     } catch (caught) {
+      if (!stillOpen()) {
+        // Nobody is looking at this sheet any more, so its error line is unseen.
+        toast.error("Your answer was not sent. Please try again.").show();
+        return;
+      }
       // The typed answers stay on screen: they are the thing worth keeping
       if (caught instanceof ApiError && caught.status === 429) {
         setError(
@@ -256,13 +284,22 @@ export function IdentifySheet() {
   // without the name and email fields, and presses Send.
   const closeSignIn = () => setSignInOpen(false);
 
-  if (!context) return null;
-
   return (
     <>
       <div
         data-testid="identify-overlay"
-        onClick={signInOpen ? undefined : close}
+        // Only a click that starts and ends on the overlay closes the sheet. A drag
+        // that selects text in a field and lets go outside the panel also lands a
+        // click here, and closing on it threw the answer away.
+        onMouseDown={(event) => {
+          pressedOverlay.current = event.target === event.currentTarget;
+        }}
+        onClick={(event) => {
+          if (signInOpen) return;
+          if (event.target === event.currentTarget && pressedOverlay.current) {
+            close();
+          }
+        }}
         // Catalyst's Dialog is `relative z-50` in a portal on <body>. At z-60 this
         // overlay painted on top of it: the sign-in form was invisible behind the
         // backdrop, which also swallowed every click and discarded the answers. While
@@ -274,14 +311,16 @@ export function IdentifySheet() {
         style={{ background: "rgba(6,9,12,.72)", padding: "20px" }}
       >
         <form
+          ref={panelRef}
           data-testid="identify-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          onClick={(event) => event.stopPropagation()}
+          tabIndex={-1}
           onSubmit={handleSubmit}
           noValidate
           style={{
+            outline: "none",
             background: "var(--background)",
             border: "1px solid var(--border-strong)",
             borderRadius: "16px",
@@ -487,10 +526,6 @@ export function IdentifySheet() {
         open={signInOpen}
         onClose={closeSignIn}
         onSignedIn={closeSignIn}
-        held={{
-          photographer: answers.photographer,
-          place: answers.place,
-        }}
       />
     </>
   );

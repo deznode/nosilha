@@ -85,7 +85,7 @@ describe("PhotoViewer", () => {
   });
   afterEach(() => {
     replaceState.mockRestore();
-    useIdentifyStore.getState().close();
+    useIdentifyStore.setState(useIdentifyStore.getInitialState());
   });
 
   it("shows the details panel in the handoff's order", () => {
@@ -336,6 +336,16 @@ describe("PhotoViewer", () => {
         mediaId: "a",
         field: "photographerCredit",
       });
+    });
+
+    it("stops asking once the question has been answered", () => {
+      renderAsk();
+
+      act(() => useIdentifyStore.getState().markAnswered("a"));
+
+      expect(
+        screen.queryByRole("button", { name: "Tell us" })
+      ).not.toBeInTheDocument();
     });
 
     it("shows no bar without the ask flag", () => {

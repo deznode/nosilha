@@ -48,6 +48,17 @@ describe("SignInDialog", () => {
     expect(screen.getByText("not yet recorded")).toBeInTheDocument();
   });
 
+  it("promises no submission when nothing is held", () => {
+    render(<SignInDialog open onClose={vi.fn()} onSignedIn={vi.fn()} />);
+
+    expect(screen.queryByText(/held, not lost/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Signing in submits it/)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
+    expect(
+      screen.getByText(/what you have typed is not kept/i)
+    ).toBeInTheDocument();
+  });
+
   it("says plainly that creating an account leaves the page", () => {
     render(
       <SignInDialog open onClose={vi.fn()} onSignedIn={vi.fn()} held={held} />

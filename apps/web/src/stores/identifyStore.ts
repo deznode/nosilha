@@ -25,16 +25,24 @@ export interface IdentifyContext {
 
 interface IdentifyState {
   context: IdentifyContext | null;
+  /** Ids answered this visit, so a page stops asking what it was just told. */
+  answered: string[];
   open: (context: IdentifyContext) => void;
   close: () => void;
+  markAnswered: (contentId: string) => void;
 }
 
 export const useIdentifyStore = create<IdentifyState>()(
   devtools(
     (set) => ({
       context: null,
-      open: (context) => set({ context }),
+      answered: [],
+      // A copy, so each open is its own object: a send still in flight when the
+      // sheet is closed and reopened can tell it is no longer the one on screen.
+      open: (context) => set({ context: { ...context } }),
       close: () => set({ context: null }),
+      markAnswered: (contentId) =>
+        set((state) => ({ answered: [...state.answered, contentId] })),
     }),
     { name: "IdentifyStore" }
   )
@@ -45,3 +53,5 @@ export const useIdentifyContext = () =>
   useIdentifyStore((state) => state.context);
 export const useOpenIdentify = () => useIdentifyStore((state) => state.open);
 export const useCloseIdentify = () => useIdentifyStore((state) => state.close);
+export const useWasAnswered = (contentId: string) =>
+  useIdentifyStore((state) => state.answered.includes(contentId));
