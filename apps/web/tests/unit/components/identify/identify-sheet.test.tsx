@@ -30,23 +30,15 @@ vi.mock("@/lib/supabase-client", () => ({
 
 const authState = {
   user: null as { id: string; email?: string } | null,
-  isAuthenticated: false,
 };
 vi.mock("@/stores/authStore", () => ({
   useUser: () => authState.user,
-  useIsAuthenticated: () => authState.isAuthenticated,
 }));
 
-/** Captures what the sign-in dialog is asked to do, without rendering auth UI. */
-const signInDialog = vi.fn();
+/** Stands in for the sign-in dialog, without rendering auth UI. */
 let signIn: () => void = () => {};
 vi.mock("@/components/auth/sign-in-dialog", () => ({
-  SignInDialog: (props: {
-    open: boolean;
-    onSignedIn: () => void;
-    onClose: () => void;
-  }) => {
-    signInDialog(props);
+  SignInDialog: (props: { open: boolean; onSignedIn: () => void }) => {
     signIn = props.onSignedIn;
     return props.open ? <div data-testid="sign-in-dialog" /> : null;
   },
@@ -80,11 +72,9 @@ const MEDIA_CONTEXT: IdentifyContext = {
 describe("IdentifySheet", () => {
   beforeEach(() => {
     authState.user = null;
-    authState.isAuthenticated = false;
     submitSuggestion.mockReset().mockResolvedValue({ id: "x", message: "ok" });
     sessionEmail.current = null;
     toastShow.mockReset();
-    signInDialog.mockReset();
     trackEvent.mockReset();
     useShareArrivalStore.setState(useShareArrivalStore.getInitialState());
     useIdentifyStore.setState({ context: null });
@@ -102,7 +92,6 @@ describe("IdentifySheet", () => {
 
   function signInAs(email = "ana@example.com") {
     authState.user = { id: "u1", email };
-    authState.isAuthenticated = true;
     sessionEmail.current = email;
   }
 
@@ -220,13 +209,10 @@ describe("IdentifySheet", () => {
 
   describe("empty submissions", () => {
     it("posts nothing and says so when every answer is blank", async () => {
-      const user = userEvent.setup();
       signInAs("a@b.test");
       openSheet();
 
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       expect(submitSuggestion).not.toHaveBeenCalled();
       expect(
@@ -240,9 +226,7 @@ describe("IdentifySheet", () => {
       openSheet();
 
       await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
     });
@@ -432,9 +416,7 @@ describe("IdentifySheet", () => {
         screen.getByLabelText("Where was this taken?"),
         "Faja d'Agua"
       );
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       const payload = submitSuggestion.mock.calls[0][0];
@@ -455,9 +437,7 @@ describe("IdentifySheet", () => {
       openSheet();
 
       await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       expect(submitSuggestion.mock.calls[0][0].suggestionType).toBe(
@@ -475,9 +455,7 @@ describe("IdentifySheet", () => {
       });
 
       await user.type(screen.getByLabelText("Roughly when?"), "1826");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       const payload = submitSuggestion.mock.calls[0][0];
@@ -491,9 +469,7 @@ describe("IdentifySheet", () => {
 
       await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
       await user.type(screen.getByLabelText("Roughly when?"), "about 1975");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       const { message } = submitSuggestion.mock.calls[0][0];
@@ -517,9 +493,7 @@ describe("IdentifySheet", () => {
       openSheet();
 
       await user.type(screen.getByLabelText("Roughly when?"), "60s");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       expect(
@@ -536,9 +510,7 @@ describe("IdentifySheet", () => {
       openSheet();
 
       await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() =>
         expect(screen.getByText(/Network down/i)).toBeInTheDocument()
@@ -579,13 +551,10 @@ describe("IdentifySheet", () => {
     });
 
     it("clears a previous error when the subject changes", async () => {
-      const user = userEvent.setup();
       signInAs("a@b.test");
       openSheet();
 
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
       expect(
         screen.getByText(/Answer at least one question/i)
       ).toBeInTheDocument();

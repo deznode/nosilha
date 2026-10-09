@@ -52,11 +52,24 @@ const PHOTOS = [
   makePhoto("d"),
 ];
 
-function renderViewer(place?: string, initialId = "a") {
-  pathname = `/photographs/${initialId}`;
-  return render(
-    <PhotoViewer photos={PHOTOS} initialId={initialId} place={place} />
+function viewer(
+  place?: string,
+  initialId = "a",
+  { photos = PHOTOS, ask = false } = {}
+) {
+  return (
+    <PhotoViewer
+      photos={photos}
+      initialId={initialId}
+      place={place}
+      ask={ask}
+    />
   );
+}
+
+function renderViewer(...args: Parameters<typeof viewer>) {
+  pathname = `/photographs/${args[1] ?? "a"}`;
+  return render(viewer(...args));
 }
 
 /** Spec 038 FR-020 to FR-026 — the viewing room. */
@@ -301,15 +314,7 @@ describe("PhotoViewer", () => {
 
   describe("arriving on an ask link", () => {
     function renderAsk(photos = PHOTOS, initialId = "a") {
-      pathname = `/photographs/${initialId}`;
-      return render(
-        <PhotoViewer
-          photos={photos}
-          initialId={initialId}
-          place={undefined}
-          ask
-        />
-      );
+      return renderViewer(undefined, initialId, { photos, ask: true });
     }
 
     it("asks the question without opening the sheet", () => {
@@ -362,9 +367,7 @@ describe("PhotoViewer", () => {
     it("removes the bar once the reader steps to another photograph", () => {
       const view = renderAsk();
       pathname = "/photographs/b";
-      view.rerender(
-        <PhotoViewer photos={PHOTOS} initialId="a" place={undefined} ask />
-      );
+      view.rerender(viewer(undefined, "a", { ask: true }));
 
       expect(
         screen.queryByRole("button", { name: "Tell us" })

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { clsx } from "clsx";
 
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
@@ -10,7 +10,7 @@ import { ApiError } from "@/lib/api-error";
 import { fieldPhrase } from "@/lib/field-labels";
 import { trackEvent } from "@/lib/ga";
 import { supabase } from "@/lib/supabase-client";
-import { useIsAuthenticated, useUser } from "@/stores/authStore";
+import { useUser } from "@/stores/authStore";
 import { useIdentifyStore } from "@/stores/identifyStore";
 import { useShareArrivalStore } from "@/stores/shareArrivalStore";
 
@@ -114,7 +114,6 @@ export function IdentifySheet() {
   const context = useIdentifyStore((state) => state.context);
   const close = useIdentifyStore((state) => state.close);
   const user = useUser();
-  const isAuthenticated = useIsAuthenticated();
   const toast = useToast();
   const titleId = useId();
 
@@ -130,7 +129,8 @@ export function IdentifySheet() {
   // Keyed on the subject, not just on mount: Activity destroys effects on hide and
   // re-creates them on show (so this still runs on every return visit), and opening
   // the sheet over a different record now clears the previous one's answers rather
-  // than carrying a half-typed guess about one photograph onto another.
+  // than carrying a half-typed guess about one photograph onto another. Closing
+  // clears the subject, so this is also the reset on close.
   useEffect(() => {
     setAnswers(EMPTY_ANSWERS);
     setGuest(EMPTY_GUEST);
@@ -139,26 +139,18 @@ export function IdentifySheet() {
     setSignInOpen(false);
   }, [context?.contentId, context?.field]);
 
-  const handleClose = useCallback(() => {
-    setAnswers(EMPTY_ANSWERS);
-    setGuest(EMPTY_GUEST);
-    setError(null);
-    setSignInOpen(false);
-    close();
-  }, [close]);
-
   useEffect(() => {
     // While sign-in is open, Escape belongs to that dialog: closing the sheet under
     // it would discard the answers the sign-in was meant to carry.
     if (!context || signInOpen) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") handleClose();
+      if (event.key === "Escape") close();
     };
 
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [context, handleClose, signInOpen]);
+  }, [context, close, signInOpen]);
 
   const setGuestField =
     (key: keyof typeof EMPTY_GUEST) =>
@@ -217,7 +209,7 @@ export function IdentifySheet() {
       }
 
       toast.success("Thank you — a curator will read this.").show();
-      handleClose();
+      close();
     } catch (caught) {
       // The typed answers stay on screen: they are the thing worth keeping
       if (caught instanceof ApiError && caught.status === 429) {
@@ -238,7 +230,7 @@ export function IdentifySheet() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (submitting || !context) return;
+    if (submitting) return;
 
     const hasAnswer = questions.some((q) => answers[q.key]?.trim());
     if (!hasAnswer) {
@@ -246,7 +238,7 @@ export function IdentifySheet() {
       return;
     }
 
-    if (isAuthenticated && user) {
+    if (user) {
       void send(null);
       return;
     }
@@ -270,7 +262,7 @@ export function IdentifySheet() {
     <>
       <div
         data-testid="identify-overlay"
-        onClick={signInOpen ? undefined : handleClose}
+        onClick={signInOpen ? undefined : close}
         // Catalyst's Dialog is `relative z-50` in a portal on <body>. At z-60 this
         // overlay painted on top of it: the sign-in form was invisible behind the
         // backdrop, which also swallowed every click and discarded the answers. While
@@ -360,7 +352,7 @@ export function IdentifySheet() {
             ))}
           </div>
 
-          {!isAuthenticated && (
+          {!user && (
             <div
               className="flex flex-col"
               style={{
@@ -445,7 +437,7 @@ export function IdentifySheet() {
             </button>
             <button
               type="button"
-              onClick={handleClose}
+              onClick={close}
               className="cursor-pointer"
               style={{
                 background: "none",
@@ -458,7 +450,7 @@ export function IdentifySheet() {
             >
               Cancel
             </button>
-            {!isAuthenticated && (
+            {!user && (
               <button
                 type="button"
                 onClick={() => setSignInOpen(true)}

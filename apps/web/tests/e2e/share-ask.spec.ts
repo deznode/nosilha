@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { API_URL } from "../utils/archive-data";
+import { photographs } from "../utils/archive-data";
 import { stubSuggestionPosts } from "../utils/network";
 
 /**
@@ -10,15 +10,9 @@ import { stubSuggestionPosts } from "../utils/network";
 test("answers an ask link signed out", async ({ page, request }) => {
   // Any active photograph will do if it is missing its photographer, which the seeded
   // archive's uploads all are.
-  const response = await request.get(
-    `${API_URL}/api/v1/gallery?mediaType=IMAGE&size=20`
+  const photo = (await photographs(request)).find(
+    (item) => !item.photographerCredit?.trim()
   );
-  expect(response.ok()).toBe(true);
-  // `PagedApiResult`: the list is `data` itself.
-  const body = (await response.json()) as {
-    data: { id: string; photographerCredit?: string | null }[];
-  };
-  const photo = body.data.find((item) => !item.photographerCredit?.trim());
   test.skip(
     !photo,
     "no photograph in this archive is missing its photographer"

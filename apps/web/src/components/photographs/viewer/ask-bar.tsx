@@ -2,13 +2,11 @@
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import {
-  photoHeading,
+  photoIdentifyContext,
   type ArchivePhoto,
   type MissingField,
 } from "@/lib/archive-photographs";
 import { ASK_TITLE } from "@/lib/share-copy";
-
-import { IDENTIFY_FIELD } from "./details-panel";
 
 /**
  * The question a visitor was sent here to answer. Spec 040 FR-007.
@@ -34,11 +32,7 @@ export function AskBar({
         {ASK_TITLE}
       </span>
       <IdentifyQuestion
-        contentType="media"
-        contentId={photo.id}
-        mediaId={photo.id}
-        field={IDENTIFY_FIELD[field]}
-        pageTitle={photoHeading(photo)}
+        {...photoIdentifyContext(photo, field)}
         variant="primary"
         className="focus-ring flex-none"
       >

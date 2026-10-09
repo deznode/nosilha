@@ -19,9 +19,11 @@ import {
  * share is known only in the browser.
  */
 export function ShareArrivalStrip() {
-  const arrived = useShareArrivalStore((state) => state.arrived);
-  const dismissed = useShareArrivalStore((state) => state.dismissed);
-  const line = useShareArrivalStore((state) => state.line);
+  // One subscription: the chrome re-renders only when what it shows changes, not
+  // each time a page puts its line up on a visit that did not come from a share.
+  const line = useShareArrivalStore((state) =>
+    state.arrived && !state.dismissed ? state.line : null
+  );
   const markArrived = useShareArrivalStore((state) => state.markArrived);
   const dismiss = useShareArrivalStore((state) => state.dismiss);
 
@@ -29,7 +31,7 @@ export function ShareArrivalStrip() {
     if (isShareArrival(window.location.search)) markArrived();
   }, [markArrived]);
 
-  if (!arrived || dismissed || !line) return null;
+  if (!line) return null;
 
   return (
     <div
