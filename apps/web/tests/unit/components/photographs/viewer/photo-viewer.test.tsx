@@ -52,11 +52,24 @@ const PHOTOS = [
   makePhoto("d"),
 ];
 
-function renderViewer(place?: string, initialId = "a") {
-  pathname = `/photographs/${initialId}`;
-  return render(
-    <PhotoViewer photos={PHOTOS} initialId={initialId} place={place} />
+function viewer(
+  place?: string,
+  initialId = "a",
+  { photos = PHOTOS, ask = false } = {}
+) {
+  return (
+    <PhotoViewer
+      photos={photos}
+      initialId={initialId}
+      place={place}
+      ask={ask}
+    />
   );
+}
+
+function renderViewer(...args: Parameters<typeof viewer>) {
+  pathname = `/photographs/${args[1] ?? "a"}`;
+  return render(viewer(...args));
 }
 
 /** Spec 038 FR-020 to FR-026 — the viewing room. */
@@ -72,7 +85,7 @@ describe("PhotoViewer", () => {
   });
   afterEach(() => {
     replaceState.mockRestore();
-    useIdentifyStore.getState().close();
+    useIdentifyStore.setState(useIdentifyStore.getInitialState());
   });
 
   it("shows the details panel in the handoff's order", () => {
@@ -297,6 +310,79 @@ describe("PhotoViewer", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Near Furna" })
     ).toBeInTheDocument();
+  });
+
+  describe("arriving on an ask link", () => {
+    function renderAsk(photos = PHOTOS, initialId = "a") {
+      return renderViewer(undefined, initialId, { photos, ask: true });
+    }
+
+    it("asks the question without opening the sheet", () => {
+      renderAsk();
+
+      expect(
+        screen.getByText("Do you recognise this photograph?")
+      ).toBeInTheDocument();
+      expect(useIdentifyStore.getState().context).toBeNull();
+    });
+
+    it("opens the sheet on the first missing field from Tell us", async () => {
+      renderAsk();
+      await userEvent.click(screen.getByRole("button", { name: "Tell us" }));
+
+      expect(useIdentifyStore.getState().context).toMatchObject({
+        contentType: "media",
+        contentId: "a",
+        mediaId: "a",
+        field: "photographerCredit",
+      });
+    });
+
+    it("stops asking once the question has been answered", () => {
+      renderAsk();
+
+      act(() => useIdentifyStore.getState().markAnswered("a"));
+
+      expect(
+        screen.queryByRole("button", { name: "Tell us" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows no bar without the ask flag", () => {
+      renderViewer();
+
+      expect(
+        screen.queryByRole("button", { name: "Tell us" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows no bar for a record that is now complete", () => {
+      renderAsk(
+        [
+          makePhoto("z", {
+            located: true,
+            credit: "Ana",
+            dateLabel: "July 12, 2024",
+            missing: { photographer: false, date: false },
+          }),
+        ],
+        "z"
+      );
+
+      expect(
+        screen.queryByRole("button", { name: "Tell us" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("removes the bar once the reader steps to another photograph", () => {
+      const view = renderAsk();
+      pathname = "/photographs/b";
+      view.rerender(viewer(undefined, "a", { ask: true }));
+
+      expect(
+        screen.queryByRole("button", { name: "Tell us" })
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe("sharing", () => {

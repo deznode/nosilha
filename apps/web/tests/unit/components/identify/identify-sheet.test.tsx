@@ -1,9 +1,22 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { IdentifySheet } from "@/components/identify/identify-sheet";
+import { ApiError } from "@/lib/api-error";
 import { useIdentifyStore, type IdentifyContext } from "@/stores/identifyStore";
+import { useShareArrivalStore } from "@/stores/shareArrivalStore";
+
+let pathname = "/";
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathname,
+}));
 
 const submitSuggestion = vi.fn();
 vi.mock("@/lib/api", () => ({
@@ -28,26 +41,23 @@ vi.mock("@/lib/supabase-client", () => ({
 
 const authState = {
   user: null as { id: string; email?: string } | null,
-  isAuthenticated: false,
 };
 vi.mock("@/stores/authStore", () => ({
   useUser: () => authState.user,
-  useIsAuthenticated: () => authState.isAuthenticated,
 }));
 
-/** Captures what the sign-in dialog is asked to do, without rendering auth UI. */
-const signInDialog = vi.fn();
+/** Stands in for the sign-in dialog, without rendering auth UI. */
 let signIn: () => void = () => {};
 vi.mock("@/components/auth/sign-in-dialog", () => ({
-  SignInDialog: (props: {
-    open: boolean;
-    onSignedIn: () => void;
-    onClose: () => void;
-  }) => {
-    signInDialog(props);
+  SignInDialog: (props: { open: boolean; onSignedIn: () => void }) => {
     signIn = props.onSignedIn;
     return props.open ? <div data-testid="sign-in-dialog" /> : null;
   },
+}));
+
+const trackEvent = vi.fn();
+vi.mock("@/lib/ga", () => ({
+  trackEvent: (...args: unknown[]) => trackEvent(...args),
 }));
 
 const toastShow = vi.fn();
@@ -67,18 +77,20 @@ const MEDIA_CONTEXT: IdentifyContext = {
 };
 
 /**
- * Spec 034 FR-004 — one sheet, opened from every missing-field question, fillable
- * signed out, with sign-in intercepting only at submit.
+ * Spec 034 FR-004, spec 040 FR-008 — one sheet, opened from every missing-field
+ * question, answerable without an account.
  */
 describe("IdentifySheet", () => {
   beforeEach(() => {
     authState.user = null;
-    authState.isAuthenticated = false;
     submitSuggestion.mockReset().mockResolvedValue({ id: "x", message: "ok" });
     sessionEmail.current = null;
     toastShow.mockReset();
-    signInDialog.mockReset();
-    useIdentifyStore.setState({ context: null });
+    trackEvent.mockReset();
+    useShareArrivalStore.setState(useShareArrivalStore.getInitialState());
+    useIdentifyStore.setState(useIdentifyStore.getInitialState());
+    pathname = "/";
+    window.history.replaceState(null, "", "/");
   });
 
   afterEach(() => {
@@ -89,6 +101,29 @@ describe("IdentifySheet", () => {
     const view = render(<IdentifySheet />);
     act(() => useIdentifyStore.getState().open(context));
     return view;
+  }
+
+  function signInAs(email = "ana@example.com") {
+    authState.user = { id: "u1", email };
+    sessionEmail.current = email;
+  }
+
+  async function answer() {
+    await userEvent.type(
+      screen.getByLabelText("Roughly when?"),
+      "sometime in the sixties"
+    );
+  }
+
+  async function fillGuest(name = "Ana Lopes", email = "ana@example.com") {
+    if (name) await userEvent.type(screen.getByLabelText("Your name"), name);
+    if (email) await userEvent.type(screen.getByLabelText("Your email"), email);
+  }
+
+  async function pressSend() {
+    await userEvent.click(
+      screen.getByRole("button", { name: "Send to the curators" })
+    );
   }
 
   it("renders nothing until something asks a question", () => {
@@ -112,7 +147,7 @@ describe("IdentifySheet", () => {
       ).toBeInTheDocument();
     });
 
-    it("labels three questions with their placeholders", () => {
+    it("labels four questions on a photograph", () => {
       openSheet();
 
       const expected: [string, string][] = [
@@ -125,6 +160,7 @@ describe("IdentifySheet", () => {
         const input = screen.getByLabelText(label);
         expect(input).toHaveAttribute("placeholder", placeholder);
       }
+      expect(screen.getByLabelText("Who is in it?")).toBeInTheDocument();
     });
 
     it("shows both buttons and the footnote", () => {
@@ -138,7 +174,7 @@ describe("IdentifySheet", () => {
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          "A person reads every suggestion. Sign-in happens at the end, not before the form."
+          "A person reads every suggestion. A curator may write to you about yours."
         )
       ).toBeInTheDocument();
     });
@@ -174,6 +210,50 @@ describe("IdentifySheet", () => {
       expect(screen.queryByText("Help identify")).not.toBeInTheDocument();
     });
 
+    it("closes when the reader leaves the page it was opened on", () => {
+      const view = openSheet();
+
+      // Browser Back: the address changes and the layout renders again
+      window.history.replaceState(null, "", "/photographs");
+      pathname = "/photographs";
+      view.rerender(<IdentifySheet />);
+
+      expect(screen.queryByText("Help identify")).not.toBeInTheDocument();
+      expect(useIdentifyStore.getState().context).toBeNull();
+    });
+
+    it("keeps Escape from the page underneath", async () => {
+      const onWindowKey = vi.fn();
+      window.addEventListener("keydown", onWindowKey);
+      openSheet();
+
+      await userEvent.keyboard("{Escape}");
+      window.removeEventListener("keydown", onWindowKey);
+
+      // The photo viewer listens on window and reads Escape as "go back"
+      expect(onWindowKey).not.toHaveBeenCalled();
+    });
+
+    it("takes focus when it opens", () => {
+      openSheet();
+
+      expect(screen.getByTestId("identify-panel")).toHaveFocus();
+    });
+
+    it("stays open when a drag that began in a field ends on the overlay", async () => {
+      openSheet();
+      await answer();
+
+      // Selecting text and letting go outside the panel: the press is on the
+      // field, the click lands on the common ancestor
+      fireEvent.mouseDown(screen.getByLabelText("Roughly when?"));
+      fireEvent.click(screen.getByTestId("identify-overlay"));
+
+      expect(screen.getByLabelText("Roughly when?")).toHaveValue(
+        "sometime in the sixties"
+      );
+    });
+
     it("does not close when the panel itself is clicked", async () => {
       const user = userEvent.setup();
       openSheet();
@@ -186,15 +266,10 @@ describe("IdentifySheet", () => {
 
   describe("empty submissions", () => {
     it("posts nothing and says so when every answer is blank", async () => {
-      const user = userEvent.setup();
-      authState.user = { id: "u1", email: "a@b.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "a@b.test";
+      signInAs("a@b.test");
       openSheet();
 
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       expect(submitSuggestion).not.toHaveBeenCalled();
       expect(
@@ -204,141 +279,190 @@ describe("IdentifySheet", () => {
 
     it("accepts a single answer", async () => {
       const user = userEvent.setup();
-      authState.user = { id: "u1", email: "a@b.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "a@b.test";
+      signInAs("a@b.test");
       openSheet();
 
       await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
     });
   });
 
   describe("signed out", () => {
-    it("is fillable, then opens sign-in at submit and posts nothing", async () => {
-      const user = userEvent.setup();
+    it("asks for a name and an email, and sends without an account", async () => {
       openSheet();
+      await answer();
+      await fillGuest("Ana Lopes", " Ana@Example.com ");
+      await pressSend();
 
-      await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
+      await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
+      expect(submitSuggestion.mock.calls[0][0]).toMatchObject({
+        name: "Ana Lopes",
+        email: "ana@example.com",
+        honeypot: "",
+        suggestionType: "PHOTO_IDENTIFICATION",
+      });
+      expect(screen.queryByTestId("sign-in-dialog")).not.toBeInTheDocument();
+    });
+
+    it.each([
+      ["no name", "", "ana@example.com"],
+      ["a one-letter name", "A", "ana@example.com"],
+      ["no email", "Ana Lopes", ""],
+      ["a malformed email", "Ana Lopes", "ana@example"],
+    ])(
+      "refuses %s, posts nothing and keeps the answer",
+      async (_, name, email) => {
+        openSheet();
+        await answer();
+        await fillGuest(name, email);
+        await pressSend();
+
+        expect(screen.getByRole("alert")).toHaveTextContent(
+          "Add your name and an email a curator can reach you at."
+        );
+        expect(submitSuggestion).not.toHaveBeenCalled();
+        expect(screen.getByLabelText("Roughly when?")).toHaveValue(
+          "sometime in the sixties"
+        );
+      }
+    );
+
+    it("still refuses an empty answer first", async () => {
+      openSheet();
+      await fillGuest();
+      await pressSend();
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Answer at least one question, even if it is a guess."
+      );
+      expect(submitSuggestion).not.toHaveBeenCalled();
+    });
+
+    it("offers sign-in instead, and keeps the answers through it", async () => {
+      openSheet();
+      await answer();
+      await userEvent.click(
+        screen.getByRole("button", { name: "Sign in instead" })
       );
 
       expect(screen.getByTestId("sign-in-dialog")).toBeInTheDocument();
       expect(submitSuggestion).not.toHaveBeenCalled();
-    });
 
-    it("keeps the sheet and its answers when Escape dismisses sign-in", async () => {
-      const user = userEvent.setup();
-      openSheet();
-
-      await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
-      await user.keyboard("{Escape}");
-
-      // The dialog owns Escape while it is open; the sheet must not close under it.
-      expect(screen.getByText("Help identify")).toBeInTheDocument();
-      expect(screen.getByLabelText("Who took it?")).toHaveValue(
-        "Maria Tavares"
-      );
-    });
-
-    it("posts the held submission once after sign-in", async () => {
-      const user = userEvent.setup();
-      openSheet();
-
-      await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
-
-      // What really happens: `signInWithPassword` resolves and `onSignedIn` fires
-      // immediately, so `AuthProvider` has NOT filled the store yet — only the
-      // session exists. An earlier version of this test primed `authState` first,
-      // which is a state the real flow never reaches, and so it passed while the
-      // resumed submit was posting an empty name and email.
-      sessionEmail.current = "a@b.test";
       act(() => signIn());
-
-      await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
-      const payload = submitSuggestion.mock.calls[0][0];
-      expect(payload.name).toBe("a@b.test");
-      expect(payload.email).toBe("a@b.test");
-    });
-
-    it("reports rather than posting an unattributable suggestion", async () => {
-      const user = userEvent.setup();
-      openSheet();
-
-      await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
-
-      // Sign-in reported success, but no session arrived
-      act(() => signIn());
-
-      await waitFor(() =>
-        expect(
-          screen.getByText(/could not read your account/i)
-        ).toBeInTheDocument()
+      expect(screen.queryByTestId("sign-in-dialog")).not.toBeInTheDocument();
+      expect(screen.getByLabelText("Roughly when?")).toHaveValue(
+        "sometime in the sixties"
       );
       expect(submitSuggestion).not.toHaveBeenCalled();
-      expect(screen.getByLabelText("Who took it?")).toHaveValue(
-        "Maria Tavares"
-      );
     });
 
     it("drops the sheet below the sign-in dialog so the form is reachable", async () => {
-      const user = userEvent.setup();
       openSheet();
-
-      const overlay = screen.getByTestId("identify-overlay");
-      expect(overlay.className).toContain("z-[60]");
-
-      await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
+      await userEvent.click(
+        screen.getByRole("button", { name: "Sign in instead" })
       );
 
-      // Catalyst's Dialog is z-50; at z-60 this overlay covered it, hid the form and
-      // ate every click — including one that discarded the typed answers.
-      expect(overlay.className).not.toContain("z-[60]");
-      expect(overlay.className).toContain("z-40");
+      expect(screen.getByTestId("identify-overlay")).toHaveClass("z-40");
+    });
 
-      await user.click(overlay);
-      expect(screen.getByLabelText("Who took it?")).toHaveValue(
-        "Maria Tavares"
+    it("says so when the connection has sent too many", async () => {
+      submitSuggestion.mockRejectedValue(
+        new ApiError(
+          "You have exceeded the maximum number of submissions (5 per hour). Please try again later.",
+          429
+        )
+      );
+      openSheet();
+      await answer();
+      await fillGuest();
+      await pressSend();
+
+      await waitFor(() =>
+        expect(screen.getByRole("alert")).toHaveTextContent(
+          "Too many answers from this connection. Please try again in an hour."
+        )
+      );
+      expect(screen.getByLabelText("Roughly when?")).toHaveValue(
+        "sometime in the sixties"
+      );
+    });
+  });
+
+  describe("signed in", () => {
+    beforeEach(() => signInAs());
+
+    it("asks for no name or email", () => {
+      openSheet();
+
+      expect(screen.queryByLabelText("Your name")).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Your email")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Sign in instead" })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("the fourth question", () => {
+    beforeEach(() => signInAs());
+
+    it("sends who is in a photograph with the other answers", async () => {
+      openSheet();
+      await userEvent.type(
+        screen.getByLabelText("Who is in it?"),
+        "My grandmother, Maria"
+      );
+      await pressSend();
+
+      await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
+      expect(submitSuggestion.mock.calls[0][0].message).toContain(
+        "Who is in it? My grandmother, Maria"
       );
     });
 
-    it("does not post when sign-in is dismissed", async () => {
-      const user = userEvent.setup();
+    it("is not asked about a town or a place", () => {
+      openSheet({
+        contentType: "town",
+        contentId: "188a7f94-daa7-4a87-b2f6-c87add918295",
+        field: "founded",
+        pageTitle: "Furna",
+      });
+
+      expect(screen.queryByLabelText("Who is in it?")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("answers from a share arrival", () => {
+    beforeEach(() => signInAs());
+
+    async function send() {
       openSheet();
+      await answer();
+      await pressSend();
+      await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
+    }
 
-      await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+    it("are counted", async () => {
+      useShareArrivalStore.setState({ arrived: true });
+      await send();
 
-      const props = signInDialog.mock.calls.at(-1)?.[0];
-      act(() => props.onClose());
+      expect(trackEvent).toHaveBeenCalledWith({
+        action: "share_arrival_answer",
+        content_type: "media",
+      });
+    });
 
-      expect(submitSuggestion).not.toHaveBeenCalled();
+    it("are not counted on an ordinary visit", async () => {
+      await send();
+
+      expect(trackEvent).not.toHaveBeenCalled();
     });
   });
 
   describe("payload", () => {
     beforeEach(() => {
-      authState.user = { id: "u1", email: "reader@example.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "reader@example.test";
+      signInAs("reader@example.test");
     });
 
     it("sends the session identity with the entity and field", async () => {
@@ -349,9 +473,7 @@ describe("IdentifySheet", () => {
         screen.getByLabelText("Where was this taken?"),
         "Faja d'Agua"
       );
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       const payload = submitSuggestion.mock.calls[0][0];
@@ -372,9 +494,7 @@ describe("IdentifySheet", () => {
       openSheet();
 
       await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       expect(submitSuggestion.mock.calls[0][0].suggestionType).toBe(
@@ -392,9 +512,7 @@ describe("IdentifySheet", () => {
       });
 
       await user.type(screen.getByLabelText("Roughly when?"), "1826");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       const payload = submitSuggestion.mock.calls[0][0];
@@ -408,9 +526,7 @@ describe("IdentifySheet", () => {
 
       await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
       await user.type(screen.getByLabelText("Roughly when?"), "about 1975");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       const { message } = submitSuggestion.mock.calls[0][0];
@@ -434,9 +550,7 @@ describe("IdentifySheet", () => {
       openSheet();
 
       await user.type(screen.getByLabelText("Roughly when?"), "60s");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() => expect(submitSuggestion).toHaveBeenCalled());
       expect(
@@ -448,16 +562,12 @@ describe("IdentifySheet", () => {
   describe("failure", () => {
     it("reports the error and keeps what was typed", async () => {
       const user = userEvent.setup();
-      authState.user = { id: "u1", email: "a@b.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "a@b.test";
+      signInAs("a@b.test");
       submitSuggestion.mockRejectedValue(new Error("Network down"));
       openSheet();
 
       await user.type(screen.getByLabelText("Who took it?"), "Maria Tavares");
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
 
       await waitFor(() =>
         expect(screen.getByText(/Network down/i)).toBeInTheDocument()
@@ -469,14 +579,75 @@ describe("IdentifySheet", () => {
     });
   });
 
+  describe("a send still in flight when the sheet closes", () => {
+    beforeEach(() => signInAs());
+
+    async function sendThenReopen() {
+      let settle!: { resolve: () => void; reject: (error: Error) => void };
+      submitSuggestion.mockReturnValue(
+        new Promise<void>((resolve, reject) => {
+          settle = { resolve, reject };
+        })
+      );
+      openSheet();
+      await answer();
+      await pressSend();
+      await waitFor(() => expect(submitSuggestion).toHaveBeenCalledTimes(1));
+
+      await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+      act(() => useIdentifyStore.getState().open(MEDIA_CONTEXT));
+      await userEvent.type(screen.getByLabelText("Who took it?"), "Maria");
+      return settle;
+    }
+
+    it("leaves the reopened sheet and its answers alone when it lands", async () => {
+      const settle = await sendThenReopen();
+
+      await act(async () => settle.resolve());
+
+      expect(toastShow).toHaveBeenCalledTimes(1);
+      expect(screen.getByLabelText("Who took it?")).toHaveValue("Maria");
+    });
+
+    it("says so in a toast when it fails, since its sheet is gone", async () => {
+      const settle = await sendThenReopen();
+
+      await act(async () => settle.reject(new Error("Network down")));
+
+      expect(toastShow).toHaveBeenCalledTimes(1);
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      expect(screen.getByLabelText("Who took it?")).toHaveValue("Maria");
+    });
+  });
+
+  it("records that the subject was answered", async () => {
+    signInAs();
+    openSheet();
+    await answer();
+    await pressSend();
+
+    await waitFor(() =>
+      expect(useIdentifyStore.getState().answered).toEqual([
+        MEDIA_CONTEXT.contentId,
+      ])
+    );
+  });
+
   describe("state reset", () => {
-    /**
-     * The previous version of this test unmounted and re-rendered, which a fresh
-     * `useState(EMPTY_ANSWERS)` satisfies on its own — it passed with the reset
-     * effect deleted entirely. These exercise the effect without remounting, which
-     * is the situation it exists for: Activity keeps `useState` across a hide/show
-     * and re-runs effects on show.
-     */
+    it("clears answers when the sheet is closed and reopened over the same record", async () => {
+      openSheet();
+      await answer();
+      await fillGuest();
+
+      await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+      act(() => useIdentifyStore.getState().open(MEDIA_CONTEXT));
+
+      expect(screen.getByLabelText("Roughly when?")).toHaveValue("");
+      expect(screen.getByLabelText("Your name")).toHaveValue("");
+      expect(screen.getByLabelText("Your email")).toHaveValue("");
+    });
+
+    // The sheet itself stays mounted here; only the keyed form inside it changes.
     it("clears answers when the sheet reopens over a different record", async () => {
       const user = userEvent.setup();
       openSheet();
@@ -498,15 +669,10 @@ describe("IdentifySheet", () => {
     });
 
     it("clears a previous error when the subject changes", async () => {
-      const user = userEvent.setup();
-      authState.user = { id: "u1", email: "a@b.test" };
-      authState.isAuthenticated = true;
-      sessionEmail.current = "a@b.test";
+      signInAs("a@b.test");
       openSheet();
 
-      await user.click(
-        screen.getByRole("button", { name: "Send to the curators" })
-      );
+      await pressSend();
       expect(
         screen.getByText(/Answer at least one question/i)
       ).toBeInTheDocument();

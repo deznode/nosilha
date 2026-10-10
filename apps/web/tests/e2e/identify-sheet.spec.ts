@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { addressedRecord, type EntrySummary } from "../utils/archive-data";
+import { stubSuggestionPosts } from "../utils/network";
 
 /**
  * The seeded Igreja records six of its nine heritage fields (spec 034 FR-016), so
@@ -10,27 +11,19 @@ const HAS_EMPTY_FIELD = (record: EntrySummary) =>
   record.slug.startsWith("igreja");
 
 /**
- * Spec 034 T-41 / FR-004 — the identify sheet asks for sign-in at submit, not before.
+ * Spec 034 T-41 / FR-004, spec 040 FR-008 — the identify sheet needs no account.
  *
- * A signed-out visitor can open the sheet and type what they know. Sending it opens
- * the sign-in dialog, and nothing leaves the browser until they have signed in.
+ * A signed-out visitor can open the sheet, type what they know and send it with a
+ * name and an email. The post is stubbed, so a run writes nothing to the archive.
  */
 test.describe("Identify sheet, signed out", () => {
-  test("fills freely and asks for sign-in only at submit", async ({
+  test("fills freely and sends with a name and email, no account", async ({
     page,
     request,
   }) => {
     const { path, record } = await addressedRecord(request, HAS_EMPTY_FIELD);
 
-    const suggestionPosts: string[] = [];
-    page.on("request", (sent) => {
-      if (
-        sent.method() === "POST" &&
-        sent.url().includes("/api/v1/suggestions")
-      ) {
-        suggestionPosts.push(sent.url());
-      }
-    });
+    const suggestionPosts = await stubSuggestionPosts(page);
 
     await page.goto(path);
     await expect(
@@ -57,23 +50,19 @@ test.describe("Identify sheet, signed out", () => {
 
     const when = sheet.getByLabel("Roughly when?");
     await when.fill("sometime in the sixties");
+    await sheet.getByLabel("Your name").fill("Ana Lopes");
+    await sheet.getByLabel("Your email").fill("ana@example.com");
     await sheet.getByRole("button", { name: "Send to the curators" }).click();
 
-    // Headless UI's dialog root has no box of its own, so its title stands in for it.
-    const signIn = page
-      .getByRole("dialog", { name: "Sign in" })
-      .getByRole("heading", { name: "Sign in" });
-    await expect(signIn).toBeVisible();
-    expect(suggestionPosts).toEqual([]);
-
-    // Declining sign-in keeps what was typed: it is the thing worth keeping.
-    await page.keyboard.press("Escape");
-    await expect(signIn).toBeHidden();
-    await expect(when).toHaveValue("sometime in the sixties");
-    expect(suggestionPosts).toEqual([]);
+    await expect(sheet).toBeHidden();
+    await expect(
+      page.getByText("Thank you — a curator will read this.")
+    ).toBeVisible();
+    expect(suggestionPosts).toHaveLength(1);
+    await expect(page.getByRole("dialog", { name: "Sign in" })).toHaveCount(0);
   });
 
-  test("an empty answer is refused before sign-in is asked for", async ({
+  test("an empty answer is refused before anything is sent", async ({
     page,
     request,
   }) => {

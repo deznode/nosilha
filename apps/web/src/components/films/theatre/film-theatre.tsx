@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
+import { ShareArrivalLine } from "@/components/share/share-arrival";
 import { ShareAction } from "@/components/ui/archive-actions";
 import { photographsHref } from "@/lib/archive-photographs";
 import {
@@ -17,7 +18,7 @@ import {
   upNext,
   type Film,
 } from "@/lib/films";
-import { filmShareText } from "@/lib/share-copy";
+import { filmArrivalLine, filmShareText } from "@/lib/share-copy";
 
 import { TheatrePlayer } from "./theatre-player";
 import { UpNext } from "./up-next";
@@ -48,6 +49,7 @@ export function FilmTheatre({
   const ordered = films === null ? null : upNext(film, films);
   const next = ordered?.find(canPlay) ?? null;
   const source = filmSourceLine(film);
+  const arrival = filmArrivalLine(film, films);
 
   const playNext = useCallback(
     (target: Film) => router.push(filmHref(target.id, { play: true })),
@@ -56,6 +58,7 @@ export function FilmTheatre({
 
   return (
     <div className="pb-14 md:pb-[72px]">
+      <ShareArrivalLine moment="film" {...arrival} />
       <div className="md:bg-stage bg-[#0A0908] md:p-7">
         <TheatrePlayer
           key={film.id}

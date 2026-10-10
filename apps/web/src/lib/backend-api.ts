@@ -842,19 +842,21 @@ export class BackendApiClient implements ApiClient {
 
     if (!response.ok) {
       if (response.status === 429) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || "Rate limit exceeded. Please try again later."
+        throw await apiErrorFrom(
+          response,
+          "Rate limit exceeded. Please try again later."
         );
       }
       if (response.status === 400) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message ||
-            "Invalid suggestion data. Please check your input."
+        throw await apiErrorFrom(
+          response,
+          "Invalid suggestion data. Please check your input."
         );
       }
-      throw new Error(`Failed to submit suggestion: ${response.status}`);
+      throw apiErrorFromResponse(
+        response,
+        `Failed to submit suggestion: ${response.status}`
+      );
     }
 
     const payload = await response.json();

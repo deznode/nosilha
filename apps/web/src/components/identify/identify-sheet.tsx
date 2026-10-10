@@ -1,23 +1,34 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { submitSuggestion } from "@/lib/api";
+import { ApiError } from "@/lib/api-error";
 import { fieldPhrase } from "@/lib/field-labels";
+import { trackEvent } from "@/lib/ga";
 import { supabase } from "@/lib/supabase-client";
-import { useIsAuthenticated, useUser } from "@/stores/authStore";
-import { useIdentifyStore } from "@/stores/identifyStore";
+import { useUser } from "@/stores/authStore";
+import {
+  useCloseIdentify,
+  useIdentifyContext,
+  useIdentifyOpenedOn,
+  useIdentifyStore,
+  type IdentifyContext,
+} from "@/stores/identifyStore";
+import { useShareArrivalStore } from "@/stores/shareArrivalStore";
 
 /**
  * The archive's one identify sheet. Spec 034 FR-004.
  *
  * Every "not recorded" question on every screen opens this, carrying what it asks
- * about. The form is fully fillable signed out — sign-in intercepts at submit, not
- * before, because asking someone to make an account before they have said anything
- * loses the thing they knew.
+ * about. No account is needed: a signed-out answer carries a name and an email a
+ * curator can write to, because asking someone to make an account before they have
+ * said anything loses the thing they knew. Sign-in is offered, not required.
+ * Spec 040 FR-008.
  *
  * Copy and metrics are the prototype's, verbatim.
  */
@@ -47,10 +58,43 @@ const QUESTIONS: Question[] = [
   },
 ];
 
+/**
+ * Asked only about a photograph or a film. The record has no field for it yet, so
+ * the answer reaches the curators as text with the others. Spec 040 FR-008.
+ */
+const PEOPLE_QUESTION: Question = {
+  key: "people",
+  label: "Who is in it?",
+  placeholder: "A name, a family, or “my grandmother’s sister”",
+};
+
+const MEDIA_QUESTIONS: Question[] = [...QUESTIONS, PEOPLE_QUESTION];
+
 const EMPTY_ANSWERS: Record<string, string> = {
   place: "",
   photographer: "",
   when: "",
+  people: "",
+};
+
+/** Who a signed-out answer is from. `website` is the honeypot: people never see it. */
+const EMPTY_GUEST = { name: "", email: "", website: "" };
+
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const FIELD_STYLE: React.CSSProperties = {
+  background: "var(--card)",
+  border: "1px solid var(--border-subtle)",
+  borderRadius: "10px",
+  padding: "11px 13px",
+  color: "var(--foreground)",
+  font: "inherit",
+  fontSize: "14px",
+  outline: "none",
+};
+const LABEL_STYLE: React.CSSProperties = {
+  fontSize: "12px",
+  color: "var(--foreground-secondary)",
 };
 
 /**
@@ -61,11 +105,12 @@ const EMPTY_ANSWERS: Record<string, string> = {
  */
 function composeMessage(
   field: string,
-  answers: Record<string, string>
+  answers: Record<string, string>,
+  questions: Question[]
 ): string {
-  const answered = QUESTIONS.filter((q) => answers[q.key]?.trim()).map(
-    (q) => `${q.label} ${answers[q.key].trim()}`
-  );
+  const answered = questions
+    .filter((q) => answers[q.key]?.trim())
+    .map((q) => `${q.label} ${answers[q.key].trim()}`);
 
   // The field arrives as a code key; curators read the queue, so it goes out as a
   // phrase. The lead also keeps a one-word answer past the API's ten-character floor.
@@ -73,148 +118,200 @@ function composeMessage(
 }
 
 export function IdentifySheet() {
-  const context = useIdentifyStore((state) => state.context);
-  const close = useIdentifyStore((state) => state.close);
+  const context = useIdentifyContext();
+  if (!context) return null;
+
+  // Keyed on the subject: closing unmounts the form, and opening the sheet over a
+  // different record mounts a new one, so a half-typed guess about one photograph
+  // is never carried onto another.
+  return (
+    <IdentifyForm
+      key={`${context.contentId}:${context.field}`}
+      context={context}
+    />
+  );
+}
+
+function IdentifyForm({ context }: { context: IdentifyContext }) {
+  const close = useCloseIdentify();
+  const openedOn = useIdentifyOpenedOn();
+  const pathname = usePathname();
   const user = useUser();
-  const isAuthenticated = useIsAuthenticated();
   const toast = useToast();
   const titleId = useId();
+  const panelRef = useRef<HTMLFormElement>(null);
+  /** Whether the press that became this click began on the overlay itself. */
+  const pressedOverlay = useRef(false);
 
   const [answers, setAnswers] = useState(EMPTY_ANSWERS);
+  const [guest, setGuest] = useState(EMPTY_GUEST);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [signInOpen, setSignInOpen] = useState(false);
 
-  // A ref, not state: Activity preserves useState across navigation, so a pending
-  // submission held in state could fire on an unrelated later visit.
-  const pendingSubmitRef = useRef(false);
+  const questions =
+    context.contentType === "media" ? MEDIA_QUESTIONS : QUESTIONS;
 
-  // Keyed on the subject, not just on mount: Activity destroys effects on hide and
-  // re-creates them on show (so this still runs on every return visit), and opening
-  // the sheet over a different record now clears the previous one's answers rather
-  // than carrying a half-typed guess about one photograph onto another.
+  // The button that opened the sheet may be gone (the ask bar unmounts), leaving
+  // focus on <body>. The panel takes it rather than a field, so a phone's keyboard
+  // does not cover the photograph before anyone has chosen to type.
   useEffect(() => {
-    setAnswers(EMPTY_ANSWERS);
-    setSubmitting(false);
-    setError(null);
-    setSignInOpen(false);
-    pendingSubmitRef.current = false;
-  }, [context?.contentId, context?.field]);
+    panelRef.current?.focus();
+  }, []);
 
-  const handleClose = useCallback(() => {
-    setAnswers(EMPTY_ANSWERS);
-    setError(null);
-    setSignInOpen(false);
-    pendingSubmitRef.current = false;
-    close();
-  }, [close]);
+  // The sheet is about the page it was opened on. Each archive layout renders its
+  // own sheet from the one store, so after browser Back the next page's sheet would
+  // show the question about the record just left, and send it under the wrong page.
+  // `pathname` is here to re-run this on navigation; the address bar is the test.
+  useEffect(() => {
+    if (window.location.pathname !== openedOn) close();
+  }, [pathname, openedOn, close]);
 
   useEffect(() => {
     // While sign-in is open, Escape belongs to that dialog: closing the sheet under
     // it would discard the answers the sign-in was meant to carry.
-    if (!context || signInOpen) return;
+    if (signInOpen) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") handleClose();
+      if (event.key !== "Escape") return;
+      // This Escape is the sheet's. Left to reach window, the photo viewer reads
+      // the same keypress as "Esc to go back" and leaves the photograph.
+      event.stopPropagation();
+      close();
     };
 
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [context, handleClose, signInOpen]);
+  }, [close, signInOpen]);
 
-  const send = useCallback(
-    async (current: Record<string, string>) => {
-      if (!context) return;
+  // A send can outlive the sheet: Cancel and Escape stay live while it is in
+  // flight. Its result belongs to this open only, not to whatever is open by then.
+  const stillOpen = () => useIdentifyStore.getState().context === context;
 
-      setSubmitting(true);
-      setError(null);
+  const setGuestField =
+    (key: keyof typeof EMPTY_GUEST) =>
+    (event: React.ChangeEvent<HTMLInputElement>) =>
+      setGuest((previous) => ({ ...previous, [key]: event.target.value }));
 
-      try {
-        // Read the session rather than the store: `SignInDialog` calls `onSignedIn`
-        // as soon as `signInWithPassword` resolves, and `AuthProvider` only fills the
-        // store later from `onAuthStateChange`. The closure that resumes a held
-        // submission was therefore built when `user` was still null, and posted an
-        // empty name and email — which the API rejects with a 400.
+  /** `from` is who a signed-out answer is from; null sends as the account. */
+  const send = async (from: typeof EMPTY_GUEST | null) => {
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      let name: string;
+      let email: string;
+
+      if (from) {
+        name = from.name.trim();
+        email = from.email.trim().toLowerCase();
+      } else {
+        // The session is the authority on the account's email; the store's copy
+        // is optional and filled later by `AuthProvider`, so it is the fallback.
         const { data } = await supabase.auth.getSession();
-        const email = (data.session?.user?.email ?? user?.email ?? "").trim();
+        const account = (data.session?.user?.email ?? user?.email ?? "").trim();
 
-        if (!email) {
+        if (!account) {
           setError("We could not read your account. Please sign in again.");
           return;
         }
+        // The session carries an email and no display name, so that is what the
+        // curators see. Inventing a name would fabricate an attribution.
+        name = account;
+        email = account.toLowerCase();
+      }
 
-        await submitSuggestion({
-          contentId: context.contentId,
-          pageTitle: context.pageTitle,
-          pageUrl: typeof window === "undefined" ? "" : window.location.href,
-          contentType: context.contentType,
-          // The session carries an email and nothing else — no display name — so
-          // that is what the curators see. Inventing a name here would put a
-          // fabricated attribution on a suggestion.
-          name: email,
-          email: email.toLowerCase(),
-          suggestionType:
-            context.contentType === "media"
-              ? "PHOTO_IDENTIFICATION"
-              : "ADDITION",
-          message: composeMessage(context.field, current),
-          ...(context.mediaId ? { mediaId: context.mediaId } : {}),
+      await submitSuggestion({
+        contentId: context.contentId,
+        pageTitle: context.pageTitle,
+        pageUrl: typeof window === "undefined" ? "" : window.location.href,
+        contentType: context.contentType,
+        name,
+        email,
+        suggestionType:
+          context.contentType === "media" ? "PHOTO_IDENTIFICATION" : "ADDITION",
+        message: composeMessage(context.field, answers, questions),
+        ...(context.mediaId ? { mediaId: context.mediaId } : {}),
+        ...(from ? { honeypot: from.website } : {}),
+      });
+
+      if (useShareArrivalStore.getState().arrived) {
+        trackEvent({
+          action: "share_arrival_answer",
+          content_type: context.contentType,
         });
+      }
 
-        toast.success("Thank you — a curator will read this.").show();
-        handleClose();
-      } catch (caught) {
-        // The typed answers stay on screen: they are the thing worth keeping
+      useIdentifyStore.getState().markAnswered(context.contentId);
+      toast.success("Thank you — a curator will read this.").show();
+      if (stillOpen()) close();
+    } catch (caught) {
+      if (!stillOpen()) {
+        // Nobody is looking at this sheet any more, so its error line is unseen.
+        toast.error("Your answer was not sent. Please try again.").show();
+        return;
+      }
+      // The typed answers stay on screen: they are the thing worth keeping
+      if (caught instanceof ApiError && caught.status === 429) {
+        setError(
+          "Too many answers from this connection. Please try again in an hour."
+        );
+      } else {
         setError(
           caught instanceof Error
             ? caught.message
             : "Could not send that. Please try again."
         );
-      } finally {
-        setSubmitting(false);
       }
-    },
-    [context, handleClose, toast, user]
-  );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (submitting) return;
 
-    const hasAnswer = QUESTIONS.some((q) => answers[q.key]?.trim());
+    const hasAnswer = questions.some((q) => answers[q.key]?.trim());
     if (!hasAnswer) {
       setError("Answer at least one question, even if it is a guess.");
       return;
     }
 
-    if (!isAuthenticated || !user) {
-      pendingSubmitRef.current = true;
-      setSignInOpen(true);
+    if (user) {
+      void send(null);
       return;
     }
 
-    void send(answers);
+    // The API asks for a name of two characters and an email it can parse; say so
+    // here rather than let a 400 come back in its words.
+    if (guest.name.trim().length < 2 || !EMAIL_SHAPE.test(guest.email.trim())) {
+      setError("Add your name and an email a curator can reach you at.");
+      return;
+    }
+    void send(guest);
   };
 
-  const handleSignedIn = () => {
-    setSignInOpen(false);
-    if (!pendingSubmitRef.current) return;
-    pendingSubmitRef.current = false;
-    void send(answers);
-  };
-
-  const handleSignInClose = () => {
-    pendingSubmitRef.current = false;
-    setSignInOpen(false);
-  };
-
-  if (!context) return null;
+  // Signing in sends nothing by itself: the reader comes back to the sheet, now
+  // without the name and email fields, and presses Send.
+  const closeSignIn = () => setSignInOpen(false);
 
   return (
     <>
       <div
         data-testid="identify-overlay"
-        onClick={signInOpen ? undefined : handleClose}
+        // Only a click that starts and ends on the overlay closes the sheet. A drag
+        // that selects text in a field and lets go outside the panel also lands a
+        // click here, and closing on it threw the answer away.
+        onMouseDown={(event) => {
+          pressedOverlay.current = event.target === event.currentTarget;
+        }}
+        onClick={(event) => {
+          if (signInOpen) return;
+          if (event.target === event.currentTarget && pressedOverlay.current) {
+            close();
+          }
+        }}
         // Catalyst's Dialog is `relative z-50` in a portal on <body>. At z-60 this
         // overlay painted on top of it: the sign-in form was invisible behind the
         // backdrop, which also swallowed every click and discarded the answers. While
@@ -226,18 +323,25 @@ export function IdentifySheet() {
         style={{ background: "rgba(6,9,12,.72)", padding: "20px" }}
       >
         <form
+          ref={panelRef}
           data-testid="identify-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          onClick={(event) => event.stopPropagation()}
+          tabIndex={-1}
           onSubmit={handleSubmit}
+          noValidate
           style={{
+            outline: "none",
             background: "var(--background)",
             border: "1px solid var(--border-strong)",
             borderRadius: "16px",
             padding: "26px",
             width: "min(520px, 100%)",
+            // Four questions and the guest fields outgrow a phone: scroll inside the
+            // sheet so the title and Send both stay reachable.
+            maxHeight: "calc(100dvh - 40px)",
+            overflowY: "auto",
             boxShadow: "0 -20px 60px rgba(0,0,0,.6)",
           }}
         >
@@ -277,20 +381,13 @@ export function IdentifySheet() {
           </p>
 
           <div className="flex flex-col" style={{ gap: "14px" }}>
-            {QUESTIONS.map((question) => (
+            {questions.map((question) => (
               <label
                 key={question.key}
                 className="flex flex-col"
                 style={{ gap: "6px" }}
               >
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--foreground-secondary)",
-                  }}
-                >
-                  {question.label}
-                </span>
+                <span style={LABEL_STYLE}>{question.label}</span>
                 <input
                   value={answers[question.key]}
                   placeholder={question.placeholder}
@@ -300,20 +397,61 @@ export function IdentifySheet() {
                       [question.key]: event.target.value,
                     }))
                   }
-                  style={{
-                    background: "var(--card)",
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: "10px",
-                    padding: "11px 13px",
-                    color: "var(--foreground)",
-                    font: "inherit",
-                    fontSize: "14px",
-                    outline: "none",
-                  }}
+                  style={FIELD_STYLE}
                 />
               </label>
             ))}
           </div>
+
+          {!user && (
+            <div
+              className="flex flex-col"
+              style={{
+                gap: "14px",
+                marginTop: "18px",
+                paddingTop: "18px",
+                borderTop: "1px solid var(--border-subtle)",
+              }}
+            >
+              <label className="flex flex-col" style={{ gap: "6px" }}>
+                <span style={LABEL_STYLE}>Your name</span>
+                <input
+                  value={guest.name}
+                  autoComplete="name"
+                  onChange={setGuestField("name")}
+                  style={FIELD_STYLE}
+                />
+              </label>
+              <label className="flex flex-col" style={{ gap: "6px" }}>
+                <span style={LABEL_STYLE}>Your email</span>
+                <input
+                  type="email"
+                  inputMode="email"
+                  value={guest.email}
+                  autoComplete="email"
+                  onChange={setGuestField("email")}
+                  style={FIELD_STYLE}
+                />
+              </label>
+              {/* Honeypot: off-screen and out of the tab and reading order. */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                aria-hidden="true"
+                autoComplete="off"
+                value={guest.website}
+                onChange={setGuestField("website")}
+                style={{
+                  position: "absolute",
+                  left: "-9999px",
+                  width: "1px",
+                  height: "1px",
+                  opacity: 0,
+                }}
+              />
+            </div>
+          )}
 
           {error && (
             <p
@@ -350,7 +488,7 @@ export function IdentifySheet() {
             </button>
             <button
               type="button"
-              onClick={handleClose}
+              onClick={close}
               className="cursor-pointer"
               style={{
                 background: "none",
@@ -363,6 +501,24 @@ export function IdentifySheet() {
             >
               Cancel
             </button>
+            {!user && (
+              <button
+                type="button"
+                onClick={() => setSignInOpen(true)}
+                className="hit-area cursor-pointer"
+                style={{
+                  background: "none",
+                  border: 0,
+                  padding: "11px 4px",
+                  fontSize: "13px",
+                  color: "var(--foreground-secondary)",
+                  textDecoration: "underline",
+                  textUnderlineOffset: "3px",
+                }}
+              >
+                Sign in instead
+              </button>
+            )}
           </div>
 
           <p
@@ -372,20 +528,16 @@ export function IdentifySheet() {
               fontSize: "12px",
             }}
           >
-            A person reads every suggestion. Sign-in happens at the end, not
-            before the form.
+            A person reads every suggestion. A curator may write to you about
+            yours.
           </p>
         </form>
       </div>
 
       <SignInDialog
         open={signInOpen}
-        onClose={handleSignInClose}
-        onSignedIn={handleSignedIn}
-        held={{
-          photographer: answers.photographer,
-          place: answers.place,
-        }}
+        onClose={closeSignIn}
+        onSignedIn={closeSignIn}
       />
     </>
   );

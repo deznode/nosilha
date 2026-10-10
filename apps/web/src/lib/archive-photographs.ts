@@ -13,6 +13,7 @@ import {
   isPublicUserUploadMedia,
   type PublicGalleryMedia,
 } from "@/types/gallery";
+import type { IdentifyContext } from "@/stores/identifyStore";
 import type { TownStatusSummary } from "@/types/town";
 
 /**
@@ -383,6 +384,27 @@ export function viewerHelpLine(photo: ArchivePhoto): string | null {
 /** Which field the viewer's help link asks about first. */
 export function firstMissingField(photo: ArchivePhoto): MissingField | null {
   return missingFields(photo)[0] ?? null;
+}
+
+/** The identify sheet's field for each thing a photograph can be missing. */
+const IDENTIFY_FIELD: Record<MissingField, string> = {
+  photographer: "photographerCredit",
+  place: "latitude",
+  date: "dateTaken",
+};
+
+/** What the identify sheet is told when it is asked about a photograph. */
+export function photoIdentifyContext(
+  photo: ArchivePhoto,
+  field: MissingField
+): IdentifyContext {
+  return {
+    contentType: "media",
+    contentId: photo.id,
+    mediaId: photo.id,
+    field: IDENTIFY_FIELD[field],
+    pageTitle: photoHeading(photo),
+  };
 }
 
 /**

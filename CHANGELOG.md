@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Shareable records (spec 040)** — shared links to photographs, films and towns preview with the record's own image and carry a tag so visits from shares can be counted; share controls with a prefilled message on photographs, films and town pages, and "Ask someone who might know" on photographs with something missing; a visitor arriving from a shared link sees one line of orientation and a way onward, and an ask link puts the question beside the photograph (#246, #250)
+- "Who is in it?" on the identification sheet for photographs and films
+
+### Changed
+
+- The identification sheet no longer requires an account: a signed-out visitor gives a name and email instead
+- Dismissing the system share sheet no longer copies the link (#250)
+
 ### Removed
 
 - The unused GCS media bucket, its service-account grants and the `GCS_BUCKET_NAME` setting; media has been served from Cloudflare R2 since the migration (#242)

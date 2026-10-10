@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { clsx } from "clsx";
 
+import { ShareArrivalLine } from "@/components/share/share-arrival";
 import {
   ALL_PLACES,
   filterByPlace,
+  firstMissingField,
   parsePlaceParam,
   photoHeading,
   photographHref,
@@ -14,14 +17,24 @@ import {
   stepWithin,
   type ArchivePhoto,
 } from "@/lib/archive-photographs";
+import { photoArrivalLine } from "@/lib/share-copy";
 import { useActivityRemountKey } from "@/lib/hooks/use-activity-remount-key";
 import { readPanelOpen, writePanelOpen } from "@/lib/viewer-storage";
-import { useIdentifyContext } from "@/stores/identifyStore";
+import { useIdentifyContext, useWasAnswered } from "@/stores/identifyStore";
 
+import { AskBar } from "./ask-bar";
 import { DetailsPanel } from "./details-panel";
 import { ViewerStage } from "./viewer-stage";
 
 const PHOTO_PATH = /^\/photographs\/([^/?#]+)$/;
+
+interface PhotoViewerProps {
+  photos: ArchivePhoto[];
+  initialId: string;
+  place: string | undefined;
+  /** The visitor followed an ask link: put its question beside the photograph. */
+  ask?: boolean;
+}
 
 /**
  * The viewing room. Spec 038 FR-020 to FR-026.
@@ -35,11 +48,7 @@ const PHOTO_PATH = /^\/photographs\/([^/?#]+)$/;
  * key throws that state away on restore, so the viewer never comes back zoomed, in
  * full screen, or on a photograph the URL doesn't name.
  */
-export function PhotoViewer(props: {
-  photos: ArchivePhoto[];
-  initialId: string;
-  place: string | undefined;
-}) {
+export function PhotoViewer(props: PhotoViewerProps) {
   const remountKey = useActivityRemountKey();
   return <ViewingRoom key={remountKey} {...props} />;
 }
@@ -48,11 +57,8 @@ function ViewingRoom({
   photos,
   initialId,
   place: placeParam,
-}: {
-  photos: ArchivePhoto[];
-  initialId: string;
-  place: string | undefined;
-}) {
+  ask,
+}: PhotoViewerProps) {
   const router = useRouter();
   const pathname = usePathname();
   const identifyOpen = useIdentifyContext() !== null;
@@ -82,6 +88,14 @@ function ViewingRoom({
     list.findIndex((p) => p.id === current.id)
   );
   const label = labelOf(place, photos);
+  const arrival = photoArrivalLine(current, photos);
+  const answered = useWasAnswered(current.id);
+  // The question belongs to the photograph the link named, not the ones stepped to,
+  // and is not asked again of someone who has just answered it.
+  const askField =
+    ask && current.id === initialId && !answered
+      ? firstMissingField(current)
+      : null;
 
   const show = useCallback(
     (photo: ArchivePhoto) => {
@@ -136,6 +150,8 @@ function ViewingRoom({
     router.push(photographsHref(place), { scroll: false });
   }, [router, place]);
 
+  const askShown = askField !== null && !identifyOpen && !fullScreen;
+
   const neighbours =
     list.length > 1
       ? [
@@ -149,6 +165,7 @@ function ViewingRoom({
       ref={boxRef}
       className="h-full overflow-y-auto md:flex md:overflow-hidden"
     >
+      <ShareArrivalLine moment="photo" {...arrival} />
       <ViewerStage
         photo={current}
         neighbours={neighbours}
@@ -167,11 +184,15 @@ function ViewingRoom({
         aria-label="About this photograph"
         // Behind the full-screen stage: out of the tab order and the reading order.
         inert={fullScreen}
-        className={
+        className={clsx(
+          "bg-background",
           panelOpen
-            ? "bg-background md:border-border-subtle md:h-full md:w-[380px] md:flex-none md:overflow-y-auto md:border-l"
-            : "bg-background md:hidden"
-        }
+            ? "md:border-border-subtle md:h-full md:w-[380px] md:flex-none md:overflow-y-auto md:border-l"
+            : "md:hidden",
+          // The ask bar is fixed over the foot of the details: leave room to
+          // scroll the last line, the link that passes the question on, clear of it.
+          askShown && "pb-[calc(5rem+env(safe-area-inset-bottom))]"
+        )}
       >
         <DetailsPanel
           photo={current}
@@ -181,6 +202,9 @@ function ViewingRoom({
           onShow={showFromPanel}
         />
       </aside>
+      {askShown && (
+        <AskBar photo={current} field={askField} detailsOpen={panelOpen} />
+      )}
     </div>
   );
 }

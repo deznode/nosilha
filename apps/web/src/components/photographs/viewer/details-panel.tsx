@@ -13,6 +13,7 @@ import {
   photoCaption,
   photoEyebrow,
   photoHeading,
+  photoIdentifyContext,
   photoMeta,
   photographsHref,
   viewerHelpLine,
@@ -20,13 +21,6 @@ import {
   type PlaceFilter,
 } from "@/lib/archive-photographs";
 import { ASK_TITLE, askShareText, photoShareText } from "@/lib/share-copy";
-
-/** The identify sheet's field for each thing a photograph can be missing. */
-export const IDENTIFY_FIELD = {
-  photographer: "photographerCredit",
-  place: "latitude",
-  date: "dateTaken",
-} as const;
 
 const PILL =
   "focus-ring bg-background-secondary border-border-subtle hover:border-border-strong text-body rounded-full border px-3.5 py-2 text-[13px] transition-colors";
@@ -177,11 +171,7 @@ export function DetailsPanel({
           <span className="text-muted text-[13px] leading-normal">{help}</span>
           {missingField && (
             <IdentifyQuestion
-              contentType="media"
-              contentId={photo.id}
-              mediaId={photo.id}
-              field={IDENTIFY_FIELD[missingField]}
-              pageTitle={heading}
+              {...photoIdentifyContext(photo, missingField)}
               variant="link"
               className="self-start"
             >

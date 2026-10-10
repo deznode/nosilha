@@ -39,6 +39,19 @@ export function settlements(request: APIRequestContext) {
   return readData<SettlementSummary[]>(request, "/api/v1/towns/status-summary");
 }
 
+export interface PhotographSummary {
+  id: string;
+  photographerCredit?: string | null;
+}
+
+/** The first page of active photographs. `PagedApiResult`: the list is `data` itself. */
+export function photographs(request: APIRequestContext) {
+  return readData<PhotographSummary[]>(
+    request,
+    "/api/v1/gallery?mediaType=IMAGE&size=20"
+  );
+}
+
 export async function entries(request: APIRequestContext) {
   const page = await readData<{ items?: EntrySummary[] } | EntrySummary[]>(
     request,
