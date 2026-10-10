@@ -71,7 +71,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     // Cloudflare R2 (S3-compatible) integration
-    implementation(platform("software.amazon.awssdk:bom:2.55.8"))
+    implementation(platform("software.amazon.awssdk:bom:2.55.12"))
     implementation("software.amazon.awssdk:s3")
 
     // OWASP HTML Sanitizer for XSS prevention
@@ -85,10 +85,10 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine")
 
     // Bucket4j for efficient in-memory rate limiting (token bucket algorithm)
-    implementation("com.bucket4j:bucket4j_jdk17-core:8.20.0")
+    implementation("com.bucket4j:bucket4j_jdk17-core:8.21.0")
 
     // Google Cloud Vision SDK for image analysis (labels, OCR, landmarks)
-    implementation("com.google.cloud:google-cloud-vision:3.96.0")
+    implementation("com.google.cloud:google-cloud-vision:3.97.0")
 
     // Spring AI for Gemini cultural context generation (native structured output)
     implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
