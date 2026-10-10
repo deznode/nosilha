@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
@@ -14,6 +15,7 @@ import { useUser } from "@/stores/authStore";
 import {
   useCloseIdentify,
   useIdentifyContext,
+  useIdentifyOpenedOn,
   useIdentifyStore,
   type IdentifyContext,
 } from "@/stores/identifyStore";
@@ -132,6 +134,8 @@ export function IdentifySheet() {
 
 function IdentifyForm({ context }: { context: IdentifyContext }) {
   const close = useCloseIdentify();
+  const openedOn = useIdentifyOpenedOn();
+  const pathname = usePathname();
   const user = useUser();
   const toast = useToast();
   const titleId = useId();
@@ -154,6 +158,14 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
   useEffect(() => {
     panelRef.current?.focus();
   }, []);
+
+  // The sheet is about the page it was opened on. Each archive layout renders its
+  // own sheet from the one store, so after browser Back the next page's sheet would
+  // show the question about the record just left, and send it under the wrong page.
+  // `pathname` is here to re-run this on navigation; the address bar is the test.
+  useEffect(() => {
+    if (window.location.pathname !== openedOn) close();
+  }, [pathname, openedOn, close]);
 
   useEffect(() => {
     // While sign-in is open, Escape belongs to that dialog: closing the sheet under

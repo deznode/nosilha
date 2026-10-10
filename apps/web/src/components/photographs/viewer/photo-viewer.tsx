@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { clsx } from "clsx";
 
 import { ShareArrivalLine } from "@/components/share/share-arrival";
 import {
@@ -149,6 +150,8 @@ function ViewingRoom({
     router.push(photographsHref(place), { scroll: false });
   }, [router, place]);
 
+  const askShown = askField !== null && !identifyOpen && !fullScreen;
+
   const neighbours =
     list.length > 1
       ? [
@@ -181,11 +184,15 @@ function ViewingRoom({
         aria-label="About this photograph"
         // Behind the full-screen stage: out of the tab order and the reading order.
         inert={fullScreen}
-        className={
+        className={clsx(
+          "bg-background",
           panelOpen
-            ? "bg-background md:border-border-subtle md:h-full md:w-[380px] md:flex-none md:overflow-y-auto md:border-l"
-            : "bg-background md:hidden"
-        }
+            ? "md:border-border-subtle md:h-full md:w-[380px] md:flex-none md:overflow-y-auto md:border-l"
+            : "md:hidden",
+          // The ask bar is fixed over the foot of the details: leave room to
+          // scroll the last line, the link that passes the question on, clear of it.
+          askShown && "pb-[calc(5rem+env(safe-area-inset-bottom))]"
+        )}
       >
         <DetailsPanel
           photo={current}
@@ -195,8 +202,8 @@ function ViewingRoom({
           onShow={showFromPanel}
         />
       </aside>
-      {askField && !identifyOpen && !fullScreen && (
-        <AskBar photo={current} field={askField} />
+      {askShown && (
+        <AskBar photo={current} field={askField} detailsOpen={panelOpen} />
       )}
     </div>
   );

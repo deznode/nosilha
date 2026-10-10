@@ -13,6 +13,11 @@ import { ApiError } from "@/lib/api-error";
 import { useIdentifyStore, type IdentifyContext } from "@/stores/identifyStore";
 import { useShareArrivalStore } from "@/stores/shareArrivalStore";
 
+let pathname = "/";
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathname,
+}));
+
 const submitSuggestion = vi.fn();
 vi.mock("@/lib/api", () => ({
   submitSuggestion: (...args: unknown[]) => submitSuggestion(...args),
@@ -84,6 +89,8 @@ describe("IdentifySheet", () => {
     trackEvent.mockReset();
     useShareArrivalStore.setState(useShareArrivalStore.getInitialState());
     useIdentifyStore.setState(useIdentifyStore.getInitialState());
+    pathname = "/";
+    window.history.replaceState(null, "", "/");
   });
 
   afterEach(() => {
@@ -201,6 +208,18 @@ describe("IdentifySheet", () => {
       await user.click(screen.getByTestId("identify-overlay"));
 
       expect(screen.queryByText("Help identify")).not.toBeInTheDocument();
+    });
+
+    it("closes when the reader leaves the page it was opened on", () => {
+      const view = openSheet();
+
+      // Browser Back: the address changes and the layout renders again
+      window.history.replaceState(null, "", "/photographs");
+      pathname = "/photographs";
+      view.rerender(<IdentifySheet />);
+
+      expect(screen.queryByText("Help identify")).not.toBeInTheDocument();
+      expect(useIdentifyStore.getState().context).toBeNull();
     });
 
     it("keeps Escape from the page underneath", async () => {
