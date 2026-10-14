@@ -1,1 +1,932 @@
-{}
+{
+  "common": {
+    "close": "Close",
+    "loading": "Loading",
+    "loadingDirectory": "Loading directory entries",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "processing": "Processing...",
+    "dismiss": "Dismiss",
+    "dismissBanner": "Dismiss banner",
+    "dismissNotification": "Dismiss notification",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "backToTop": "Back to Top",
+    "goBack": "Go back",
+    "scroll": "Scroll",
+    "scrollDown": "Scroll down to content",
+    "selectPlaceholder": "Select an option",
+    "heroImageAlt": "Hero background image",
+    "imageUnavailable": "Image not available",
+    "courtesyOf": "Courtesy of: {courtesy}",
+    "creditOnPlatform": "{credit} on {platform} (opens in new tab)",
+    "rating": "Rating: {rating} out of 5 stars",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "messageAndLinkCopied": "Message and link copied",
+    "copyFailed": "Could not copy the link",
+    "filters": {
+      "clear": "Clear {label}",
+      "clearAll": "Clear All",
+      "apply": "Apply",
+      "showResults": "{count, plural, other {Show # results}}"
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page {page}",
+      "pageOf": "Page {page} of {total}",
+      "showing": "Showing {start}–{end} of {total}"
+    },
+    "theme": {
+      "light": "Light mode",
+      "dark": "Dark mode",
+      "system": "System mode ({system, select, dark {dark} other {light}})",
+      "title": "{mode}. Click to cycle themes.",
+      "ariaLabel": "Current theme: {mode}. Click to cycle themes."
+    },
+    "citations": {
+      "title": "Sources & Citations",
+      "show": "Show citations",
+      "hide": "Hide citations",
+      "intro": "The information presented in this article is based on a variety of historical and academic sources. We believe in giving credit to the researchers, writers, and institutions that have done the hard work of preserving and sharing Brava's history.",
+      "byline": "By {author} ({year})",
+      "readMore": "Read More"
+    },
+    "gallery": {
+      "empty": "No images have been uploaded for this location yet.",
+      "view": "View {alt}",
+      "viewFullSize": "View full size"
+    },
+    "lightbox": {
+      "label": "Photo lightbox",
+      "announcement": "{kind, select, video {Video} other {Photo}} {index} of {total}: {alt}",
+      "position": "{index} of {total}",
+      "close": "Close lightbox",
+      "previous": "Previous image",
+      "next": "Next image",
+      "videoPlayer": "Video player",
+      "showOnMap": "Show on Map",
+      "showOnMapLabel": "Show photo location on map",
+      "approximate": " (approx.)",
+      "helpIdentify": "Help identify this photo",
+      "download": "Download",
+      "save": "Save",
+      "identify": "Identify",
+      "map": "Map",
+      "expandDetails": "Expand details",
+      "collapseDetails": "Collapse details"
+    },
+    "uploader": {
+      "uploading": "Uploading...",
+      "size": "{loaded, number, ::.0} MB / {total, number, ::.0} MB",
+      "preparingUpload": "Preparing upload...",
+      "finalizingUpload": "Finalizing upload...",
+      "preparing": "Preparing...",
+      "finalizing": "Finalizing...",
+      "cancel": "Cancel",
+      "cancelUpload": "Cancel upload",
+      "retry": "Retry",
+      "remove": "Remove",
+      "change": "Remove / Change File",
+      "complete": "Upload complete!",
+      "previewAlt": "Selected image preview",
+      "uploadFile": "Upload a file",
+      "dragAndDrop": "or drag and drop",
+      "formats": "JPEG, PNG, WebP, GIF or MP4 up to 50MB"
+    },
+    "search": {
+      "placeholder": "Search places and articles...",
+      "clear": "Clear search",
+      "submit": "Submit search",
+      "results": "Search results",
+      "searching": "Searching...",
+      "noResults": "No results found for \"{query}\"",
+      "places": "Places",
+      "articles": "Articles"
+    },
+    "social": {
+      "label": "Social media links",
+      "facebook": {
+        "label": "Visit Nos Ilha Facebook page",
+        "description": "Follow Nos Ilha on Facebook for community updates and cultural heritage stories"
+      },
+      "instagram": {
+        "label": "Visit Nos Ilha Instagram profile",
+        "description": "Discover beautiful photos and moments from Brava Island on Instagram"
+      },
+      "youtube": {
+        "label": "Visit Nos Ilha YouTube channel",
+        "description": "Watch videos about Brava Island's culture, history, and traditions on YouTube"
+      }
+    }
+  },
+  "chrome": {
+    "skipToContent": "Skip to main content",
+    "nav": {
+      "home": "Home",
+      "settlements": "Settlements",
+      "culture": "Culture",
+      "map": "Map",
+      "photographs": "Photographs",
+      "films": "Films",
+      "stay": "Stay",
+      "about": "About",
+      "contact": "Contact",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "primaryNav": "Primary",
+    "mobileNav": "Mobile navigation",
+    "moreDestinations": "More destinations",
+    "more": "More",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "contribute": "Contribute",
+    "signIn": "Sign in",
+    "signedIn": "Signed in",
+    "profile": "Profile",
+    "yourProfile": "Your profile",
+    "yourAccount": "Your account",
+    "homeLink": "Nos Ilha home",
+    "archive": "Archive",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "switchTo": "Switch to the {theme, select, dark {dark} other {light}} theme"
+    },
+    "language": {
+      "chipTitle": "English. Português and Kriolu are coming soon.",
+      "heading": "Language",
+      "comingSoon": "Coming soon",
+      "comingSoonParenthetical": "(Coming soon)"
+    },
+    "header": {
+      "openMainMenu": "Open main menu",
+      "openUserMenu": "Open user menu",
+      "historyOfBrava": "History of Brava",
+      "historyDescription": "The island's rich past",
+      "historicalFigures": "Historical Figures",
+      "figuresDescription": "People who shaped Brava",
+      "admin": "Admin",
+      "signedInAs": "Signed in as",
+      "yourProfile": "Your Profile",
+      "settings": "Settings",
+      "addEntry": "Add Entry",
+      "signOut": "Sign out",
+      "logIn": "Log in",
+      "signUp": "Sign up",
+      "guestUser": "Guest User",
+      "contributeStory": "+ Contribute a Story"
+    }
+  },
+  "footer": {
+    "heading": "Footer",
+    "tagline": "Nos terra, nos gente, nos memoria.",
+    "updates": "Get updates on new stories, cultural events, and ways to contribute.",
+    "haveSomething": "Have something of Brava?",
+    "give": "Give a photograph or a film →",
+    "copyright": "© {year} Nos Ilha. Open Source Cultural Heritage Project."
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "body": "The page you are looking for does not exist or has been moved. Explore our directory or return to the homepage.",
+      "home": "Homepage",
+      "settlements": "Explore settlements",
+      "map": "View map",
+      "help": "Need help? <link>Contact us</link>"
+    },
+    "error": {
+      "title": "Something went wrong",
+      "body": "An unexpected error occurred. Please try again or return to the homepage.",
+      "digest": "Digest: {digest}",
+      "retry": "Try again",
+      "home": "Back to home"
+    },
+    "mapLoadFailed": "The map could not load the archive. Try refreshing the page."
+  },
+  "status": {
+    "documented": {
+      "label": "documented",
+      "line": "records and a photograph"
+    },
+    "partial": {
+      "label": "records, no photograph",
+      "line": "records, no photograph"
+    },
+    "name": {
+      "label": "name only",
+      "line": "a name and a coordinate, nothing else"
+    },
+    "unknown": "unknown",
+    "entry": {
+      "documented": "has a photograph",
+      "partial": "no photograph"
+    }
+  },
+  "categories": {
+    "Restaurant": "Restaurant",
+    "Hotel": "Stay",
+    "Beach": "Beach",
+    "Heritage": "Heritage",
+    "Nature": "Nature",
+    "Viewpoint": "Viewpoint",
+    "Trail": "Trail",
+    "Church": "Church",
+    "Port": "Port"
+  },
+  "fields": {
+    "settlement": "which settlement this is in",
+    "category": "what kind of place this is",
+    "established": "when it was established",
+    "coordinates": "where exactly it is",
+    "conditionStatus": "its present condition",
+    "festival": "its festival",
+    "photographer": "who took the photograph",
+    "openingHours": "its opening hours",
+    "architect": "who built it",
+    "rating": "a rating",
+    "phoneNumber": "its telephone number",
+    "email": "its email address",
+    "website": "its website",
+    "cuisine": "what they cook",
+    "amenities": "what a room comes with",
+    "photographerCredit": "who took this photograph",
+    "title": "a title for this photograph",
+    "latitude": "where this photograph was taken",
+    "locationName": "what this place is called",
+    "dateTaken": "roughly when this was taken",
+    "filmmaker": "who filmed this film",
+    "placeId": "where this film was made",
+    "population": "how many people live there",
+    "elevation": "how high above the sea it is",
+    "founded": "when the town was founded",
+    "highlights": "what a visitor should walk to first",
+    "photograph": "a photograph",
+    "correction": "a correction to this record"
+  },
+  "archiveHome": {},
+  "settlements": {},
+  "town": {},
+  "entry": {},
+  "stay": {},
+  "films": {},
+  "photographs": {},
+  "viewer": {},
+  "identify": {},
+  "map": {
+    "loading": "Loading Brava…",
+    "canvas": {
+      "label": "Map of Brava showing its settlements, place records and located photographs",
+      "loadError": "The map could not load. Check your connection and try again.",
+      "reload": "Reload the map",
+      "yourLocation": "Your location"
+    },
+    "controls": {
+      "satellite": "Satellite",
+      "terrain": "3D terrain",
+      "reset": "Reset view",
+      "myLocation": "My location"
+    },
+    "pin": {
+      "label": "{name}, {eyebrow}",
+      "coincident": "{count, plural, one {# record at one point} other {# records at one point}}"
+    },
+    "selection": {
+      "announcement": "Selected {name}, {eyebrow}.",
+      "label": "Selected: {name}",
+      "close": "Close",
+      "filterPhotographs": "Filter photographs to this area"
+    },
+    "sidebar": {
+      "label": "Filters and list",
+      "modeGroup": "Map mode",
+      "modes": {
+        "settlements": "Settlements",
+        "records": "Place records",
+        "photographs": "Photographs"
+      },
+      "searchPlaceholder": "Search Brava…",
+      "searchLabel": "Search Brava",
+      "statusGroup": "Filter by status",
+      "chips": {
+        "all": "All",
+        "documented": "Documented",
+        "partial": "No photograph",
+        "name": "Name only"
+      },
+      "noMatch": "Nothing on the map matches that."
+    },
+    "sheet": {
+      "label": "Filters and list",
+      "show": "Filters and list",
+      "hide": "Hide the list"
+    },
+    "legend": {
+      "label": "Pin colour key",
+      "noPlaceTray": "Open the no-place tray"
+    },
+    "copy": {
+      "eyebrow": {
+        "settlement": "Settlement",
+        "photograph": "Photograph"
+      },
+      "settlementLine": "{recordWords} {records, plural, one {record} other {records}}, {photoState, select, none {no photograph} hero {a photograph} other {{photoWords} {photos, plural, one {photograph} other {photographs}}}}",
+      "recordLine": "{documented, select, yes {one photograph} other {no photograph}}",
+      "photoGaps": "{gaps, select, both {no place name, no photographer} place {no place name} credit {no photographer} other {}}",
+      "settlementStatus": "{records, plural, =0 {name only · nothing recorded here yet} one {{recordWords} place record · {photoState, select, none {no photograph} hero {a photograph} other {{photoWords} {photos, plural, one {photograph} other {photographs}}}}} other {{recordWords} place records · {photoState, select, none {no photograph} hero {a photograph} other {{photoWords} {photos, plural, one {photograph} other {photographs}}}}}}",
+      "recordStatus": "{documented, select, yes {documented · one photograph} other {no photograph recorded}}",
+      "photoStatus": "{named, select, yes {coordinates from the file · {placeName}} other {coordinates from the file · no place name}}",
+      "nothingRecorded": "Nothing is recorded here beyond the name and the point. If you know this place, the archive is listening.",
+      "photoDescription": "Coordinates read from the file.{gaps, select, both { No place name, no photographer.} place { No place name.} credit { No photographer.} other {}}",
+      "primary": {
+        "settlement": "Open settlement",
+        "record": "Open record",
+        "photo": "Open photograph"
+      },
+      "photoPin": {
+        "named": "coordinates from the file",
+        "unnamed": "coordinates, no place name"
+      },
+      "noCoordinates": "no coordinates",
+      "recordsFooter": "{count, plural, =0 {No place record carries coordinates yet.} one {{words} place record carries coordinates.} other {{words} place records carry coordinates.}}",
+      "recordsShareAtTown": "{sharingWords} of the {totalWords} share one coordinate at {town}.",
+      "recordsShare": "{sharingWords} of the {totalWords} share a coordinate with another record.",
+      "settlementsRecorded": "{count, plural, =0 {No settlement is recorded yet.} one {{words} settlement is recorded.} other {{words} settlements are recorded.}}",
+      "settlementsHolding": "{count, plural, =0 {None holds a place record yet.} one {{words} holds place records.} other {{words} hold place records.}}",
+      "photographsFooter": "{count, plural, =0 {No photograph carries coordinates yet.} one {{words} photograph carries coordinates.} other {{words} photographs carry coordinates.}}",
+      "photographsNote": "{count, plural, one {{words} photograph carries no coordinates and cannot appear here.} other {{words} photographs carry no coordinates and cannot appear here.}}"
+    }
+  },
+  "about": {
+    "title": "About Nos Ilha",
+    "subtitle": "A community-driven platform celebrating the cultural heritage and natural beauty of Brava Island, Cape Verde.",
+    "hero": {
+      "heading": "Preserving Heritage, Building Community",
+      "intro": "Nos Ilha is a cultural heritage hub—a digital bridge connecting Brava Island with the world. Through technology and community collaboration, we're preserving and celebrating the island's rich cultural memory while connecting the global diaspora to their roots and welcoming visitors who seek authentic heritage experiences.",
+      "approach": "Our volunteer-driven, open-source approach ensures that the platform remains true to its community roots while leveraging modern technology to showcase the authentic beauty of Brava Island.",
+      "imageAlt": "Community members collaborating on preserving Brava Island's heritage"
+    },
+    "mission": {
+      "heading": "Our Mission & Values",
+      "communityFirst": {
+        "title": "Community First",
+        "description": "Every feature we build serves the local community of Brava Island, with input from residents, business owners, and cultural experts."
+      },
+      "culturalPreservation": {
+        "title": "Cultural Preservation",
+        "description": "We document and preserve Brava's unique history, traditions, and stories for future generations and global audiences."
+      },
+      "openCollaboration": {
+        "title": "Open Collaboration",
+        "description": "As an open-source project, we welcome contributions from developers, content creators, and cultural enthusiasts worldwide."
+      }
+    },
+    "technical": {
+      "heading": "Technical Excellence in Service of Culture",
+      "architecture": {
+        "heading": "Modern Architecture",
+        "body": "Built with Next.js 16, React 19, and Spring Boot, our platform combines cutting-edge web technology with robust backend services to deliver a fast, accessible experience for all users.",
+        "appRouter": "• Next.js App Router with Server Components",
+        "kotlin": "• Spring Boot with Kotlin backend",
+        "database": "• PostgreSQL database with Google Cloud integration",
+        "ai": "• AI-powered image analysis and metadata"
+      },
+      "community": {
+        "heading": "Community-Driven Development",
+        "body": "Every technical decision is made with community needs in mind, ensuring the platform remains accessible, culturally appropriate, and genuinely useful for both locals and visitors.",
+        "openSource": "• Open-source codebase on GitHub",
+        "mobileFirst": "• Mobile-first responsive design",
+        "multilingual": "• Multilingual support planning",
+        "accessibility": "• Accessibility compliance (WCAG AA)"
+      }
+    },
+    "features": {
+      "heading": "Platform Features",
+      "map": {
+        "title": "Interactive Map",
+        "description": "Navigate Brava Island with our detailed interactive map featuring businesses, landmarks, and cultural sites."
+      },
+      "galleries": {
+        "title": "Photo Galleries",
+        "description": "Community-contributed photo galleries showcase the island's natural beauty and cultural events."
+      },
+      "directory": {
+        "title": "Directory System",
+        "description": "Comprehensive directory of restaurants, hotels, landmarks, and cultural sites with detailed information."
+      }
+    },
+    "impact": {
+      "heading": "Community Impact",
+      "openSourceValue": "100%",
+      "openSourceLabel": "Open Source",
+      "openSourceBody": "All code is publicly available, ensuring transparency and community ownership.",
+      "volunteerLabel": "Volunteer-Powered",
+      "volunteerBody": "Driven by passionate volunteers dedicated to preserving Brava Island's cultural heritage."
+    },
+    "join": {
+      "heading": "Join Our Community",
+      "body": "Whether you're a developer, photographer, writer, or cultural enthusiast, there's a place for you in the Nos Ilha community.",
+      "contribute": "Contribute Content",
+      "github": "View on GitHub",
+      "contact": "Get in Touch",
+      "learnMore": "Learn More"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with the Nos Ilha community. We're here to help and would love to hear from you.",
+    "form": {
+      "heading": "Send us a Message",
+      "nameLabel": "Your Name",
+      "namePlaceholder": "Enter your name",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "Select a subject",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Tell us how we can help you...",
+      "privacyAgreement": "I agree to the <link>privacy policy</link>",
+      "sending": "Sending...",
+      "submit": "Send Message"
+    },
+    "subjects": {
+      "general": "General Inquiry",
+      "content": "Content Suggestion",
+      "technical": "Technical Issue",
+      "partnership": "Partnership Opportunity"
+    },
+    "success": {
+      "heading": "Obrigado!",
+      "defaultMessage": "Thank you for your message. We'll get back to you within 24-48 hours.",
+      "sendAnother": "Send Another Message"
+    },
+    "errors": {
+      "rateLimited": "Too many submissions. Please wait an hour before trying again.",
+      "invalid": "Invalid form data. Please check your input and try again.",
+      "failed": "Failed to submit your message. Please try again later.",
+      "unexpected": "An unexpected error occurred. Please try again later."
+    },
+    "validation": {
+      "nameMin": "Name must be at least 2 characters",
+      "nameMax": "Name is too long",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "subjectRequired": "Please select a subject",
+      "messageMin": "Message must be at least 10 characters",
+      "messageMax": "Message is too long",
+      "privacyRequired": "You must agree to the privacy policy"
+    },
+    "faq": {
+      "heading": "Frequently Asked Questions",
+      "business": {
+        "question": "How can I add my business to the directory?",
+        "answer": "Visit our <link>contribute page</link> for detailed instructions. We need your business name, location, contact details, description, and photos if possible. All submissions are reviewed by our volunteer team within 1-2 weeks to ensure accuracy and cultural authenticity."
+      },
+      "photos": {
+        "question": "Can I contribute photos of Brava Island?",
+        "answer": "Yes! We especially welcome high-quality photos of landscapes, cultural events, local businesses, and daily life on Brava. Please ensure you own the photos or have permission to share them. Use the contact form above with \"Content Contribution\" selected to submit your photos with location details."
+      },
+      "languages": {
+        "question": "Is the platform available in other languages?",
+        "answer": "Currently available in English only. We're actively planning Portuguese and Kriolu (Cape Verdean Crioulo) support for 2026. If you're fluent in these languages and interested in helping translate content, use the contact form with \"Partnership Opportunity\" selected."
+      },
+      "development": {
+        "question": "How can I get involved in development?",
+        "answer": "Nos Ilha is fully open-source! Visit our <link>GitHub repository</link> to see current issues, contribution guidelines, and the tech stack (Next.js, React, Spring Boot, Kotlin). New developers can start with \"good first issue\" labels, or use the contact form with \"Technical Support\" for guidance."
+      }
+    },
+    "community": {
+      "heading": "Join Our Community",
+      "body": "Connect with other Brava Island enthusiasts and stay updated on platform developments.",
+      "contribute": "Contribute Content",
+      "github": "View on GitHub",
+      "about": "Learn More About Us"
+    }
+  },
+  "auth": {
+    "form": {
+      "brandTitleLogin": "Welcome back to the soul of Brava.",
+      "brandTitleSignup": "Join the Nos Ilha Community.",
+      "brandBodyLogin": "Access your account to manage your contributions and connect with the heritage.",
+      "brandBodySignup": "Create an account to preserve the culture, share stories, and contribute.",
+      "back": "Back",
+      "backLabel": "Go back",
+      "headingLogin": "Sign in",
+      "headingSignup": "Create an account",
+      "leadLogin": "Enter your details to access your account",
+      "leadSignup": "Start your journey with us today",
+      "orEmail": "Or continue with email",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "forgotPassword": "Forgot password?",
+      "submitLogin": "Sign In",
+      "submitSignup": "Create Account",
+      "noAccount": "Don't have an account?",
+      "haveAccount": "Already have an account?",
+      "toSignup": "Sign up for free",
+      "toLogin": "Log in",
+      "footer": "© {year} Nos Ilha. Preserving culture through code.",
+      "signupSuccess": "Check your email for the confirmation link!",
+      "oauthFailed": "OAuth login failed",
+      "unexpectedError": "An unexpected error occurred"
+    },
+    "signInDialog": {
+      "heldTitle": "Your {noun, select, film {film link} other {photograph}} is held, not lost",
+      "photographer": "Photographer · <v>{text}</v>",
+      "givenBy": "Given by · <v>{text}</v>",
+      "place": "Place · <v>{text}</v>",
+      "notRecorded": "not recorded",
+      "notYetRecorded": "not yet recorded",
+      "heldNote": "Signing in submits it. Nothing was uploaded before you got here.",
+      "title": "Sign in",
+      "lead": "To pick up a contribution you started, or to see what you have already given.",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "show": "Show",
+      "hide": "Hide",
+      "submitHeld": "Sign in and submit",
+      "submit": "Sign in",
+      "noAccount": "No account yet?",
+      "createOne": "Create one",
+      "createNoteHeld": "Creating an account opens a new page, and the photograph is not kept — you will need to add it again afterwards.",
+      "createNote": "Creating an account opens a new page, and what you have typed is not kept.",
+      "accountNote": "An account is only needed to record credit and to let you withdraw something later. Browsing the archive never requires one.",
+      "signInFailed": "Sign-in failed. Try again."
+    },
+    "inlinePrompt": {
+      "title": "Sign in to Continue",
+      "description": "Please sign in to complete this action.",
+      "signIn": "Sign In",
+      "createAccount": "Create Account"
+    }
+  },
+  "contribute": {
+    "landing": {
+      "title": "Give something to the archive",
+      "lead": "Photographs and films of Brava, from anyone who has them. You keep the copyright. We record who took it and who gave it.",
+      "photo": {
+        "title": "A photograph",
+        "body": "A print, a slide, or a phone picture of one.",
+        "cta": "Give a photograph →"
+      },
+      "film": {
+        "title": "A film link",
+        "body": "A YouTube or Vimeo link to a film of Brava.",
+        "cta": "Send a film link →"
+      },
+      "footer": "A person reviews everything before it appears. Knowing something about a place instead? <link>Write to us</link>."
+    },
+    "form": {
+      "kindPhoto": "Photograph",
+      "kindFilm": "Film link",
+      "permission": "I have the right to share this, and I am happy for it to appear in the public archive under CC BY-SA 4.0 with the credit above.",
+      "nextTitle": "What happens next",
+      "nextBody": "A person reviews it before it is published · it is credited to the name you gave, and we will not publish it without that credit attached · you can ask for it to be taken down at any time",
+      "sending": "Sending…",
+      "sendingProgress": "Sending · {progress}%",
+      "uploadProgress": "Upload progress",
+      "keepOpen": "Keep this page open until it finishes. On a slow connection this can take a minute."
+    },
+    "photo": {
+      "previewAlt": "The photograph you are giving",
+      "change": "Change",
+      "choose": "Choose a photograph",
+      "chooseHint": "A phone photograph of a print is fine. Most pictures of Brava are not on Brava — they are in New Bedford, Pawtucket and Brockton.",
+      "drop": "or drop the file here",
+      "titleLabel": "What is it called?",
+      "titlePlaceholder": "A few words, e.g. “Wedding at Nossa Senhora do Monte”",
+      "descriptionLabel": "What does it show?",
+      "descriptionPlaceholder": "Names, the occasion, anything you know",
+      "descriptionHint": "Who is in it, the occasion, anything you know. Optional.",
+      "placeLabel": "Where was it taken?",
+      "photographerLabel": "Who took this photograph?",
+      "photographerPlaceholder": "A name, or “not known”",
+      "sourceLabel": "Who is giving it to us?",
+      "sourcePlaceholder": "Your name, as you want it shown",
+      "dateLabel": "Roughly when?",
+      "datePlaceholder": "1984 — or “sometime in the sixties”",
+      "dateHint": "A decade is enough."
+    },
+    "film": {
+      "urlLabel": "Link to the film",
+      "urlPlaceholder": "Paste a YouTube or Vimeo link",
+      "urlUnrecognised": "This doesn't look like a YouTube or Vimeo link. Copy the address from the video's Share button and paste it here.",
+      "urlHint": "YouTube or Vimeo only, for now.",
+      "titleLabel": "Title of the film",
+      "titlePlaceholder": "As it is known, or a short description",
+      "authorLabel": "Who made this film?",
+      "authorPlaceholder": "A name, or “not known”",
+      "descriptionLabel": "What does it show?",
+      "descriptionPlaceholder": "Who is in it, the occasion, anything you know",
+      "descriptionHint": "Optional.",
+      "placeLabel": "Where was it filmed?",
+      "dateLabel": "Roughly when?",
+      "datePlaceholder": "1984 — or “sometime in the sixties”",
+      "thumbnailAlt": "YouTube thumbnail",
+      "vimeoNoPreview": "Vimeo doesn't share a preview image",
+      "recognised": "{platform} link recognised"
+    },
+    "duplicate": {
+      "pendingEyebrow": "Already sent · waiting for review",
+      "pendingMeta": "{platform} · not public yet",
+      "pendingBody": "Someone has already sent this link. A person will review it soon, so it isn't public yet.",
+      "pendingNote": "The reviewer will see it alongside the original.",
+      "publicEyebrow": "Already in the archive",
+      "publicBody": "This film is already in the archive, so there's no need to send it again.",
+      "seeInArchive": "See it in the archive →",
+      "correctionLabel": "Know something about it we don't?",
+      "correctionPlaceholder": "A better title, who is in it, where or when it was filmed",
+      "correctionTooLong": "Keep it under {max} characters.",
+      "correctionFailed": "That didn't send. Try again.",
+      "sending": "Sending…",
+      "sendCorrection": "Send what you know",
+      "correctionNote": "A person reads it before anything on the record changes.",
+      "correctionSent": "Thank you. A person will read it."
+    },
+    "town": {
+      "change": "Change",
+      "photoAlt": "A photograph from {town}",
+      "alsoAppears": "It will also appear on the {town} page.",
+      "detailLabel": "More exactly, in your own words",
+      "detailHint": "More exactly, in your own words. Optional.",
+      "choose": "Choose a town",
+      "orFree": "Or <link>describe the place in your own words</link>.",
+      "freeHint": "In your words. It won't be linked to a town page. <link>Choose a town as well</link>",
+      "close": "Close",
+      "search": "Search Brava's towns",
+      "freeInstead": "Describe it in my own words instead"
+    },
+    "signIn": {
+      "label": "Confirm it's you",
+      "heldEyebrow": "Held on this page · not sent",
+      "heldFilmNamed": "{title} · film link",
+      "heldFilm": "Film link",
+      "heldPhoto": "Your photograph",
+      "cancelledTitle": "You didn't finish signing in with Google",
+      "cancelledText": "Nothing was sent, and your {kind, select, film {film link} other {photograph}} is still here. Try again, or use an email code.",
+      "blockedTitle": "Google sign-in didn't open",
+      "blockedText": "Some apps open links in their own browser, and it blocks Google. Use an email code, or open this page in Safari or Chrome.",
+      "noSaveTitle": "This browser can't keep your {kind, select, film {film link} other {photograph}} while you're away",
+      "noSaveText": "Private browsing does this. Use an email code instead. It works without leaving this page.",
+      "startTitle": "Confirm it's you",
+      "startLead": "So we can credit you, and so you can ask for it to be taken down later.",
+      "emailMeCode": "Email me a code",
+      "newHere": "New here? This makes your account.",
+      "usePassword": "Use a password",
+      "googleUnavailable": "Google isn't available in this browser",
+      "google": "Continue with Google",
+      "or": "or",
+      "email": "Email",
+      "codeTitle": "Check your email",
+      "codeLead": "We sent a 6-digit code to <email>{address}</email>. Type it here. You don't need to leave this page.",
+      "rateLimited": "Too many codes sent. Please wait a few minutes.",
+      "codeResent": "A new code is on its way. Only the newest one works.",
+      "codeWrong": "That code doesn't match. Check it's from the newest email, or send a new code.",
+      "codeExpired": "That code has expired. Each code works for 10 minutes.",
+      "sendNewCode": "Send a new code",
+      "sendNewCodeIn": "Send a new code in {time}",
+      "linkNote": "The email also has a link. On a phone, the code is more reliable.",
+      "wrongEmail": "Wrong email?",
+      "didntGetIt": "Didn't get it?",
+      "codeLabel": "6-digit code",
+      "backToCode": "Back to the code",
+      "noEmailTitle": "No email yet?",
+      "noEmailWait": "It can take a minute or two.",
+      "noEmailSpam": "Look in Spam, Junk or Promotions. It comes from Nos Ilha.",
+      "noEmailAddress": "Check the address: {email}. <change>Change it</change>",
+      "googleInstead": "Continue with Google instead",
+      "otherWays": "Other ways to sign in",
+      "passwordTitle": "Sign in with your password",
+      "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "show": "Show",
+      "hide": "Hide",
+      "signInAndSend": "Sign in and send",
+      "forgotten": "Forgotten it? <link>Email me a code instead</link>",
+      "savedOn": "Saved on this {device, select, phone {phone} other {computer}}",
+      "leavingTitle": "Taking you to Google",
+      "leavingBody": "Your {kind, select, film {film link} other {photograph}} and everything you typed are kept in this browser. When you come back, they'll be here. Nothing has been sent.",
+      "leavingNote": "Come back in this same browser on this {device, select, phone {phone} other {computer}}. Another app or device won't find it.",
+      "errors": {
+        "signInFailed": "Sign-in failed. Try again.",
+        "codeNotSent": "The code couldn't be sent. Try again."
+      }
+    },
+    "media": {
+      "steps": {
+        "photographer": "Name the photographer to continue",
+        "contributor": "Add your name to continue",
+        "permission": "Confirm permission to continue",
+        "file": "Add the photograph to continue",
+        "filmTitle": "Add the film's title to continue",
+        "filmUrl": "Paste a YouTube or Vimeo link to continue"
+      },
+      "untitledFilm": "Film link",
+      "untitledPhoto": "Your photograph",
+      "madeBy": "made by {name}",
+      "takenBy": "taken by {name}",
+      "rows": {
+        "title": "Title",
+        "place": "Place",
+        "madeBy": "Made by",
+        "takenBy": "Taken by",
+        "givenBy": "Given by",
+        "when": "When"
+      },
+      "sending": "Sending…",
+      "sendingProgress": "Sending · {progress}%",
+      "send": "Send to the archive",
+      "tryAgain": "Try again",
+      "sendAgainIn": "You can send again in about {minutes, plural, one {# minute} other {# minutes}}.",
+      "checkingSignIn": "Checking sign-in…",
+      "signedInAs": "Signed in as {email}.",
+      "nextConfirm": "Next you confirm your email. Nothing is sent until then.",
+      "rateLimitedTitle": "You've sent a lot in a short time",
+      "rateLimitedBody": "Please wait about {minutes, plural, one {# minute} other {# minutes}}, then send it again. Everything you've typed is still here.",
+      "uploadFailedTitle": "The photograph didn't upload",
+      "uploadFailedBody": "The connection dropped part way. Everything is still here, so you can try again.",
+      "filmFailedTitle": "The film link didn't send",
+      "filmFailedBody": "{error} Everything you've typed is still here.",
+      "filmFailedFallback": "Something went wrong on our side.",
+      "filmTitle": "Give a film to the archive",
+      "filmLead": "A link is enough. The film stays where it is; we record where it is and who made it.",
+      "photoTitle": "Give a photograph to the archive",
+      "photoLeadShort": "You keep the copyright. We record who took it.",
+      "photoLeadLong": "You keep the copyright. We record who took it and who gave it, and we will not publish it without that credit attached.",
+      "noDraftTitle": "We couldn't find your {kind, select, film {film link} other {photograph}} in this browser",
+      "noDraftBody": "It may have been opened in a different browser, or more than a day has passed. You're signed in now, so {kind, select, film {paste it again} other {choose it again}} and it will send straight away."
+    },
+    "restored": {
+      "eyebrow": "Signed in · not sent yet",
+      "title": "Your {kind, select, film {film link} other {photograph}} is still here",
+      "signedInAs": "You're signed in as {email}. Check it's the one you meant, then send it.",
+      "signedIn": "You're signed in. Check it's the one you meant, then send it.",
+      "change": "Change something first"
+    },
+    "confirmation": {
+      "photo": {
+        "body": "A person looks at every photograph before it goes into the archive. It will be published with the credit you gave, and not without it.",
+        "again": "Give another photograph",
+        "see": "See the photographs"
+      },
+      "film": {
+        "body": "A person checks that the link works and that the film is of Brava before it goes into the archive. The film stays with its host; we show it on its own page.",
+        "again": "Give another film link",
+        "see": "See the films"
+      },
+      "headingFilm": "Thank you. The film link is with us.",
+      "headingNamed": "Thank you, {name}. It's with us now.",
+      "heading": "Thank you. It's with us now.",
+      "lastStepFilm": "In the archive, in Films",
+      "lastStepTown": "In the archive, and on the {town} page",
+      "lastStep": "In the archive",
+      "received": "Received today",
+      "review": "A person on the archive team reviews it · usually a few days",
+      "newAccount": "This was your first time, so we've made an account for {email}. It's used for credit and for taking things down, nothing else. Next time, sign in the same way."
+    },
+    "newsletter": {
+      "thanks": "Thank you for subscribing!",
+      "unexpectedError": "An unexpected error occurred. Please try again later.",
+      "validationFailed": "Validation failed",
+      "tooManyRequests": "Too many requests. Please try again in a few minutes.",
+      "failed": "Failed to subscribe. Please try again later.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "your@email.com",
+      "emailAria": "Email address for newsletter subscription",
+      "subscribe": "Subscribe",
+      "subscribing": "Subscribing…",
+      "privacy": "We respect your privacy. Unsubscribe at any time."
+    },
+    "directory": {
+      "categories": {
+        "restaurant": {
+          "label": "Dining",
+          "description": "Local eateries & cafes"
+        },
+        "hotel": {
+          "label": "Lodging",
+          "description": "Hotels & guesthouses"
+        },
+        "beach": {
+          "label": "Beach",
+          "description": "Coastal destinations"
+        },
+        "heritage": {
+          "label": "Heritage",
+          "description": "Historical sites & monuments"
+        },
+        "nature": {
+          "label": "Nature",
+          "description": "Hiking trails & natural pools"
+        }
+      },
+      "submitted": "Location submitted for review",
+      "aiFailed": "Failed to generate content. Please try again.",
+      "unexpectedError": "An unexpected error occurred",
+      "successTitle": "Entry Submitted",
+      "successBody": "Thank you for helping us document Brava. Our team will review <strong>{name}</strong> to ensure all information is accurate.",
+      "backToDirectory": "Back to Directory",
+      "cancelReturn": "Cancel & Return",
+      "portal": "Contribution Portal",
+      "heroTitle": "Documenting Brava's Landscape",
+      "heroBody": "Every cafe, fountain, and historical house tells a story of our island's growth and resilience.",
+      "authPromptTitle": "Sign in to Add a Location",
+      "authPromptBody": "Directory submissions require an account to ensure proper attribution and quality control.",
+      "sectionDetails": "1. Essential Details",
+      "nameLabel": "Location Name",
+      "namePlaceholder": "e.g., Pensão Sodade",
+      "aiMapping": "Mapping...",
+      "aiAssist": "AI Assist",
+      "categoryLabel": "Category",
+      "townLabel": "Town / Village",
+      "pickFromList": "Pick from List",
+      "addVillage": "Add New Village",
+      "customTownPlaceholder": "Enter town name...",
+      "sectionContext": "2. Context & Story",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe the atmosphere, significance, or history of this location...",
+      "tagsLabel": "Discovery Tags",
+      "tagsPlaceholder": "ocean-view, historical, hidden-gem",
+      "price": "Price:",
+      "sectionVisuals": "3. Visuals & Location",
+      "primaryPhoto": "Primary Photo",
+      "photoUploaded": "Photo uploaded successfully",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "contributorNote": "<strong>Contributor Note:</strong> Your submission will be reviewed by our team before being published. This ensures all information is accurate.",
+      "discard": "Discard",
+      "submitting": "Submitting...",
+      "signInToSubmit": "Sign in to Submit",
+      "submitEntry": "Submit Entry"
+    },
+    "photoIdentification": {
+      "title": "Help Identify This Photo",
+      "description": "Know something about this photo? Help us identify the location, date, or subject. Any details you can share will help preserve this piece of Brava’s history.",
+      "submitted": "Thank you! Your identification has been submitted.",
+      "error": "An error occurred. Please try again later.",
+      "successTitle": "Thank you for helping identify this photo!",
+      "successBody": "Your contribution will be reviewed by our team and used to enrich the archive.",
+      "close": "Close",
+      "nameLabel": "Your Name *",
+      "namePlaceholder": "Enter your name",
+      "emailLabel": "Your Email *",
+      "emailPlaceholder": "your.email@example.com",
+      "submittingAs": "Submitting as: <strong>{email}</strong>",
+      "titleLabel": "Suggested Title",
+      "titlePlaceholder": "What do you think this photo shows?",
+      "locationLabel": "Suggested Location",
+      "locationPlaceholder": "Where was this taken? (e.g., Nova Sintra, Fajã d'Água)",
+      "dateLabel": "Approximate Date",
+      "datePlaceholder": "When was this taken? (e.g., 1960s, Summer 1985)",
+      "notesLabel": "Notes *",
+      "notesPlaceholder": "Share what you know about this photo...",
+      "notesCount": "{count}/5000 characters (minimum 10)",
+      "cancel": "Cancel",
+      "submitting": "Submitting...",
+      "submit": "Submit Identification"
+    }
+  },
+  "validation": {
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email address",
+    "passwordMin6": "Password must be at least 6 characters",
+    "passwordMin8": "Password must be at least 8 characters",
+    "passwordTooLong": "Password is too long",
+    "passwordStrength": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+    "confirmPassword": "Please confirm your password",
+    "displayNameMin": "Display name must be at least 2 characters",
+    "displayNameTooLong": "Display name is too long",
+    "passwordsMismatch": "Passwords do not match",
+    "nameMin": "Name must be at least 2 characters",
+    "nameTooLong": "Name is too long",
+    "suggestionType": "Please select a suggestion type",
+    "messageMin": "Message must be at least 10 characters",
+    "messageTooLong": "Message is too long",
+    "invalidSubmission": "Invalid submission",
+    "categoryRequired": "Please select a category",
+    "townRequired": "Please select a town",
+    "descriptionMin": "Description must be at least 10 characters",
+    "descriptionTooLong": "Description is too long",
+    "latitudeRange": "Latitude must be between -90 and 90",
+    "longitudeRange": "Longitude must be between -180 and 180",
+    "urlInvalid": "Please enter a valid URL",
+    "titleTooLong": "Title is too long",
+    "locationTooLong": "Location is too long",
+    "dateTooLong": "Date is too long",
+    "notesMin": "Please provide at least 10 characters",
+    "notesTooLong": "Notes are too long"
+  },
+  "share": {},
+  "metadata": {}
+}

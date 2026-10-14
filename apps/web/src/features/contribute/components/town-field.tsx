@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { MiniMap } from "@/features/map/components/mini-map";
 import { getTowns, getTownFirstPhoto } from "@/lib/api";
@@ -57,6 +58,7 @@ function loadTowns(): Promise<Town[]> {
  * has no equivalent of `placeTown`'s tail).
  */
 export function TownField({ kind, value, onChange, label }: TownFieldProps) {
+  const t = useTranslations("contribute.town");
   const [towns, setTowns] = useState<Town[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -130,7 +132,7 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
               onClick={() => setPickerOpen(true)}
               className={clsx(TOWN_LINK, "text-[13px]")}
             >
-              Change
+              {t("change")}
             </button>
           </div>
 
@@ -149,7 +151,7 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
                 <div className="relative h-[88px] overflow-hidden rounded-lg">
                   <Image
                     src={photoUrl}
-                    alt={`A photograph from ${selectedTown.name}`}
+                    alt={t("photoAlt", { town: selectedTown.name })}
                     fill
                     sizes="150px"
                     className="object-cover"
@@ -162,7 +164,7 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
           {kind === "photo" && (
             <>
               <p className={HINT}>
-                It will also appear on the {value.townName} page.
+                {t("alsoAppears", { town: value.townName ?? "" })}
               </p>
               <div className="mt-2.5">
                 <input
@@ -171,12 +173,10 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
                   onChange={(event) =>
                     onChange({ ...value, detail: event.target.value })
                   }
-                  aria-label="More exactly, in your own words"
+                  aria-label={t("detailLabel")}
                   className={clsx(TOWN_INPUT, "text-body border-edge")}
                 />
-                <p className={HINT}>
-                  More exactly, in your own words. Optional.
-                </p>
+                <p className={HINT}>{t("detailHint")}</p>
               </div>
             </>
           )}
@@ -194,19 +194,21 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
               "text-muted border-edge flex items-center justify-between"
             )}
           >
-            <span>Choose a town</span>
+            <span>{t("choose")}</span>
             <span className="text-[13px]">▾</span>
           </button>
           <p className={HINT}>
-            Or{" "}
-            <button
-              type="button"
-              onClick={() => onChange({ ...value, mode: "free" })}
-              className={TOWN_LINK}
-            >
-              describe the place in your own words
-            </button>
-            .
+            {t.rich("orFree", {
+              link: (chunks) => (
+                <button
+                  type="button"
+                  onClick={() => onChange({ ...value, mode: "free" })}
+                  className={TOWN_LINK}
+                >
+                  {chunks}
+                </button>
+              ),
+            })}
           </p>
         </div>
       )}
@@ -228,14 +230,17 @@ export function TownField({ kind, value, onChange, label }: TownFieldProps) {
             className="bg-card text-body border-ocean-blue block field-sizing-content min-h-11 w-full resize-none rounded-lg border-[1.5px] px-3 py-[10px] text-[15px] leading-[1.4] outline-none"
           />
           <p className={clsx(HINT, "leading-[1.5]")}>
-            In your words. It won&apos;t be linked to a town page.{" "}
-            <button
-              type="button"
-              onClick={() => setPickerOpen(true)}
-              className={TOWN_LINK}
-            >
-              Choose a town as well
-            </button>
+            {t.rich("freeHint", {
+              link: (chunks) => (
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(true)}
+                  className={TOWN_LINK}
+                >
+                  {chunks}
+                </button>
+              ),
+            })}
           </p>
         </div>
       )}

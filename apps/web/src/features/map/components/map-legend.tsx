@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { statusVar } from "@/lib/status";
 import type { LegendRow } from "../data/map-copy";
 
@@ -32,10 +33,11 @@ interface MapLegendProps {
  * Spec 034 FR-011, Spec 039 (M3).
  */
 export function MapLegend({ rows, variant = "floating" }: MapLegendProps) {
+  const t = useTranslations("map");
   const floating = variant === "floating";
   return (
     <ul
-      aria-label="Pin colour key"
+      aria-label={t("legend.label")}
       className={clsx(
         "flex gap-3.5",
         floating
@@ -87,6 +89,7 @@ export function PhotographsNote({
   note,
   variant = "floating",
 }: PhotographsNoteProps) {
+  const t = useTranslations("map");
   const floating = variant === "floating";
   return (
     <div
@@ -114,7 +117,7 @@ export function PhotographsNote({
         className="hit-area mt-2 inline-block text-xs underline underline-offset-[3px]"
         style={{ color: "var(--foreground)" }}
       >
-        Open the no-place tray
+        {t("legend.noPlaceTray")}
       </Link>
     </div>
   );

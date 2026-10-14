@@ -8,6 +8,7 @@
  */
 
 import { clsx } from "clsx";
+import { useFormatter } from "next-intl";
 import {
   Calendar,
   Camera,
@@ -87,16 +88,20 @@ export function MetadataBadges({
   metadata,
   showManualPrompt = false,
 }: MetadataBadgesProps) {
+  const format = useFormatter();
   if (!metadata) {
     return null;
   }
 
-  // Format date for display
+  // EXIF dates carry no zone and are read as the uploader's local time, so they are
+  // written out in the browser's zone rather than the site's UTC. This preview only
+  // renders in the browser, so the zone cannot differ from a server render.
   const dateLabel = metadata.dateTimeOriginal
-    ? metadata.dateTimeOriginal.toLocaleDateString(undefined, {
+    ? format.dateTime(metadata.dateTimeOriginal, {
         year: "numeric",
         month: "short",
         day: "numeric",
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       })
     : metadata.approximateDate || "Date unknown";
 

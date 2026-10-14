@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 import { useSheetModal } from "@/lib/hooks/use-sheet-modal";
 
@@ -26,6 +27,7 @@ export function FilterBottomSheet({
   activeCount = 0,
 }: FilterBottomSheetProps) {
   const sheetRef = useSheetModal(isOpen, onClose);
+  const t = useTranslations("common.filters");
 
   return (
     <AnimatePresence>
@@ -85,7 +87,7 @@ export function FilterBottomSheet({
                   onClick={onClear}
                   className="text-muted hover:text-body touch-target rounded-button flex-1 py-2.5 text-sm font-medium transition-colors"
                 >
-                  Clear All
+                  {t("clearAll")}
                 </button>
               )}
               {onApply && (
@@ -94,7 +96,9 @@ export function FilterBottomSheet({
                   onClick={onApply}
                   className="bg-ocean-blue touch-target rounded-button hover:bg-ocean-blue/90 flex-1 py-2.5 text-sm font-medium text-white transition-colors"
                 >
-                  {activeCount > 0 ? `Show ${activeCount} results` : "Apply"}
+                  {activeCount > 0
+                    ? t("showResults", { count: activeCount })
+                    : t("apply")}
                 </button>
               )}
             </div>

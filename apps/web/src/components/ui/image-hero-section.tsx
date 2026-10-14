@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 
 interface ImageHeroSectionProps {
@@ -23,7 +24,7 @@ interface ImageHeroSectionProps {
  */
 export function ImageHeroSection({
   imageSrc,
-  imageAlt = "Hero background image",
+  imageAlt,
   title,
   subtitle,
   showScrollIndicator = true,
@@ -32,6 +33,7 @@ export function ImageHeroSection({
   maxHeightClass = "max-h-[600px]",
 }: ImageHeroSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
+  const t = useTranslations("common");
 
   // Handle smooth scroll to next section
   const handleScrollToNext = () => {
@@ -53,7 +55,7 @@ export function ImageHeroSection({
       <div className="absolute inset-0 z-0">
         <Image
           src={imageSrc}
-          alt={imageAlt}
+          alt={imageAlt ?? t("heroImageAlt")}
           fill
           className="object-cover"
           priority

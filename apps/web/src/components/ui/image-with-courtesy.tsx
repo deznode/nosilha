@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Info } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 // Extracted outside component to prevent state reset on re-render
 function ImagePlaceholder({
@@ -14,6 +15,8 @@ function ImagePlaceholder({
   height?: number | string;
   isCircular?: boolean;
 }) {
+  const t = useTranslations("common");
+
   return (
     <div
       className={`bg-surface flex items-center justify-center ${isCircular ? "rounded-full" : "rounded-button"}`}
@@ -21,7 +24,7 @@ function ImagePlaceholder({
     >
       <div className="p-4 text-center">
         <Info className="text-muted mx-auto mb-2 h-8 w-8" />
-        <p className="text-muted text-xs">Image not available</p>
+        <p className="text-muted text-xs">{t("imageUnavailable")}</p>
       </div>
     </div>
   );
@@ -69,6 +72,7 @@ export function ImageWithCourtesy({
   priority = false,
 }: ImageWithCourtesyProps) {
   const [imageError, setImageError] = useState(false);
+  const t = useTranslations("common");
   const imageProps = fill
     ? { fill, sizes, priority }
     : { width, height, sizes };
@@ -170,7 +174,7 @@ export function ImageWithCourtesy({
                   iconPosition
                 )}
               >
-                Courtesy of: {courtesy}
+                {t("courtesyOf", { courtesy })}
               </div>
             )}
           </>
@@ -206,7 +210,7 @@ export function ImageWithCourtesy({
         {courtesy && (
           <div className="mt-2 max-w-[120px] text-center">
             <p className="text-muted font-sans text-xs leading-tight">
-              Courtesy of: {courtesy}
+              {t("courtesyOf", { courtesy })}
             </p>
           </div>
         )}
@@ -230,7 +234,7 @@ export function ImageWithCourtesy({
       )}
       {courtesy && (
         <div className="bg-surface-alt/90 text-body rounded-tl-button absolute right-0 bottom-0 px-2 py-1 backdrop-blur-sm">
-          <p className="font-sans text-xs">Courtesy of: {courtesy}</p>
+          <p className="font-sans text-xs">{t("courtesyOf", { courtesy })}</p>
         </div>
       )}
     </div>

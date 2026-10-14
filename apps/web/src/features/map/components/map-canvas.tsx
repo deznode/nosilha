@@ -16,6 +16,7 @@ import {
   type MapRef,
 } from "react-map-gl/maplibre";
 import type maplibregl from "maplibre-gl";
+import { useTranslations } from "next-intl";
 import { useResolvedTheme } from "@/hooks/use-resolved-theme";
 import { useMapStore, useSelectedKey } from "@/stores/mapStore";
 import { BaseMap } from "../shared";
@@ -120,16 +121,21 @@ function Overlay({ children }: { children: ReactNode }) {
   );
 }
 
-const loadingOverlay = (
-  <Overlay>
-    <p
-      className="animate-pulse font-serif text-lg"
-      style={{ color: "var(--foreground-secondary)" }}
-    >
-      Loading Brava…
-    </p>
-  </Overlay>
-);
+function LoadingOverlay() {
+  const t = useTranslations("map");
+  return (
+    <Overlay>
+      <p
+        className="animate-pulse font-serif text-lg"
+        style={{ color: "var(--foreground-secondary)" }}
+      >
+        {t("loading")}
+      </p>
+    </Overlay>
+  );
+}
+
+const loadingOverlay = <LoadingOverlay />;
 
 interface MapCanvasProps {
   mapRef: RefObject<MapRef | null>;
@@ -144,8 +150,9 @@ export function MapCanvas({
   onLoad,
   userLocation,
 }: MapCanvasProps) {
+  const t = useTranslations("map");
   const [isMapLoaded, setIsMapLoaded] = useState(false);
-  const [mapError, setMapError] = useState<string | null>(null);
+  const [mapError, setMapError] = useState(false);
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [aboveFloor, setAboveFloor] = useState(
     EXPLORER_VIEW.ZOOM > EXPLORER_VIEW.LABEL_ZOOM
@@ -167,7 +174,7 @@ export function MapCanvas({
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setIsMapLoaded(false);
-    setMapError(null);
+    setMapError(false);
     setHoveredKey(null);
     setAboveFloor(EXPLORER_VIEW.ZOOM > EXPLORER_VIEW.LABEL_ZOOM);
   }, []);
@@ -213,9 +220,7 @@ export function MapCanvas({
       // Only a failure before the first load is fatal; later errors (a missing tile,
       // source cleanup on unmount) are not.
       if (!isMapLoaded) {
-        setMapError(
-          "The map could not load. Check your connection and try again."
-        );
+        setMapError(true);
       }
     },
     [isMapLoaded]
@@ -343,14 +348,14 @@ export function MapCanvas({
               className="mb-4 text-sm"
               style={{ color: "var(--brand-sobrado-ochre)" }}
             >
-              {mapError}
+              {t("canvas.loadError")}
             </p>
             <button
               type="button"
               onClick={() => window.location.reload()}
               className="bg-primary text-primary-foreground rounded-lg px-4 py-[9px] text-[13px] font-medium"
             >
-              Reload the map
+              {t("canvas.reload")}
             </button>
           </div>
         </Overlay>
@@ -379,8 +384,7 @@ export function MapCanvas({
             attributionControl: { compact: true },
             onZoomEnd: handleZoomEnd,
             onMoveEnd: scheduleDeclutter,
-            "aria-label":
-              "Map of Brava showing its settlements, place records and located photographs",
+            "aria-label": t("canvas.label"),
           }}
         >
           {isMapLoaded && (
@@ -400,7 +404,7 @@ export function MapCanvas({
                   latitude={userLocation.lat}
                 >
                   <span
-                    aria-label="Your location"
+                    aria-label={t("canvas.yourLocation")}
                     role="img"
                     className="block size-3.5 rounded-full"
                     style={{

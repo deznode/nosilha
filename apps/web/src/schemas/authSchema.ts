@@ -1,79 +1,81 @@
 import { z } from "zod";
 
+import type { Translator } from "@/i18n/types";
+
 /**
  * Zod schemas for authentication and user validation.
  * Used with React Hook Form for form validation and API response validation.
+ *
+ * Each is a factory taking a `validation` translator, so the messages follow
+ * the page's language.
  */
 
+function emailField(t: Translator<"validation">) {
+  return z.string().min(1, t("emailRequired")).email(t("emailInvalid"));
+}
+
+function strongPassword(t: Translator<"validation">) {
+  return z
+    .string()
+    .min(8, t("passwordMin8"))
+    .max(100, t("passwordTooLong"))
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, t("passwordStrength"));
+}
+
 // Login form validation schema
-export const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
-  password: z
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .max(100, "Password is too long"),
-});
+export function createLoginSchema(t: Translator<"validation">) {
+  return z.object({
+    email: emailField(t),
+    password: z
+      .string()
+      .min(6, t("passwordMin6"))
+      .max(100, t("passwordTooLong")),
+  });
+}
 
 // Signup form validation schema
-export const signupSchema = z
-  .object({
-    email: z
-      .string()
-      .min(1, "Email is required")
-      .email("Please enter a valid email address"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .max(100, "Password is too long")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-    displayName: z
-      .string()
-      .min(2, "Display name must be at least 2 characters")
-      .max(50, "Display name is too long")
-      .optional(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+export function createSignupSchema(t: Translator<"validation">) {
+  return z
+    .object({
+      email: emailField(t),
+      password: strongPassword(t),
+      confirmPassword: z.string().min(1, t("confirmPassword")),
+      displayName: z
+        .string()
+        .min(2, t("displayNameMin"))
+        .max(50, t("displayNameTooLong"))
+        .optional(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("passwordsMismatch"),
+      path: ["confirmPassword"],
+    });
+}
 
 // Password reset request schema
-export const passwordResetRequestSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
-});
+export function createPasswordResetRequestSchema(t: Translator<"validation">) {
+  return z.object({ email: emailField(t) });
+}
 
 // Password reset confirmation schema
-export const passwordResetSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .max(100, "Password is too long")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+export function createPasswordResetSchema(t: Translator<"validation">) {
+  return z
+    .object({
+      password: strongPassword(t),
+      confirmPassword: z.string().min(1, t("confirmPassword")),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("passwordsMismatch"),
+      path: ["confirmPassword"],
+    });
+}
 
 // Export inferred types
-export type LoginInput = z.infer<typeof loginSchema>;
-export type SignupInput = z.infer<typeof signupSchema>;
+export type LoginInput = z.infer<ReturnType<typeof createLoginSchema>>;
+export type SignupInput = z.infer<ReturnType<typeof createSignupSchema>>;
 export type PasswordResetRequestInput = z.infer<
-  typeof passwordResetRequestSchema
+  ReturnType<typeof createPasswordResetRequestSchema>
 >;
-export type PasswordResetInput = z.infer<typeof passwordResetSchema>;
+export type PasswordResetInput = z.infer<
+  ReturnType<typeof createPasswordResetSchema>
+>;

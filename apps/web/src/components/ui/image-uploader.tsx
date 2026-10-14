@@ -12,6 +12,7 @@ import Image from "next/image";
 import { Button } from "@/components/catalyst-ui/button";
 import { useR2Upload, UploadProgress } from "@/hooks/useR2Upload";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 interface ImageUploaderProps {
   /** Called when upload completes successfully with the public URL */
@@ -34,10 +35,12 @@ interface ImageUploaderProps {
  * Progress bar component for upload progress visualization
  */
 function UploadProgressBar({ progress }: { progress: UploadProgress }) {
+  const t = useTranslations("common.uploader");
+
   return (
     <div className="w-full px-4">
       <div className="text-muted mb-1 flex justify-between text-sm">
-        <span>Uploading...</span>
+        <span>{t("uploading")}</span>
         <span>{progress.percentage}%</span>
       </div>
       <div className="bg-surface h-2 w-full overflow-hidden rounded-full">
@@ -47,8 +50,10 @@ function UploadProgressBar({ progress }: { progress: UploadProgress }) {
         />
       </div>
       <p className="text-muted mt-1 text-center text-xs">
-        {(progress.loaded / 1024 / 1024).toFixed(1)} MB /{" "}
-        {(progress.total / 1024 / 1024).toFixed(1)} MB
+        {t("size", {
+          loaded: progress.loaded / 1024 / 1024,
+          total: progress.total / 1024 / 1024,
+        })}
       </p>
     </div>
   );
@@ -67,6 +72,7 @@ export function ImageUploader({
     initialUrl || null
   );
   const [activeDrag, setActiveDrag] = useState(false);
+  const t = useTranslations("common.uploader");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const { state, progress, error, upload, cancel, reset } = useR2Upload();
@@ -177,7 +183,7 @@ export function ImageUploader({
         return (
           <div className="flex items-center justify-center gap-2 py-4">
             <Loader2 className="text-ocean-blue h-5 w-5 animate-spin" />
-            <span className="text-muted text-sm">Preparing upload...</span>
+            <span className="text-muted text-sm">{t("preparingUpload")}</span>
           </div>
         );
 
@@ -187,7 +193,7 @@ export function ImageUploader({
             <UploadProgressBar progress={progress} />
             <div className="mt-2 text-center">
               <Button type="button" plain onClick={cancel}>
-                Cancel
+                {t("cancel")}
               </Button>
             </div>
           </div>
@@ -197,7 +203,7 @@ export function ImageUploader({
         return (
           <div className="flex items-center justify-center gap-2 py-4">
             <Loader2 className="text-ocean-blue h-5 w-5 animate-spin" />
-            <span className="text-muted text-sm">Finalizing upload...</span>
+            <span className="text-muted text-sm">{t("finalizingUpload")}</span>
           </div>
         );
 
@@ -210,10 +216,10 @@ export function ImageUploader({
             </div>
             <div className="flex justify-center gap-2">
               <Button type="button" plain onClick={handleRetry}>
-                Retry
+                {t("retry")}
               </Button>
               <Button type="button" plain onClick={handleRemoveImage}>
-                Remove
+                {t("remove")}
               </Button>
             </div>
           </div>
@@ -223,10 +229,10 @@ export function ImageUploader({
         return (
           <div className="border-hairline border-t p-2 text-center">
             <div className="text-status-success-ink mb-2 flex items-center justify-center gap-2">
-              <span className="text-sm font-medium">Upload complete!</span>
+              <span className="text-sm font-medium">{t("complete")}</span>
             </div>
             <Button type="button" plain onClick={handleRemoveImage}>
-              Remove / Change File
+              {t("change")}
             </Button>
           </div>
         );
@@ -235,7 +241,7 @@ export function ImageUploader({
         return (
           <div className="border-hairline border-t p-2 text-center">
             <Button type="button" plain onClick={handleRemoveImage}>
-              Remove / Change File
+              {t("change")}
             </Button>
           </div>
         );
@@ -250,7 +256,7 @@ export function ImageUploader({
           <div className="relative aspect-video">
             <Image
               src={previewUrl}
-              alt="Selected image preview"
+              alt={t("previewAlt")}
               fill
               className="rounded-lg object-contain"
             />
@@ -266,8 +272,8 @@ export function ImageUploader({
                     <Loader2 className="text-ocean-blue h-6 w-6 animate-spin" />
                     <span className="text-muted">
                       {state === "requesting-url"
-                        ? "Preparing..."
-                        : "Finalizing..."}
+                        ? t("preparing")
+                        : t("finalizing")}
                     </span>
                   </div>
                 )}
@@ -279,7 +285,7 @@ export function ImageUploader({
                 type="button"
                 onClick={cancel}
                 className="bg-canvas/90 hover:bg-canvas shadow-subtle absolute top-2 right-2 rounded-full p-1 transition-colors"
-                aria-label="Cancel upload"
+                aria-label={t("cancelUpload")}
               >
                 <X className="text-muted h-5 w-5" />
               </button>
@@ -308,7 +314,7 @@ export function ImageUploader({
                 htmlFor="file-upload"
                 className="text-ocean-blue focus-within:ring-ocean-blue hover:text-ocean-blue/80 bg-canvas relative cursor-pointer rounded-md font-semibold focus-within:ring-2 focus-within:ring-offset-2 focus-within:outline-none"
               >
-                <span>Upload a file</span>
+                <span>{t("uploadFile")}</span>
                 <input
                   id="file-upload"
                   name="file-upload"
@@ -318,11 +324,9 @@ export function ImageUploader({
                   onChange={handleFileChange}
                 />
               </label>
-              <p className="pl-1">or drag and drop</p>
+              <p className="pl-1">{t("dragAndDrop")}</p>
             </div>
-            <p className="text-muted text-xs leading-5">
-              JPEG, PNG, WebP, GIF or MP4 up to 50MB
-            </p>
+            <p className="text-muted text-xs leading-5">{t("formats")}</p>
           </div>
         </div>
       )}

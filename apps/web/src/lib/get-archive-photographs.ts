@@ -1,4 +1,8 @@
 import { cacheLife, cacheTag } from "next/cache";
+import { locale as rootLocale } from "next/root-params";
+import { getFormatter } from "next-intl/server";
+
+import { DEFAULT_LOCALE, isEnabledLocale } from "@/i18n/config";
 
 import { getGalleryMedia, getTownStatusSummary } from "@/lib/api";
 import { toArchivePhotos, type ArchivePhoto } from "@/lib/archive-photographs";
@@ -15,6 +19,12 @@ const MAX_PAGES = 10;
  * Cached on its own, so the index, every photograph and every film page share one
  * computed dataset. No `catch`: a swallowed failure would be cached as an empty
  * archive.
+ *
+ * Each photograph carries its dates already written out (`monthYear`, `dateLabel`),
+ * so the locale is read here from the root param and joins the cache key: one list
+ * per language. Producing those labels at render instead would mean handing a
+ * formatter to every consumer of the list, including the client photo viewer and
+ * the share copy, for an archive small enough that caching it twice costs nothing.
  */
 export async function getArchivePhotographs(): Promise<{
   photos: ArchivePhoto[];
@@ -25,6 +35,7 @@ export async function getArchivePhotographs(): Promise<{
   cacheTag("gallery");
   cacheTag("towns");
 
+  const format = await archiveDateFormatter();
   const settlementsPromise = getTownStatusSummary();
   const fetchPage = (page: number) =>
     getGalleryMedia({ mediaType: "IMAGE", size: PAGE_SIZE, page });
@@ -42,7 +53,18 @@ export async function getArchivePhotographs(): Promise<{
   );
   const settlements = await settlementsPromise;
   return {
-    photos: toArchivePhotos(media, settlements),
+    photos: toArchivePhotos(media, settlements, format),
     settlements,
   };
+}
+
+/**
+ * The formatter for the page's language, with the locale read from the root param
+ * so that a `"use cache"` function calling this is keyed by it.
+ */
+export async function archiveDateFormatter() {
+  const param = await rootLocale();
+  return getFormatter({
+    locale: isEnabledLocale(param) ? param : DEFAULT_LOCALE,
+  });
 }

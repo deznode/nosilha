@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import clsx from "clsx";
 import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 import { AdminShell } from "@/components/admin/layout";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { ThemeSync } from "@/components/theme-sync";
+import { pickClientMessages } from "@/i18n/client-messages";
 import { siteConfig } from "@/lib/metadata";
 import { buildThemeInitScript } from "@/lib/theme/initial-theme";
 import { fraunces, outfit } from "../fonts";
@@ -33,11 +35,14 @@ export const metadata: Metadata = {
  * Authentication is handled by proxy.ts at the edge,
  * so this layout can be a simple Server Component.
  */
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // No `[locale]` segment here, so the request config falls back to English.
+  const messages = await getMessages();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -52,17 +57,21 @@ export default function AdminLayout({
         )}
       >
         <ThemeSync />
-        <QueryProvider>
-          <AuthProvider>
-            <ToastProvider>
-              {/* Shared components link through `@/i18n/navigation`, which needs
-                  a locale in context. Here it is always English. */}
-              <NextIntlClientProvider locale="en" messages={null}>
+        {/* Shared components translate and link through `@/i18n/navigation`, which
+            need a locale and messages in context. Here it is always English.
+            Outermost, so toasts rendered by the providers can translate too. */}
+        <NextIntlClientProvider
+          locale="en"
+          messages={pickClientMessages(messages)}
+        >
+          <QueryProvider>
+            <AuthProvider>
+              <ToastProvider>
                 <AdminShell>{children}</AdminShell>
-              </NextIntlClientProvider>
-            </ToastProvider>
-          </AuthProvider>
-        </QueryProvider>
+              </ToastProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

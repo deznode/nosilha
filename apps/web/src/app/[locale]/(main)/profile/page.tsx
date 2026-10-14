@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createFormatter } from "next-intl";
 import { UserCircle } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -22,6 +23,14 @@ import type {
 } from "@/types/user-profile";
 import { Language } from "@/types/user-profile";
 import type { PreferredLanguage } from "@/types/profile";
+import { formats, TIME_ZONE } from "@/i18n/formats";
+
+// The profile stays English in every language (spec FR-006), so its dates do too.
+const ENGLISH_FORMAT = createFormatter({
+  locale: "en",
+  timeZone: TIME_ZONE,
+  formats,
+});
 
 export default function ProfilePage() {
   const { session, loading: authLoading } = useAuth();
@@ -49,7 +58,7 @@ export default function ProfilePage() {
           id: profileData.id,
           displayName: profileData.displayName || session?.user.email || "User",
           email: session?.user.email || "",
-          joinedDate: new Date(profileData.createdAt).toLocaleDateString(),
+          joinedDate: ENGLISH_FORMAT.dateTime(new Date(profileData.createdAt)),
           preferredLanguage: profileData.preferredLanguage as Language,
           location: profileData.location ?? undefined,
           stats: {

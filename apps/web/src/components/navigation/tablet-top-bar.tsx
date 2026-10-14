@@ -3,6 +3,7 @@
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import clsx from "clsx";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -32,6 +33,7 @@ import {
  */
 export function TabletTopBar({ className }: { className?: string }) {
   const pathname = usePathname();
+  const t = useTranslations("chrome");
 
   return (
     <ChromeBar
@@ -44,7 +46,7 @@ export function TabletTopBar({ className }: { className?: string }) {
 
       {/* `flex-1` with `min-w-0` so the nav yields before the bar can wrap. */}
       <nav
-        aria-label="Primary"
+        aria-label={t("primaryNav")}
         className="ml-1.5 flex min-w-0 flex-1 items-center gap-0.5"
       >
         {TABLET_INLINE_DESTINATIONS.map((destination) => {
@@ -61,7 +63,7 @@ export function TabletTopBar({ className }: { className?: string }) {
                   : "text-muted hover:text-body dark:text-chrome-ink-muted"
               )}
             >
-              {destination.label}
+              {t(destination.labelKey)}
             </Link>
           );
         })}
@@ -76,7 +78,7 @@ export function TabletTopBar({ className }: { className?: string }) {
               "dark:text-chrome-ink-muted"
             )}
           >
-            More
+            {t("more")}
             <ChevronDown className="size-[13px]" aria-hidden="true" />
           </PopoverButton>
           <PopoverPanel
@@ -93,7 +95,7 @@ export function TabletTopBar({ className }: { className?: string }) {
                 href={destination.href}
                 className="text-body hover:bg-surface dark:text-chrome-ink dark:hover:bg-chrome-line block rounded-[7px] px-2.5 py-[11px] text-sm transition-colors duration-150"
               >
-                {destination.label}
+                {t(destination.labelKey)}
               </Link>
             ))}
             <div className="border-hairline dark:border-chrome-line mt-[5px] flex items-center gap-1.5 border-t pt-[5px]">

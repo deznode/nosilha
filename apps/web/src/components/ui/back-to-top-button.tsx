@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { smoothScrollTo } from "@/lib/smooth-scroll";
 import {
   iconButtonTap,
@@ -13,6 +14,7 @@ import {
 const fadeInUp = makeFadeInUp(motionDistance.medium);
 
 export function BackToTopButton() {
+  const t = useTranslations("common");
   const handleScrollToTop = () => {
     smoothScrollTo({ top: 0 });
   };
@@ -46,7 +48,7 @@ export function BackToTopButton() {
             d="M5 15l7-7 7 7"
           />
         </motion.svg>
-        Back to Top
+        {t("backToTop")}
       </motion.button>
     </div>
   );

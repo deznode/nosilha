@@ -2,6 +2,7 @@
 
 import { useMemo, type ReactNode } from "react";
 import { clsx } from "clsx";
+import { useLocale, useTranslations } from "next-intl";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { statusVar, type DocumentationStatus } from "@/lib/status";
 import { useMapStore, useModeItems, useSelectedKey } from "@/stores/mapStore";
@@ -11,18 +12,9 @@ import type { MapItem, MapMode, StatusFilter } from "../data/types";
 import { useFilteredLocations } from "../hooks/useFilteredLocations";
 import { LocationCard } from "./location-card";
 
-const MODES: { mode: MapMode; label: string }[] = [
-  { mode: "settlements", label: "Settlements" },
-  { mode: "records", label: "Place records" },
-  { mode: "photographs", label: "Photographs" },
-];
+const MODES: readonly MapMode[] = ["settlements", "records", "photographs"];
 
-const CHIPS: { status: StatusFilter; label: string }[] = [
-  { status: "all", label: "All" },
-  { status: "documented", label: "Documented" },
-  { status: "partial", label: "No photograph" },
-  { status: "name", label: "Name only" },
-];
+const CHIPS: readonly StatusFilter[] = ["all", "documented", "partial", "name"];
 
 function ChipDot({ status }: { status: StatusFilter }) {
   return (
@@ -65,6 +57,9 @@ export function MapSidebar({
   legend,
   notice,
 }: MapSidebarProps) {
+  const t = useTranslations("map");
+  const tErrors = useTranslations("errors");
+  const locale = useLocale();
   const mode = useMapStore((s) => s.mode);
   const status = useMapStore((s) => s.status);
   const query = useMapStore((s) => s.query);
@@ -98,14 +93,14 @@ export function MapSidebar({
       >
         <div
           role="group"
-          aria-label="Map mode"
+          aria-label={t("sidebar.modeGroup")}
           className="mb-3.5 flex gap-1 rounded-[10px] border p-[3px]"
           style={{
             background: "var(--card)",
             borderColor: "var(--border-subtle)",
           }}
         >
-          {MODES.map(({ mode: key, label }) => {
+          {MODES.map((key) => {
             const active = mode === key;
             return (
               <button
@@ -121,7 +116,7 @@ export function MapSidebar({
                     : "var(--foreground-secondary)",
                 }}
               >
-                <span>{label}</span>
+                <span>{t(`sidebar.modes.${key}`)}</span>
                 <span className="text-[10px] tabular-nums opacity-65">
                   {ready ? modeCounts[key] : "–"}
                 </span>
@@ -134,8 +129,8 @@ export function MapSidebar({
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search Brava…"
-          aria-label="Search Brava"
+          placeholder={t("sidebar.searchPlaceholder")}
+          aria-label={t("sidebar.searchLabel")}
           className={clsx(
             "w-full rounded-[10px] border px-3 py-2.5 outline-none focus:border-[var(--brand-ocean-blue)]",
             inSheet ? "text-base" : "text-[13px]"
@@ -149,16 +144,16 @@ export function MapSidebar({
 
         <div
           role="group"
-          aria-label="Filter by status"
+          aria-label={t("sidebar.statusGroup")}
           className={clsx(
             "scrollbar-hide mt-3 flex gap-1.5",
             inSheet ? "-mx-[18px] overflow-x-auto px-[18px]" : "flex-wrap"
           )}
         >
-          {CHIPS.map(({ status: key, label }) => (
+          {CHIPS.map((key) => (
             <FilterChip
               key={key}
-              label={label}
+              label={t(`sidebar.chips.${key}`)}
               icon={<ChipDot status={key} />}
               count={
                 ready
@@ -184,7 +179,7 @@ export function MapSidebar({
             className="px-[11px] py-3 text-[13px]"
             style={{ color: "var(--brand-sobrado-ochre)" }}
           >
-            {fetchError}
+            {tErrors(fetchError)}
           </p>
         )}
         {ready && visible.length === 0 && (
@@ -192,7 +187,7 @@ export function MapSidebar({
             className="px-[11px] py-3 text-[13px]"
             style={{ color: "var(--foreground-secondary)" }}
           >
-            Nothing on the map matches that.
+            {t("sidebar.noMatch")}
           </p>
         )}
         {visible.map((item) => (
@@ -208,7 +203,7 @@ export function MapSidebar({
             className="px-[11px] pt-3 pb-5 text-[11px] leading-normal"
             style={{ color: "var(--foreground-secondary)" }}
           >
-            {listFooter(mode, modeItems)}
+            {listFooter(t, locale, mode, modeItems)}
           </p>
         )}
       </div>

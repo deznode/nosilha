@@ -1,4 +1,7 @@
+import { getTranslations } from "next-intl/server";
 import { describe, expect, it } from "vitest";
+
+import messages from "../../../messages/en.json";
 
 import { fieldPhrase } from "@/lib/field-labels";
 
@@ -53,5 +56,22 @@ describe("fieldPhrase", () => {
   it("falls back to the key's words rather than dropping an unmapped field", () => {
     expect(fieldPhrase("someNewField")).toBe("some new field");
     expect(fieldPhrase("snake_case_key")).toBe("snake case key");
+  });
+});
+
+/** Spec 041 FR-004 — the phrases are messages; English is unchanged. */
+describe("fieldPhrase with a translator", () => {
+  it("reads every mapped phrase from the `fields` namespace, word for word", async () => {
+    const t = await getTranslations("fields");
+
+    for (const key of Object.keys(messages.fields)) {
+      expect(fieldPhrase(key, t), key).toBe(fieldPhrase(key));
+    }
+  });
+
+  it("still falls back to the key's words for an unmapped field", async () => {
+    const t = await getTranslations("fields");
+
+    expect(fieldPhrase("someNewField", t)).toBe("some new field");
   });
 });

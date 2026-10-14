@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { foldAccents } from "@/lib/accent-fold";
 import type { Town } from "@/types/town";
@@ -30,6 +31,7 @@ export function TownPicker({
   towns,
   label,
 }: TownPickerProps) {
+  const t = useTranslations("contribute.town");
   const [query, setQuery] = useState("");
 
   const results = useMemo(() => {
@@ -69,7 +71,7 @@ export function TownPicker({
           onClick={handleClose}
           className="focus-ring text-ocean-blue rounded-sm text-[14px] font-semibold"
         >
-          Close
+          {t("close")}
         </button>
       </div>
 
@@ -77,8 +79,8 @@ export function TownPicker({
         type="text"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search Brava's towns"
-        aria-label="Search Brava's towns"
+        placeholder={t("search")}
+        aria-label={t("search")}
         autoFocus
         className="bg-card text-body placeholder:text-muted-foreground border-ocean-blue h-11 w-full flex-none rounded-lg border-[1.5px] px-3 text-[15px] outline-none"
       />
@@ -102,7 +104,7 @@ export function TownPicker({
         onClick={handleFreeText}
         className="focus-ring text-ocean-blue flex-none self-start rounded-sm py-1 text-[14px] font-semibold"
       >
-        Describe it in my own words instead
+        {t("freeInstead")}
       </button>
     </ResponsiveSheet>
   );

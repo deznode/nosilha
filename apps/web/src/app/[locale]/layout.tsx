@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { locale as rootLocale } from "next/root-params";
 import { NextIntlClientProvider } from "next-intl";
+import { getMessages, getTranslations } from "next-intl/server";
 
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
@@ -24,6 +25,7 @@ import {
   isEnabledLocale,
   OG_LOCALES,
 } from "@/i18n/config";
+import { pickClientMessages } from "@/i18n/client-messages";
 import { AnalyticsListener } from "../analytics-listener";
 import { fraunces, outfit } from "../fonts";
 import { reportWebVitalsToGA } from "../web-vitals";
@@ -124,6 +126,9 @@ export default async function RootLayout({
   const locale = await rootLocale();
   if (!isEnabledLocale(locale)) notFound();
 
+  const messages = await getMessages();
+  const t = await getTranslations("chrome");
+
   // Generate organization structured data
   const organizationSchema = generateOrganizationSchema();
 
@@ -160,25 +165,23 @@ export default async function RootLayout({
           href="#main-content"
           className="focus:bg-background-primary focus:text-text-primary focus:ring-ocean-blue focus:shadow-elevated sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:ring-2 focus:ring-offset-2 focus:outline-none"
         >
-          Skip to main content
+          {t("skipToContent")}
         </a>
         <Suspense fallback={null}>
           <AnalyticsListener />
         </Suspense>
-        <QueryProvider>
-          <AuthProvider>
-            {/*
-              `messages={null}` stops the provider serialising the whole message
-              file into every page; client components get only the namespaces
-              passed here.
-            */}
-            <ToastProvider>
-              <NextIntlClientProvider messages={null}>
-                {children}
-              </NextIntlClientProvider>
-            </ToastProvider>
-          </AuthProvider>
-        </QueryProvider>
+        {/*
+          Only the client namespaces are passed: with no `messages` prop the provider
+          serialises the whole message file into every page. Outermost, so toasts and
+          dialogs rendered by the providers can translate too.
+        */}
+        <NextIntlClientProvider messages={pickClientMessages(messages)}>
+          <QueryProvider>
+            <AuthProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </NextIntlClientProvider>
 
         {/* Google Analytics 4 - Optimized loading */}
         <GoogleAnalytics gaId={GA_ID} />

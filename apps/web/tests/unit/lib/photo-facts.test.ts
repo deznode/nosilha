@@ -1,4 +1,7 @@
+import { createFormatter } from "next-intl";
 import { describe, expect, it } from "vitest";
+
+import { formats, TIME_ZONE } from "@/i18n/formats";
 
 import {
   ASPECT_FALLBACK,
@@ -81,11 +84,13 @@ describe("photoTitle", () => {
   });
 });
 
+const FORMAT = createFormatter({ locale: "en", timeZone: TIME_ZONE, formats });
+
 describe("photoDateLabel", () => {
   it("reads a date taken as a long date", () => {
-    expect(photoDateLabel(upload({ dateTaken: "2024-07-12T10:00:00Z" }))).toBe(
-      "July 12, 2024"
-    );
+    expect(
+      photoDateLabel(upload({ dateTaken: "2024-07-12T10:00:00Z" }), FORMAT)
+    ).toBe("July 12, 2024");
   });
 
   it("passes an approximate date through as written", () => {
@@ -94,7 +99,8 @@ describe("photoDateLabel", () => {
         upload({
           dateTaken: undefined,
           approximateDate: "sometime in the sixties",
-        })
+        }),
+        FORMAT
       )
     ).toBe("sometime in the sixties");
   });
@@ -102,7 +108,8 @@ describe("photoDateLabel", () => {
   it("is null when neither is recorded", () => {
     expect(
       photoDateLabel(
-        upload({ dateTaken: undefined, approximateDate: undefined })
+        upload({ dateTaken: undefined, approximateDate: undefined }),
+        FORMAT
       )
     ).toBeNull();
   });

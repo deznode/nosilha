@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { HelpCircle, CheckCircle, Loader2, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,18 +15,22 @@ import { Checkbox, CheckboxField } from "@/components/catalyst-ui/checkbox";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitContactMessage } from "@/lib/api";
-import { contactSchema, type ContactInput } from "@/schemas/contactSchema";
+import {
+  createContactSchema,
+  type ContactInput,
+} from "@/schemas/contactSchema";
 import { pageStagger, pageItem } from "@/lib/animation";
 import type { ContactSubject } from "@/types/contact";
 
-const subjectOptions = [
-  { value: "general", label: "General Inquiry" },
-  { value: "content", label: "Content Suggestion" },
-  { value: "technical", label: "Technical Issue" },
-  { value: "partnership", label: "Partnership Opportunity" },
-];
+const SUBJECTS = ["general", "content", "technical", "partnership"] as const;
 
 export function ContactPageContent() {
+  const t = useTranslations("contact");
+  const contactSchema = useMemo(() => createContactSchema(t), [t]);
+  const subjectOptions = SUBJECTS.map((value) => ({
+    value,
+    label: t(`subjects.${value}`),
+  }));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState("");
@@ -76,22 +81,14 @@ export function ContactPageContent() {
       if (error instanceof Error) {
         // Check for specific error messages from backend
         if (error.message.includes("exceeded the maximum number")) {
-          setErrorMessage(
-            "Too many submissions. Please wait an hour before trying again."
-          );
+          setErrorMessage(t("errors.rateLimited"));
         } else if (error.message.includes("Invalid contact form data")) {
-          setErrorMessage(
-            "Invalid form data. Please check your input and try again."
-          );
+          setErrorMessage(t("errors.invalid"));
         } else {
-          setErrorMessage(
-            "Failed to submit your message. Please try again later."
-          );
+          setErrorMessage(t("errors.failed"));
         }
       } else {
-        setErrorMessage(
-          "An unexpected error occurred. Please try again later."
-        );
+        setErrorMessage(t("errors.unexpected"));
       }
     } finally {
       setIsSubmitting(false);
@@ -108,10 +105,7 @@ export function ContactPageContent() {
   return (
     <div className="bg-surface font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
-        <PageHeader
-          title="Contact Us"
-          subtitle="Get in touch with the Nos Ilha community. We're here to help and would love to hear from you."
-        />
+        <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
         {/* Contact Form - Ideate Style */}
         <motion.section
@@ -126,7 +120,7 @@ export function ContactPageContent() {
             <div className="bg-ocean-blue px-6 py-4">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
                 <Send className="h-5 w-5" />
-                Send us a Message
+                {t("form.heading")}
               </h2>
             </div>
 
@@ -148,11 +142,10 @@ export function ContactPageContent() {
                     <CheckCircle className="text-valley-green h-10 w-10" />
                   </motion.div>
                   <h4 className="text-body mb-2 font-serif text-2xl font-bold">
-                    Obrigado!
+                    {t("success.heading")}
                   </h4>
                   <p className="text-muted mb-6 text-lg">
-                    {confirmationMessage ||
-                      "Thank you for your message. We'll get back to you within 24-48 hours."}
+                    {confirmationMessage || t("success.defaultMessage")}
                   </p>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -160,7 +153,7 @@ export function ContactPageContent() {
                     onClick={handleReset}
                     className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-button border-2 px-6 py-2 font-medium transition-colors hover:text-white"
                   >
-                    Send Another Message
+                    {t("success.sendAnother")}
                   </motion.button>
                 </motion.div>
               ) : (
@@ -185,11 +178,11 @@ export function ContactPageContent() {
                   {/* Name and Email Row */}
                   <div className="grid gap-6 md:grid-cols-2">
                     <Field>
-                      <Label>Your Name</Label>
+                      <Label>{t("form.nameLabel")}</Label>
                       <Input
                         {...register("name")}
                         type="text"
-                        placeholder="Enter your name"
+                        placeholder={t("form.namePlaceholder")}
                         disabled={isSubmitting}
                         data-invalid={errors.name ? "" : undefined}
                       />
@@ -199,11 +192,11 @@ export function ContactPageContent() {
                     </Field>
 
                     <Field>
-                      <Label>Email Address</Label>
+                      <Label>{t("form.emailLabel")}</Label>
                       <Input
                         {...register("email")}
                         type="email"
-                        placeholder="Enter your email"
+                        placeholder={t("form.emailPlaceholder")}
                         disabled={isSubmitting}
                         data-invalid={errors.email ? "" : undefined}
                       />
@@ -215,7 +208,7 @@ export function ContactPageContent() {
 
                   {/* Subject Dropdown */}
                   <Field>
-                    <Label>Subject</Label>
+                    <Label>{t("form.subjectLabel")}</Label>
                     <Controller
                       name="subject"
                       control={control}
@@ -224,7 +217,7 @@ export function ContactPageContent() {
                           options={subjectOptions}
                           value={field.value || ""}
                           onChange={field.onChange}
-                          placeholder="Select a subject"
+                          placeholder={t("form.subjectPlaceholder")}
                           disabled={isSubmitting}
                           invalid={!!errors.subject}
                         />
@@ -237,11 +230,11 @@ export function ContactPageContent() {
 
                   {/* Message Textarea */}
                   <Field>
-                    <Label>Message</Label>
+                    <Label>{t("form.messageLabel")}</Label>
                     <Textarea
                       {...register("message")}
                       rows={6}
-                      placeholder="Tell us how we can help you..."
+                      placeholder={t("form.messagePlaceholder")}
                       disabled={isSubmitting}
                       data-invalid={errors.message ? "" : undefined}
                     />
@@ -262,13 +255,16 @@ export function ContactPageContent() {
                           disabled={isSubmitting}
                         />
                         <Label className="text-text-muted text-sm">
-                          I agree to the{" "}
-                          <Link
-                            href="/privacy"
-                            className="text-ocean-blue hover:underline"
-                          >
-                            privacy policy
-                          </Link>
+                          {t.rich("form.privacyAgreement", {
+                            link: (chunks) => (
+                              <Link
+                                href="/privacy"
+                                className="text-ocean-blue hover:underline"
+                              >
+                                {chunks}
+                              </Link>
+                            ),
+                          })}
                         </Label>
                       </CheckboxField>
                     )}
@@ -291,10 +287,10 @@ export function ContactPageContent() {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="h-5 w-5 animate-spin" />
-                          Sending...
+                          {t("form.sending")}
                         </>
                       ) : (
-                        "Send Message"
+                        t("form.submit")
                       )}
                     </motion.button>
                   </div>
@@ -312,7 +308,7 @@ export function ContactPageContent() {
             viewport={{ once: true }}
             className="text-body mb-8 text-center font-serif text-2xl font-bold"
           >
-            Frequently Asked Questions
+            {t("faq.heading")}
           </motion.h3>
 
           <motion.div
@@ -327,21 +323,20 @@ export function ContactPageContent() {
                 <div className="mb-3 flex items-start">
                   <HelpCircle className="text-ocean-blue mt-0.5 mr-3 h-6 w-6 shrink-0" />
                   <h4 className="text-body font-semibold">
-                    How can I add my business to the directory?
+                    {t("faq.business.question")}
                   </h4>
                 </div>
                 <p className="text-muted ml-9">
-                  Visit our{" "}
-                  <Link
-                    href="/contribute"
-                    className="text-ocean-blue hover:underline"
-                  >
-                    contribute page
-                  </Link>{" "}
-                  for detailed instructions. We need your business name,
-                  location, contact details, description, and photos if
-                  possible. All submissions are reviewed by our volunteer team
-                  within 1-2 weeks to ensure accuracy and cultural authenticity.
+                  {t.rich("faq.business.answer", {
+                    link: (chunks) => (
+                      <Link
+                        href="/contribute"
+                        className="text-ocean-blue hover:underline"
+                      >
+                        {chunks}
+                      </Link>
+                    ),
+                  })}
                 </p>
               </Card>
             </motion.div>
@@ -351,17 +346,10 @@ export function ContactPageContent() {
                 <div className="mb-3 flex items-start">
                   <HelpCircle className="text-valley-green mt-0.5 mr-3 h-6 w-6 shrink-0" />
                   <h4 className="text-body font-semibold">
-                    Can I contribute photos of Brava Island?
+                    {t("faq.photos.question")}
                   </h4>
                 </div>
-                <p className="text-muted ml-9">
-                  Yes! We especially welcome high-quality photos of landscapes,
-                  cultural events, local businesses, and daily life on Brava.
-                  Please ensure you own the photos or have permission to share
-                  them. Use the contact form above with &quot;Content
-                  Contribution&quot; selected to submit your photos with
-                  location details.
-                </p>
+                <p className="text-muted ml-9">{t("faq.photos.answer")}</p>
               </Card>
             </motion.div>
 
@@ -370,16 +358,10 @@ export function ContactPageContent() {
                 <div className="mb-3 flex items-start">
                   <HelpCircle className="text-bougainvillea-pink mt-0.5 mr-3 h-6 w-6 shrink-0" />
                   <h4 className="text-body font-semibold">
-                    Is the platform available in other languages?
+                    {t("faq.languages.question")}
                   </h4>
                 </div>
-                <p className="text-muted ml-9">
-                  Currently available in English only. We&apos;re actively
-                  planning Portuguese and Kriolu (Cape Verdean Crioulo) support
-                  for 2026. If you&apos;re fluent in these languages and
-                  interested in helping translate content, use the contact form
-                  with &quot;Partnership Opportunity&quot; selected.
-                </p>
+                <p className="text-muted ml-9">{t("faq.languages.answer")}</p>
               </Card>
             </motion.div>
 
@@ -388,23 +370,22 @@ export function ContactPageContent() {
                 <div className="mb-3 flex items-start">
                   <HelpCircle className="text-sobrado-ochre mt-0.5 mr-3 h-6 w-6 shrink-0" />
                   <h4 className="text-body font-semibold">
-                    How can I get involved in development?
+                    {t("faq.development.question")}
                   </h4>
                 </div>
                 <p className="text-muted ml-9">
-                  Nos Ilha is fully open-source! Visit our{" "}
-                  <a
-                    href="https://github.com/deznode/nosilha"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sobrado-ochre hover:underline"
-                  >
-                    GitHub repository
-                  </a>{" "}
-                  to see current issues, contribution guidelines, and the tech
-                  stack (Next.js, React, Spring Boot, Kotlin). New developers
-                  can start with &quot;good first issue&quot; labels, or use the
-                  contact form with &quot;Technical Support&quot; for guidance.
+                  {t.rich("faq.development.answer", {
+                    link: (chunks) => (
+                      <a
+                        href="https://github.com/deznode/nosilha"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sobrado-ochre hover:underline"
+                      >
+                        {chunks}
+                      </a>
+                    ),
+                  })}
                 </p>
               </Card>
             </motion.div>
@@ -419,18 +400,15 @@ export function ContactPageContent() {
           className="from-ocean-blue/10 to-valley-green/10 rounded-card mt-16 bg-gradient-to-r p-8 text-center"
         >
           <h3 className="text-body mb-4 font-serif text-2xl font-bold">
-            Join Our Community
+            {t("community.heading")}
           </h3>
-          <p className="text-muted mb-6 text-lg">
-            Connect with other Brava Island enthusiasts and stay updated on
-            platform developments.
-          </p>
+          <p className="text-muted mb-6 text-lg">{t("community.body")}</p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/contribute"
               className="bg-ocean-blue hover:bg-ocean-blue/90 shadow-subtle rounded-button px-6 py-3 text-base font-semibold text-white transition-transform duration-300 hover:scale-105"
             >
-              Contribute Content
+              {t("community.contribute")}
             </Link>
             <a
               href="https://github.com/deznode/nosilha"
@@ -438,13 +416,13 @@ export function ContactPageContent() {
               rel="noopener noreferrer"
               className="border-bougainvillea-pink text-bougainvillea-pink hover:bg-bougainvillea-pink rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
-              View on GitHub
+              {t("community.github")}
             </a>
             <Link
               href="/about"
               className="border-valley-green text-valley-green hover:bg-valley-green rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
-              Learn More About Us
+              {t("community.about")}
             </Link>
           </div>
         </motion.section>

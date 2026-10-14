@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin, FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { UnifiedSearchItem } from "./unified-search-item";
 import type { GroupedSearchResults } from "@/types/search";
 
@@ -17,6 +18,7 @@ export function UnifiedSearchResults({
   query,
   onSelect,
 }: UnifiedSearchResultsProps) {
+  const t = useTranslations("common.search");
   const hasPlaces = results.places.length > 0;
   const hasArticles = results.articles.length > 0;
   const hasResults = hasPlaces || hasArticles;
@@ -26,7 +28,7 @@ export function UnifiedSearchResults({
       <div className="px-4 py-6 text-center">
         <div className="inline-flex items-center gap-2 text-sm text-stone-400">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-stone-500 border-t-amber-200" />
-          Searching...
+          {t("searching")}
         </div>
       </div>
     );
@@ -35,7 +37,7 @@ export function UnifiedSearchResults({
   if (!hasResults && query) {
     return (
       <div className="px-4 py-6 text-center text-sm text-stone-400">
-        No results found for &quot;{query}&quot;
+        {t("noResults", { query })}
       </div>
     );
   }
@@ -47,7 +49,7 @@ export function UnifiedSearchResults({
         <div>
           <div className="flex items-center gap-2 px-4 py-2 text-xs font-semibold tracking-wide text-stone-500 uppercase">
             <MapPin size={12} aria-hidden="true" />
-            Places
+            {t("places")}
           </div>
           <ul>
             {results.places.map((result) => (
@@ -71,7 +73,7 @@ export function UnifiedSearchResults({
         <div>
           <div className="flex items-center gap-2 px-4 py-2 text-xs font-semibold tracking-wide text-stone-500 uppercase">
             <FileText size={12} aria-hidden="true" />
-            Articles
+            {t("articles")}
           </div>
           <ul>
             {results.articles.map((result) => (

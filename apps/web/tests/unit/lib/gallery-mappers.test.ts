@@ -1,4 +1,6 @@
+import { createFormatter } from "next-intl";
 import { describe, it, expect } from "vitest";
+import { formats, TIME_ZONE } from "@/i18n/formats";
 import {
   isMediaId,
   mapGalleryMediaToMediaItem,
@@ -12,6 +14,8 @@ import type {
 import type { MediaItem } from "@/types/media";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
+
+const FORMAT = createFormatter({ locale: "en", timeZone: TIME_ZONE, formats });
 
 function userUploadFixture(
   overrides: Partial<PublicUserUploadMedia> = {}
@@ -74,7 +78,7 @@ describe("mapGalleryMediaToMediaItem", () => {
   describe("user upload mapping", () => {
     it("maps a standard user upload with all metadata", () => {
       const media = userUploadFixture();
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.id).toBe(media.id);
       expect(result.title).toBe("Church of São João Baptista");
@@ -89,7 +93,7 @@ describe("mapGalleryMediaToMediaItem", () => {
 
     it("threads EXIF metadata through to MediaItem", () => {
       const media = userUploadFixture();
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.cameraMake).toBe("Apple");
       expect(result.cameraModel).toBe("iPhone 13 Pro");
@@ -104,7 +108,7 @@ describe("mapGalleryMediaToMediaItem", () => {
         photographerCredit: "João Costa",
         archiveSource: "Family collection",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.photographerCredit).toBe("João Costa");
       expect(result.archiveSource).toBe("Family collection");
@@ -112,7 +116,7 @@ describe("mapGalleryMediaToMediaItem", () => {
 
     it("threads credit attribution through", () => {
       const media = userUploadFixture();
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.creditPlatform).toBe("INSTAGRAM");
       expect(result.creditHandle).toBe("mariasilva");
@@ -123,7 +127,7 @@ describe("mapGalleryMediaToMediaItem", () => {
         photographerCredit: undefined,
         uploaderDisplayName: "Uploader Name",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.author).toBe("Uploader Name");
     });
@@ -133,21 +137,21 @@ describe("mapGalleryMediaToMediaItem", () => {
         photographerCredit: undefined,
         uploaderDisplayName: undefined,
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.author).toBe("Community Contributor");
     });
 
     it("uses empty string when publicUrl is null", () => {
       const media = userUploadFixture({ publicUrl: null });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.url).toBe("");
     });
 
     it("does not gain duration or featured fields", () => {
       const media = userUploadFixture();
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.duration).toBeUndefined();
       expect(result.featured).toBeUndefined();
@@ -166,7 +170,7 @@ describe("mapGalleryMediaToMediaItem", () => {
         category: "Heritage",
         createdAt: "2024-06-15T12:00:00Z",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.title).toBe("Untitled");
     });
@@ -177,7 +181,7 @@ describe("mapGalleryMediaToMediaItem", () => {
         category: "Nature",
         createdAt: "2024-03-10T08:00:00Z",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.title).toBe("Untitled");
     });
@@ -188,7 +192,7 @@ describe("mapGalleryMediaToMediaItem", () => {
         category: "Nature",
         createdAt: "2024-08-15T12:00:00Z",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.title).toBe("Untitled");
     });
@@ -199,14 +203,14 @@ describe("mapGalleryMediaToMediaItem", () => {
         category: "Culture",
         createdAt: "2024-12-25T00:00:00Z",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.title).toBe("Untitled");
     });
 
     it("preserves human-authored titles", () => {
       const media = userUploadFixture({ title: "Sunset over Fajã d'Água" });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.title).toBe("Sunset over Fajã d'Água");
     });
@@ -215,21 +219,21 @@ describe("mapGalleryMediaToMediaItem", () => {
   describe("category mapping", () => {
     it("maps 'Landmark' to 'Heritage'", () => {
       const media = userUploadFixture({ category: "Landmark" });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.category).toBe("Heritage");
     });
 
     it("leaves category undefined for unknown categories", () => {
       const media = userUploadFixture({ category: "Unknown" });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.category).toBeUndefined();
     });
 
     it("leaves category undefined for null category", () => {
       const media = userUploadFixture({ category: null });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.category).toBeUndefined();
     });
@@ -238,7 +242,7 @@ describe("mapGalleryMediaToMediaItem", () => {
   describe("external media mapping", () => {
     it("maps a YouTube video with all fields", () => {
       const media = externalMediaFixture();
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.id).toBe(media.id);
       expect(result.type).toBe("VIDEO");
@@ -254,7 +258,7 @@ describe("mapGalleryMediaToMediaItem", () => {
         thumbnailUrl: null,
         externalId: "abc123xyz",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.thumbnailUrl).toBe(
         "https://img.youtube.com/vi/abc123xyz/hqdefault.jpg"
@@ -267,7 +271,7 @@ describe("mapGalleryMediaToMediaItem", () => {
         url: "https://example.com/photo.jpg",
         embedUrl: "https://example.com/embed/photo",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.url).toBe("https://example.com/photo.jpg");
     });
@@ -277,42 +281,42 @@ describe("mapGalleryMediaToMediaItem", () => {
         author: null,
         curatorDisplayName: "Curator Name",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.author).toBe("Curator Name");
     });
 
     it("handles null description gracefully", () => {
       const media = externalMediaFixture({ description: null });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.description).toBeUndefined();
     });
 
     it("maps durationSeconds to duration for external video", () => {
       const media = externalMediaFixture({ durationSeconds: 272 });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.duration).toBe(272);
     });
 
     it("maps featured flag for external video", () => {
       const media = externalMediaFixture({ featured: true });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.featured).toBe(true);
     });
 
     it("maps undefined duration when durationSeconds is absent", () => {
       const media = externalMediaFixture({ durationSeconds: undefined });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.duration).toBeUndefined();
     });
 
     it("maps undefined featured when featured is absent", () => {
       const media = externalMediaFixture({ featured: undefined });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.featured).toBeUndefined();
     });
@@ -323,14 +327,14 @@ describe("mapGalleryMediaToMediaItem", () => {
       const media = userUploadFixture({
         altText: "A scenic view of the coastline",
       });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.altText).toBe("A scenic view of the coastline");
     });
 
     it("converts null altText to undefined", () => {
       const media = userUploadFixture({ altText: null });
-      const result = mapGalleryMediaToMediaItem(media);
+      const result = mapGalleryMediaToMediaItem(media, FORMAT);
 
       expect(result.altText).toBeUndefined();
     });
@@ -560,5 +564,13 @@ describe("isMediaId", () => {
     expect(isMediaId("featured")).toBe(false);
     expect(isMediaId("undefined")).toBe(false);
     expect(isMediaId("0b6f7c36-9a51-4d4b-8d53")).toBe(false);
+  });
+});
+
+describe("mapGalleryMediaToMediaItem date", () => {
+  it("writes the upload date as a short month and year", () => {
+    expect(mapGalleryMediaToMediaItem(userUploadFixture(), FORMAT).date).toBe(
+      "Jun 2024"
+    );
   });
 });

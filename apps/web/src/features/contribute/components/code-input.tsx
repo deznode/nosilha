@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { useId, useState, type ClipboardEvent } from "react";
+import { useTranslations } from "next-intl";
 
 const CODE_LENGTH = 6;
 
@@ -35,6 +36,7 @@ export function CodeInput({
   readOnly = false,
   autoFocus = false,
 }: CodeInputProps) {
+  const t = useTranslations("contribute.signIn");
   const inputId = useId();
   const [focused, setFocused] = useState(false);
   const activeIndex = Math.min(value.length, CODE_LENGTH - 1);
@@ -64,7 +66,7 @@ export function CodeInput({
   return (
     <div className="relative">
       <label htmlFor={inputId} className="sr-only">
-        6-digit code
+        {t("codeLabel")}
       </label>
       <div className="grid grid-cols-6 gap-[7px]" aria-hidden="true">
         {Array.from({ length: CODE_LENGTH }, (_, i) => {

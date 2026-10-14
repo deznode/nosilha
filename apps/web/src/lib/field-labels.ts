@@ -1,3 +1,5 @@
+import type { Translator } from "@/i18n/types";
+
 /**
  * What a field is called when a person reads it. Spec 034 FR-004.
  *
@@ -5,6 +7,17 @@
  * opens "Asked about: <field>". Those keys are code — `photographerCredit`,
  * `latitude`, `conditionStatus` — and a curator reading the queue should not have to
  * translate them. This is the one place that turns a key into a phrase.
+ *
+ * The phrases come from the `fields` namespace, keyed by field key (spec 041
+ * FR-004). Pass a translator for that namespace, from the hook or from
+ * `getTranslations`.
+ */
+export type FieldTranslator = Translator<"fields">;
+
+/**
+ * English only, for callers not yet passing a translator; it goes once they all do.
+ * Its keys are also the keys of the `fields` namespace, and a test holds the two
+ * equal meanwhile.
  */
 const FIELD_PHRASES: Record<string, string> = {
   // Place record grid
@@ -42,14 +55,16 @@ const FIELD_PHRASES: Record<string, string> = {
   correction: "a correction to this record",
 };
 
+type FieldKey = Parameters<FieldTranslator>[0];
+
 /**
  * A field key as a phrase. An unmapped key falls back to its words rather than
  * disappearing — a curator reading "date taken" has lost nothing, and a key nobody
  * mapped is still legible.
  */
-export function fieldPhrase(key: string): string {
+export function fieldPhrase(key: string, t?: FieldTranslator): string {
   const mapped = FIELD_PHRASES[key];
-  if (mapped) return mapped;
+  if (mapped) return t ? t(key as FieldKey) : mapped;
 
   return key
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")

@@ -2,6 +2,7 @@
 
 import { BookOpen, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 type Citation = {
   source: string;
@@ -16,6 +17,7 @@ type CitationSectionProps = {
 
 export function CitationSection({ citations }: CitationSectionProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations("common.citations");
 
   return (
     <section className="bg-background-primary border-border-primary shadow-subtle mt-16 rounded-lg border p-8">
@@ -23,14 +25,14 @@ export function CitationSection({ citations }: CitationSectionProps) {
         <div className="flex items-center">
           <BookOpen className="text-ocean-blue mr-3 h-8 w-8" />
           <h3 className="text-text-primary font-serif text-2xl font-bold">
-            Sources & Citations
+            {t("title")}
           </h3>
         </div>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="hover-surface-strong rounded-full p-2"
           aria-expanded={isOpen}
-          aria-label={isOpen ? "Hide citations" : "Show citations"}
+          aria-label={isOpen ? t("hide") : t("show")}
         >
           <ChevronDown
             className={`text-basalt-500 h-6 w-6 transition-transform ${
@@ -39,12 +41,7 @@ export function CitationSection({ citations }: CitationSectionProps) {
           />
         </button>
       </div>
-      <p className="text-text-secondary mb-6">
-        The information presented in this article is based on a variety of
-        historical and academic sources. We believe in giving credit to the
-        researchers, writers, and institutions that have done the hard work of
-        preserving and sharing Brava&apos;s history.
-      </p>
+      <p className="text-text-secondary mb-6">{t("intro")}</p>
       {isOpen && (
         <ul className="mt-6 space-y-4">
           {citations.map((citation, index) => (
@@ -53,7 +50,10 @@ export function CitationSection({ citations }: CitationSectionProps) {
                 {citation.source}
               </p>
               <p className="text-text-secondary text-sm">
-                By {citation.author} ({citation.year})
+                {t("byline", {
+                  author: citation.author,
+                  year: String(citation.year),
+                })}
               </p>
               {citation.url && (
                 <a
@@ -62,7 +62,7 @@ export function CitationSection({ citations }: CitationSectionProps) {
                   rel="noopener noreferrer"
                   className="text-ocean-blue text-sm hover:underline"
                 >
-                  Read More
+                  {t("readMore")}
                 </a>
               )}
             </li>

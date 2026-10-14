@@ -25,6 +25,7 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import clsx from "clsx";
 
@@ -48,6 +49,7 @@ export function Header({
   const { session, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("chrome");
   const [currentLang, setCurrentLang] = useState(languages[0]);
 
   const handleLogout = async () => {
@@ -73,7 +75,7 @@ export function Header({
               <div className="flex items-center">
                 <div className="mr-2 flex md:hidden">
                   <DisclosureButton className="group text-text-secondary hover:bg-background-secondary hover:text-ocean-blue focus-visible:ring-ocean-blue relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2">
-                    <span className="sr-only">Open main menu</span>
+                    <span className="sr-only">{t("header.openMainMenu")}</span>
                     {open ? (
                       <X className="block h-6 w-6" aria-hidden="true" />
                     ) : (
@@ -102,7 +104,7 @@ export function Header({
                         (child) => pathname === child.href
                       );
                       return (
-                        <Popover key={item.name} className="relative">
+                        <Popover key={item.key} className="relative">
                           {({ open, close }) => (
                             <>
                               <PopoverButton
@@ -113,7 +115,7 @@ export function Header({
                                     : "text-text-secondary hover:border-border-primary hover:text-ocean-blue border-transparent"
                                 )}
                               >
-                                {item.name}
+                                {t(item.labelKey)}
                                 <ChevronDown
                                   className={clsx(
                                     "h-4 w-4 transition-transform duration-200",
@@ -137,7 +139,7 @@ export function Header({
                                     <div className="bg-background-primary relative grid gap-6 px-5 py-6 sm:gap-8 sm:p-8">
                                       {item.items.map((subItem) => (
                                         <Link
-                                          key={subItem.name}
+                                          key={subItem.nameKey}
                                           href={subItem.href}
                                           onClick={() => close()}
                                           className="hover:bg-background-secondary -m-3 flex items-start rounded-lg p-3 transition duration-150 ease-in-out"
@@ -148,10 +150,12 @@ export function Header({
                                           />
                                           <div className="ml-4">
                                             <p className="text-text-primary text-sm font-medium">
-                                              {subItem.name}
+                                              {t(`header.${subItem.nameKey}`)}
                                             </p>
                                             <p className="text-text-secondary mt-1 text-xs">
-                                              {subItem.description}
+                                              {t(
+                                                `header.${subItem.descriptionKey}`
+                                              )}
                                             </p>
                                           </div>
                                         </Link>
@@ -169,7 +173,7 @@ export function Header({
                     const isCurrent = pathname === item.href;
                     return (
                       <Link
-                        key={item.name}
+                        key={item.key}
                         href={item.href}
                         className={clsx(
                           "inline-flex h-16 items-center border-b-2 px-3 text-sm font-medium transition-colors",
@@ -178,7 +182,7 @@ export function Header({
                             : "text-text-secondary hover:border-border-primary hover:text-ocean-blue border-transparent"
                         )}
                       >
-                        {item.name}
+                        {t(item.labelKey)}
                       </Link>
                     );
                   })}
@@ -196,7 +200,7 @@ export function Header({
                     )}
                   >
                     <Shield className="h-4 w-4" />
-                    Admin
+                    {t("header.admin")}
                   </Link>
                 )}
               </div>
@@ -223,7 +227,11 @@ export function Header({
                                 !lang.disabled && setCurrentLang(lang)
                               }
                               disabled={lang.disabled}
-                              title={lang.disabled ? "Coming soon" : undefined}
+                              title={
+                                lang.disabled
+                                  ? t("language.comingSoon")
+                                  : undefined
+                              }
                               className={clsx(
                                 lang.disabled
                                   ? "text-text-tertiary cursor-not-allowed opacity-50"
@@ -238,7 +246,7 @@ export function Header({
                                 {lang.label}
                                 {lang.disabled && (
                                   <span className="text-text-tertiary ml-1 text-xs italic">
-                                    (Coming soon)
+                                    {t("language.comingSoonParenthetical")}
                                   </span>
                                 )}
                               </span>
@@ -258,7 +266,9 @@ export function Header({
                   {session ? (
                     <Menu as="div" className="relative ml-2">
                       <MenuButton className="focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2">
-                        <span className="sr-only">Open user menu</span>
+                        <span className="sr-only">
+                          {t("header.openUserMenu")}
+                        </span>
                         <div className="border-border-primary bg-background-secondary text-ocean-blue hover:bg-background-tertiary flex h-8 w-8 items-center justify-center rounded-full border transition-colors">
                           <UserCircle className="h-4 w-4" aria-hidden="true" />
                         </div>
@@ -266,7 +276,7 @@ export function Header({
                       <MenuItems className="divide-hairline bg-canvas shadow-elevated absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y rounded-md py-1 ring-1 ring-black/5 focus:outline-none">
                         <div className="px-4 py-3">
                           <p className="text-text-secondary text-xs">
-                            Signed in as
+                            {t("header.signedInAs")}
                           </p>
                           <p className="text-text-primary mt-0.5 truncate text-sm font-bold">
                             {session.user.email}
@@ -284,7 +294,7 @@ export function Header({
                                   "block px-4 py-2 text-sm"
                                 )}
                               >
-                                Your Profile
+                                {t("header.yourProfile")}
                               </Link>
                             )}
                           </MenuItem>
@@ -299,7 +309,7 @@ export function Header({
                                   "block px-4 py-2 text-sm"
                                 )}
                               >
-                                Settings
+                                {t("header.settings")}
                               </Link>
                             )}
                           </MenuItem>
@@ -318,7 +328,7 @@ export function Header({
                                   )}
                                 >
                                   <Plus className="h-4 w-4" />
-                                  Add Entry
+                                  {t("header.addEntry")}
                                 </Link>
                               )}
                             </MenuItem>
@@ -336,7 +346,7 @@ export function Header({
                                   "block w-full px-4 py-2 text-left text-sm"
                                 )}
                               >
-                                Sign out
+                                {t("header.signOut")}
                               </button>
                             )}
                           </MenuItem>
@@ -349,13 +359,13 @@ export function Header({
                         href="/login"
                         className="text-text-secondary hover:text-ocean-blue inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-colors"
                       >
-                        Log in
+                        {t("header.logIn")}
                       </Link>
                       <Link
                         href="/signup"
                         className="text-text-secondary hover:text-ocean-blue inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-colors"
                       >
-                        Sign up
+                        {t("header.signUp")}
                       </Link>
                     </div>
                   )}
@@ -370,13 +380,13 @@ export function Header({
               {navigation.map((item) => {
                 if (item.type === "dropdown") {
                   return (
-                    <div key={item.name}>
+                    <div key={item.key}>
                       <div className="text-text-tertiary border-l-4 border-transparent py-2 pr-4 pl-3 text-xs font-semibold tracking-wider uppercase">
-                        {item.name}
+                        {t(item.labelKey)}
                       </div>
                       {item.items.map((child) => (
                         <DisclosureButton
-                          key={child.name}
+                          key={child.nameKey}
                           as={Link}
                           href={child.href}
                           className={clsx(
@@ -386,7 +396,7 @@ export function Header({
                               : "text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:text-text-primary border-transparent"
                           )}
                         >
-                          {child.name}
+                          {t(`header.${child.nameKey}`)}
                         </DisclosureButton>
                       ))}
                     </div>
@@ -395,7 +405,7 @@ export function Header({
 
                 return (
                   <DisclosureButton
-                    key={item.name}
+                    key={item.key}
                     as={Link}
                     href={item.href}
                     className={clsx(
@@ -405,7 +415,7 @@ export function Header({
                         : "text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:text-text-primary border-transparent"
                     )}
                   >
-                    {item.name}
+                    {t(item.labelKey)}
                   </DisclosureButton>
                 );
               })}
@@ -423,7 +433,7 @@ export function Header({
                   )}
                 >
                   <Shield className="h-5 w-5" />
-                  Admin
+                  {t("header.admin")}
                 </DisclosureButton>
               )}
             </div>
@@ -433,7 +443,7 @@ export function Header({
               {/* Language Selection Mobile */}
               <div className="mb-4 px-4">
                 <div className="text-text-tertiary mb-2 text-xs font-semibold tracking-wider uppercase">
-                  Language
+                  {t("language.heading")}
                 </div>
                 <div className="flex space-x-2">
                   {languages.map((lang) => (
@@ -441,7 +451,9 @@ export function Header({
                       key={lang.code}
                       onClick={() => !lang.disabled && setCurrentLang(lang)}
                       disabled={lang.disabled}
-                      title={lang.disabled ? "Coming soon" : undefined}
+                      title={
+                        lang.disabled ? t("language.comingSoon") : undefined
+                      }
                       className={clsx(
                         "flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
                         lang.disabled
@@ -466,7 +478,7 @@ export function Header({
                     </div>
                   ) : (
                     <div className="text-text-secondary text-base font-medium">
-                      Guest User
+                      {t("header.guestUser")}
                     </div>
                   )}
                 </div>
@@ -478,7 +490,7 @@ export function Header({
                   href="/contribute/story"
                   className="text-ocean-blue hover:bg-ocean-blue/10 block rounded-md px-3 py-2 text-base font-medium"
                 >
-                  + Contribute a Story
+                  {t("header.contributeStory")}
                 </Link>
                 {session ? (
                   <DisclosureButton
@@ -486,7 +498,7 @@ export function Header({
                     onClick={handleLogout}
                     className="text-text-secondary hover:bg-background-secondary block w-full rounded-md px-3 py-2 text-left text-base font-medium"
                   >
-                    Sign out
+                    {t("header.signOut")}
                   </DisclosureButton>
                 ) : (
                   <>
@@ -495,14 +507,14 @@ export function Header({
                       href="/login"
                       className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
                     >
-                      Log in
+                      {t("header.logIn")}
                     </DisclosureButton>
                     <DisclosureButton
                       as={Link}
                       href="/signup"
                       className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
                     >
-                      Sign up
+                      {t("header.signUp")}
                     </DisclosureButton>
                   </>
                 )}

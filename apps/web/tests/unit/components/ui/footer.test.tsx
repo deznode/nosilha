@@ -15,8 +15,8 @@ vi.mock("@/components/newsletter/footer-newsletter-form", () => ({
 
 /** Spec 037 FR-007 / FR-008 / FR-009. */
 describe("Footer", () => {
-  it("is a colophon, not a second navigation", () => {
-    render(<Footer />);
+  it("is a colophon, not a second navigation", async () => {
+    render(await Footer({}));
     const footer = screen.getByRole("contentinfo");
 
     // The two link columns are gone — the menu carries the destinations at every
@@ -33,8 +33,8 @@ describe("Footer", () => {
     }
   });
 
-  it("carries the legal row, reachable at every width", () => {
-    render(<Footer />);
+  it("carries the legal row, reachable at every width", async () => {
+    render(await Footer({}));
     const footer = screen.getByRole("contentinfo");
 
     const expected: [string, string][] = [
@@ -51,8 +51,8 @@ describe("Footer", () => {
     }
   });
 
-  it("keeps the tagline and copyright wording unchanged", () => {
-    render(<Footer />);
+  it("keeps the tagline and copyright wording unchanged", async () => {
+    render(await Footer({}));
 
     expect(
       screen.getByText("Nos terra, nos gente, nos memoria.")
@@ -62,14 +62,14 @@ describe("Footer", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps the newsletter form", () => {
-    render(<Footer />);
+  it("keeps the newsletter form", async () => {
+    render(await Footer({}));
     expect(screen.getByTestId("newsletter")).toBeInTheDocument();
   });
 
   // Spec 039 E5.
-  it("invites a photograph or a film, to /contribute", () => {
-    render(<Footer />);
+  it("invites a photograph or a film, to /contribute", async () => {
+    render(await Footer({}));
     const footer = screen.getByRole("contentinfo");
 
     expect(
@@ -85,8 +85,8 @@ describe("Footer", () => {
   // FR-009: a component dropped in here later must not be able to reintroduce
   // the audit's contrast failures, so nothing in the footer may resolve against
   // the page's light/dark tokens.
-  it("uses no theme-reactive `dark:` classes anywhere", () => {
-    render(<Footer />);
+  it("uses no theme-reactive `dark:` classes anywhere", async () => {
+    render(await Footer({}));
     const footer = screen.getByRole("contentinfo");
 
     const offenders = Array.from(footer.querySelectorAll<HTMLElement>("*"))
@@ -98,8 +98,8 @@ describe("Footer", () => {
     expect(offenders.map((el) => el.className)).toEqual([]);
   });
 
-  it("reserves clearance for the bottom bar on phones only", () => {
-    render(<Footer />);
+  it("reserves clearance for the bottom bar on phones only", async () => {
+    render(await Footer({}));
     const footer = screen.getByRole("contentinfo");
 
     // The shared utility, not a restated height: it reads

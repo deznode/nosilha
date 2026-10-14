@@ -24,6 +24,15 @@ export type SignInView =
   | "googleBlocked" // S11
   | "noSave"; // S12
 
+/** Message keys under `contribute.signIn.errors` that the flow can show. */
+export type SignInErrorKey = "signInFailed" | "codeNotSent";
+
+/**
+ * An error to show on the sheet: a message key the component resolves, or the
+ * text Supabase sent back, shown as it came.
+ */
+export type SignInError = string | { key: SignInErrorKey };
+
 /** Why the Google button is disabled, or null when it's offered. */
 export type GoogleDisabledReason = "blocked" | "noSave" | null;
 
@@ -33,8 +42,8 @@ export interface SignInState {
   digits: string;
   /** True on the S6/S3 "too many codes sent" notice variant. */
   sendRateLimited: boolean;
-  /** Error text for the S2 password form; null otherwise. */
-  passwordError: string | null;
+  /** Error for the S2 password form; null otherwise. */
+  passwordError: SignInError | null;
   googleDisabledReason: GoogleDisabledReason;
 }
 
@@ -47,7 +56,7 @@ export type SignInEvent =
   | { type: "GOOGLE_PROBE_OK" }
   | { type: "GOOGLE_PROBE_FAILED" }
   | { type: "GOOGLE_FAILED" }
-  | { type: "PASSWORD_ERROR"; message: string }
+  | { type: "PASSWORD_ERROR"; message: SignInError }
   | { type: "BACK" }
   | { type: "USE_CODE" }
   | { type: "WRONG" }

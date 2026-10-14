@@ -5,6 +5,7 @@ import { formatCameraInfo } from "@/lib/exif-utils";
 import {
   photoCredit,
   photoDateLabel,
+  type DateFormatter,
   photoIsIdentifiablePerson,
   photoIsLocated,
 } from "@/lib/photo-facts";
@@ -65,16 +66,15 @@ export type PlaceFilter = string;
 export const ALL_PLACES = "all";
 export const UNPLACED = "unplaced";
 
-const MONTH_YEAR = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "long",
-  timeZone: "UTC",
-});
-
-/** One gallery record as an archive photograph. */
+/**
+ * One gallery record as an archive photograph. Its dates are written in `format`'s
+ * language, so a cached list of these is cached per locale (see
+ * `getArchivePhotographs`).
+ */
 export function toArchivePhoto(
   media: PublicGalleryMedia,
-  settlements: readonly TownStatusSummary[]
+  settlements: readonly TownStatusSummary[],
+  format: DateFormatter
 ): ArchivePhoto {
   const upload = isPublicUserUploadMedia(media) ? media : null;
   const town = nearestSettlement(
@@ -84,8 +84,8 @@ export function toArchivePhoto(
   );
   const near = town ? { slug: town.slug, name: town.name } : null;
   const title = trimmed(media.title);
-  const monthYear = photoDateLabel(media, MONTH_YEAR);
-  const dateLabel = photoDateLabel(media);
+  const monthYear = photoDateLabel(media, format, "monthYear");
+  const dateLabel = photoDateLabel(media, format, "longDate");
   const camera =
     formatCameraInfo(
       trimmed(upload?.cameraMake) ?? undefined,
@@ -120,7 +120,8 @@ export function toArchivePhoto(
 
 export function toArchivePhotos(
   media: readonly PublicGalleryMedia[],
-  settlements: readonly TownStatusSummary[]
+  settlements: readonly TownStatusSummary[],
+  format: DateFormatter
 ): ArchivePhoto[] {
   return media
     .filter(
@@ -128,7 +129,7 @@ export function toArchivePhotos(
         isPublicUserUploadMedia(m) ||
         ("mediaType" in m && m.mediaType === "IMAGE")
     )
-    .map((m) => toArchivePhoto(m, settlements));
+    .map((m) => toArchivePhoto(m, settlements, format));
 }
 
 // ─── Place filter ───────────────────────────────────────────────────────────
@@ -142,9 +143,13 @@ export interface PlaceChip {
 /**
  * `All N`, then each settlement with photographs by count (ties by name), then
  * `Not yet placed N`. Settlements with none are left out; Not yet placed always shows,
- * as in the handoff, so a zero reads as an achievement rather than an absence.
+ * as in the handoff, so a zero reads as an achievement rather than an absence. Names
+ * that tie sort in `locale`'s alphabetical order.
  */
-export function placeChips(photos: readonly ArchivePhoto[]): PlaceChip[] {
+export function placeChips(
+  photos: readonly ArchivePhoto[],
+  locale: string
+): PlaceChip[] {
   const bySlug = new Map<string, PlaceChip>();
   let unplaced = 0;
   for (const photo of photos) {
@@ -162,7 +167,7 @@ export function placeChips(photos: readonly ArchivePhoto[]): PlaceChip[] {
       });
   }
   const settlements = [...bySlug.values()].sort(
-    (a, b) => b.count - a.count || a.label.localeCompare(b.label)
+    (a, b) => b.count - a.count || a.label.localeCompare(b.label, locale)
   );
 
   return [

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import {
   FILM_PLATFORM_LABEL,
@@ -15,6 +16,7 @@ import {
  * it. Spec 039, `.claude-design/design_handoff_contribution_flow`.
  */
 export function FilmPreviewCard({ platform, externalId }: ParsedFilmLink) {
+  const t = useTranslations("contribute.film");
   const thumbnail = filmThumbnailUrl({ platform, externalId });
 
   return (
@@ -23,7 +25,7 @@ export function FilmPreviewCard({ platform, externalId }: ParsedFilmLink) {
         <div className="bg-surface-alt relative aspect-video">
           <Image
             src={thumbnail}
-            alt="YouTube thumbnail"
+            alt={t("thumbnailAlt")}
             fill
             sizes="340px"
             className="object-cover"
@@ -36,7 +38,7 @@ export function FilmPreviewCard({ platform, externalId }: ParsedFilmLink) {
               Vimeo
             </span>
             <span className="text-muted text-[13px]">
-              Vimeo doesn&apos;t share a preview image
+              {t("vimeoNoPreview")}
             </span>
           </div>
         </div>
@@ -44,7 +46,7 @@ export function FilmPreviewCard({ platform, externalId }: ParsedFilmLink) {
       <div className="text-muted flex items-center justify-between px-3 py-2.5 text-[13px]">
         <span>
           <span className="text-valley-green font-semibold">✓</span>{" "}
-          {FILM_PLATFORM_LABEL[platform]} link recognised
+          {t("recognised", { platform: FILM_PLATFORM_LABEL[platform] })}
         </span>
         <span className="font-mono">{externalId}</span>
       </div>

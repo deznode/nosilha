@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AlertTriangle, Home, RotateCcw } from "lucide-react";
 
@@ -11,6 +12,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("errors.error");
+
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       console.error("Application error:", error);
@@ -26,19 +29,16 @@ export default function Error({
         </div>
 
         <h1 className="text-body font-serif text-2xl font-bold md:text-3xl">
-          Something went wrong
+          {t("title")}
         </h1>
-        <p className="text-muted mx-auto mt-3 max-w-md">
-          An unexpected error occurred. Please try again or return to the
-          homepage.
-        </p>
+        <p className="text-muted mx-auto mt-3 max-w-md">{t("body")}</p>
 
         {process.env.NODE_ENV === "development" && error.message && (
           <div className="bg-surface mx-auto mt-4 max-w-lg rounded-lg p-4 text-left">
             <p className="text-muted font-mono text-xs">{error.message}</p>
             {error.digest && (
               <p className="text-muted mt-1 font-mono text-xs">
-                Digest: {error.digest}
+                {t("digest", { digest: error.digest })}
               </p>
             )}
           </div>
@@ -50,14 +50,14 @@ export default function Error({
             className="bg-ocean-blue hover:bg-ocean-blue/90 inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold text-white transition-colors"
           >
             <RotateCcw className="h-4 w-4" />
-            Try again
+            {t("retry")}
           </button>
           <Link
             href="/"
             className="border-hairline bg-canvas text-body hover:bg-surface inline-flex items-center justify-center gap-2 rounded-lg border px-5 py-2.5 font-semibold transition-colors"
           >
             <Home className="h-4 w-4" />
-            Back to home
+            {t("home")}
           </Link>
         </div>
       </div>

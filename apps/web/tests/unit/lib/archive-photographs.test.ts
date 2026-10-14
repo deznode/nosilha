@@ -1,4 +1,7 @@
+import { createFormatter } from "next-intl";
 import { describe, expect, it } from "vitest";
+
+import { formats, TIME_ZONE } from "@/i18n/formats";
 
 import {
   ALL_PLACES,
@@ -104,6 +107,8 @@ function photo(overrides: Partial<ArchivePhoto> = {}): ArchivePhoto {
 const NS = { slug: "nova-sintra", name: "Nova Sintra" };
 const LT = { slug: "lomba-tantun", name: "Lomba Tantun" };
 
+const FORMAT = createFormatter({ locale: "en", timeZone: TIME_ZONE, formats });
+
 describe("toArchivePhoto", () => {
   it("joins the nearest settlement and formats the dates", () => {
     const p = toArchivePhoto(
@@ -118,7 +123,8 @@ describe("toArchivePhoto", () => {
         width: 4032,
         height: 3024,
       }),
-      TOWNS
+      TOWNS,
+      FORMAT
     );
     expect(p.near).toEqual(NS);
     expect(p.monthYear).toBe("July 2024");
@@ -134,7 +140,8 @@ describe("toArchivePhoto", () => {
         approximateDate: "sometime in the sixties",
         photographerCredit: "Ana",
       }),
-      TOWNS
+      TOWNS,
+      FORMAT
     );
     expect(p.near).toBeNull();
     expect(p.monthYear).toBe("sometime in the sixties");
@@ -148,14 +155,16 @@ describe("toArchivePhoto", () => {
     // The Ponta Nhô Martinho lighthouse: ~0.035° from the nearest settlement.
     const far = toArchivePhoto(
       upload({ latitude: 14.80268, longitude: -24.70162 }),
-      TOWNS
+      TOWNS,
+      FORMAT
     );
     expect(far.near).toBeNull();
     expect(far.located).toBe(true);
 
     const named = toArchivePhoto(
       upload({ locationName: "  Fajã d'Água, by the harbour " }),
-      TOWNS
+      TOWNS,
+      FORMAT
     );
     expect(named.placeName).toBe("Fajã d'Água, by the harbour");
     expect(named.located).toBe(false);
@@ -172,7 +181,7 @@ describe("toArchivePhoto", () => {
       mediaSource: "EXTERNAL",
       mediaType: "IMAGE",
     } as unknown as PublicExternalMedia;
-    const ids = toArchivePhotos([upload(), film, image], TOWNS).map(
+    const ids = toArchivePhotos([upload(), film, image], TOWNS, FORMAT).map(
       (p) => p.id
     );
     expect(ids).toEqual(["m-1", "ext"]);
@@ -188,7 +197,7 @@ describe("place chips and filter", () => {
   ];
 
   it("lists All, settlements by count, then Not yet placed", () => {
-    expect(placeChips(photos)).toEqual([
+    expect(placeChips(photos, "en")).toEqual([
       { key: ALL_PLACES, label: "All", count: 4 },
       { key: "nova-sintra", label: "Nova Sintra", count: 2 },
       { key: "lomba-tantun", label: "Lomba Tantun", count: 1 },
@@ -197,10 +206,10 @@ describe("place chips and filter", () => {
   });
 
   it("orders equal counts by name and keeps Not yet placed at zero", () => {
-    const chips = placeChips([
-      photo({ id: "1", near: NS }),
-      photo({ id: "2", near: LT }),
-    ]);
+    const chips = placeChips(
+      [photo({ id: "1", near: NS }), photo({ id: "2", near: LT })],
+      "en"
+    );
     expect(chips.map((c) => c.key)).toEqual([
       ALL_PLACES,
       "lomba-tantun",

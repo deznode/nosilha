@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocale, useTranslations } from "next-intl";
 import {
-  newsletterSchema,
+  createNewsletterSchema,
   type NewsletterInput,
 } from "@/lib/validation/newsletter-schema";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
@@ -35,6 +36,10 @@ import {
  */
 export function FooterNewsletterForm() {
   const toast = useToast();
+  const t = useTranslations("contribute.newsletter");
+  const tv = useTranslations("validation");
+  const locale = useLocale();
+  const newsletterSchema = useMemo(() => createNewsletterSchema(tv), [tv]);
   const [isProcessing, setIsProcessing] = useState(false);
   const emailInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -67,7 +72,7 @@ export function FooterNewsletterForm() {
         // Clear any existing toasts before showing new one
         toast.clearAll();
 
-        toast.success("Thank you for subscribing!").duration(5000).show();
+        toast.success(t("thanks")).duration(5000).show();
         reset();
         emailInputRef.current?.focus();
         return;
@@ -78,6 +83,8 @@ export function FooterNewsletterForm() {
       // Create FormData for Server Action
       const formData = new FormData();
       formData.append("email", data.email);
+      // The action can't read the route's locale, so the form sends it
+      formData.append("locale", locale);
       if (data.website) {
         formData.append("website", data.website);
       }
@@ -97,10 +104,7 @@ export function FooterNewsletterForm() {
       }
     } catch (_error) {
       // Show error toast for unexpected errors (8 seconds)
-      toast
-        .error("An unexpected error occurred. Please try again later.")
-        .duration(8000)
-        .show();
+      toast.error(t("unexpectedError")).duration(8000).show();
     } finally {
       setIsProcessing(false);
     }
@@ -125,7 +129,7 @@ export function FooterNewsletterForm() {
       >
         <div className="min-w-0 flex-1">
           <label htmlFor="footer-email-address" className="sr-only">
-            Email address
+            {t("emailLabel")}
           </label>
           <Input
             {...emailRegister}
@@ -133,8 +137,8 @@ export function FooterNewsletterForm() {
             id="footer-email-address"
             type="email"
             autoComplete="email"
-            placeholder="your@email.com"
-            aria-label="Email address for newsletter subscription"
+            placeholder={t("emailPlaceholder")}
+            aria-label={t("emailAria")}
             aria-invalid={errors.email ? "true" : "false"}
             aria-describedby={errors.email ? "footer-email-error" : undefined}
             disabled={isProcessing}
@@ -176,15 +180,13 @@ export function FooterNewsletterForm() {
             disabled={isProcessing}
             className="px-[15px]"
           >
-            {isProcessing ? "Subscribing\u2026" : "Subscribe"}
+            {isProcessing ? t("subscribing") : t("subscribe")}
           </Button>
         </div>
       </form>
 
       {/* Privacy message */}
-      <p className="text-footer-muted mt-3 text-xs">
-        We respect your privacy. Unsubscribe at any time.
-      </p>
+      <p className="text-footer-muted mt-3 text-xs">{t("privacy")}</p>
     </div>
   );
 }

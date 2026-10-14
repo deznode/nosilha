@@ -1,5 +1,17 @@
+import type { Translator } from "@/i18n/types";
 import type { DirectoryEntry } from "@/types/directory";
 import type { SettlementStatus, TownStatusSummary } from "@/types/town";
+
+/**
+ * The words come from the `status` namespace (spec 041 FR-004). Pass a translator
+ * for that namespace, from the hook or from `getTranslations`, to every function
+ * here that returns a label.
+ *
+ * Without one, the English fallback below answers. It is kept only so callers not
+ * yet converted keep rendering, and goes once they all pass a translator; a test
+ * holds it equal to `messages/en.json` meanwhile.
+ */
+export type StatusTranslator = Translator<"status">;
 
 /**
  * How well the archive documents something. Spec 034 FR-002, handoff SPECS §2.
@@ -18,9 +30,15 @@ export interface DocumentationState {
 export interface StatusConfig {
   /** Brand token carrying the colour. Resolves per theme, so never read its value. */
   token: `--brand-${string}`;
-  /** Short label, as on chips and the legend. */
+  /**
+   * Short label, as on chips and the legend. English only.
+   * @deprecated Use `statusLabel(status, t)`.
+   */
   label: string;
-  /** Status line, as under a settlement or record name. */
+  /**
+   * Status line, as under a settlement or record name. English only.
+   * @deprecated Use `statusLine(status, t)`.
+   */
   line: string;
 }
 
@@ -46,6 +64,22 @@ export const STATUS_CONFIG: Record<DocumentationStatus, StatusConfig> = {
     line: "a name and a coordinate, nothing else",
   },
 };
+
+/** Short label, as on chips and the legend, in the translator's language. */
+export function statusLabel(
+  status: DocumentationStatus,
+  t?: StatusTranslator
+): string {
+  return t ? t(`${status}.label`) : STATUS_CONFIG[status].label;
+}
+
+/** Status line, as under a settlement or record name, in the translator's language. */
+export function statusLine(
+  status: DocumentationStatus,
+  t?: StatusTranslator
+): string {
+  return t ? t(`${status}.line`) : STATUS_CONFIG[status].line;
+}
 
 /** The status colour as a CSS value that follows the active theme. */
 export function statusVar(status: DocumentationStatus): string {
@@ -74,10 +108,21 @@ const TOWN_STATES: Record<SettlementStatus, DocumentationState> = {
  * crashing the render.
  */
 export function getTownStatus(
-  town: Pick<TownStatusSummary, "status">
+  town: Pick<TownStatusSummary, "status">,
+  t?: StatusTranslator
 ): DocumentationState {
-  return TOWN_STATES[town.status] ?? { status: "name", label: "unknown" };
+  const state = TOWN_STATES[town.status];
+  if (!state) return { status: "name", label: t ? t("unknown") : "unknown" };
+  return t
+    ? { status: state.status, label: statusLabel(state.status, t) }
+    : state;
 }
+
+/** English only; see `StatusTranslator`. */
+const ENTRY_LABELS = {
+  documented: "has a photograph",
+  partial: "no photograph",
+} as const;
 
 /**
  * Status of a place record: documented when it carries a photograph, otherwise
@@ -94,9 +139,9 @@ export function getTownStatus(
  * gallery signal.
  */
 export function getEntryStatus(
-  entry: Pick<DirectoryEntry, "imageUrl">
+  entry: Pick<DirectoryEntry, "imageUrl">,
+  t?: StatusTranslator
 ): DocumentationState {
-  return entry.imageUrl?.trim()
-    ? { status: "documented", label: "has a photograph" }
-    : { status: "partial", label: "no photograph" };
+  const status = entry.imageUrl?.trim() ? "documented" : "partial";
+  return { status, label: t ? t(`entry.${status}`) : ENTRY_LABELS[status] };
 }

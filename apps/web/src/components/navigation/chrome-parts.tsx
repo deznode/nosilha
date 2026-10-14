@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import { Button } from "@/components/catalyst-ui/button";
@@ -68,6 +69,8 @@ export function ContributeAction({
   className?: string;
   onClick?: () => void;
 }) {
+  const t = useTranslations("chrome");
+
   return (
     <Button
       href="/contribute"
@@ -76,7 +79,7 @@ export function ContributeAction({
       className={className}
       onClick={onClick}
     >
-      Contribute
+      {t("contribute")}
     </Button>
   );
 }
@@ -90,6 +93,7 @@ export function ContributeAction({
  */
 export function useChromeAccount() {
   const { session, user } = useAuth();
+  const t = useTranslations("chrome");
 
   const email = user?.email ?? session?.user?.email ?? "";
   const localPart = email.split("@")[0] ?? "";
@@ -98,12 +102,13 @@ export function useChromeAccount() {
   return {
     signedIn: Boolean(session),
     initials,
-    displayName: localPart || "Your account",
+    displayName: localPart || t("yourAccount"),
   };
 }
 
 export function AccountSlot() {
   const { signedIn, initials } = useChromeAccount();
+  const t = useTranslations("chrome");
 
   if (!signedIn) {
     return (
@@ -111,7 +116,7 @@ export function AccountSlot() {
         href="/login"
         className="text-ocean-blue shrink-0 px-2 py-[11px] text-sm font-medium transition-colors duration-150"
       >
-        Sign in
+        {t("signIn")}
       </Link>
     );
   }
@@ -119,7 +124,7 @@ export function AccountSlot() {
   return (
     <Link
       href="/profile"
-      aria-label="Your profile"
+      aria-label={t("yourProfile")}
       className="focus-ring shrink-0 rounded-full"
     >
       {/* `onDark` is static: the avatar's dark pair is applied by the `dark:`
@@ -138,13 +143,15 @@ export function AccountSlot() {
  * the same value in.
  */
 export function LanguageChip({ className }: { className?: string }) {
+  const t = useTranslations("chrome");
+
   return (
     <span
       className={clsx(
         "border-hairline text-muted dark:border-chrome-line dark:text-chrome-ink-muted flex h-11 items-center justify-center rounded-lg border font-mono text-[13px]",
         className
       )}
-      title="English. Português and Kriolu are coming soon."
+      title={t("language.chipTitle")}
     >
       {currentLanguage.code}
     </span>
@@ -168,6 +175,8 @@ export function LanguageChip({ className }: { className?: string }) {
  * span so the taller link can centre it.
  */
 export function ChromeWordmark({ className }: { className?: string }) {
+  const t = useTranslations("chrome");
+
   return (
     <Link
       href="/"
@@ -175,7 +184,7 @@ export function ChromeWordmark({ className }: { className?: string }) {
         "focus-ring touch-target flex shrink-0 items-center rounded-sm",
         className
       )}
-      aria-label="Nos Ilha home"
+      aria-label={t("homeLink")}
     >
       <span className="flex items-baseline gap-2">
         <span className="font-serif text-[21px] font-normal tracking-[-0.01em] lg:text-[19px]">
@@ -183,7 +192,7 @@ export function ChromeWordmark({ className }: { className?: string }) {
           <span className="text-ocean-blue">Ilha</span>
         </span>
         <span className="text-muted text-[10.5px] tracking-[0.18em] uppercase lg:text-[9px]">
-          Archive
+          {t("archive")}
         </span>
       </span>
     </Link>
@@ -201,15 +210,15 @@ export function ChromeWordmark({ className }: { className?: string }) {
 export function ThemePill({ className }: { className?: string }) {
   const resolvedTheme = useResolvedTheme();
   const setTheme = useUiStore((state) => state.setTheme);
+  const t = useTranslations("chrome");
 
   const nextTheme = resolvedTheme === "light" ? "dark" : "light";
-  const label = nextTheme === "dark" ? "Dark" : "Light";
 
   return (
     <button
       type="button"
       onClick={() => setTheme(nextTheme)}
-      title={`Switch to the ${nextTheme} theme`}
+      title={t("theme.switchTo", { theme: nextTheme })}
       // `uiStore` rehydrates from localStorage at module init, so with a stored
       // dark choice the first client render says "Light" while the prerendered
       // HTML says "Dark". The label is client state the server cannot know, and
@@ -220,7 +229,7 @@ export function ThemePill({ className }: { className?: string }) {
         className
       )}
     >
-      {label}
+      {t(nextTheme === "dark" ? "theme.dark" : "theme.light")}
     </button>
   );
 }

@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -19,7 +20,7 @@ import {
   KindSwitch,
   PageNotice,
   SubmitArea,
-  waitPhrase,
+  waitMinutes,
 } from "@/features/contribute/components/form-parts";
 import { PhotoForm } from "@/features/contribute/components/photo-form";
 import {
@@ -37,13 +38,13 @@ import type { SignedInInfo } from "@/features/contribute/hooks/use-sign-in-flow"
 import type { ContributionKind } from "@/features/contribute/lib/contribution-draft";
 import {
   EMPTY_FORM,
-  STEP_LABELS,
   firstName,
   linkedTown,
   nextStep,
   placeFields,
   placeText,
   restoreForm,
+  stepMessageKey,
   type ContributionForm,
 } from "@/features/contribute/lib/contribution-form";
 import { isNewUser } from "@/features/contribute/lib/new-user";
@@ -74,6 +75,7 @@ export default function MediaContributionPage() {
 }
 
 function MediaContribution() {
+  const t = useTranslations("contribute.media");
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, session, loading: authLoading } = useAuth();
@@ -92,7 +94,10 @@ function MediaContribution() {
     initialView: "start" | "cancelled";
   }>({ open: false, initialView: "start" });
   const [filmSubmitting, setFilmSubmitting] = useState(false);
-  const [filmError, setFilmError] = useState<string | null>(null);
+  // The API's own message, or null for the fallback; undefined when no error
+  const [filmError, setFilmError] = useState<string | null | undefined>(
+    undefined
+  );
   const [rateLimitedUntil, setRateLimitedUntil] = useState<number | null>(null);
   const [now, setNow] = useState(0);
   const [resumeRequest, setResumeRequest] = useState<ResumeRequest | null>(
@@ -140,7 +145,7 @@ function MediaContribution() {
     setSent(null);
     setNoDraftNotice(false);
     setSignIn({ open: false, initialView: "start" });
-    setFilmError(null);
+    setFilmError(undefined);
     setRateLimitedUntil(null);
     setResumeRequest(null);
     pendingSubmitRef.current = false;
@@ -261,13 +266,14 @@ function MediaContribution() {
       ? [
           link && FILM_PLATFORM_LABEL[link.platform],
           where,
-          who && `made by ${who}`,
+          who && t("madeBy", { name: who }),
         ]
-      : [where, form.date.trim(), who && `taken by ${who}`];
+      : [where, form.date.trim(), who && t("takenBy", { name: who })];
     setSends((n) => n + 1);
     setSent({
       kind,
-      title: form.title.trim() || (isFilm ? "Film link" : "Your photograph"),
+      title:
+        form.title.trim() || (isFilm ? t("untitledFilm") : t("untitledPhoto")),
       meta: meta.filter(Boolean).join(" · "),
       town,
       giverFirstName: firstName(form.source),
@@ -281,7 +287,7 @@ function MediaContribution() {
   }
 
   async function submitContribution() {
-    setFilmError(null);
+    setFilmError(undefined);
 
     if (!isFilm) {
       const result = await upload({
@@ -318,11 +324,7 @@ function MediaContribution() {
       if (err instanceof ApiError && err.status === 429) {
         lockFor(err.retryAfterSeconds);
       } else {
-        setFilmError(
-          err instanceof Error && err.message
-            ? err.message
-            : "Something went wrong on our side."
-        );
+        setFilmError(err instanceof Error && err.message ? err.message : null);
       }
     } finally {
       setFilmSubmitting(false);
@@ -405,11 +407,13 @@ function MediaContribution() {
   if (view === "restored") {
     const who = form.photographer.trim();
     const rows: RecordRow[] = [
-      { label: "Title", value: form.title.trim() },
-      { label: "Place", value: placeText(form.place) },
-      { label: isFilm ? "Made by" : "Taken by", value: who },
-      ...(isFilm ? [] : [{ label: "Given by", value: form.source.trim() }]),
-      { label: "When", value: form.date.trim() },
+      { label: t("rows.title"), value: form.title.trim() },
+      { label: t("rows.place"), value: placeText(form.place) },
+      { label: isFilm ? t("rows.madeBy") : t("rows.takenBy"), value: who },
+      ...(isFilm
+        ? []
+        : [{ label: t("rows.givenBy"), value: form.source.trim() }]),
+      { label: t("rows.when"), value: form.date.trim() },
     ].filter((row) => row.value);
     return (
       <PageShell>
@@ -422,9 +426,9 @@ function MediaContribution() {
           sendLabel={
             sending
               ? isFilm
-                ? "Sending…"
-                : `Sending · ${progress}%`
-              : "Send to the archive"
+                ? t("sending")
+                : t("sendingProgress", { progress })
+              : t("send")
           }
           sendDisabled={sending || locked}
           onSend={send}
@@ -437,41 +441,41 @@ function MediaContribution() {
 
   let note: string | null;
   if (rateLimited) {
-    note = `You can send again in ${waitPhrase(secondsLeft)}.`;
+    note = t("sendAgainIn", { minutes: waitMinutes(secondsLeft) });
   } else if (authLoading) {
-    note = "Checking sign-in…";
+    note = t("checkingSignIn");
   } else if (user) {
-    note = user.email ? `Signed in as ${user.email}.` : null;
+    note = user.email ? t("signedInAs", { email: user.email }) : null;
   } else {
-    note = "Next you confirm your email. Nothing is sent until then.";
+    note = t("nextConfirm");
   }
 
   const footer = (
     <>
       {rateLimited && (
-        <ErrorPanel title="You've sent a lot in a short time">
-          Please wait {waitPhrase(secondsLeft)}, then send it again. Everything
-          you&apos;ve typed is still here.
+        <ErrorPanel title={t("rateLimitedTitle")}>
+          {t("rateLimitedBody", { minutes: waitMinutes(secondsLeft) })}
         </ErrorPanel>
       )}
       {uploadFailed && (
-        <ErrorPanel title="The photograph didn't upload">
-          The connection dropped part way. Everything is still here, so you can
-          try again.
+        <ErrorPanel title={t("uploadFailedTitle")}>
+          {t("uploadFailedBody")}
         </ErrorPanel>
       )}
-      {filmError && (
-        <ErrorPanel title="The film link didn't send">
-          {filmError} Everything you&apos;ve typed is still here.
+      {filmError !== undefined && (
+        <ErrorPanel title={t("filmFailedTitle")}>
+          {t("filmFailedBody", {
+            error: filmError ?? t("filmFailedFallback"),
+          })}
         </ErrorPanel>
       )}
       <SubmitArea
         label={
           ready
             ? uploadFailed
-              ? "Try again"
-              : "Send to the archive"
-            : STEP_LABELS[step]
+              ? t("tryAgain")
+              : t("send")
+            : t(stepMessageKey(step))
         }
         ready={ready}
         locked={locked}
@@ -493,19 +497,11 @@ function MediaContribution() {
         className="flex flex-col gap-5 md:gap-[26px]"
       >
         {isFilm ? (
-          <FormIntro title="Give a film to the archive">
-            A link is enough. The film stays where it is; we record where it is
-            and who made it.
-          </FormIntro>
+          <FormIntro title={t("filmTitle")}>{t("filmLead")}</FormIntro>
         ) : (
-          <FormIntro title="Give a photograph to the archive">
-            <span className="md:hidden">
-              You keep the copyright. We record who took it.
-            </span>
-            <span className="hidden md:inline">
-              You keep the copyright. We record who took it and who gave it, and
-              we will not publish it without that credit attached.
-            </span>
+          <FormIntro title={t("photoTitle")}>
+            <span className="md:hidden">{t("photoLeadShort")}</span>
+            <span className="hidden md:inline">{t("photoLeadLong")}</span>
           </FormIntro>
         )}
 
@@ -514,22 +510,13 @@ function MediaContribution() {
           disabled={sending}
           onChange={(next) => {
             setKind(next);
-            setFilmError(null);
+            setFilmError(undefined);
           }}
         />
 
         {noDraftNotice && (
-          <PageNotice
-            title={
-              isFilm
-                ? "We couldn't find your film link in this browser"
-                : "We couldn't find your photograph in this browser"
-            }
-          >
-            It may have been opened in a different browser, or more than a day
-            has passed. You&apos;re signed in now, so{" "}
-            {isFilm ? "paste it again" : "choose it again"} and it will send
-            straight away.
+          <PageNotice title={t("noDraftTitle", { kind })}>
+            {t("noDraftBody", { kind })}
           </PageNotice>
         )}
 

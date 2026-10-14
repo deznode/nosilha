@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,7 +40,7 @@ import { Field, Label, ErrorMessage } from "@/components/catalyst-ui/fieldset";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import {
-  directorySubmissionSchema,
+  createDirectorySubmissionSchema,
   type DirectorySubmissionInput,
 } from "@/schemas/directorySubmissionSchema";
 import type { DirectorySubmissionRequest } from "@/lib/api-contracts";
@@ -59,65 +60,60 @@ type DirectoryCategory =
 
 interface CategoryOption {
   id: DirectoryCategory;
-  label: string;
+  /** Label and description are under `contribute.directory.categories.{key}`. */
+  key: "restaurant" | "hotel" | "beach" | "heritage" | "nature";
   icon: React.ReactNode;
   selectedBorderClass: string;
   selectedBgClass: string;
   selectedRingClass: string;
   iconBgClass: string;
-  description: string;
 }
 
 const CATEGORIES: CategoryOption[] = [
   {
     id: "Restaurant",
-    label: "Dining",
+    key: "restaurant",
     icon: <Utensils size={24} />,
     selectedBorderClass: "border-bougainvillea-pink",
     selectedBgClass: "bg-bougainvillea-pink/5",
     selectedRingClass: "ring-bougainvillea-pink/10",
     iconBgClass: "bg-bougainvillea-pink",
-    description: "Local eateries & cafes",
   },
   {
     id: "Hotel",
-    label: "Lodging",
+    key: "hotel",
     icon: <Hotel size={24} />,
     selectedBorderClass: "border-ocean-blue",
     selectedBgClass: "bg-ocean-blue/5",
     selectedRingClass: "ring-ocean-blue/10",
     iconBgClass: "bg-ocean-blue",
-    description: "Hotels & guesthouses",
   },
   {
     id: "Beach",
-    label: "Beach",
+    key: "beach",
     icon: <Umbrella size={24} />,
     selectedBorderClass: "border-sobrado-ochre",
     selectedBgClass: "bg-sobrado-ochre/5",
     selectedRingClass: "ring-sobrado-ochre/10",
     iconBgClass: "bg-sobrado-ochre",
-    description: "Coastal destinations",
   },
   {
     id: "Heritage",
-    label: "Heritage",
+    key: "heritage",
     icon: <Castle size={24} />,
     selectedBorderClass: "border-valley-green",
     selectedBgClass: "bg-valley-green/5",
     selectedRingClass: "ring-valley-green/10",
     iconBgClass: "bg-valley-green",
-    description: "Historical sites & monuments",
   },
   {
     id: "Nature",
-    label: "Nature",
+    key: "nature",
     icon: <TreePine size={24} />,
     selectedBorderClass: "border-valley-green",
     selectedBgClass: "bg-valley-green/5",
     selectedRingClass: "ring-valley-green/10",
     iconBgClass: "bg-valley-green",
-    description: "Hiking trails & natural pools",
   },
 ];
 
@@ -164,6 +160,12 @@ export function DirectoryEntryForm({
   variant = "full-page",
   onSuccess,
 }: DirectoryEntryFormProps) {
+  const t = useTranslations("contribute.directory");
+  const tv = useTranslations("validation");
+  const directorySubmissionSchema = useMemo(
+    () => createDirectorySubmissionSchema(tv),
+    [tv]
+  );
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const toast = useToast();
@@ -245,7 +247,7 @@ export function DirectoryEntryForm({
       setValue("tags", result.tags.join(", "));
     } catch (e) {
       console.error("AI generation failed:", e);
-      toast.error("Failed to generate content. Please try again.").show();
+      toast.error(t("aiFailed")).show();
     }
   };
 
@@ -293,7 +295,7 @@ export function DirectoryEntryForm({
       } else {
         // Create new entry
         await submitDirectoryEntry(requestData as DirectorySubmissionRequest);
-        toast.success("Location submitted for review").show();
+        toast.success(t("submitted")).show();
         // Show success screen for full-page variant
         if (variant === "full-page") {
           setStep(3);
@@ -303,7 +305,7 @@ export function DirectoryEntryForm({
       }
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "An unexpected error occurred";
+        error instanceof Error ? error.message : t("unexpectedError");
       setSubmitError(message);
       toast.error(message).show();
     } finally {
@@ -324,18 +326,21 @@ export function DirectoryEntryForm({
             <Check className="text-valley-green h-12 w-12" />
           </div>
           <h2 className="text-body mb-4 font-serif text-3xl font-bold">
-            Entry Submitted
+            {t("successTitle")}
           </h2>
           <p className="text-muted mb-10 leading-relaxed">
-            Thank you for helping us document Brava. Our team will review{" "}
-            <strong className="text-body">{formData.name}</strong> to ensure all
-            information is accurate.
+            {t.rich("successBody", {
+              name: formData.name,
+              strong: (chunks) => (
+                <strong className="text-body">{chunks}</strong>
+              ),
+            })}
           </p>
           <button
             onClick={handleBack}
             className="bg-ocean-blue hover:bg-ocean-blue/90 shadow-floating w-full rounded-2xl py-4 font-bold text-white transition active:scale-[0.98]"
           >
-            Back to Directory
+            {t("backToDirectory")}
           </button>
         </div>
       </div>
@@ -357,12 +362,14 @@ export function DirectoryEntryForm({
         <div className="space-y-4">
           {/* Name */}
           <Field>
-            <Label className="text-body text-sm font-bold">Location Name</Label>
+            <Label className="text-body text-sm font-bold">
+              {t("nameLabel")}
+            </Label>
             <div className="relative">
               <Input
                 {...register("name")}
                 type="text"
-                placeholder="e.g., Pensão Sodade"
+                placeholder={t("namePlaceholder")}
                 data-invalid={errors.name ? "" : undefined}
               />
               {formData.name && geminiAvailable && (
@@ -386,7 +393,7 @@ export function DirectoryEntryForm({
           {/* Category - Compact grid (keep custom UI) */}
           <div>
             <label className="text-body mb-2 block text-sm font-bold">
-              Category
+              {t("categoryLabel")}
             </label>
             <Controller
               name="category"
@@ -414,7 +421,7 @@ export function DirectoryEntryForm({
                         {cat.icon}
                       </div>
                       <span className="text-[10px] font-medium">
-                        {cat.label}
+                        {t(`categories.${cat.key}.label`)}
                       </span>
                     </button>
                   ))}
@@ -449,7 +456,7 @@ export function DirectoryEntryForm({
                 <Input
                   {...register("customTown")}
                   type="text"
-                  placeholder="Enter town name..."
+                  placeholder={t("customTownPlaceholder")}
                   className="pl-9"
                   data-invalid={errors.customTown ? "" : undefined}
                 />
@@ -480,7 +487,9 @@ export function DirectoryEntryForm({
 
           {/* Description */}
           <Field>
-            <Label className="text-body text-sm font-bold">Description</Label>
+            <Label className="text-body text-sm font-bold">
+              {t("descriptionLabel")}
+            </Label>
             <Textarea
               {...register("description")}
               rows={3}
@@ -569,7 +578,7 @@ export function DirectoryEntryForm({
           <div className="grid grid-cols-2 gap-4">
             <Field>
               <Label className="text-muted text-[10px] font-bold tracking-widest uppercase">
-                Latitude
+                {t("latitude")}
               </Label>
               <Input
                 {...register("latitude")}
@@ -581,7 +590,7 @@ export function DirectoryEntryForm({
             </Field>
             <Field>
               <Label className="text-muted text-[10px] font-bold tracking-widest uppercase">
-                Longitude
+                {t("longitude")}
               </Label>
               <Input
                 {...register("longitude")}
@@ -634,7 +643,7 @@ export function DirectoryEntryForm({
           className="group text-muted hover:text-body mb-10 flex items-center font-medium transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />{" "}
-          Cancel & Return
+          {t("cancelReturn")}
         </button>
 
         <div className="border-hairline bg-surface rounded-container shadow-floating overflow-hidden border">
@@ -643,14 +652,13 @@ export function DirectoryEntryForm({
             <div className="absolute top-0 right-0 -mt-40 -mr-40 h-80 w-80 rounded-full bg-white/5 blur-3xl"></div>
             <div className="relative z-10">
               <span className="mb-4 inline-block rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur-md">
-                Contribution Portal
+                {t("portal")}
               </span>
               <h1 className="font-serif text-3xl font-bold md:text-4xl">
-                Documenting Brava&apos;s Landscape
+                {t("heroTitle")}
               </h1>
               <p className="mt-3 max-w-lg text-sm text-mist-200/80">
-                Every cafe, fountain, and historical house tells a story of our
-                island&apos;s growth and resilience.
+                {t("heroBody")}
               </p>
             </div>
           </div>
@@ -659,8 +667,8 @@ export function DirectoryEntryForm({
             {/* Auth Prompt - shown when user is not authenticated */}
             {requiresAuth && (
               <InlineAuthPrompt
-                title="Sign in to Add a Location"
-                description="Directory submissions require an account to ensure proper attribution and quality control."
+                title={t("authPromptTitle")}
+                description={t("authPromptBody")}
                 returnUrl="/contribute/directory"
               />
             )}
@@ -668,20 +676,20 @@ export function DirectoryEntryForm({
             {/* Identity Section */}
             <div className="space-y-8">
               <div className="border-hairline text-ocean-blue flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] uppercase">
-                <Info size={16} /> 1. Essential Details
+                <Info size={16} /> {t("sectionDetails")}
               </div>
 
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 <div className="md:col-span-2">
                   <Field>
                     <Label className="text-body text-sm font-bold">
-                      Location Name
+                      {t("nameLabel")}
                     </Label>
                     <div className="relative">
                       <Input
                         {...register("name")}
                         type="text"
-                        placeholder="e.g., Pensão Sodade"
+                        placeholder={t("namePlaceholder")}
                         className="text-lg font-medium"
                         data-invalid={errors.name ? "" : undefined}
                       />
@@ -696,7 +704,7 @@ export function DirectoryEntryForm({
                             size={14}
                             className={isGenerating ? "animate-spin" : ""}
                           />
-                          {isGenerating ? "Mapping..." : "AI Assist"}
+                          {isGenerating ? t("aiMapping") : t("aiAssist")}
                         </button>
                       )}
                     </div>
@@ -708,7 +716,7 @@ export function DirectoryEntryForm({
 
                 <div className="md:col-span-2">
                   <label className="text-body mb-4 block text-sm font-bold">
-                    Category
+                    {t("categoryLabel")}
                   </label>
                   <Controller
                     name="category"
@@ -737,10 +745,10 @@ export function DirectoryEntryForm({
                             </div>
                             <div className="text-center">
                               <span className="block text-xs font-bold">
-                                {cat.label}
+                                {t(`categories.${cat.key}.label`)}
                               </span>
                               <span className="mt-1 block text-[9px] leading-tight opacity-60">
-                                {cat.description}
+                                {t(`categories.${cat.key}.description`)}
                               </span>
                             </div>
                           </button>
@@ -757,7 +765,7 @@ export function DirectoryEntryForm({
               <Field>
                 <div className="mb-2 flex items-center justify-between">
                   <Label className="text-body text-sm font-bold">
-                    Town / Village
+                    {t("townLabel")}
                   </Label>
                   <button
                     type="button"
@@ -769,7 +777,7 @@ export function DirectoryEntryForm({
                     ) : (
                       <PlusCircle size={12} />
                     )}
-                    {useCustomTown ? "Pick from List" : "Add New Village"}
+                    {useCustomTown ? t("pickFromList") : t("addVillage")}
                   </button>
                 </div>
 
@@ -778,7 +786,7 @@ export function DirectoryEntryForm({
                     <Input
                       {...register("customTown")}
                       type="text"
-                      placeholder="Enter town name..."
+                      placeholder={t("customTownPlaceholder")}
                       className="pl-10"
                       data-invalid={errors.customTown ? "" : undefined}
                     />
@@ -813,18 +821,18 @@ export function DirectoryEntryForm({
             {/* Cultural Context */}
             <div className="space-y-8">
               <div className="border-hairline text-ocean-blue flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] uppercase">
-                <History size={16} /> 2. Context & Story
+                <History size={16} /> {t("sectionContext")}
               </div>
 
               <div className="space-y-6">
                 <Field>
                   <Label className="text-body text-sm font-bold">
-                    Description
+                    {t("descriptionLabel")}
                   </Label>
                   <Textarea
                     {...register("description")}
                     rows={5}
-                    placeholder="Describe the atmosphere, significance, or history of this location..."
+                    placeholder={t("descriptionPlaceholder")}
                     data-invalid={errors.description ? "" : undefined}
                   />
                   {errors.description && (
@@ -835,13 +843,13 @@ export function DirectoryEntryForm({
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                   <Field>
                     <Label className="text-body text-sm font-bold">
-                      Discovery Tags
+                      {t("tagsLabel")}
                     </Label>
                     <div className="relative">
                       <Input
                         {...register("tags")}
                         type="text"
-                        placeholder="ocean-view, historical, hidden-gem"
+                        placeholder={t("tagsPlaceholder")}
                         className="pl-10 text-sm"
                       />
                       <Tag
@@ -854,7 +862,7 @@ export function DirectoryEntryForm({
                   {formData.category === "Restaurant" && (
                     <div className="border-hairline bg-surface flex items-center gap-4 rounded-2xl border p-4">
                       <span className="text-muted text-xs font-bold">
-                        Price:
+                        {t("price")}
                       </span>
                       <Controller
                         name="priceLevel"
@@ -887,12 +895,12 @@ export function DirectoryEntryForm({
             {/* Media & Coordinates */}
             <div className="space-y-8">
               <div className="border-hairline text-ocean-blue flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] uppercase">
-                <ImageIcon size={16} /> 3. Visuals & Location
+                <ImageIcon size={16} /> {t("sectionVisuals")}
               </div>
 
               <div>
                 <label className="text-body mb-2 block text-sm font-bold">
-                  Primary Photo
+                  {t("primaryPhoto")}
                 </label>
                 <ImageUploader
                   onUploadComplete={(url) => setValue("imageUrl", url)}
@@ -903,7 +911,7 @@ export function DirectoryEntryForm({
                 />
                 {formData.imageUrl && (
                   <p className="text-valley-green mt-2 text-sm">
-                    Photo uploaded successfully
+                    {t("photoUploaded")}
                   </p>
                 )}
               </div>
@@ -911,7 +919,7 @@ export function DirectoryEntryForm({
               <div className="grid grid-cols-2 gap-8">
                 <Field>
                   <Label className="text-muted text-[10px] font-bold tracking-widest uppercase">
-                    Latitude
+                    {t("latitude")}
                   </Label>
                   <Input
                     {...register("latitude")}
@@ -923,7 +931,7 @@ export function DirectoryEntryForm({
                 </Field>
                 <Field>
                   <Label className="text-muted text-[10px] font-bold tracking-widest uppercase">
-                    Longitude
+                    {t("longitude")}
                   </Label>
                   <Input
                     {...register("longitude")}
@@ -952,9 +960,9 @@ export function DirectoryEntryForm({
                   size={20}
                 />
                 <p className="text-muted text-[10px] leading-relaxed">
-                  <strong>Contributor Note:</strong> Your submission will be
-                  reviewed by our team before being published. This ensures all
-                  information is accurate.
+                  {t.rich("contributorNote", {
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })}
                 </p>
               </div>
               <div className="flex w-full gap-4 md:w-auto">
@@ -963,7 +971,7 @@ export function DirectoryEntryForm({
                   onClick={handleBack}
                   className="text-muted hover:text-body flex-1 px-10 py-4 text-sm font-bold transition-colors md:flex-none"
                 >
-                  Discard
+                  {t("discard")}
                 </button>
                 <button
                   type="submit"
@@ -972,10 +980,10 @@ export function DirectoryEntryForm({
                 >
                   <Send size={18} />{" "}
                   {isSubmitting
-                    ? "Submitting..."
+                    ? t("submitting")
                     : requiresAuth
-                      ? "Sign in to Submit"
-                      : "Submit Entry"}
+                      ? t("signInToSubmit")
+                      : t("submitEntry")}
                 </button>
               </div>
             </div>

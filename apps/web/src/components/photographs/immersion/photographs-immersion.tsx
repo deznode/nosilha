@@ -47,7 +47,7 @@ export function PhotographsImmersion({
   const place = parsePlaceParam(searchParams.get("place"), photos);
 
   const feature = photos.find((p) => p.id === featureId) ?? null;
-  const chips = placeChips(photos);
+  const chips = placeChips(photos, locale);
   const shown = filterByPlace(photos, place).filter(
     (p) => !(place === ALL_PLACES && p.id === feature?.id)
   );

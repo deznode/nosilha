@@ -1,11 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import clsx from "clsx";
 import { LogIn } from "lucide-react";
 
 interface InlineAuthPromptProps {
-  /** Title displayed in the prompt (e.g., "Sign in to Share Videos") */
+  /** Title displayed in the prompt (e.g., "Sign in to Share Videos"); defaults to "Sign in to Continue" */
   title?: string;
   /** Description explaining why authentication is needed */
   description?: string;
@@ -27,11 +28,12 @@ interface InlineAuthPromptProps {
  * @see https://ui-patterns.com/patterns/LazyRegistration
  */
 export function InlineAuthPrompt({
-  title = "Sign in to Continue",
-  description = "Please sign in to complete this action.",
+  title,
+  description,
   returnUrl,
   className,
 }: InlineAuthPromptProps) {
+  const t = useTranslations("auth.inlinePrompt");
   const encodedReturnUrl = encodeURIComponent(returnUrl);
 
   return (
@@ -44,21 +46,23 @@ export function InlineAuthPrompt({
       <div className="bg-sobrado-ochre/20 dark:bg-sobrado-ochre/30 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
         <LogIn className="text-sobrado-ochre h-6 w-6" />
       </div>
-      <h3 className="text-body mb-2 font-medium">{title}</h3>
-      <p className="text-muted mb-4 text-sm">{description}</p>
+      <h3 className="text-body mb-2 font-medium">{title ?? t("title")}</h3>
+      <p className="text-muted mb-4 text-sm">
+        {description ?? t("description")}
+      </p>
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
         <Link
           href={`/login?returnUrl=${encodedReturnUrl}`}
           className="rounded-button bg-ocean-blue hover:bg-ocean-blue/90 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white"
         >
           <LogIn className="mr-2 h-4 w-4" />
-          Sign In
+          {t("signIn")}
         </Link>
         <Link
           href={`/signup?returnUrl=${encodedReturnUrl}`}
           className="rounded-button border-hairline bg-canvas text-body hover:bg-surface inline-flex items-center justify-center border px-4 py-2 text-sm font-medium"
         >
-          Create Account
+          {t("createAccount")}
         </Link>
       </div>
     </div>

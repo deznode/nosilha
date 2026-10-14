@@ -2,6 +2,7 @@
 
 import { useRef, type ReactNode } from "react";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { useSheetDrag } from "../hooks/use-sheet-drag";
 
 /**
@@ -48,6 +49,7 @@ export function LocationBottomSheet({
   onDismiss,
   children,
 }: LocationBottomSheetProps) {
+  const t = useTranslations("map");
   const open = view === "open";
   const sheetRef = useRef<HTMLElement>(null);
   const { handlers, dragHeight } = useSheetDrag({
@@ -78,7 +80,7 @@ export function LocationBottomSheet({
       }}
     >
       {bar}
-      {open ? "Hide the list" : "Filters and list"}
+      {open ? t("sheet.hide") : t("sheet.show")}
     </button>
   );
 
@@ -97,7 +99,7 @@ export function LocationBottomSheet({
   return (
     <section
       ref={sheetRef}
-      aria-label="Filters and list"
+      aria-label={t("sheet.label")}
       data-testid="map-sheet"
       data-view={view}
       className={clsx(

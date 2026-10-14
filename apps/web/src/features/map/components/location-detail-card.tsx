@@ -1,6 +1,6 @@
 "use client";
 
-import { selectionCard } from "../data/map-copy";
+import { useTranslations } from "next-intl";
 import type { MapItem } from "../data/types";
 import { LocationDetailBody } from "./location-detail";
 
@@ -23,9 +23,10 @@ const TOP_CLEARANCE = 14;
  * On a narrow screen the selection lives in the bottom sheet instead.
  */
 export function LocationDetailCard({ item, onClose }: LocationDetailCardProps) {
+  const t = useTranslations("map");
   return (
     <section
-      aria-label={`Selected: ${selectionCard(item).name}`}
+      aria-label={t("selection.label", { name: item.name })}
       className="absolute left-1/2 z-[6] w-[min(420px,calc(100%-28px))] -translate-x-1/2 overflow-y-auto overscroll-contain rounded-[14px] border p-[18px] backdrop-blur-[10px]"
       style={{
         bottom: BOTTOM,

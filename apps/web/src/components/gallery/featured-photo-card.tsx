@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useFormatter } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Star } from "lucide-react";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
@@ -12,6 +13,7 @@ interface FeaturedPhotoCardProps {
 }
 
 export function FeaturedPhotoCard({ photo }: FeaturedPhotoCardProps) {
+  const format = useFormatter();
   const imageUrl = resolvePublicImageUrl(photo);
   if (!imageUrl) return null;
 
@@ -20,11 +22,7 @@ export function FeaturedPhotoCard({ photo }: FeaturedPhotoCardProps) {
     ? (photo.locationName ?? null)
     : null;
   const formattedDate = photo.createdAt
-    ? new Intl.DateTimeFormat("en-US", {
-        month: "long",
-        year: "numeric",
-        timeZone: "UTC",
-      }).format(new Date(photo.createdAt))
+    ? format.dateTime(new Date(photo.createdAt), "monthYear")
     : null;
 
   return (

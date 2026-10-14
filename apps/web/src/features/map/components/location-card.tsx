@@ -1,7 +1,8 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { statusVar } from "@/lib/status";
-import { listStatusLine } from "../data/map-copy";
+import { itemEyebrow, listStatusLine } from "../data/map-copy";
 import type { MapItem } from "../data/types";
 
 interface LocationCardProps {
@@ -12,6 +13,8 @@ interface LocationCardProps {
 
 /** One row of the sidebar list. Spec 034 FR-011. */
 export function LocationCard({ item, active, onSelect }: LocationCardProps) {
+  const t = useTranslations("map");
+  const locale = useLocale();
   return (
     <button
       type="button"
@@ -36,13 +39,13 @@ export function LocationCard({ item, active, onSelect }: LocationCardProps) {
           className="mt-[3px] mb-[5px] block text-[10px] tracking-[.12em] uppercase"
           style={{ color: "var(--foreground-secondary)" }}
         >
-          {item.eyebrow}
+          {itemEyebrow(t, item)}
         </span>
         <span
           className="block text-xs leading-[1.45]"
           style={{ color: "var(--foreground-secondary)" }}
         >
-          {listStatusLine(item)}
+          {listStatusLine(t, locale, item)}
         </span>
       </span>
     </button>

@@ -22,6 +22,9 @@ import { townSlugsById } from "@/lib/place-path";
  * state comes from the link they followed, not from their last visit.
  */
 
+/** Why the map's data did not load, as a key in the `errors` namespace. */
+export type MapFetchError = "mapLoadFailed";
+
 /** The public gallery's page cap. The archive's located photographs fit in one. */
 const PHOTO_PAGE_SIZE = 100;
 
@@ -47,7 +50,12 @@ interface MapState extends MapQueryState {
   /** Archive photographs with no coordinates, which the map cannot show. */
   unlocatedCount: number;
   isLoading: boolean;
-  fetchError: string | null;
+  /**
+   * A message key in the `errors` namespace, never the words: the store has no
+   * language. Render it with a translator for the `errors` namespace. Spec 041
+   * FR-004.
+   */
+  fetchError: MapFetchError | null;
 
   /** The selection belongs to the mode it was made in, so switching clears it. */
   setMode: (mode: MapMode) => void;
@@ -82,7 +90,7 @@ export const initialMapState = {
   photos: [],
   unlocatedCount: 0,
   isLoading: true,
-  fetchError: null,
+  fetchError: null as MapFetchError | null,
 } satisfies Partial<MapState>;
 
 /** Identifies the newest `fetchData` call. */
@@ -149,8 +157,7 @@ export const useMapStore = create<MapState>()(
           console.error("Failed to fetch map data:", err);
           set({
             isLoading: false,
-            fetchError:
-              "The map could not load the archive. Try refreshing the page.",
+            fetchError: "mapLoadFailed",
           });
         }
       },

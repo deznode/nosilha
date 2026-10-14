@@ -99,7 +99,8 @@ vi.mock("@/i18n/navigation", async () => {
 vi.mock("next-intl", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next-intl")>();
   const { default: messages } = await import("../../messages/en.json");
-  const intl = { locale: "en", timeZone: "UTC" } as const;
+  const { formats, TIME_ZONE } = await import("@/i18n/formats");
+  const intl = { locale: "en", timeZone: TIME_ZONE, formats } as const;
   return {
     ...actual,
     useLocale: () => intl.locale,
@@ -114,7 +115,8 @@ vi.mock("next-intl", async (importOriginal) => {
 vi.mock("next-intl/server", async () => {
   const { createFormatter, createTranslator } = await import("next-intl");
   const { default: messages } = await import("../../messages/en.json");
-  const intl = { locale: "en", timeZone: "UTC" } as const;
+  const { formats, TIME_ZONE } = await import("@/i18n/formats");
+  const intl = { locale: "en", timeZone: TIME_ZONE, formats } as const;
   return {
     getLocale: async () => intl.locale,
     getMessages: async () => messages,

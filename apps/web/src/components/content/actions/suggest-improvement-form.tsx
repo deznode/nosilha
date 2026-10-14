@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/catalyst-ui/button";
@@ -19,7 +20,7 @@ import { submitSuggestion } from "@/lib/api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useToast } from "@/hooks/use-toast";
 import {
-  suggestionSchema,
+  createSuggestionSchema,
   type SuggestionInput,
 } from "@/schemas/suggestionSchema";
 
@@ -54,6 +55,8 @@ export function SuggestImprovementForm({
   isOpen,
   onClose,
 }: SuggestImprovementFormProps) {
+  const tv = useTranslations("validation");
+  const suggestionSchema = useMemo(() => createSuggestionSchema(tv), [tv]);
   const { user, session } = useAuth();
   const isAuthenticated = !!session;
   const toast = useToast();

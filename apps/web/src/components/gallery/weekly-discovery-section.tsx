@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useFormatter } from "next-intl";
 import Image from "next/image";
 import { Play, Sparkles } from "lucide-react";
 import {
@@ -21,14 +22,15 @@ export function WeeklyDiscoverySection({
   photos,
 }: WeeklyDiscoverySectionProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const format = useFormatter();
 
   const lightboxPhotos: Photo[] = useMemo(
     () =>
       photos.map((p) => {
-        const item = mapGalleryMediaToMediaItem(p);
+        const item = mapGalleryMediaToMediaItem(p, format);
         return mediaItemToPhoto(item);
       }),
-    [photos]
+    [photos, format]
   );
 
   if (photos.length < 3) return null;

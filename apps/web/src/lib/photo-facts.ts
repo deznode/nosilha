@@ -1,3 +1,7 @@
+import { createFormatter } from "next-intl";
+
+import { DEFAULT_LOCALE } from "@/i18n/config";
+import { formats, TIME_ZONE } from "@/i18n/formats";
 import { trimmed } from "@/lib/text";
 import {
   isPublicUserUploadMedia,
@@ -38,31 +42,44 @@ export function photoTitle(media: PublicGalleryMedia): PhotoTitle {
 }
 
 /**
- * Formatted in `en-US` at UTC, not the reader's locale: the label is a fact read off
- * the file, and it must not shift a day because of where it is read.
+ * The part of a next-intl formatter that dates need: `await getFormatter()` on the
+ * server, `useFormatter()` in the browser. Its time zone is UTC (`i18n/formats.ts`),
+ * so a date read off the file does not shift a day because of where it is read.
  */
-const DATE_FORMAT = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "UTC",
+export type DateFormatter = Pick<
+  ReturnType<typeof createFormatter>,
+  "dateTime"
+>;
+
+/** How a file date reads: "July 12, 2024" or "July 2024" in English. */
+export type PhotoDateStyle = "longDate" | "monthYear";
+
+/**
+ * Only for callers that have not been handed the page's formatter yet. Every new
+ * caller passes its own, so the date follows the page's language.
+ */
+const DEFAULT_FORMAT: DateFormatter = createFormatter({
+  locale: DEFAULT_LOCALE,
+  timeZone: TIME_ZONE,
+  formats,
 });
 
 /**
  * When the photograph was taken: the date read from the file, else the approximate
- * date exactly as a person wrote it ("sometime in the sixties"), else null. `format`
+ * date exactly as a person wrote it ("sometime in the sixties"), else null. `style`
  * sets how a file date reads; it defaults to "July 12, 2024".
  */
 export function photoDateLabel(
   media: PublicGalleryMedia,
-  format: Intl.DateTimeFormat = DATE_FORMAT
+  format: DateFormatter,
+  style: PhotoDateStyle = "longDate"
 ): string | null {
   if (!isPublicUserUploadMedia(media)) return null;
 
   const taken = trimmed(media.dateTaken);
   if (taken) {
     const parsed = new Date(taken);
-    if (!Number.isNaN(parsed.getTime())) return format.format(parsed);
+    if (!Number.isNaN(parsed.getTime())) return format.dateTime(parsed, style);
   }
   return trimmed(media.approximateDate);
 }
@@ -123,9 +140,12 @@ export interface PhotoFacts {
  * A film is never asked for a place — films carry no coordinates by design, so
  * "no place" would be a gap that can never be filled rather than a question.
  */
-export function photoFacts(media: PublicGalleryMedia): PhotoFacts {
+export function photoFacts(
+  media: PublicGalleryMedia,
+  format: DateFormatter = DEFAULT_FORMAT
+): PhotoFacts {
   const title = photoTitle(media);
-  const date = photoDateLabel(media);
+  const date = photoDateLabel(media, format);
   const credit = photoCredit(media);
   const located = photoIsLocated(media);
   const category = trimmed(media.category);

@@ -7,7 +7,10 @@ import { PhotoViewer } from "@/components/photographs/viewer/photo-viewer";
 import { getGalleryMediaById } from "@/lib/api";
 import { toArchivePhoto } from "@/lib/archive-photographs";
 import { isMediaId } from "@/lib/gallery-mappers";
-import { getArchivePhotographs } from "@/lib/get-archive-photographs";
+import {
+  archiveDateFormatter,
+  getArchivePhotographs,
+} from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
 import { photoTitle } from "@/lib/photo-facts";
 import { isAskLink, sharePreviewImage } from "@/lib/share";
@@ -35,7 +38,7 @@ export async function generateMetadata({
 
   const title = photoTitle(media);
   // No settlements: the preview needs what is missing and the image, not "Near X".
-  const photo = toArchivePhoto(media, []);
+  const photo = toArchivePhoto(media, [], await archiveDateFormatter());
   // An ask link to a record that has since been completed is a plain link.
   const asking = isAskLink(ask) ? askDescription(photo) : null;
   const image = sharePreviewImage(photo.src, photo.alt);
@@ -99,12 +102,13 @@ async function cachedPhoto(id: string) {
 
   // Not caught: a missing dataset would be cached as an archive of one photograph.
   const { photos, settlements } = await archivePromise;
+  const format = await archiveDateFormatter();
 
   // A record outside the image list (an external still, say) is still viewable, on
   // its own at the head of the list.
   const listed = photos.some((p) => p.id === media.id)
     ? photos
-    : [toArchivePhoto(media, settlements), ...photos];
+    : [toArchivePhoto(media, settlements, format), ...photos];
 
   return { photos: listed, initialId: media.id };
 }

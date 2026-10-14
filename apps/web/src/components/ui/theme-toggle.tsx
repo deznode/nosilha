@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Monitor } from "lucide-react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 import { useTheme, useUiStore } from "@/stores/uiStore";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
@@ -31,6 +32,7 @@ export function ThemeToggle({
   shape = "circle",
 }: ThemeToggleProps) {
   const isLight = variant === "light";
+  const t = useTranslations("common.theme");
 
   // Circular container styling (like ideate prototype)
   const containerClass = isLight
@@ -69,12 +71,12 @@ export function ThemeToggle({
   const getLabel = () => {
     switch (theme) {
       case "light":
-        return "Light mode";
+        return t("light");
       case "dark":
-        return "Dark mode";
+        return t("dark");
       case "system":
       default:
-        return `System mode (${systemTheme})`;
+        return t("system", { system: systemTheme });
     }
   };
 
@@ -90,8 +92,8 @@ export function ThemeToggle({
         "transition-all duration-200"
       )}
       whileTap={{ scale: 0.95 }}
-      title={`${getLabel()}. Click to cycle themes.`}
-      aria-label={`Current theme: ${getLabel()}. Click to cycle themes.`}
+      title={t("title", { mode: getLabel() })}
+      aria-label={t("ariaLabel", { mode: getLabel() })}
     >
       {showContainer ? (
         <div className={containerClass}>

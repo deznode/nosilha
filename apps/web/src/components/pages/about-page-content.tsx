@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { Heart, Globe, Users, Code, Camera, Map } from "lucide-react";
@@ -9,12 +10,14 @@ import { FeatureCard } from "@/components/ui/feature-card";
 import { pageStagger, pageItem } from "@/lib/animation";
 
 export function AboutPageContent() {
+  const t = useTranslations("about");
+
   return (
     <div className="bg-surface font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-16 lg:px-8">
         <PageHeader
-          title="About Nos Ilha"
-          subtitle="A community-driven platform celebrating the cultural heritage and natural beauty of Brava Island, Cape Verde."
+          title={t("title")}
+          subtitle={t("subtitle")}
           size="compact"
         />
 
@@ -29,27 +32,15 @@ export function AboutPageContent() {
           <div className="grid items-center gap-8 lg:grid-cols-2">
             <div>
               <h2 className="text-body mb-4 font-serif text-3xl font-bold">
-                Preserving Heritage, Building Community
+                {t("hero.heading")}
               </h2>
-              <p className="text-muted mb-4 text-lg">
-                Nos Ilha is a cultural heritage hub—a digital bridge connecting
-                Brava Island with the world. Through technology and community
-                collaboration, we&apos;re preserving and celebrating the
-                island&apos;s rich cultural memory while connecting the global
-                diaspora to their roots and welcoming visitors who seek
-                authentic heritage experiences.
-              </p>
-              <p className="text-muted">
-                Our volunteer-driven, open-source approach ensures that the
-                platform remains true to its community roots while leveraging
-                modern technology to showcase the authentic beauty of Brava
-                Island.
-              </p>
+              <p className="text-muted mb-4 text-lg">{t("hero.intro")}</p>
+              <p className="text-muted">{t("hero.approach")}</p>
             </div>
             <div className="rounded-card relative h-64 overflow-hidden lg:h-80">
               <Image
                 src="/images/about/community-collaboration.jpg"
-                alt="Community members collaborating on preserving Brava Island's heritage"
+                alt={t("hero.imageAlt")}
                 fill
                 className="object-cover transition-transform duration-700 hover:scale-105"
               />
@@ -65,7 +56,7 @@ export function AboutPageContent() {
             viewport={{ once: true }}
             className="text-body mb-8 text-center font-serif text-2xl font-bold"
           >
-            Our Mission & Values
+            {t("mission.heading")}
           </motion.h3>
 
           <motion.div
@@ -79,8 +70,8 @@ export function AboutPageContent() {
               <FeatureCard
                 icon={Heart}
                 iconColor="text-ocean-blue"
-                title="Community First"
-                description="Every feature we build serves the local community of Brava Island, with input from residents, business owners, and cultural experts."
+                title={t("mission.communityFirst.title")}
+                description={t("mission.communityFirst.description")}
                 centered
                 className="h-full"
               />
@@ -90,8 +81,8 @@ export function AboutPageContent() {
               <FeatureCard
                 icon={Globe}
                 iconColor="text-valley-green"
-                title="Cultural Preservation"
-                description="We document and preserve Brava's unique history, traditions, and stories for future generations and global audiences."
+                title={t("mission.culturalPreservation.title")}
+                description={t("mission.culturalPreservation.description")}
                 centered
                 className="h-full"
               />
@@ -101,8 +92,8 @@ export function AboutPageContent() {
               <FeatureCard
                 icon={Users}
                 iconColor="text-bougainvillea-pink"
-                title="Open Collaboration"
-                description="As an open-source project, we welcome contributions from developers, content creators, and cultural enthusiasts worldwide."
+                title={t("mission.openCollaboration.title")}
+                description={t("mission.openCollaboration.description")}
                 centered
                 className="h-full"
               />
@@ -119,41 +110,35 @@ export function AboutPageContent() {
           className="bg-canvas border-hairline rounded-card shadow-subtle mt-16 border p-8"
         >
           <h3 className="text-body mb-6 font-serif text-2xl font-bold">
-            Technical Excellence in Service of Culture
+            {t("technical.heading")}
           </h3>
 
           <div className="grid gap-8 md:grid-cols-2">
             <div>
               <h4 className="text-body mb-3 text-lg font-semibold">
-                Modern Architecture
+                {t("technical.architecture.heading")}
               </h4>
               <p className="text-muted mb-4">
-                Built with Next.js 16, React 19, and Spring Boot, our platform
-                combines cutting-edge web technology with robust backend
-                services to deliver a fast, accessible experience for all users.
+                {t("technical.architecture.body")}
               </p>
               <ul className="text-muted space-y-1 text-sm">
-                <li>• Next.js App Router with Server Components</li>
-                <li>• Spring Boot with Kotlin backend</li>
-                <li>• PostgreSQL database with Google Cloud integration</li>
-                <li>• AI-powered image analysis and metadata</li>
+                <li>{t("technical.architecture.appRouter")}</li>
+                <li>{t("technical.architecture.kotlin")}</li>
+                <li>{t("technical.architecture.database")}</li>
+                <li>{t("technical.architecture.ai")}</li>
               </ul>
             </div>
 
             <div>
               <h4 className="text-body mb-3 text-lg font-semibold">
-                Community-Driven Development
+                {t("technical.community.heading")}
               </h4>
-              <p className="text-muted mb-4">
-                Every technical decision is made with community needs in mind,
-                ensuring the platform remains accessible, culturally
-                appropriate, and genuinely useful for both locals and visitors.
-              </p>
+              <p className="text-muted mb-4">{t("technical.community.body")}</p>
               <ul className="text-muted space-y-1 text-sm">
-                <li>• Open-source codebase on GitHub</li>
-                <li>• Mobile-first responsive design</li>
-                <li>• Multilingual support planning</li>
-                <li>• Accessibility compliance (WCAG AA)</li>
+                <li>{t("technical.community.openSource")}</li>
+                <li>{t("technical.community.mobileFirst")}</li>
+                <li>{t("technical.community.multilingual")}</li>
+                <li>{t("technical.community.accessibility")}</li>
               </ul>
             </div>
           </div>
@@ -167,7 +152,7 @@ export function AboutPageContent() {
             viewport={{ once: true }}
             className="text-body mb-8 text-center font-serif text-2xl font-bold"
           >
-            Platform Features
+            {t("features.heading")}
           </motion.h3>
 
           <motion.div
@@ -181,8 +166,8 @@ export function AboutPageContent() {
               <FeatureCard
                 icon={Map}
                 iconColor="text-ocean-blue"
-                title="Interactive Map"
-                description="Navigate Brava Island with our detailed interactive map featuring businesses, landmarks, and cultural sites."
+                title={t("features.map.title")}
+                description={t("features.map.description")}
                 className="h-full"
               />
             </motion.div>
@@ -191,8 +176,8 @@ export function AboutPageContent() {
               <FeatureCard
                 icon={Camera}
                 iconColor="text-valley-green"
-                title="Photo Galleries"
-                description="Community-contributed photo galleries showcase the island's natural beauty and cultural events."
+                title={t("features.galleries.title")}
+                description={t("features.galleries.description")}
                 className="h-full"
               />
             </motion.div>
@@ -201,8 +186,8 @@ export function AboutPageContent() {
               <FeatureCard
                 icon={Code}
                 iconColor="text-bougainvillea-pink"
-                title="Directory System"
-                description="Comprehensive directory of restaurants, hotels, landmarks, and cultural sites with detailed information."
+                title={t("features.directory.title")}
+                description={t("features.directory.description")}
                 className="h-full"
               />
             </motion.div>
@@ -217,21 +202,18 @@ export function AboutPageContent() {
           className="from-ocean-blue/10 to-valley-green/10 rounded-card mt-16 bg-gradient-to-r p-8"
         >
           <h3 className="text-body mb-6 text-center font-serif text-2xl font-bold">
-            Community Impact
+            {t("impact.heading")}
           </h3>
 
           <div className="grid gap-8 md:grid-cols-2">
             <div className="text-center">
               <div className="text-ocean-blue mb-2 text-3xl font-bold">
-                100%
+                {t("impact.openSourceValue")}
               </div>
               <div className="text-body mb-1 text-sm font-medium">
-                Open Source
+                {t("impact.openSourceLabel")}
               </div>
-              <p className="text-muted text-xs">
-                All code is publicly available, ensuring transparency and
-                community ownership.
-              </p>
+              <p className="text-muted text-xs">{t("impact.openSourceBody")}</p>
             </div>
 
             <div className="text-center">
@@ -239,12 +221,9 @@ export function AboutPageContent() {
                 <Heart className="mx-auto h-12 w-12" />
               </div>
               <div className="text-body mb-1 text-sm font-medium">
-                Volunteer-Powered
+                {t("impact.volunteerLabel")}
               </div>
-              <p className="text-muted text-xs">
-                Driven by passionate volunteers dedicated to preserving Brava
-                Island&apos;s cultural heritage.
-              </p>
+              <p className="text-muted text-xs">{t("impact.volunteerBody")}</p>
             </div>
           </div>
         </motion.section>
@@ -258,37 +237,34 @@ export function AboutPageContent() {
           className="mt-16 text-center"
         >
           <h3 className="text-body mb-4 font-serif text-2xl font-bold">
-            Join Our Community
+            {t("join.heading")}
           </h3>
-          <p className="text-muted mb-8 text-lg">
-            Whether you&apos;re a developer, photographer, writer, or cultural
-            enthusiast, there&apos;s a place for you in the Nos Ilha community.
-          </p>
+          <p className="text-muted mb-8 text-lg">{t("join.body")}</p>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Link
               href="/contribute"
               className="bg-ocean-blue hover:bg-ocean-blue/90 shadow-subtle rounded-button px-4 py-3 text-sm font-semibold text-white transition-transform duration-300 hover:scale-105"
             >
-              Contribute Content
+              {t("join.contribute")}
             </Link>
             <Link
               href="https://github.com/deznode/nosilha"
               className="border-valley-green text-valley-green hover:bg-valley-green rounded-button border-2 px-4 py-3 text-sm font-semibold transition-colors hover:text-white"
             >
-              View on GitHub
+              {t("join.github")}
             </Link>
             <Link
               href="/contact"
               className="border-bougainvillea-pink text-bougainvillea-pink hover:bg-bougainvillea-pink rounded-button border-2 px-4 py-3 text-sm font-semibold transition-colors hover:text-white"
             >
-              Get in Touch
+              {t("join.contact")}
             </Link>
             <Link
               href="/history"
               className="border-hairline text-body hover:bg-basalt-900 dark:hover:text-basalt-900 rounded-button border-2 px-4 py-3 text-sm font-semibold transition-colors hover:text-white dark:hover:bg-mist-100"
             >
-              Learn More
+              {t("join.learnMore")}
             </Link>
           </div>
         </motion.section>

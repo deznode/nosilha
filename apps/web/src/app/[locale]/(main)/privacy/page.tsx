@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getLocale } from "next-intl/server";
+import { getFormatter, getLocale } from "next-intl/server";
 import { withLocaleMetadata } from "@/lib/metadata";
 import { Link } from "@/i18n/navigation";
 import { cacheLife } from "next/cache";
@@ -9,6 +9,8 @@ import { ShieldCheck, Eye, Server, Mail, Calendar } from "lucide-react";
 export default async function PrivacyPage() {
   "use cache";
   cacheLife("max");
+  // The body stays English in every language (spec FR-006), so its date does too.
+  const englishFormat = await getFormatter({ locale: "en" });
   return (
     <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -26,11 +28,7 @@ export default async function PrivacyPage() {
             />
             <span className="text-text-secondary">
               <strong>Last Updated:</strong>{" "}
-              {new Date().toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {englishFormat.dateTime(new Date(), "longDate")}
             </span>
           </div>
         </section>

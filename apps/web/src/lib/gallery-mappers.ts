@@ -17,6 +17,7 @@ import {
 import type { MediaItem, MediaCategory, MediaType } from "@/types/media";
 import type { Photo } from "@/components/ui/image-lightbox";
 import type { GeoPointFeature } from "@/features/map/shared";
+import type { DateFormatter } from "@/lib/photo-facts";
 
 const NON_IMAGE_URL_PATTERNS = [
   "youtube.com/watch",
@@ -135,14 +136,13 @@ export function isMediaId(id: string): boolean {
   return MEDIA_ID.test(id);
 }
 
+/** `format` writes the upload date ("Jun 2024") in the page's language. */
 export function mapGalleryMediaToMediaItem(
-  media: PublicGalleryMedia
+  media: PublicGalleryMedia,
+  format: DateFormatter
 ): MediaItem {
   const category = CATEGORY_MAP[media.category || ""] || undefined;
-  const date = new Date(media.createdAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-  });
+  const date = format.dateTime(new Date(media.createdAt), "shortMonthYear");
 
   // FR-019: the upload no longer copies the filename into `title`, and rows where it
   // did were untitled by the same migration. A record without one reads "Untitled".
@@ -210,17 +210,17 @@ export function mapGalleryMediaToMediaItem(
  * Maps a PublicUserUploadMedia (from the entry media endpoint) to a Photo
  * for use in ImageLightbox.
  */
-export function publicUserUploadToPhoto(media: PublicUserUploadMedia): Photo {
+export function publicUserUploadToPhoto(
+  media: PublicUserUploadMedia,
+  format: DateFormatter
+): Photo {
   return {
     id: media.id,
     src: media.publicUrl || "",
     alt: media.altText || media.title || "Gallery photo",
     location: media.locationName || "Brava Island",
     date: media.dateTaken
-      ? new Date(media.dateTaken).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-        })
+      ? format.dateTime(new Date(media.dateTaken), "shortMonthYear")
       : media.approximateDate || "",
     description: media.description || "",
     title: media.title || undefined,

@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE } from "@/i18n/config";
 import { countSentence } from "@/lib/copy/number-words";
 import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { trimmed } from "@/lib/text";
@@ -208,12 +209,14 @@ export function facetCounts(
   ) as Record<FilmFacetKey, number>;
 }
 
-/** Titled films A–Z, then the untitled ones. */
-function byTitle(a: Film, b: Film): number {
-  if (a.title === null || b.title === null) {
-    return (a.title === null ? 1 : 0) - (b.title === null ? 1 : 0);
-  }
-  return a.title.localeCompare(b.title);
+/** Titled films A–Z in `locale`'s alphabetical order, then the untitled ones. */
+function byTitle(locale: string): (a: Film, b: Film) => number {
+  return (a, b) => {
+    if (a.title === null || b.title === null) {
+      return (a.title === null ? 1 : 0) - (b.title === null ? 1 : 0);
+    }
+    return a.title.localeCompare(b.title, locale);
+  };
 }
 
 /**
@@ -225,11 +228,14 @@ export function promotableFilms(films: readonly Film[]): Film[] {
 }
 
 /** The film the index plays on arrival: the curated one, else the first by title. */
-export function pickFeatured(films: readonly Film[]): Film | null {
+export function pickFeatured(
+  films: readonly Film[],
+  locale: string = DEFAULT_LOCALE
+): Film | null {
   const candidates = promotableFilms(films);
   return (
     candidates.find((f) => f.featured) ??
-    [...candidates].sort(byTitle)[0] ??
+    [...candidates].sort(byTitle(locale))[0] ??
     null
   );
 }

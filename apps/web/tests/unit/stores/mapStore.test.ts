@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import { getTranslations } from "next-intl/server";
 import { useMapStore, initialMapState } from "@/stores/mapStore";
 import {
   getEntriesForMap,
@@ -233,7 +234,7 @@ describe("mapStore", () => {
     });
 
     it("clears an earlier failure when a new load starts", async () => {
-      useMapStore.setState({ fetchError: "earlier", isLoading: false });
+      useMapStore.setState({ fetchError: "mapLoadFailed", isLoading: false });
       mockApi();
 
       const pending = useMapStore.getState().fetchData();
@@ -268,7 +269,9 @@ describe("mapStore", () => {
 
       const s = useMapStore.getState();
       expect(s.isLoading).toBe(false);
-      expect(s.fetchError).toMatch(/could not load/i);
+      // The store holds a message key; the words are the `errors` namespace's.
+      const t = await getTranslations("errors");
+      expect(t(s.fetchError!)).toMatch(/could not load/i);
       expect(s.settlements).toEqual([]);
     });
   });

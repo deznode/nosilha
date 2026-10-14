@@ -24,6 +24,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { CreditDisplay } from "@/components/ui/credit-display";
 import { ShareButton } from "@/components/content/actions/share-button";
 import { PhotoIdentificationForm } from "@/components/gallery/photo-identification-form";
@@ -103,6 +104,7 @@ export function ImageLightbox({
   const triggerRef = useRef<HTMLElement | null>(null);
   const videoIframeRef = useRef<HTMLIFrameElement>(null);
   const shouldReduceMotion = useReducedMotion();
+  const t = useTranslations("common.lightbox");
 
   // Sync current index when the caller selects a different photo
   if (prevInitialIndex !== initialIndex) {
@@ -264,7 +266,7 @@ export function ImageLightbox({
     <dialog
       ref={dialogRef}
       aria-modal="true"
-      aria-label="Photo lightbox"
+      aria-label={t("label")}
       className="fixed inset-0 m-0 h-screen max-h-screen w-screen max-w-full border-none bg-transparent p-0 backdrop:bg-black/95 backdrop:backdrop-blur-sm"
       onClick={(e) => {
         // Close on backdrop click (dialog element itself)
@@ -273,20 +275,27 @@ export function ImageLightbox({
     >
       {/* WCAG: polite announcement */}
       <div aria-live="polite" className="sr-only">
-        {isVideo ? "Video" : "Photo"} {currentIndex + 1} of {photos.length}:{" "}
-        {photo.alt}
+        {t("announcement", {
+          kind: isVideo ? "video" : "photo",
+          index: String(currentIndex + 1),
+          total: String(photos.length),
+          alt: photo.alt,
+        })}
       </div>
 
       <div className="flex h-full w-full flex-col">
         {/* Top bar */}
         <div className="flex items-center justify-between bg-black/40 px-4 py-3 backdrop-blur-sm">
           <span className="text-sm text-white/70">
-            {currentIndex + 1} of {photos.length}
+            {t("position", {
+              index: String(currentIndex + 1),
+              total: String(photos.length),
+            })}
           </span>
           <button
             onClick={onClose}
             className="focus-ring touch-target cursor-pointer rounded-full bg-white/10 p-2.5 text-white transition-colors hover:bg-white/20"
-            aria-label="Close lightbox"
+            aria-label={t("close")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -300,14 +309,14 @@ export function ImageLightbox({
               <button
                 onClick={goToPrevious}
                 className="focus-ring touch-target absolute top-1/2 left-3 z-10 -translate-y-1/2 cursor-pointer rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70 pointer-coarse:hidden"
-                aria-label="Previous image"
+                aria-label={t("previous")}
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={goToNext}
                 className="focus-ring touch-target absolute top-1/2 right-3 z-10 -translate-y-1/2 cursor-pointer rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70 lg:right-[21rem] pointer-coarse:hidden"
-                aria-label="Next image"
+                aria-label={t("next")}
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -361,7 +370,7 @@ export function ImageLightbox({
                           (photo.videoUrl!.includes("?") ? "&" : "?") +
                           "autoplay=1&enablejsapi=1"
                         }
-                        title={photo.title || photo.alt || "Video player"}
+                        title={photo.title || photo.alt || t("videoPlayer")}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       />
@@ -393,11 +402,11 @@ export function ImageLightbox({
                     onClick={() =>
                       onShowOnMap(photo.latitude!, photo.longitude!, photo.id!)
                     }
-                    aria-label="Show photo location on map"
+                    aria-label={t("showOnMapLabel")}
                     className="focus-ring touch-target flex w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
                   >
                     <MapPin className="h-4 w-4" />
-                    Show on Map
+                    {t("showOnMap")}
                   </button>
                 </div>
               )}
@@ -445,6 +454,8 @@ export function ImageLightbox({
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 function MetadataPanel({ photo }: { photo: Photo }) {
+  const t = useTranslations("common.lightbox");
+
   return (
     <div className="space-y-3 text-sm text-white/80">
       {photo.description && (
@@ -473,7 +484,7 @@ function MetadataPanel({ photo }: { photo: Photo }) {
           )}
           <span>
             {photo.dateTaken || photo.approximateDate || photo.date}
-            {photo.approximateDate && !photo.dateTaken && " (approx.)"}
+            {photo.approximateDate && !photo.dateTaken && t("approximate")}
           </span>
         </div>
       )}
@@ -505,6 +516,8 @@ function MetadataPanel({ photo }: { photo: Photo }) {
 }
 
 function IdentifyButton({ onClick }: { onClick: () => void }) {
+  const t = useTranslations("common.lightbox");
+
   return (
     <div className="mt-4 border-t border-white/20 pt-4">
       <button
@@ -512,13 +525,15 @@ function IdentifyButton({ onClick }: { onClick: () => void }) {
         className="focus-ring touch-target flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-3 text-sm font-medium text-white transition-colors hover:border-white/40 hover:bg-white/10"
       >
         <HelpCircle className="h-4 w-4" />
-        Help identify this photo
+        {t("helpIdentify")}
       </button>
     </div>
   );
 }
 
 function ActionsPanel({ photo, isVideo }: { photo: Photo; isVideo?: boolean }) {
+  const t = useTranslations("common.lightbox");
+
   return (
     <div className="mt-6 border-t border-white/20 pt-6">
       <div className="flex gap-3">
@@ -529,7 +544,7 @@ function ActionsPanel({ photo, isVideo }: { photo: Photo; isVideo?: boolean }) {
             className="focus-ring touch-target flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
           >
             <Download className="h-4 w-4" />
-            Download
+            {t("download")}
           </a>
         )}
         <ShareButton
@@ -608,6 +623,7 @@ function MobileBottomSheet({
   onIdentify?: () => void;
   onShowOnMap?: (lat: number, lng: number, photoId: string) => void;
 }) {
+  const t = useTranslations("common.lightbox");
   const handleSheetDragEnd = useCallback(
     (_: unknown, info: { offset: { y: number } }) => {
       // Drag up to expand, drag down to collapse
@@ -636,7 +652,7 @@ function MobileBottomSheet({
       <button
         onClick={onToggle}
         className="touch-target flex w-full items-center justify-center py-3"
-        aria-label={expanded ? "Collapse details" : "Expand details"}
+        aria-label={expanded ? t("collapseDetails") : t("expandDetails")}
       >
         <div className="h-1 w-10 rounded-full bg-white/40" />
         <ChevronUp
@@ -688,7 +704,7 @@ function MobileBottomSheet({
               className="focus-ring touch-target flex items-center gap-1 rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white"
             >
               <Download className="h-3.5 w-3.5" />
-              Save
+              {t("save")}
             </a>
             <ShareButton
               title={photo.alt}
@@ -702,7 +718,7 @@ function MobileBottomSheet({
                 className="focus-ring touch-target flex items-center gap-1 rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white"
               >
                 <HelpCircle className="h-3.5 w-3.5" />
-                Identify
+                {t("identify")}
               </button>
             )}
             {onShowOnMap &&
@@ -713,11 +729,11 @@ function MobileBottomSheet({
                   onClick={() =>
                     onShowOnMap(photo.latitude!, photo.longitude!, photo.id!)
                   }
-                  aria-label="Show photo location on map"
+                  aria-label={t("showOnMapLabel")}
                   className="focus-ring touch-target flex items-center gap-1 rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white"
                 >
                   <MapPin className="h-3.5 w-3.5" />
-                  Map
+                  {t("map")}
                 </button>
               )}
           </div>

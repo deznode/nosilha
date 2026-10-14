@@ -11,6 +11,7 @@ import {
 } from "@headlessui/react";
 import { AlertTriangle, Trash2, AlertCircle } from "lucide-react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 type DialogVariant = "danger" | "warning" | "default";
 
@@ -80,11 +81,12 @@ export function ConfirmationDialog({
   onConfirm,
   title,
   description,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  cancelLabel,
   variant = "default",
   isLoading = false,
 }: ConfirmationDialogProps) {
+  const t = useTranslations("common");
   const config = VARIANT_CONFIG[variant];
   const Icon = config.icon;
 
@@ -142,7 +144,7 @@ export function ConfirmationDialog({
                     disabled={isLoading}
                     className="rounded-button border-hairline bg-canvas text-body hover:bg-surface focus:ring-edge flex-1 border px-4 py-2.5 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {cancelLabel}
+                    {cancelLabel ?? t("cancel")}
                   </button>
                   <button
                     type="button"
@@ -174,10 +176,10 @@ export function ConfirmationDialog({
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           />
                         </svg>
-                        Processing...
+                        {t("processing")}
                       </span>
                     ) : (
-                      confirmLabel
+                      (confirmLabel ?? t("confirm"))
                     )}
                   </button>
                 </div>

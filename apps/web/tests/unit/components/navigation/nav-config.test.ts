@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -10,10 +11,17 @@ import {
   isDestinationActive,
   languages,
   navigation,
+  type Destination,
 } from "@/components/navigation/nav-config";
 
 const keysOf = (destinations: { key: string }[]) =>
   destinations.map((d) => d.key);
+
+// The config carries message keys (spec 041 FR-004); the English words they
+// resolve to are still the ones each surface has always shown.
+const t = await getTranslations("chrome");
+const labelsOf = (destinations: Destination[]) =>
+  destinations.map((d) => t(d.labelKey));
 
 /**
  * Spec 037 FR-001 — one canonical destination list.
@@ -27,7 +35,7 @@ const keysOf = (destinations: { key: string }[]) =>
 describe("nav-config", () => {
   describe("resolution", () => {
     it("returns destinations in the order the keys declare", () => {
-      expect(TABLET_INLINE_DESTINATIONS.map((d) => d.label)).toEqual([
+      expect(labelsOf(TABLET_INLINE_DESTINATIONS)).toEqual([
         "Settlements",
         "Culture",
         "Map",
@@ -43,7 +51,7 @@ describe("nav-config", () => {
 
   describe("surface membership", () => {
     it("puts four icon destinations plus a synthetic More in the bottom bar", () => {
-      expect(BOTTOM_BAR_DESTINATIONS.map((d) => d.label)).toEqual([
+      expect(labelsOf(BOTTOM_BAR_DESTINATIONS)).toEqual([
         "Home",
         "Settlements",
         "Culture",
@@ -76,7 +84,7 @@ describe("nav-config", () => {
     });
 
     it("gives the footer only legal and about destinations", () => {
-      expect(FOOTER_LEGAL_DESTINATIONS.map((d) => d.label)).toEqual([
+      expect(labelsOf(FOOTER_LEGAL_DESTINATIONS)).toEqual([
         "About",
         "Contact",
         "Privacy",
@@ -132,18 +140,21 @@ describe("nav-config", () => {
   describe("derived desktop navigation", () => {
     it("reuses the canonical hrefs rather than restating them", () => {
       const links = navigation.filter(
-        (item): item is { name: string; href: string } => "href" in item
+        (
+          item
+        ): item is Extract<(typeof navigation)[number], { href: string }> =>
+          "href" in item
       );
-      expect(links.find((l) => l.name === "Settlements")?.href).toBe(
+      expect(links.find((l) => t(l.labelKey) === "Settlements")?.href).toBe(
         DESTINATIONS.settlements.href
       );
-      expect(links.find((l) => l.name === "Films")?.href).toBe(
+      expect(links.find((l) => t(l.labelKey) === "Films")?.href).toBe(
         DESTINATIONS.films.href
       );
     });
 
     it("keeps the Culture dropdown, which only the desktop bar uses", () => {
-      const culture = navigation.find((item) => item.name === "Culture");
+      const culture = navigation.find((item) => t(item.labelKey) === "Culture");
       expect(culture).toMatchObject({ type: "dropdown" });
     });
   });

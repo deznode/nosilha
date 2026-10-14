@@ -1,7 +1,9 @@
 "use client";
 
 import type { KeyboardEvent, Ref } from "react";
+import { useTranslations } from "next-intl";
 import { statusVar } from "@/lib/status";
+import { itemEyebrow } from "../data/map-copy";
 import type { MapItem } from "../data/types";
 
 /** Dot diameter in pixels: photographs pin as slightly larger thumbnails. */
@@ -38,6 +40,7 @@ export function MapPin({
   onSelect,
   onHover,
 }: MapPinProps) {
+  const t = useTranslations("map");
   const size = pinSize(item);
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -51,7 +54,10 @@ export function MapPin({
     <div
       role="button"
       tabIndex={0}
-      aria-label={`${item.name}, ${item.eyebrow}`}
+      aria-label={t("pin.label", {
+        name: item.name,
+        eyebrow: itemEyebrow(t, item),
+      })}
       aria-pressed={selected}
       data-pin={item.key}
       className="group flex cursor-pointer flex-col items-center gap-[3px] outline-none"

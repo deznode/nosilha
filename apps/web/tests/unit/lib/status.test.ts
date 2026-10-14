@@ -1,8 +1,11 @@
+import { getTranslations } from "next-intl/server";
 import { describe, it, expect } from "vitest";
 import {
   STATUS_CONFIG,
   getEntryStatus,
   getTownStatus,
+  statusLabel,
+  statusLine,
   statusTint,
   statusVar,
 } from "@/lib/status";
@@ -165,6 +168,37 @@ describe("getEntryStatus", () => {
   it("never reads a record as name only", () => {
     for (const imageUrl of [null, "", "   ", "/images/igreja.jpg"]) {
       expect(getEntryStatus({ imageUrl }).status).not.toBe("name");
+    }
+  });
+});
+
+/** Spec 041 FR-004 — the labels are messages; English is unchanged. */
+describe("status labels with a translator", () => {
+  const statuses = ["documented", "partial", "name"] as const;
+
+  it("reads every label and line from the `status` namespace, word for word", async () => {
+    const t = await getTranslations("status");
+
+    for (const status of statuses) {
+      expect(statusLabel(status, t)).toBe(STATUS_CONFIG[status].label);
+      expect(statusLine(status, t)).toBe(STATUS_CONFIG[status].line);
+    }
+  });
+
+  it("gives the same settlement and record states as the English path", async () => {
+    const t = await getTranslations("status");
+
+    for (const status of ["DOCUMENTED", "PARTIAL", "NAME_ONLY"] as const) {
+      expect(getTownStatus({ status }, t)).toEqual(getTownStatus({ status }));
+    }
+    const unrecognised = "ARCHIVED" as unknown as SettlementStatus;
+    expect(getTownStatus({ status: unrecognised }, t)).toEqual(
+      getTownStatus({ status: unrecognised })
+    );
+    for (const imageUrl of [null, "/images/igreja.jpg"]) {
+      expect(getEntryStatus({ imageUrl }, t)).toEqual(
+        getEntryStatus({ imageUrl })
+      );
     }
   });
 });

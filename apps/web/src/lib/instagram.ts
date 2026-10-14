@@ -1,5 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 
+import { DEFAULT_LOCALE } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { createComponentLogger } from "@/lib/logger";
 import { trimmed } from "@/lib/text";
@@ -163,7 +164,16 @@ export function fittingCaption(post: InstagramPost): string | null {
   return Array.from(firstLine).length <= CAPTION_FIT_CHARS ? firstLine : null;
 }
 
-const relativeFormat = new Intl.RelativeTimeFormat("en", { numeric: "always" });
+const relativeFormats = new Map<string, Intl.RelativeTimeFormat>();
+
+function relativeFormat(locale: string): Intl.RelativeTimeFormat {
+  let format = relativeFormats.get(locale);
+  if (!format) {
+    format = new Intl.RelativeTimeFormat(locale, { numeric: "always" });
+    relativeFormats.set(locale, format);
+  }
+  return format;
+}
 
 const AGE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ["year", 365 * 24 * 60 * 60],
@@ -174,12 +184,19 @@ const AGE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ["minute", 60],
 ];
 
-/** "3 days ago", "2 weeks ago" — the only honest metadata the API gives us. */
-export function relativeAge(timestamp: string, now: number): string {
+/**
+ * "3 days ago", "2 weeks ago" — the only honest metadata the API gives us — in
+ * `locale`'s words. Units are floored, so eight days reads "1 week ago".
+ */
+export function relativeAge(
+  timestamp: string,
+  now: number,
+  locale: string = DEFAULT_LOCALE
+): string {
   const seconds = Math.max(0, (now - new Date(timestamp).getTime()) / 1000);
   for (const [unit, size] of AGE_UNITS) {
     if (seconds >= size) {
-      return relativeFormat.format(-Math.floor(seconds / size), unit);
+      return relativeFormat(locale).format(-Math.floor(seconds / size), unit);
     }
   }
   return "just now";
@@ -191,8 +208,12 @@ const ACCESSIBLE_CAPTION_CHARS = 80;
  * No alt text exists upstream, so the image is hidden and the tile's anchor
  * carries the name: "Instagram post, 3 days ago: {first 80 characters}".
  */
-export function tileAccessibleName(post: InstagramPost, now: number): string {
-  const name = `Instagram post, ${relativeAge(post.timestamp, now)}`;
+export function tileAccessibleName(
+  post: InstagramPost,
+  now: number,
+  locale: string = DEFAULT_LOCALE
+): string {
+  const name = `Instagram post, ${relativeAge(post.timestamp, now, locale)}`;
   const caption = trimmed(post.caption?.replace(/\s+/g, " "));
   if (!caption) return name;
   return `${name}: ${Array.from(caption).slice(0, ACCESSIBLE_CAPTION_CHARS).join("")}`;

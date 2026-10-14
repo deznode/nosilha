@@ -15,6 +15,7 @@ import { isNewUser } from "../lib/new-user";
 import {
   initialSignInState,
   signInReducer,
+  type SignInError,
   type SignInState,
 } from "../state/sign-in-machine";
 
@@ -75,7 +76,7 @@ export function useSignInFlow({
   );
   const [resendIn, setResendIn] = useState(0);
   const [busy, setBusy] = useState(false);
-  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<SignInError | null>(null);
   /** The code last submitted, still drawn in the boxes on S5. */
   const [lastCode, setLastCode] = useState("");
 
@@ -144,13 +145,13 @@ export function useSignInFlow({
           startResendLock();
           return "rateLimited" as const;
         }
-        setSendError(error.message || "The code couldn't be sent. Try again.");
+        setSendError(error.message || { key: "codeNotSent" });
         return "error" as const;
       } catch (error) {
         setSendError(
           error instanceof Error && error.message
             ? error.message
-            : "The code couldn't be sent. Try again."
+            : { key: "codeNotSent" }
         );
         return "error" as const;
       } finally {
@@ -229,7 +230,7 @@ export function useSignInFlow({
         if (error) {
           dispatch({
             type: "PASSWORD_ERROR",
-            message: error.message || "Sign-in failed. Try again.",
+            message: error.message || { key: "signInFailed" },
           });
           return;
         }
@@ -240,7 +241,7 @@ export function useSignInFlow({
           message:
             error instanceof Error && error.message
               ? error.message
-              : "Sign-in failed. Try again.",
+              : { key: "signInFailed" },
         });
       } finally {
         setBusy(false);

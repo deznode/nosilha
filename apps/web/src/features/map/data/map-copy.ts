@@ -1,49 +1,92 @@
-import {
-  capitalise,
-  countSentence,
-  plural,
-  toWords,
-} from "@/lib/copy/number-words";
+import type { Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
+import { capitalise, toWords } from "@/lib/copy/number-words";
 import { STATUS_CONFIG, type DocumentationStatus } from "@/lib/status";
 import type { MapItem, MapMode } from "./types";
 
 /**
  * Every sentence the map explorer prints, as functions over live items and counts.
- * Spec 034 FR-005, FR-011.
+ * Spec 034 FR-005, FR-011; the wording lives in the `map` messages (spec 041).
+ *
+ * Each sentence is one message, with counts passed as plurals and number words as
+ * arguments, so a language can reorder or agree them without code changes.
  *
  * The prototype's footers describe its extract ("Twenty-two are named in this
  * extract"); those halves are not ported — production shows the whole archive.
  */
 
-/** A settlement's photographs as a phrase. A hero turns the dot green without being counted. */
-function settlementPhotoPhrase(item: MapItem): string {
-  if (!item.hasPhotograph) return "no photograph";
-  const n = item.photographCount ?? 0;
-  if (n === 0) return "a photograph";
-  return `${toWords(n)} ${plural(n, "photograph", "photographs")}`;
+export type MapTranslator = Translator<"map">;
+
+/** Number words for a count. Photographs are feminine in Portuguese (`uma fotografia`). */
+function words(
+  n: number,
+  locale: Locale,
+  gender: "masculine" | "feminine" = "masculine"
+): string {
+  return toWords(n, { locale, gender });
+}
+
+/**
+ * The word above a name: a settlement and a photograph are named by the map; a
+ * record carries its category label from the adapter.
+ */
+export function itemEyebrow(t: MapTranslator, item: MapItem): string {
+  switch (item.kind) {
+    case "settlement":
+      return t("copy.eyebrow.settlement");
+    case "photo":
+      return t("copy.eyebrow.photograph");
+    case "record":
+      return item.eyebrow;
+  }
+}
+
+/** A settlement's photographs, as the arguments of a sentence that names them. */
+function settlementPhotoArgs(item: MapItem, locale: Locale) {
+  // A hero turns the dot green without being counted.
+  const photos = item.photographCount ?? 0;
+  return {
+    photoState: !item.hasPhotograph
+      ? "none"
+      : photos === 0
+        ? "hero"
+        : "counted",
+    photos,
+    photoWords: words(photos, locale, "feminine"),
+  };
 }
 
 /** The gaps in a located photograph's record, in the prototype's order. */
-function photoGaps(item: MapItem): string[] {
-  const gaps: string[] = [];
-  if (!item.placeName) gaps.push("no place name");
-  if (!item.credit) gaps.push("no photographer");
-  return gaps;
+function photoGaps(item: MapItem): "both" | "place" | "credit" | "none" {
+  if (!item.placeName && !item.credit) return "both";
+  if (!item.placeName) return "place";
+  if (!item.credit) return "credit";
+  return "none";
 }
 
 /** The line under a name in the sidebar list. */
-export function listStatusLine(item: MapItem): string {
+export function listStatusLine(
+  t: MapTranslator,
+  locale: Locale,
+  item: MapItem
+): string {
   switch (item.kind) {
     case "settlement": {
       const n = item.recordCount ?? 0;
       if (n === 0) return STATUS_CONFIG.name.line;
-      return `${capitalise(toWords(n))} ${plural(n, "record", "records")}, ${settlementPhotoPhrase(item)}`;
+      return t("copy.settlementLine", {
+        records: n,
+        recordWords: capitalise(words(n, locale), locale),
+        ...settlementPhotoArgs(item, locale),
+      });
     }
     case "record":
-      return item.status === "documented" ? "one photograph" : "no photograph";
+      return t("copy.recordLine", {
+        documented: item.status === "documented" ? "yes" : "no",
+      });
     case "photo": {
       const gaps = photoGaps(item);
-      if (gaps.length > 0) return gaps.join(", ");
+      if (gaps !== "none") return t("copy.photoGaps", { gaps });
       return [item.placeName, item.credit].join(" · ");
     }
   }
@@ -57,54 +100,53 @@ export interface SelectionCardCopy {
   primaryLabel: string;
 }
 
-const NOTHING_RECORDED =
-  "Nothing is recorded here beyond the name and the point. If you know this place, the archive is listening.";
-
-const PRIMARY_LABEL: Record<MapItem["kind"], string> = {
-  settlement: "Open settlement",
-  record: "Open record",
-  photo: "Open photograph",
-};
-
-function selectionStatus(item: MapItem): string {
+function selectionStatus(
+  t: MapTranslator,
+  locale: Locale,
+  item: MapItem
+): string {
   switch (item.kind) {
     case "settlement": {
       const n = item.recordCount ?? 0;
-      if (n === 0) return "name only · nothing recorded here yet";
-      return `${capitalise(toWords(n))} place ${plural(n, "record", "records")} · ${settlementPhotoPhrase(item)}`;
+      return t("copy.settlementStatus", {
+        records: n,
+        recordWords: capitalise(words(n, locale), locale),
+        ...settlementPhotoArgs(item, locale),
+      });
     }
     case "record":
-      return item.status === "documented"
-        ? "documented · one photograph"
-        : "no photograph recorded";
+      return t("copy.recordStatus", {
+        documented: item.status === "documented" ? "yes" : "no",
+      });
     case "photo":
-      return `coordinates from the file · ${item.placeName ?? "no place name"}`;
+      return t("copy.photoStatus", {
+        named: item.placeName ? "yes" : "no",
+        placeName: item.placeName ?? "",
+      });
   }
 }
 
-function selectionDescription(item: MapItem): string {
+function selectionDescription(t: MapTranslator, item: MapItem): string {
   const written = item.description.trim();
   if (written) return written;
-  if (item.kind !== "photo") return NOTHING_RECORDED;
-
-  const gaps = photoGaps(item);
-  const tail = gaps.length > 0 ? ` ${capitalise(gaps.join(", "))}.` : "";
-  return `Coordinates read from the file.${tail}`;
+  if (item.kind !== "photo") return t("copy.nothingRecorded");
+  return t("copy.photoDescription", { gaps: photoGaps(item) });
 }
 
 /** The floating card for the selected pin. */
-export function selectionCard(item: MapItem): SelectionCardCopy {
+export function selectionCard(
+  t: MapTranslator,
+  locale: Locale,
+  item: MapItem
+): SelectionCardCopy {
   return {
-    eyebrow: item.eyebrow,
+    eyebrow: itemEyebrow(t, item),
     name: item.name,
-    status: selectionStatus(item),
-    description: selectionDescription(item),
-    primaryLabel: PRIMARY_LABEL[item.kind],
+    status: selectionStatus(t, locale, item),
+    description: selectionDescription(t, item),
+    primaryLabel: t(`copy.primary.${item.kind}`),
   };
 }
-
-/** The legend's word for a photograph pin, when every pin earns it. */
-const PHOTO_PIN_LABEL = "coordinates, no place name";
 
 export interface PopupCopy {
   image: string | null;
@@ -116,7 +158,7 @@ export interface PopupCopy {
 }
 
 /** The hover preview. */
-export function popupContent(item: MapItem): PopupCopy {
+export function popupContent(t: MapTranslator, item: MapItem): PopupCopy {
   if (item.kind === "photo") {
     return {
       image: item.image ?? null,
@@ -124,15 +166,15 @@ export function popupContent(item: MapItem): PopupCopy {
       eyebrow: null,
       status: item.status,
       statusLabel: item.placeName
-        ? "coordinates from the file"
-        : PHOTO_PIN_LABEL,
+        ? t("copy.photoPin.named")
+        : t("copy.photoPin.unnamed"),
     };
   }
 
   return {
     image: null,
     title: item.name,
-    eyebrow: item.eyebrow,
+    eyebrow: itemEyebrow(t, item),
     status: item.status,
     statusLabel: STATUS_CONFIG[item.status].label,
   };
@@ -149,6 +191,7 @@ export interface LegendRow {
  * coordinates tell — the ochre row counts what the map cannot show at all.
  */
 export function legendRows(
+  t: MapTranslator,
   mode: MapMode,
   counts: Record<DocumentationStatus, number>,
   photos: MapItem[],
@@ -159,10 +202,13 @@ export function legendRows(
     return [
       {
         status: "partial",
-        label: allUnnamed ? PHOTO_PIN_LABEL : "coordinates from the file",
+        // The legend's word for a photograph pin, when every pin earns it.
+        label: allUnnamed
+          ? t("copy.photoPin.unnamed")
+          : t("copy.photoPin.named"),
         count: photos.length,
       },
-      { status: "name", label: "no coordinates", count: unlocated },
+      { status: "name", label: t("copy.noCoordinates"), count: unlocated },
     ];
   }
 
@@ -176,9 +222,12 @@ export function legendRows(
 const coordinateKey = (item: MapItem) =>
   `${item.coordinates.lng},${item.coordinates.lat}`;
 
-function recordsFooter(records: MapItem[]): string {
+function recordsFooter(
+  t: MapTranslator,
+  locale: Locale,
+  records: MapItem[]
+): string {
   const total = records.length;
-  if (total === 0) return "No place record carries coordinates yet.";
 
   const byPoint = new Map<string, MapItem[]>();
   for (const record of records) {
@@ -188,58 +237,65 @@ function recordsFooter(records: MapItem[]): string {
   const shared = [...byPoint.values()].filter((group) => group.length > 1);
 
   if (shared.length === 0) {
-    return countSentence(total, {
-      one: "{n} place record carries coordinates.",
-      many: "{n} place records carry coordinates.",
-      zero: "",
+    return t("copy.recordsFooter", {
+      count: total,
+      words: capitalise(words(total, locale), locale),
     });
   }
 
   const sharing = shared.reduce((sum, group) => sum + group.length, 0);
-  const head = `${capitalise(toWords(sharing))} of the ${toWords(total)}`;
+  const args = {
+    sharingWords: capitalise(words(sharing, locale), locale),
+    totalWords: words(total, locale),
+  };
   const town = shared.length === 1 ? shared[0][0].townName : undefined;
 
   return town
-    ? `${head} share one coordinate at ${town}.`
-    : `${head} share a coordinate with another record.`;
+    ? t("copy.recordsShareAtTown", { ...args, town })
+    : t("copy.recordsShare", args);
 }
 
 /** The note under the list. */
-export function listFooter(mode: MapMode, items: MapItem[]): string {
+export function listFooter(
+  t: MapTranslator,
+  locale: Locale,
+  mode: MapMode,
+  items: MapItem[]
+): string {
   switch (mode) {
     case "settlements": {
-      const recorded = countSentence(items.length, {
-        one: "{n} settlement is recorded.",
-        many: "{n} settlements are recorded.",
-        zero: "No settlement is recorded yet.",
+      const recorded = t("copy.settlementsRecorded", {
+        count: items.length,
+        words: capitalise(words(items.length, locale), locale),
       });
       if (items.length === 0) return recorded;
 
       const holding = items.filter((item) => item.hasRecords).length;
-      const records = countSentence(holding, {
-        one: "{n} holds place records.",
-        many: "{n} hold place records.",
-        zero: "None holds a place record yet.",
+      const records = t("copy.settlementsHolding", {
+        count: holding,
+        words: capitalise(words(holding, locale), locale),
       });
       return `${recorded} ${records}`;
     }
     case "records":
-      return recordsFooter(items);
+      return recordsFooter(t, locale, items);
     case "photographs":
-      return countSentence(items.length, {
-        one: "{n} photograph carries coordinates.",
-        many: "{n} photographs carry coordinates.",
-        zero: "No photograph carries coordinates yet.",
+      return t("copy.photographsFooter", {
+        count: items.length,
+        words: capitalise(words(items.length, locale, "feminine"), locale),
       });
   }
 }
 
 /** Photographs mode's dashed note; null when nothing is missing from the map. */
-export function photographsNote(unlocated: number): string | null {
+export function photographsNote(
+  t: MapTranslator,
+  locale: Locale,
+  unlocated: number
+): string | null {
   if (unlocated === 0) return null;
-  return countSentence(unlocated, {
-    one: "{n} photograph carries no coordinates and cannot appear here.",
-    many: "{n} photographs carry no coordinates and cannot appear here.",
-    zero: "",
+  return t("copy.photographsNote", {
+    count: unlocated,
+    words: capitalise(words(unlocated, locale, "feminine"), locale),
   });
 }

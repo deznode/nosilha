@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { DirectoryCardSkeleton } from "./directory-card-skeleton";
 
 interface DirectoryGridSkeletonProps {
@@ -21,10 +23,12 @@ export function DirectoryGridSkeleton({
   count = 8,
   className = "",
 }: DirectoryGridSkeletonProps) {
+  const t = useTranslations("common");
+
   return (
     <div
       className={`mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 ${className}`}
-      aria-label="Loading directory entries"
+      aria-label={t("loadingDirectory")}
     >
       {Array.from({ length: count }, (_, index) => (
         <DirectoryCardSkeleton key={index} />

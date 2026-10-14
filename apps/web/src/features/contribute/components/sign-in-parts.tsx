@@ -8,7 +8,11 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { useTranslations } from "next-intl";
 
+import type { Translator } from "@/i18n/types";
+
+import type { SignInError } from "../state/sign-in-machine";
 import { FIELD, LABEL, STRIPE } from "./form-parts";
 
 /** What the sheet is holding while the person signs in (the S1 card). */
@@ -25,16 +29,29 @@ const LEAD = "text-muted m-0 text-[14px] leading-[1.55]";
 export const LINK =
   "focus-ring text-ocean-blue rounded-sm font-semibold hover:underline disabled:cursor-default disabled:no-underline";
 
+/** The text of a sign-in error: a message key resolved, or Supabase's own text. */
+export function signInErrorText(
+  t: Translator<"contribute.signIn">,
+  error: SignInError
+): string {
+  return typeof error === "string" ? error : t(`errors.${error.key}`);
+}
+
 /** "{title} · {town}" for a photograph, "{film title} · film link" for a film. */
-function heldLine({ kind, title, town }: HeldItem): string {
+function heldLine(
+  t: Translator<"contribute.signIn">,
+  { kind, title, town }: HeldItem
+): string {
   const name = title?.trim();
-  if (kind === "film") return name ? `${name} · film link` : "Film link";
+  if (kind === "film")
+    return name ? t("heldFilmNamed", { title: name }) : t("heldFilm");
   const parts = [name, town?.trim()].filter(Boolean);
-  return parts.length > 0 ? parts.join(" · ") : "Your photograph";
+  return parts.length > 0 ? parts.join(" · ") : t("heldPhoto");
 }
 
 /** S1: the contribution waiting on the page. */
 export function HeldCard({ held }: { held: HeldItem }) {
+  const t = useTranslations("contribute.signIn");
   return (
     <div className="border-ocean-blue flex flex-none items-center gap-3 rounded-[10px] border px-3 py-2.5">
       <div
@@ -57,10 +74,10 @@ export function HeldCard({ held }: { held: HeldItem }) {
       </div>
       <div className="min-w-0">
         <div className="text-ocean-blue font-mono text-[10.5px] font-semibold tracking-[.11em] uppercase">
-          Held on this page · not sent
+          {t("heldEyebrow")}
         </div>
         <div className="text-body mt-[3px] truncate text-[13.5px]">
-          {heldLine(held)}
+          {heldLine(t, held)}
         </div>
       </div>
     </div>
@@ -184,25 +201,27 @@ export function GoogleButton({
   busy?: boolean;
   onClick: () => void;
 }) {
+  const t = useTranslations("contribute.signIn");
   if (disabled) {
     return (
       <div className="border-edge text-muted flex h-12 flex-none items-center justify-center rounded-lg border border-dashed text-[14px]">
-        Google isn&apos;t available in this browser
+        {t("googleUnavailable")}
       </div>
     );
   }
   return (
     <SecondaryButton onClick={onClick} disabled={busy} aria-busy={busy}>
-      Continue with Google
+      {t("google")}
     </SecondaryButton>
   );
 }
 
 export function OrDivider() {
+  const t = useTranslations("contribute.signIn");
   return (
     <div className="text-muted flex flex-none items-center gap-2.5 text-[12.5px]">
       <div className="bg-hairline h-px flex-1" aria-hidden="true" />
-      or
+      {t("or")}
       <div className="bg-hairline h-px flex-1" aria-hidden="true" />
     </div>
   );
@@ -216,14 +235,15 @@ export function EmailField({
 }: {
   value: string;
   onChange: (value: string) => void;
-  error?: string | null;
+  error?: SignInError | null;
 }) {
+  const t = useTranslations("contribute.signIn");
   const id = useId();
   const errorId = `${id}-error`;
   return (
     <div>
       <label htmlFor={id} className={LABEL}>
-        Email
+        {t("email")}
       </label>
       <input
         id={id}
@@ -243,7 +263,7 @@ export function EmailField({
           role="alert"
           className="text-status-error mt-1.5 text-[13.5px] leading-[1.5]"
         >
-          {error}
+          {signInErrorText(t, error)}
         </p>
       )}
     </div>
@@ -262,12 +282,13 @@ export function PasswordPanel({
 }: {
   email: string;
   onEmailChange: (value: string) => void;
-  error: string | null;
+  error: SignInError | null;
   busy: boolean;
   onSubmit: (password: string) => void;
   onBack: () => void;
   onUseCode: () => void;
 }) {
+  const t = useTranslations("contribute.signIn");
   const id = useId();
   const errorId = `${id}-error`;
   const [password, setPassword] = useState("");
@@ -281,15 +302,15 @@ export function PasswordPanel({
 
   return (
     <>
-      <BackLink onClick={onBack}>Other ways to sign in</BackLink>
+      <BackLink onClick={onBack}>{t("otherWays")}</BackLink>
       <h2 className={SHEET_HEADING} tabIndex={-1}>
-        Sign in with your password
+        {t("passwordTitle")}
       </h2>
       <form onSubmit={handleSubmit} className="contents" noValidate>
         <EmailField value={email} onChange={onEmailChange} />
         <div>
           <label htmlFor={id} className={LABEL}>
-            Password
+            {t("password")}
           </label>
           <div className="border-edge focus-within:border-ocean-blue bg-card flex h-11 items-center rounded-lg border pr-3 focus-within:border-[1.5px]">
             <input
@@ -306,10 +327,10 @@ export function PasswordPanel({
             <button
               type="button"
               onClick={() => setShown((v) => !v)}
-              aria-label={shown ? "Hide password" : "Show password"}
+              aria-label={shown ? t("hidePassword") : t("showPassword")}
               className="focus-ring text-muted hover:text-body rounded-sm text-[12.5px] font-semibold"
             >
-              {shown ? "Hide" : "Show"}
+              {shown ? t("hide") : t("show")}
             </button>
           </div>
           {error && (
@@ -318,17 +339,20 @@ export function PasswordPanel({
               role="alert"
               className="text-status-error mt-1.5 text-[13.5px] leading-[1.5]"
             >
-              {error}
+              {signInErrorText(t, error)}
             </p>
           )}
         </div>
         <PrimaryButton type="submit" disabled={busy} aria-busy={busy}>
-          Sign in and send
+          {t("signInAndSend")}
         </PrimaryButton>
       </form>
       <div className="text-muted text-[13px]">
-        Forgotten it?{" "}
-        <LinkButton onClick={onUseCode}>Email me a code instead</LinkButton>
+        {t.rich("forgotten", {
+          link: (chunks) => (
+            <LinkButton onClick={onUseCode}>{chunks}</LinkButton>
+          ),
+        })}
       </div>
     </>
   );
@@ -342,13 +366,16 @@ export function NoEmailChecklist({
   email: string;
   onChangeEmail: () => void;
 }) {
+  const t = useTranslations("contribute.signIn");
   const items: ReactNode[] = [
-    "It can take a minute or two.",
-    "Look in Spam, Junk or Promotions. It comes from Nos Ilha.",
-    <>
-      Check the address: {email}.{" "}
-      <LinkButton onClick={onChangeEmail}>Change it</LinkButton>
-    </>,
+    t("noEmailWait"),
+    t("noEmailSpam"),
+    t.rich("noEmailAddress", {
+      email,
+      change: (chunks) => (
+        <LinkButton onClick={onChangeEmail}>{chunks}</LinkButton>
+      ),
+    }),
   ];
   return (
     <ol className="text-body m-0 flex list-none flex-col gap-2.5 p-0 text-[14px] leading-[1.5]">
@@ -367,11 +394,12 @@ export function NoEmailChecklist({
 /** S8: saved, now leaving for Google. */
 export function LeavingPanel({
   device,
-  noun,
+  kind,
 }: {
   device: "phone" | "computer";
-  noun: string;
+  kind: HeldItem["kind"];
 }) {
+  const t = useTranslations("contribute.signIn");
   return (
     <div className="flex flex-col gap-3.5 pt-2.5 pb-1.5">
       <div
@@ -381,18 +409,16 @@ export function LeavingPanel({
         <div className="bg-ocean-blue h-full w-[62%]" />
       </div>
       <div className="text-ocean-blue font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
-        Saved on this {device}
+        {t("savedOn", { device })}
       </div>
       <h2 className={SHEET_HEADING} tabIndex={-1}>
-        Taking you to Google
+        {t("leavingTitle")}
       </h2>
       <p className="text-muted m-0 text-[14px] leading-[1.6]">
-        Your {noun} and everything you typed are kept in this browser. When you
-        come back, they&apos;ll be here. Nothing has been sent.
+        {t("leavingBody", { kind })}
       </p>
       <p className="border-hairline text-muted m-0 border-t pt-3 text-[13px] leading-[1.55]">
-        Come back in this same browser on this {device}. Another app or device
-        won&apos;t find it.
+        {t("leavingNote", { device })}
       </p>
     </div>
   );

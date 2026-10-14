@@ -8,6 +8,7 @@ import {
 } from "@headlessui/react";
 import { ChevronDown, Check } from "lucide-react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 import { useActivityRemountKey } from "@/lib/hooks/use-activity-remount-key";
 
 export interface SelectOption {
@@ -31,13 +32,14 @@ export function Select({
   options,
   value,
   onChange,
-  placeholder = "Select an option",
+  placeholder,
   disabled = false,
   invalid = false,
   className,
   name,
 }: SelectProps) {
   const selected = options.find((o) => o.value === value);
+  const t = useTranslations("common");
   const remountKey = useActivityRemountKey();
 
   return (
@@ -93,7 +95,7 @@ export function Select({
           ])}
         >
           <span className="block truncate">
-            {selected?.label || placeholder}
+            {selected?.label || (placeholder ?? t("selectPlaceholder"))}
           </span>
           <ChevronDown
             className={clsx(

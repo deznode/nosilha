@@ -12,6 +12,9 @@ import {
 import { legendRows } from "@/features/map/data/map-copy";
 import type { DirectoryEntry } from "@/types/directory";
 import type { TownStatusSummary } from "@/types/town";
+import { getTranslations } from "next-intl/server";
+
+const t = await getTranslations("map");
 
 function rows() {
   return within(
@@ -69,7 +72,9 @@ describe("MapLegend", () => {
       town("d", "NAME_ONLY"),
     ]);
     render(
-      <MapLegend rows={legendRows("settlements", statusCounts(items), [], 0)} />
+      <MapLegend
+        rows={legendRows(t, "settlements", statusCounts(items), [], 0)}
+      />
     );
 
     expect(rows().map((row) => row.textContent)).toEqual([
@@ -83,6 +88,7 @@ describe("MapLegend", () => {
     render(
       <MapLegend
         rows={legendRows(
+          t,
           "settlements",
           { documented: 0, partial: 0, name: 0 },
           [],
@@ -109,7 +115,7 @@ describe("MapLegend", () => {
       { nova: "nova-sintra" }
     );
     render(
-      <MapLegend rows={legendRows("records", statusCounts(items), [], 0)} />
+      <MapLegend rows={legendRows(t, "records", statusCounts(items), [], 0)} />
     );
 
     expect(rows().map((row) => row.textContent)).toEqual([
