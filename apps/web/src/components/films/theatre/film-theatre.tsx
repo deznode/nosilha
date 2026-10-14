@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { ShareArrivalLine } from "@/components/share/share-arrival";

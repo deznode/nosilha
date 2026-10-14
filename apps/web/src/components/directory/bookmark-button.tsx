@@ -2,7 +2,7 @@
 
 import { Bookmark, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   useToggleBookmark,

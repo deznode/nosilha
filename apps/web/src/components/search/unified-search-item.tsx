@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { FileText } from "lucide-react";
 import type { UnifiedSearchResult } from "@/types/search";
 import { getCategoryIcon } from "@/lib/category-icons";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 import { FilmCard } from "@/components/films/film-card";
 import type { Film } from "@/lib/films";

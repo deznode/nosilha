@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { clsx } from "clsx";
 
 import { SignInDialog } from "@/components/auth/sign-in-dialog";

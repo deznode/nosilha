@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 import { getTownStatus, statusVar } from "@/lib/status";
 import type { TownStatusSummary } from "@/types/town";

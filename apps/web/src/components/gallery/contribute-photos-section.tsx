@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import { useAuth } from "@/components/providers/auth-provider";

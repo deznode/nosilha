@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 
 import { FilterChip } from "@/components/ui/filter-chip";
 import type { TownStatusSummary } from "@/types/town";

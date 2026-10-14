@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import clsx from "clsx";

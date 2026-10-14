@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,7 +16,6 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import Link from "next/link";
 import { safeNext } from "@/lib/safe-next";
 import { supabase } from "@/lib/supabase-client";
 import { loginSchema, type LoginInput } from "@/schemas/authSchema";

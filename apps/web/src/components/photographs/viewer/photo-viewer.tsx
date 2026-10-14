@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { withLocale } from "@/i18n/paths";
 import { clsx } from "clsx";
 
 import { ShareArrivalLine } from "@/components/share/share-arrival";
@@ -61,6 +63,7 @@ function ViewingRoom({
 }: PhotoViewerProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const locale = useLocale();
   const identifyOpen = useIdentifyContext() !== null;
   const [panelOpen, setPanelOpen] = useState(true);
   const [fullScreen, setFullScreen] = useState(false);
@@ -99,10 +102,14 @@ function ViewingRoom({
 
   const show = useCallback(
     (photo: ArchivePhoto) => {
-      window.history.replaceState(null, "", photographHref(photo.id, place));
+      window.history.replaceState(
+        null,
+        "",
+        withLocale(photographHref(photo.id, place), locale)
+      );
       document.title = `${photoHeading(photo)} | Nos Ilha`;
     },
-    [place]
+    [place, locale]
   );
 
   // A "More from" thumb sits far down the details. On a phone the stage and the

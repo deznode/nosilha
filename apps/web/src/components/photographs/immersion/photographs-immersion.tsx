@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useLocale } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { withLocale } from "@/i18n/paths";
 
 import {
   ALL_PLACES,
@@ -39,6 +42,7 @@ export function PhotographsImmersion({
   films: Film[];
 }) {
   const router = useRouter();
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const place = parsePlaceParam(searchParams.get("place"), photos);
 
@@ -65,7 +69,11 @@ export function PhotographsImmersion({
   const rememberScroll = () => saveIndexScroll(place, window.scrollY);
 
   const selectPlace = (key: string) => {
-    window.history.replaceState(null, "", photographsHref(key));
+    window.history.replaceState(
+      null,
+      "",
+      withLocale(photographsHref(key), locale)
+    );
   };
 
   const showNeedy = () => {

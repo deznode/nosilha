@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 import { FooterNewsletterForm } from "@/components/newsletter/footer-newsletter-form";
 import { FOOTER_LEGAL_DESTINATIONS } from "@/components/navigation/nav-config";

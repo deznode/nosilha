@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { HelpCircle, CheckCircle, Loader2, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm, useWatch, Controller } from "react-hook-form";

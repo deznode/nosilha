@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { Heart, Globe, Users, Code, Camera, Map } from "lucide-react";
 import { motion } from "framer-motion";

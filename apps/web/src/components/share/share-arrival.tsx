@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 import { trackEvent } from "@/lib/ga";
 import { isShareArrival } from "@/lib/share";

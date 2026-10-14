@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { CopyLinkAction, ShareAction } from "@/components/ui/archive-actions";

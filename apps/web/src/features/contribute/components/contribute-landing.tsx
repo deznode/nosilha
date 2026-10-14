@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Camera, Film } from "lucide-react";
 
 /** The two ways in, E1. Spec 039 entry points. */

@@ -9,7 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { clsx } from "clsx";
 
 import type { Film } from "@/lib/films";

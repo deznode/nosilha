@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 
+import { splitLocalePath, withLocale } from "@/i18n/paths";
 import { formatDuration } from "@/lib/format-duration";
 import { supabase } from "@/lib/supabase-client";
 
@@ -270,7 +271,11 @@ export function useSignInFlow({
       }
       dispatch({ type: "GOOGLE_PROBE_OK" });
 
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(GOOGLE_RESUME_PATH)}`;
+      // The callback is a route handler with no locale of its own, so the path it
+      // sends the reader back to carries the prefix of the page they left.
+      const { locale } = splitLocalePath(window.location.pathname);
+      const resumePath = withLocale(GOOGLE_RESUME_PATH, locale);
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(resumePath)}`;
       let failed = false;
       try {
         const { error } = await supabase.auth.signInWithOAuth({

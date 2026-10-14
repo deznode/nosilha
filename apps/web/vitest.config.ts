@@ -37,6 +37,9 @@ export default defineConfig({
           environment: "jsdom",
           setupFiles: ["./tests/setup/vitest.setup.tsx"],
           include: ["tests/unit/**/*.test.{ts,tsx}"],
+          // next-intl's ESM build imports `next/server` without an extension,
+          // which Node cannot resolve; Vite can once the package is inlined.
+          server: { deps: { inline: ["next-intl"] } },
         },
       },
     ],

@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 import { Button } from "@/components/catalyst-ui/button";
 import { useAuth } from "@/components/providers/auth-provider";

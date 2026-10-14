@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { PageHeader } from "@/components/ui/page-header";

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
 import { Film, Mic, Play } from "lucide-react";
