@@ -45,22 +45,37 @@ export function generateStaticParams() {
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await rootLocale();
   if (!isEnabledLocale(locale)) notFound();
+  const t = await getTranslations("metadata.site");
+  const title = t("title");
+  const description = t("description");
 
   return {
     ...baseMetadata,
-    openGraph: { ...baseMetadata.openGraph, locale: OG_LOCALES[locale] },
+    title: { template: t("titleTemplate"), default: title },
+    description,
+    openGraph: {
+      ...baseMetadata.openGraph,
+      locale: OG_LOCALES[locale],
+      title,
+      description,
+      images: [{ ...OG_IMAGE, alt: t("ogImageAlt") }],
+    },
+    twitter: { ...baseMetadata.twitter, title, description },
     // The English home address is only the right default for English pages.
     alternates: locale === DEFAULT_LOCALE ? baseMetadata.alternates : undefined,
   };
 }
 
+const OG_IMAGE = {
+  url: siteConfig.ogImage,
+  width: 1200,
+  height: 630,
+  type: "image/jpeg",
+};
+
+/** Everything but the words, which come from the `metadata.site` messages. */
 const baseMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: {
-    template: "%s | Nos Ilha",
-    default: siteConfig.title,
-  },
-  description: siteConfig.description,
   keywords: siteConfig.keywords,
   authors: [{ name: "Nos Ilha Team" }],
   creator: "Nos Ilha",
@@ -80,23 +95,10 @@ const baseMetadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteConfig.url,
-    title: siteConfig.title,
-    description: siteConfig.description,
     siteName: siteConfig.name,
-    images: [
-      {
-        url: siteConfig.ogImage,
-        width: 1200,
-        height: 630,
-        alt: `${siteConfig.name} - Cultural Heritage Platform for Brava Island, Cape Verde`,
-        type: "image/jpeg",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteConfig.title,
-    description: siteConfig.description,
     site: siteConfig.twitterHandle,
     creator: siteConfig.twitterHandle,
     images: [siteConfig.ogImage],
@@ -129,8 +131,10 @@ export default async function RootLayout({
   const messages = await getMessages();
   const t = await getTranslations("chrome");
 
+  const tSite = await getTranslations("metadata.site");
+
   // Generate organization structured data
-  const organizationSchema = generateOrganizationSchema();
+  const organizationSchema = generateOrganizationSchema(tSite("description"));
 
   return (
     <html lang={HTML_LANG[locale]} suppressHydrationWarning>

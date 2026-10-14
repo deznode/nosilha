@@ -9,6 +9,11 @@ import {
 } from "@/lib/api";
 import type { TownStatusSummary } from "@/types/town";
 
+const copy = {
+  categories: await getTranslations("categories"),
+  photographs: await getTranslations("photographs"),
+};
+
 vi.mock("@/lib/api", () => ({
   getEntriesForMap: vi.fn(),
   getTownStatusSummary: vi.fn(),
@@ -199,7 +204,7 @@ describe("mapStore", () => {
   describe("fetchData", () => {
     it("builds items for all three modes and keeps the unlocated count", async () => {
       mockApi();
-      await useMapStore.getState().fetchData();
+      await useMapStore.getState().fetchData(copy);
 
       const s = useMapStore.getState();
       expect(s.isLoading).toBe(false);
@@ -214,7 +219,7 @@ describe("mapStore", () => {
 
     it("asks the gallery for located photographs only", async () => {
       mockApi();
-      await useMapStore.getState().fetchData();
+      await useMapStore.getState().fetchData(copy);
 
       expect(getGalleryMedia).toHaveBeenCalledWith(
         expect.objectContaining({ hasPlace: true })
@@ -223,9 +228,9 @@ describe("mapStore", () => {
 
     it("loads again on a return visit, and says so while it does", async () => {
       mockApi();
-      await useMapStore.getState().fetchData();
+      await useMapStore.getState().fetchData(copy);
 
-      const pending = useMapStore.getState().fetchData();
+      const pending = useMapStore.getState().fetchData(copy);
       expect(useMapStore.getState().isLoading).toBe(true);
       await pending;
 
@@ -237,7 +242,7 @@ describe("mapStore", () => {
       useMapStore.setState({ fetchError: "mapLoadFailed", isLoading: false });
       mockApi();
 
-      const pending = useMapStore.getState().fetchData();
+      const pending = useMapStore.getState().fetchData(copy);
       expect(useMapStore.getState().fetchError).toBeNull();
       await pending;
     });
@@ -248,8 +253,8 @@ describe("mapStore", () => {
       vi.mocked(getTownStatusSummary).mockReturnValueOnce(
         new Promise((resolve) => (answerFirst = resolve))
       );
-      const first = useMapStore.getState().fetchData();
-      await useMapStore.getState().fetchData();
+      const first = useMapStore.getState().fetchData(copy);
+      await useMapStore.getState().fetchData(copy);
 
       answerFirst([{ ...town, slug: "stale" }]);
       await first;
@@ -265,7 +270,7 @@ describe("mapStore", () => {
       vi.mocked(getGalleryFacets).mockRejectedValue(new Error("down"));
       vi.spyOn(console, "error").mockImplementation(() => {});
 
-      await useMapStore.getState().fetchData();
+      await useMapStore.getState().fetchData(copy);
 
       const s = useMapStore.getState();
       expect(s.isLoading).toBe(false);

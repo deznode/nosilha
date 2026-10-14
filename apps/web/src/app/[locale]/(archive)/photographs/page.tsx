@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 
 import { PhotographsImmersion } from "@/components/photographs/immersion/photographs-immersion";
@@ -17,10 +17,10 @@ import { getArchivePhotographs } from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.photographs");
   return generatePageMetadata({
-    title: "Photographs",
-    description:
-      "Photographs of Brava Island from the archive, by the place they were taken near, and the films contributed alongside them.",
+    title: t("title"),
+    description: t("description"),
     path: "/photographs",
     locale: await getLocale(),
     keywords: [
@@ -83,17 +83,17 @@ async function CachedPhotographs() {
 
   // No `catch` here: a swallowed failure would be cached as an empty archive for an
   // hour, and "nothing recorded" is a claim, not a degraded state.
-  const [{ photos, settlements }, filmPage] = await Promise.all([
+  const [{ photos, settlements }, filmPage, tFilms] = await Promise.all([
     getArchivePhotographs(),
     getGalleryMedia({ mediaType: "VIDEO", size: FILMS_FETCH_SIZE }),
+    getTranslations("films"),
   ]);
 
   // Chosen here, inside the cache, so every reader sees the same photograph today.
   const feature = featureOfDay(photos, new Date());
-  const films = promotableFilms(toFilms(filmPage.items, settlements)).slice(
-    0,
-    FILMS_BAND_SIZE
-  );
+  const films = promotableFilms(
+    toFilms(filmPage.items, settlements, tFilms)
+  ).slice(0, FILMS_BAND_SIZE);
 
   return (
     <PhotographsImmersion

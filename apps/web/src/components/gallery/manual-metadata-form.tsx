@@ -8,6 +8,7 @@
  */
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Calendar,
   MapPin,
@@ -50,6 +51,7 @@ export function ManualMetadataForm({
   expanded: controlledExpanded,
   onExpandedChange,
 }: ManualMetadataFormProps) {
+  const t = useTranslations("photographs.gallery.manualMetadata");
   const [internalExpanded, setInternalExpanded] = useState(true);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredLocations, setFilteredLocations] = useState<string[]>([]);
@@ -88,10 +90,8 @@ export function ManualMetadataForm({
       >
         <div className="flex items-center gap-2">
           <Archive size={16} className="text-ocean-blue" />
-          <span className="text-body text-sm font-semibold">
-            Historical Photo Details
-          </span>
-          <span className="text-muted text-xs">(Optional)</span>
+          <span className="text-body text-sm font-semibold">{t("title")}</span>
+          <span className="text-muted text-xs">{t("optional")}</span>
         </div>
         {expanded ? (
           <ChevronUp size={16} className="text-muted" />
@@ -107,11 +107,11 @@ export function ManualMetadataForm({
           <div>
             <label className="text-muted mb-1.5 flex items-center gap-1.5 text-xs font-medium">
               <Calendar size={12} />
-              Approximate Date
+              {t("approximateDate")}
             </label>
             <input
               type="text"
-              placeholder="e.g., circa 1960s, Summer 1985"
+              placeholder={t("approximateDatePlaceholder")}
               value={value.approximateDate || ""}
               onChange={(e) => onChange({ approximateDate: e.target.value })}
               className="border-hairline bg-canvas text-body rounded-card focus:ring-ocean-blue/50 w-full border px-3 py-2 text-sm outline-none focus:ring-2"
@@ -122,11 +122,11 @@ export function ManualMetadataForm({
           <div className="relative">
             <label className="text-muted mb-1.5 flex items-center gap-1.5 text-xs font-medium">
               <MapPin size={12} />
-              Location Name
+              {t("locationName")}
             </label>
             <input
               type="text"
-              placeholder="Village or landmark name"
+              placeholder={t("locationNamePlaceholder")}
               value={value.locationName || ""}
               onChange={(e) => handleLocationChange(e.target.value)}
               onFocus={() => {
@@ -169,11 +169,11 @@ export function ManualMetadataForm({
           <div>
             <label className="text-muted mb-1.5 flex items-center gap-1.5 text-xs font-medium">
               <Archive size={12} />
-              Source / Archive
+              {t("archiveSource")}
             </label>
             <input
               type="text"
-              placeholder="e.g., Family collection, Municipal archive"
+              placeholder={t("archiveSourcePlaceholder")}
               value={value.archiveSource || ""}
               onChange={(e) => onChange({ archiveSource: e.target.value })}
               className="border-hairline bg-canvas text-body rounded-card focus:ring-ocean-blue/50 w-full border px-3 py-2 text-sm outline-none focus:ring-2"

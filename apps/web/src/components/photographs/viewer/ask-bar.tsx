@@ -1,6 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import {
@@ -8,7 +9,7 @@ import {
   type ArchivePhoto,
   type MissingField,
 } from "@/lib/archive-photographs";
-import { ASK_TITLE } from "@/lib/share-copy";
+import { askTitle } from "@/lib/share-copy";
 
 /**
  * The question a visitor was sent here to answer. Spec 040 FR-007.
@@ -27,10 +28,12 @@ export function AskBar({
   field: MissingField;
   detailsOpen: boolean;
 }) {
+  const t = useTranslations("share");
+  const tPhotographs = useTranslations("photographs");
   return (
     <div
       role="region"
-      aria-label="A question about this photograph"
+      aria-label={t("ask.barLabel")}
       className={clsx(
         "bg-background border-border-strong fixed inset-x-3 bottom-3 z-30 mx-auto mb-[env(safe-area-inset-bottom)] flex max-w-[520px] items-center justify-between gap-3 rounded-2xl border py-2.5 pr-2.5 pl-4 shadow-[0_12px_40px_rgba(0,0,0,.35)] md:left-auto md:mx-0 md:w-[356px]",
         // Under the site bar and the stage's pills, which end 46px into the stage.
@@ -39,14 +42,14 @@ export function AskBar({
       )}
     >
       <span className="text-body min-w-0 text-[14px] leading-snug">
-        {ASK_TITLE}
+        {askTitle(t)}
       </span>
       <IdentifyQuestion
-        {...photoIdentifyContext(photo, field)}
+        {...photoIdentifyContext(photo, field, tPhotographs)}
         variant="primary"
         className="focus-ring flex-none"
       >
-        Tell us
+        {t("ask.tellUs")}
       </IdentifyQuestion>
     </div>
   );

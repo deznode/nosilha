@@ -1,4 +1,4 @@
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { withLocaleMetadata } from "@/lib/metadata";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
@@ -46,17 +46,20 @@ import {
 const HISTORY_PAGE_CONTENT_ID = "11111111-2222-4333-8444-555555555555";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await getHistoryData("en");
+  const [data, t] = await Promise.all([
+    getHistoryData("en"),
+    getTranslations("metadata.history"),
+  ]);
 
   if (!data) {
-    return { title: "History Not Found" };
+    return { title: t("notFound") };
   }
 
   const { metadata } = data;
 
   return withLocaleMetadata(
     {
-      title: `${metadata.title} | Nos Ilha`,
+      title: t("title", { title: metadata.title }),
       description: metadata.description,
       keywords: metadata.keywords,
       openGraph: {

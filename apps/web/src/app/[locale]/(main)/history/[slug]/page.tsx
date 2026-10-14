@@ -1,4 +1,4 @@
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { withLocaleMetadata } from "@/lib/metadata";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
@@ -31,17 +31,18 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const t = await getTranslations("metadata.article");
   const page = categoryPages.find(
     (p) => p.slug === slug && p.language === "en"
   );
 
   if (!page) {
-    return { title: "Page Not Found" };
+    return { title: t("notFound") };
   }
 
   return withLocaleMetadata(
     {
-      title: `${page.title} | History | Nos Ilha`,
+      title: t("historyTitle", { title: page.title }),
       description: page.description,
       openGraph: {
         title: page.title,

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { FilmsCinema } from "@/components/films/cinema/films-cinema";
 import { getGalleryMedia, getTownStatusSummary } from "@/lib/api";
@@ -8,10 +8,10 @@ import { FILMS_FETCH_SIZE, canPlay, pickFeatured, toFilms } from "@/lib/films";
 import { generatePageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.films");
   return generatePageMetadata({
-    title: "Films",
-    description:
-      "Films of Brava Island contributed to the archive, played in place.",
+    title: t("title"),
+    description: t("description"),
     path: "/films",
     locale: await getLocale(),
     keywords: [
@@ -36,10 +36,15 @@ export default async function FilmsPage() {
     getGalleryMedia({ mediaType: "VIDEO", size: FILMS_FETCH_SIZE }),
     getTownStatusSummary().catch(() => []),
   ]);
-  const films = toFilms(page.items, settlements);
+  const [t, locale] = await Promise.all([
+    getTranslations("films"),
+    getLocale(),
+  ]);
+  const films = toFilms(page.items, settlements, t);
 
   // The hero plays on arrival, so it must be a film that can; with none, no hero.
-  const featured = pickFeatured(films.filter(canPlay)) ?? pickFeatured(films);
+  const featured =
+    pickFeatured(films.filter(canPlay), locale) ?? pickFeatured(films, locale);
 
   return <FilmsCinema films={films} featured={featured} />;
 }

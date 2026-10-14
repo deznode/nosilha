@@ -11,6 +11,7 @@ import type { MapItem } from "@/features/map/data/types";
 import { getTranslations } from "next-intl/server";
 
 const t = await getTranslations("map");
+const tStatus = await getTranslations("status");
 
 function settlement(overrides: Partial<MapItem> = {}): MapItem {
   return {
@@ -71,12 +72,12 @@ function photo(overrides: Partial<MapItem> = {}): MapItem {
 
 describe("listStatusLine", () => {
   it("counts a settlement's records in words", () => {
-    expect(listStatusLine(t, "en", settlement())).toBe(
+    expect(listStatusLine(t, "en", settlement(), tStatus)).toBe(
       "Five records, no photograph"
     );
-    expect(listStatusLine(t, "en", settlement({ recordCount: 1 }))).toBe(
-      "One record, no photograph"
-    );
+    expect(
+      listStatusLine(t, "en", settlement({ recordCount: 1 }), tStatus)
+    ).toBe("One record, no photograph");
   });
 
   it("counts a settlement's photographs when it has them", () => {
@@ -88,7 +89,8 @@ describe("listStatusLine", () => {
           status: "documented",
           hasPhotograph: true,
           photographCount: 1,
-        })
+        }),
+        tStatus
       )
     ).toBe("Five records, one photograph");
     expect(
@@ -99,7 +101,8 @@ describe("listStatusLine", () => {
           status: "documented",
           hasPhotograph: true,
           photographCount: 3,
-        })
+        }),
+        tStatus
       )
     ).toBe("Five records, three photographs");
   });
@@ -114,7 +117,8 @@ describe("listStatusLine", () => {
           status: "documented",
           hasPhotograph: true,
           photographCount: 0,
-        })
+        }),
+        tStatus
       )
     ).toBe("Five records, a photograph");
   });
@@ -124,30 +128,32 @@ describe("listStatusLine", () => {
       listStatusLine(
         t,
         "en",
-        settlement({ status: "name", recordCount: 0, hasRecords: false })
+        settlement({ status: "name", recordCount: 0, hasRecords: false }),
+        tStatus
       )
     ).toBe("a name and a coordinate, nothing else");
   });
 
   it("says whether a record has its photograph", () => {
-    expect(listStatusLine(t, "en", record({ status: "documented" }))).toBe(
-      "one photograph"
-    );
-    expect(listStatusLine(t, "en", record())).toBe("no photograph");
+    expect(
+      listStatusLine(t, "en", record({ status: "documented" }), tStatus)
+    ).toBe("one photograph");
+    expect(listStatusLine(t, "en", record(), tStatus)).toBe("no photograph");
   });
 
   it("names what a photograph is missing", () => {
-    expect(listStatusLine(t, "en", photo())).toBe(
+    expect(listStatusLine(t, "en", photo(), tStatus)).toBe(
       "no place name, no photographer"
     );
-    expect(listStatusLine(t, "en", photo({ credit: "Maria Lopes" }))).toBe(
-      "no place name"
-    );
+    expect(
+      listStatusLine(t, "en", photo({ credit: "Maria Lopes" }), tStatus)
+    ).toBe("no place name");
     expect(
       listStatusLine(
         t,
         "en",
-        photo({ credit: "Maria Lopes", placeName: "Furna" })
+        photo({ credit: "Maria Lopes", placeName: "Furna" }),
+        tStatus
       )
     ).toBe("Furna · Maria Lopes");
   });
@@ -228,7 +234,7 @@ describe("selectionCard", () => {
 
 describe("popupContent", () => {
   it("shows a photograph's image and no eyebrow", () => {
-    expect(popupContent(t, photo())).toEqual({
+    expect(popupContent(t, photo(), tStatus)).toEqual({
       image: "https://r2.example/DJI_0047.JPG",
       title: "Untitled",
       eyebrow: null,
@@ -238,16 +244,16 @@ describe("popupContent", () => {
   });
 
   it("shows a place's eyebrow and status label, and no image", () => {
-    expect(popupContent(t, record())).toEqual({
+    expect(popupContent(t, record(), tStatus)).toEqual({
       image: null,
       title: "Nos Raiz",
       eyebrow: "Stay",
       status: "partial",
       statusLabel: "records, no photograph",
     });
-    expect(popupContent(t, settlement({ status: "name" })).statusLabel).toBe(
-      "name only"
-    );
+    expect(
+      popupContent(t, settlement({ status: "name" }), tStatus).statusLabel
+    ).toBe("name only");
   });
 });
 
@@ -257,19 +263,26 @@ describe("legendRows", () => {
   const counts = { documented: 1, partial: 2, name: 22 };
 
   it("keys places by the three states, zero included", () => {
-    expect(legendRows(t, "settlements", counts, [], 0)).toEqual([
+    expect(legendRows(t, "settlements", counts, [], 0, tStatus)).toEqual([
       { status: "documented", label: "documented", count: 1 },
       { status: "partial", label: "records, no photograph", count: 2 },
       { status: "name", label: "name only", count: 22 },
     ]);
     expect(
-      legendRows(t, "records", { documented: 1, partial: 7, name: 0 }, [], 0)[2]
+      legendRows(
+        t,
+        "records",
+        { documented: 1, partial: 7, name: 0 },
+        [],
+        0,
+        tStatus
+      )[2]
     ).toEqual({ status: "name", label: "name only", count: 0 });
   });
 
   it("keys photographs by what their coordinates tell", () => {
     const photos = [photo(), photo({ key: "p:2" })];
-    expect(legendRows(t, "photographs", counts, photos, 6)).toEqual([
+    expect(legendRows(t, "photographs", counts, photos, 6, tStatus)).toEqual([
       { status: "partial", label: "coordinates, no place name", count: 2 },
       { status: "name", label: "no coordinates", count: 6 },
     ]);
@@ -277,9 +290,9 @@ describe("legendRows", () => {
 
   it("does not claim no place name when a pin has one", () => {
     const photos = [photo(), photo({ key: "p:2", placeName: "Furna" })];
-    expect(legendRows(t, "photographs", counts, photos, 0)[0].label).toBe(
-      "coordinates from the file"
-    );
+    expect(
+      legendRows(t, "photographs", counts, photos, 0, tStatus)[0].label
+    ).toBe("coordinates from the file");
   });
 });
 

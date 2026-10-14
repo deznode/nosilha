@@ -1,4 +1,5 @@
 import { createFormatter } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { describe, expect, it } from "vitest";
 
 import { formats, TIME_ZONE } from "@/i18n/formats";
@@ -108,6 +109,7 @@ const NS = { slug: "nova-sintra", name: "Nova Sintra" };
 const LT = { slug: "lomba-tantun", name: "Lomba Tantun" };
 
 const FORMAT = createFormatter({ locale: "en", timeZone: TIME_ZONE, formats });
+const t = await getTranslations("photographs");
 
 describe("toArchivePhoto", () => {
   it("joins the nearest settlement and formats the dates", () => {
@@ -124,7 +126,8 @@ describe("toArchivePhoto", () => {
         height: 3024,
       }),
       TOWNS,
-      FORMAT
+      FORMAT,
+      t
     );
     expect(p.near).toEqual(NS);
     expect(p.monthYear).toBe("July 2024");
@@ -141,7 +144,8 @@ describe("toArchivePhoto", () => {
         photographerCredit: "Ana",
       }),
       TOWNS,
-      FORMAT
+      FORMAT,
+      t
     );
     expect(p.near).toBeNull();
     expect(p.monthYear).toBe("sometime in the sixties");
@@ -156,7 +160,8 @@ describe("toArchivePhoto", () => {
     const far = toArchivePhoto(
       upload({ latitude: 14.80268, longitude: -24.70162 }),
       TOWNS,
-      FORMAT
+      FORMAT,
+      t
     );
     expect(far.near).toBeNull();
     expect(far.located).toBe(true);
@@ -164,7 +169,8 @@ describe("toArchivePhoto", () => {
     const named = toArchivePhoto(
       upload({ locationName: "  Fajã d'Água, by the harbour " }),
       TOWNS,
-      FORMAT
+      FORMAT,
+      t
     );
     expect(named.placeName).toBe("Fajã d'Água, by the harbour");
     expect(named.located).toBe(false);
@@ -181,7 +187,7 @@ describe("toArchivePhoto", () => {
       mediaSource: "EXTERNAL",
       mediaType: "IMAGE",
     } as unknown as PublicExternalMedia;
-    const ids = toArchivePhotos([upload(), film, image], TOWNS, FORMAT).map(
+    const ids = toArchivePhotos([upload(), film, image], TOWNS, FORMAT, t).map(
       (p) => p.id
     );
     expect(ids).toEqual(["m-1", "ext"]);
@@ -197,7 +203,7 @@ describe("place chips and filter", () => {
   ];
 
   it("lists All, settlements by count, then Not yet placed", () => {
-    expect(placeChips(photos, "en")).toEqual([
+    expect(placeChips(photos, "en", t)).toEqual([
       { key: ALL_PLACES, label: "All", count: 4 },
       { key: "nova-sintra", label: "Nova Sintra", count: 2 },
       { key: "lomba-tantun", label: "Lomba Tantun", count: 1 },
@@ -208,7 +214,8 @@ describe("place chips and filter", () => {
   it("orders equal counts by name and keeps Not yet placed at zero", () => {
     const chips = placeChips(
       [photo({ id: "1", near: NS }), photo({ id: "2", near: LT })],
-      "en"
+      "en",
+      t
     );
     expect(chips.map((c) => c.key)).toEqual([
       ALL_PLACES,
@@ -246,9 +253,9 @@ describe("place chips and filter", () => {
   });
 
   it("labels the filter and builds URLs", () => {
-    expect(placeLabel(ALL_PLACES, photos)).toBe("");
-    expect(placeLabel(UNPLACED, photos)).toBe("Not yet placed");
-    expect(placeLabel("nova-sintra", photos)).toBe("Nova Sintra");
+    expect(placeLabel(ALL_PLACES, photos, t)).toBe("");
+    expect(placeLabel(UNPLACED, photos, t)).toBe("Not yet placed");
+    expect(placeLabel("nova-sintra", photos, t)).toBe("Nova Sintra");
     expect(photographsHref(ALL_PLACES)).toBe("/photographs");
     expect(photographsHref("nova-sintra")).toBe(
       "/photographs?place=nova-sintra"
@@ -331,56 +338,62 @@ describe("stepping and more from", () => {
     expect(more.some((p) => p.id === "n0")).toBe(false);
 
     expect(moreFrom(unplaced[0], all).map((p) => p.id)).toEqual(["u2"]);
-    expect(moreFromTitle(placed[0])).toBe("More from Nova Sintra");
-    expect(moreFromTitle(unplaced[0])).toBe("Also waiting for a place");
+    expect(moreFromTitle(placed[0], t)).toBe("More from Nova Sintra");
+    expect(moreFromTitle(unplaced[0], t)).toBe("Also waiting for a place");
   });
 });
 
 describe("copy", () => {
   it("builds the heading, caption, line, meta and eyebrow", () => {
-    expect(photoHeading(photo({ title: "Lomba Tantun", near: LT }))).toBe(
+    expect(photoHeading(photo({ title: "Lomba Tantun", near: LT }), t)).toBe(
       "Lomba Tantun"
     );
-    expect(photoHeading(photo({ near: NS }))).toBe("Near Nova Sintra");
-    expect(photoHeading(photo())).toBe("A photograph of Brava");
+    expect(photoHeading(photo({ near: NS }), t)).toBe("Near Nova Sintra");
+    expect(photoHeading(photo(), t)).toBe("A photograph of Brava");
 
     expect(photoCaption(photo({ title: "A", description: "A" }))).toBeNull();
     expect(photoCaption(photo({ description: "Rooftops." }))).toBe("Rooftops.");
 
-    expect(photoLine(photo({ near: NS, monthYear: "July 2024" }))).toBe(
+    expect(photoLine(photo({ near: NS, monthYear: "July 2024" }), t)).toBe(
       "Near Nova Sintra · July 2024"
     );
-    expect(photoLine(photo({ monthYear: "July 2024" }))).toBe("July 2024");
-    expect(photoLine(photo())).toBeNull();
+    expect(photoLine(photo({ monthYear: "July 2024" }), t)).toBe("July 2024");
+    expect(photoLine(photo(), t)).toBeNull();
 
     expect(
       photoMeta(photo({ dateLabel: "July 12, 2024", camera: "DJI FC3582" }))
     ).toBe("July 12, 2024 · DJI FC3582");
     expect(photoMeta(photo())).toBeNull();
 
-    expect(photoEyebrow(photo({ category: "Landscape" }))).toBe(
+    expect(photoEyebrow(photo({ category: "Landscape" }), t)).toBe(
       "Photograph · Landscape"
     );
-    expect(photoEyebrow(photo())).toBe("Photograph");
+    expect(photoEyebrow(photo(), t)).toBe("Photograph");
   });
 
   it("names only what the viewer record is missing", () => {
-    expect(viewerHelpLine(photo())).toBe(
+    expect(viewerHelpLine(photo(), t, "en")).toBe(
       "Not yet recorded: who took it, where and when."
     );
     expect(
       viewerHelpLine(
-        photo({ near: NS, missing: { photographer: true, date: true } })
+        photo({ near: NS, missing: { photographer: true, date: true } }),
+        t,
+        "en"
       )
     ).toBe("Not yet recorded: who took it and when.");
     expect(
       viewerHelpLine(
-        photo({ near: NS, missing: { photographer: true, date: false } })
+        photo({ near: NS, missing: { photographer: true, date: false } }),
+        t,
+        "en"
       )
     ).toBe("Not yet recorded: who took it.");
     expect(
       viewerHelpLine(
-        photo({ near: NS, missing: { photographer: false, date: false } })
+        photo({ near: NS, missing: { photographer: false, date: false } }),
+        t,
+        "en"
       )
     ).toBeNull();
     expect(
@@ -392,14 +405,18 @@ describe("copy", () => {
     const complete = { photographer: false, date: false };
     // Coordinates with no settlement within 2 km: placed nowhere, but recorded.
     expect(
-      viewerHelpLine(photo({ located: true, missing: complete }))
+      viewerHelpLine(photo({ located: true, missing: complete }), t, "en")
     ).toBeNull();
     expect(
       firstMissingField(photo({ located: true, missing: complete }))
     ).toBeNull();
     // A place name written by a person, with no coordinates.
     expect(
-      viewerHelpLine(photo({ placeName: "Fajã d'Água", missing: complete }))
+      viewerHelpLine(
+        photo({ placeName: "Fajã d'Água", missing: complete }),
+        t,
+        "en"
+      )
     ).toBeNull();
   });
 
@@ -416,29 +433,30 @@ describe("copy", () => {
       });
 
     expect(
-      indexHelpLine([
-        uncredited(NS),
-        ...Array.from({ length: 6 }, () => uncredited(null)),
-      ])
+      indexHelpLine(
+        [uncredited(NS), ...Array.from({ length: 6 }, () => uncredited(null))],
+        t,
+        "en"
+      )
     ).toBe(
       "Every photograph here is still missing its photographer, and six have no place. Recognise one?"
     );
-    expect(indexHelpLine([uncredited(NS), uncredited(null)])).toBe(
+    expect(indexHelpLine([uncredited(NS), uncredited(null)], t, "en")).toBe(
       "Every photograph here is still missing its photographer, and one has no place. Recognise one?"
     );
-    expect(indexHelpLine([uncredited(NS)])).toBe(
+    expect(indexHelpLine([uncredited(NS)], t, "en")).toBe(
       "Every photograph here is still missing its photographer. Recognise one?"
     );
     expect(
-      indexHelpLine([uncredited(NS), uncredited(null), credited(NS)])
+      indexHelpLine([uncredited(NS), uncredited(null), credited(NS)], t, "en")
     ).toBe(
       "Two photographs are still missing a photographer, and one has no place. Recognise one?"
     );
-    expect(indexHelpLine([credited(NS), credited(null), credited(null)])).toBe(
-      "Two photographs have no place yet. Recognise one?"
-    );
-    expect(indexHelpLine([credited(NS)])).toBeNull();
-    expect(indexHelpLine([])).toBeNull();
+    expect(
+      indexHelpLine([credited(NS), credited(null), credited(null)], t, "en")
+    ).toBe("Two photographs have no place yet. Recognise one?");
+    expect(indexHelpLine([credited(NS)], t, "en")).toBeNull();
+    expect(indexHelpLine([], t, "en")).toBeNull();
   });
 
   it("picks help from unplaced photographs first", () => {

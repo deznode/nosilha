@@ -1,5 +1,6 @@
-import { DEFAULT_LOCALE } from "@/i18n/config";
-import { countSentence } from "@/lib/copy/number-words";
+import type { Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
+import { capitalise, toWords } from "@/lib/copy/number-words";
 import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { trimmed } from "@/lib/text";
 import {
@@ -27,6 +28,21 @@ export type FilmSettlement = FilmPlace & { id: string | null };
  */
 
 export type FilmSource = "YouTube" | "Vimeo" | "Archive file";
+
+/** A translator for the `films` messages (spec 041). */
+export type FilmsTranslator = Translator<"films">;
+
+/** Each source's key in the `films.sources` messages. */
+const SOURCE_KEYS: Record<FilmSource, "youtube" | "vimeo" | "file"> = {
+  YouTube: "youtube",
+  Vimeo: "vimeo",
+  "Archive file": "file",
+};
+
+/** A source as the screen names it: hosts by their own name, the archive's file in words. */
+export function filmSourceName(t: FilmsTranslator, source: FilmSource): string {
+  return t(`sources.${SOURCE_KEYS[source]}`);
+}
 
 /** How the film plays in place. Null when nothing the record holds can play it. */
 export type FilmPlayback =
@@ -61,8 +77,6 @@ export interface Film {
   watchUrl: string | null;
 }
 
-export const UNTITLED_FILM = "Untitled film";
-
 /**
  * How many films a screen asks the API for: its page cap. The index filters, sorts
  * and pages in the browser; past this many films it moves to server paging.
@@ -92,11 +106,13 @@ const SOURCE_BY_PLATFORM: Record<string, FilmSource> = {
 
 /**
  * A gallery record as a film, or null when it is not one. `settlements` names the
- * film's place; without it, or when the id is unknown, the place is null.
+ * film's place; when it is empty, or the id is unknown, the place is null. `t` names
+ * a film with no title in the page's language.
  */
 export function toFilm(
   media: PublicGalleryMedia,
-  settlements: readonly FilmSettlement[] = []
+  settlements: readonly FilmSettlement[],
+  t: FilmsTranslator
 ): Film | null {
   if (!isPublicExternalMedia(media) || media.mediaType !== "VIDEO") return null;
 
@@ -133,7 +149,7 @@ export function toFilm(
   return {
     id: media.id,
     title: curated ?? sourceTitle,
-    displayTitle: curated ?? sourceTitle ?? UNTITLED_FILM,
+    displayTitle: curated ?? sourceTitle ?? t("untitled"),
     sourceTitle,
     description: description === sourceTitle ? null : description,
     source,
@@ -154,10 +170,11 @@ export function toFilm(
 /** Every film in a page of gallery records, in the order given. */
 export function toFilms(
   media: readonly PublicGalleryMedia[],
-  settlements: readonly FilmSettlement[] = []
+  settlements: readonly FilmSettlement[],
+  t: FilmsTranslator
 ): Film[] {
   return media.flatMap((m) => {
-    const film = toFilm(m, settlements);
+    const film = toFilm(m, settlements, t);
     return film ? [film] : [];
   });
 }
@@ -176,7 +193,6 @@ export type FilmFacetKey = "all" | "titled" | "youtube" | "vimeo" | "file";
 
 export interface FilmFacet {
   key: FilmFacetKey;
-  label: string;
   test: (film: Film) => boolean;
 }
 
@@ -185,16 +201,17 @@ export interface FilmFacet {
  * populated; neither exists in the archive yet.
  */
 export const FILM_FACETS: readonly FilmFacet[] = [
-  { key: "all", label: "All films", test: () => true },
-  { key: "titled", label: "Titled", test: (f) => f.title !== null },
-  { key: "youtube", label: "YouTube", test: (f) => f.source === "YouTube" },
-  { key: "vimeo", label: "Vimeo", test: (f) => f.source === "Vimeo" },
-  {
-    key: "file",
-    label: "Archive file",
-    test: (f) => f.source === "Archive file",
-  },
+  { key: "all", test: () => true },
+  { key: "titled", test: (f) => f.title !== null },
+  { key: "youtube", test: (f) => f.source === "YouTube" },
+  { key: "vimeo", test: (f) => f.source === "Vimeo" },
+  { key: "file", test: (f) => f.source === "Archive file" },
 ];
+
+/** A facet's chip label. */
+export function filmFacetLabel(t: FilmsTranslator, key: FilmFacetKey): string {
+  return t(`facets.${key}`);
+}
 
 export function filmFacet(key: FilmFacetKey): FilmFacet {
   return FILM_FACETS.find((f) => f.key === key) ?? FILM_FACETS[0];
@@ -230,7 +247,7 @@ export function promotableFilms(films: readonly Film[]): Film[] {
 /** The film the index plays on arrival: the curated one, else the first by title. */
 export function pickFeatured(
   films: readonly Film[],
-  locale: string = DEFAULT_LOCALE
+  locale: string
 ): Film | null {
   const candidates = promotableFilms(films);
   return (
@@ -267,13 +284,15 @@ export function upNext(film: Film, films: readonly Film[]): Film[] {
 // ─── Immersion copy (spec 038) ──────────────────────────────────────────────
 
 /** `Film · YouTube`, `Film · Vimeo`, `Film · Archive file`, or `Film`. */
-export function filmEyebrow(film: Film): string {
-  return film.source ? `Film · ${film.source}` : "Film";
+export function filmEyebrow(t: FilmsTranslator, film: Film): string {
+  return t("eyebrow", {
+    source: film.source ? SOURCE_KEYS[film.source] : "none",
+  });
 }
 
 /** `Filmed near Nova Sintra`, or null. */
-export function filmedNear(film: Film): string | null {
-  return film.place ? `Filmed near ${film.place.name}` : null;
+export function filmedNear(t: FilmsTranslator, film: Film): string | null {
+  return film.place ? t("filmedNear", { place: film.place.name }) : null;
 }
 
 function fileName(url: string): string {
@@ -290,12 +309,15 @@ function fileName(url: string): string {
  * `Listed on YouTube as “<source title>”`, or `Archive file: <filename>`; null when
  * the record holds neither.
  */
-export function filmSourceLine(film: Film): string | null {
+export function filmSourceLine(t: FilmsTranslator, film: Film): string | null {
   if (film.playback?.kind === "file") {
-    return `Archive file: ${fileName(film.playback.url)}`;
+    return t("sourceLine.file", { name: fileName(film.playback.url) });
   }
   if (film.source && film.source !== "Archive file" && film.sourceTitle) {
-    return `Listed on ${film.source} as “${film.sourceTitle}”`;
+    return t("sourceLine.listed", {
+      source: film.source,
+      title: film.sourceTitle,
+    });
   }
   return null;
 }
@@ -305,17 +327,18 @@ export function filmSourceLine(film: Film): string | null {
  * missing. The archive stores no maker yet (never read it from `author`), so that
  * part always shows.
  */
-export function filmHelpLine(film: Film): string {
-  return film.place
-    ? "Not yet recorded: who filmed it."
-    : "Not yet recorded: where it was filmed or who filmed it.";
+export function filmHelpLine(t: FilmsTranslator, film: Film): string {
+  return film.place ? t("helpLine.maker") : t("helpLine.placeAndMaker");
 }
 
 /** `Nine in the archive`, `One in the archive`, `None in the archive yet`. */
-export function filmsCountWords(count: number): string {
-  return countSentence(count, {
-    one: "{n} in the archive",
-    many: "{n} in the archive",
-    zero: "None in the archive yet",
+export function filmsCountWords(
+  t: FilmsTranslator,
+  locale: Locale,
+  count: number
+): string {
+  return t("countWords", {
+    count,
+    words: capitalise(toWords(count, { locale }), locale),
   });
 }

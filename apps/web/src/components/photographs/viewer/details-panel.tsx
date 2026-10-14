@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 
@@ -20,7 +21,7 @@ import {
   type ArchivePhoto,
   type PlaceFilter,
 } from "@/lib/archive-photographs";
-import { ASK_TITLE, askShareText, photoShareText } from "@/lib/share-copy";
+import { askShareText, askTitle, photoShareText } from "@/lib/share-copy";
 
 const PILL =
   "focus-ring bg-background-secondary border-border-subtle hover:border-border-strong text-body rounded-full border px-3.5 py-2 text-[13px] transition-colors";
@@ -52,13 +53,17 @@ export function DetailsPanel({
   /** Puts another photograph on the stage in place. */
   onShow: (photo: ArchivePhoto) => void;
 }) {
-  const heading = photoHeading(photo);
+  const t = useTranslations("viewer");
+  const tShare = useTranslations("share");
+  const tPhotographs = useTranslations("photographs");
+  const locale = useLocale();
+  const heading = photoHeading(photo, tPhotographs);
   const caption = photoCaption(photo);
   const meta = photoMeta(photo);
   const more = moreFrom(photo, photos);
-  const help = viewerHelpLine(photo);
+  const help = viewerHelpLine(photo, tPhotographs, locale);
   const missingField = firstMissingField(photo);
-  const askText = askShareText(photo);
+  const askText = askShareText(photo, tShare, locale);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   // The thumb just activated is replaced by the photograph that was showing, so focus
@@ -77,12 +82,12 @@ export function DetailsPanel({
         scroll={false}
         className="text-muted hover:text-body hit-area self-start text-[13px] transition-colors"
       >
-        ← Photographs{placeLabel ? ` · ${placeLabel}` : ""}
+        {placeLabel ? t("backTo", { place: placeLabel }) : t("back")}
       </Link>
 
       <div className="flex flex-col gap-[9px]">
         <span className="text-ocean-blue text-[10px] tracking-[.18em] uppercase">
-          {photoEyebrow(photo)}
+          {photoEyebrow(photo, tPhotographs)}
         </span>
         <h1
           ref={headingRef}
@@ -105,17 +110,19 @@ export function DetailsPanel({
         <div className="text-muted flex flex-col gap-1 text-xs">
           {meta && <span>{meta}</span>}
           {photo.placeName && <span>{photo.placeName}</span>}
-          {photo.credit && <span>Photograph by {photo.credit}</span>}
+          {photo.credit && (
+            <span>{t("photographBy", { credit: photo.credit })}</span>
+          )}
         </div>
       )}
 
       {photo.near && (
         <div className="flex flex-wrap gap-2">
           <Link href={photographsHref(photo.near.slug)} className={PILL}>
-            Near {photo.near.name}
+            {tPhotographs("heading.near", { place: photo.near.name })}
           </Link>
           <Link href={mapHref(photo.id)} className={PILL}>
-            Show on map
+            {t("showOnMap")}
           </Link>
         </div>
       )}
@@ -123,7 +130,7 @@ export function DetailsPanel({
       <div className="flex flex-wrap gap-2">
         <ShareAction
           title={heading}
-          text={photoShareText(photo)}
+          text={photoShareText(photo, tShare, tPhotographs)}
           moment="photo"
           itemId={photo.id}
           variant="pill"
@@ -140,7 +147,7 @@ export function DetailsPanel({
       {more.length > 0 && (
         <div className="flex flex-col gap-2.5">
           <span className="text-muted text-[10px] tracking-[.18em] uppercase">
-            {moreFromTitle(photo)}
+            {moreFromTitle(photo, tPhotographs)}
           </span>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(88px,1fr))] gap-1.5">
             {more.map((other) => (
@@ -148,7 +155,7 @@ export function DetailsPanel({
                 key={other.id}
                 type="button"
                 onClick={() => showOther(other)}
-                aria-label={photoHeading(other)}
+                aria-label={photoHeading(other, tPhotographs)}
                 className="focus-ring bg-muted relative aspect-square overflow-hidden rounded-md transition-transform duration-[220ms] ease-(--ease-archive) hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 {other.src && (
@@ -171,18 +178,18 @@ export function DetailsPanel({
           <span className="text-muted text-[13px] leading-normal">{help}</span>
           {missingField && (
             <IdentifyQuestion
-              {...photoIdentifyContext(photo, missingField)}
+              {...photoIdentifyContext(photo, missingField, tPhotographs)}
               variant="link"
               className="self-start"
             >
-              Help complete this record
+              {t("helpComplete")}
             </IdentifyQuestion>
           )}
           {askText && (
             <ShareAction
-              title={ASK_TITLE}
+              title={askTitle(tShare)}
               text={askText}
-              label="Ask someone who might know"
+              label={t("askSomeone")}
               moment="ask"
               itemId={photo.id}
               className="hit-area focus-ring self-start"

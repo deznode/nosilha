@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { submitMediaCorrection } from "@/lib/api";
 import { ApiError } from "@/lib/api-error";
-import { UNTITLED_FILM } from "@/lib/films";
 
 import type { FilmLookupResult } from "../hooks/use-film-lookup";
 
@@ -97,6 +96,7 @@ export function DuplicateCard({
   onNeedsSignIn,
 }: DuplicateCardProps) {
   const t = useTranslations("contribute.duplicate");
+  const tFilms = useTranslations("films");
   if (status === "pending") {
     return (
       <div className="border-sobrado-ochre bg-card rounded-card flex flex-col gap-3.5 border-[1.5px] p-4">
@@ -127,7 +127,7 @@ export function DuplicateCard({
       <DuplicateMediaRow
         platform={platform}
         externalId={externalId}
-        title={media?.title ?? UNTITLED_FILM}
+        title={media?.title ?? tFilms("untitled")}
         meta={[
           FILM_PLATFORM_LABEL[platform],
           media?.place,

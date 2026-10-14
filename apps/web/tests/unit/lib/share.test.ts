@@ -15,6 +15,18 @@ describe("buildShareLink", () => {
     expect(params(link).has("ask")).toBe(false);
   });
 
+  it("keeps a Portuguese page's /pt address (spec 041 FR-002)", () => {
+    const link = buildShareLink(
+      "https://nosilha.com/pt/photographs/abc?place=furna",
+      "ask"
+    );
+
+    expect(new URL(link).pathname).toBe("/pt/photographs/abc");
+    expect(params(link).get("place")).toBe("furna");
+    expect(params(link).get("ask")).toBe("1");
+    expect(params(link).get("utm_campaign")).toBe("ask");
+  });
+
   it("adds ask=1 for the ask moment only", () => {
     expect(
       params(buildShareLink("https://nosilha.com/photographs/abc", "ask")).get(

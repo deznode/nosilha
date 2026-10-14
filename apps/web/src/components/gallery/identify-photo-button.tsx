@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { HelpCircle } from "lucide-react";
 import { PhotoIdentificationForm } from "@/components/gallery/photo-identification-form";
 
@@ -15,6 +16,7 @@ export function IdentifyPhotoButton({
   photoTitle,
   pageUrl,
 }: IdentifyPhotoButtonProps) {
+  const t = useTranslations("photographs.gallery");
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -24,7 +26,7 @@ export function IdentifyPhotoButton({
         className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20"
       >
         <HelpCircle size={16} />
-        Help Identify
+        {t("identifyButton")}
       </button>
 
       {isOpen && (

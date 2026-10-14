@@ -268,15 +268,535 @@
     "photograph": "a photograph",
     "correction": "a correction to this record"
   },
-  "archiveHome": {},
-  "settlements": {},
-  "town": {},
-  "entry": {},
-  "stay": {},
-  "films": {},
-  "photographs": {},
-  "viewer": {},
-  "identify": {},
+  "archiveHome": {
+    "title": "An archive of Brava, built from what people send us",
+    "standfirst": "{settlements, plural, =0 {No settlement} one {{settlementWords} settlement} other {{settlementWords} settlements}}, {records, plural, =0 {no place record} one {{recordWords} place record} other {{recordWords} place records}}, {photographs, plural, =0 {no photograph} one {{photographWords} photograph} other {{photographWords} photographs}}. Most of it is still missing, and every gap here is a question.",
+    "shippedHero": {
+      "alt": "A rocky coastline below steep mountains on Brava",
+      "credit": "NosIlha, 2024 · CC BY-SA 4.0 · place not yet recorded"
+    },
+    "credit": {
+      "noPhotographer": "photographer not recorded",
+      "placeNotRecorded": "place not yet recorded",
+      "placeNotNamed": "place not named"
+    },
+    "navLabel": "The archive",
+    "routes": {
+      "settlements": {
+        "label": "Settlements",
+        "note": "{names, plural, =0 {No name} one {{nameWords} name} other {{nameWords} names}}. {documented, plural, =0 {None documented.} other {{documentedWords} documented.}}"
+      },
+      "photographs": {
+        "label": "Photographs",
+        "note": "{records, plural, =0 {Nothing yet} one {{recordWords} record} other {{recordWords} records}}. {credited, plural, =0 {None credited.} other {{creditedWords} credited.}}"
+      },
+      "map": {
+        "label": "Map",
+        "note": "Every point we hold, coloured by what is known."
+      },
+      "stay": {
+        "label": "Stay",
+        "note": "{stays, plural, =0 {No place to stay is recorded yet.} one {{stayWords} place. {rated, plural, =0 {None rated.} other {{ratedWords} rated.}}} other {{stayWords} places. {rated, plural, =0 {None rated.} other {{ratedWords} rated.}}}}"
+      }
+    },
+    "photographRow": {
+      "heading": "{count, plural, =0 {No photographs, and what each one is missing} one {{words} photograph, and what it is missing} other {{words} photographs, and what each one is missing}}",
+      "noneCredited": "Nobody has told us who took any of these.",
+      "allCredited": "Every one of these names its photographer.",
+      "someUncredited": "{count, plural, one {{words} of these has no photographer.} other {{words} of these have no photographer.}}"
+    },
+    "emptySettlements": {
+      "heading": "Settlements with nothing recorded",
+      "none": "Every settlement on the island holds something.",
+      "standfirst": "{empty, plural, one {{emptyWords} of the {totalWords} have a name and a point on the map and nothing else. No photograph, no description, no record of who lives there.} other {{emptyWords} of the {totalWords} have a name and a point on the map and nothing else. No photograph, no description, no record of who lives there.}}"
+    },
+    "instagram": {
+      "heading": "From Instagram",
+      "follow": "Follow on Instagram →",
+      "onePost": "One post so far.",
+      "unavailable": "We could not reach Instagram just now. The posts are still there.",
+      "empty": "Nothing posted yet.",
+      "loadingLine": "The account, not the archive.",
+      "standfirstShort": "The account, not the archive: notices, festas, and what we are working on.",
+      "standfirstLong": "The account, not the archive: notices, festas, and whatever we are working on that week.",
+      "closingAsk": "Have a photograph of Brava? Tag <strong>@nosilha</strong>, or <link>send it to the archive →</link>",
+      "badge": {
+        "video": "Video",
+        "album": "Album"
+      },
+      "justNow": "just now",
+      "tileName": "Instagram post, {age}",
+      "tileNameWithCaption": "Instagram post, {age}: {caption}"
+    }
+  },
+  "settlements": {
+    "heading": "Settlements",
+    "filters": {
+      "all": "All settlements",
+      "has": "Has records",
+      "none": "Nothing yet"
+    },
+    "standfirst": {
+      "empty": "No settlement carries a name on Brava yet.",
+      "counts": "{total, plural, one {{totalWords} place carries a name on Brava} other {{totalWords} places carry a name on Brava}}. {documented, plural, one {{documentedWords} is documented} other {{documentedWords} are documented}}, {partial, plural, one {{partialWords} holds records without a photograph} other {{partialWords} hold records without a photograph}}, and {nameOnly, plural, one {{nameOnlyWords} is a name and a coordinate} other {{nameOnlyWords} are a name and a coordinate}}."
+    },
+    "statusLine": {
+      "nameOnly": "a name and a coordinate, nothing else",
+      "records": "{records, plural, one {{recordWords} record} other {{recordWords} records}} · {photoState, select, counted {{photos, plural, one {{photoWords} photograph} other {{photoWords} photographs}}} hero {a photograph} other {no photograph}}"
+    },
+    "meta": {
+      "populationNotRecorded": "population not recorded",
+      "elevationNotRecorded": "elevation not recorded"
+    }
+  },
+  "town": {
+    "backLink": "← All settlements",
+    "subLine": "{records, plural, =0 {No place record} one {{recordWords} place record} other {{recordWords} place records}} · {photos, plural, =0 {no photograph of the town itself} one {{photoWords} photograph} other {{photoWords} photographs}}",
+    "shareLabel": "Share this village",
+    "panel": {
+      "eyebrow": "Photographs of {name}",
+      "heading": "{count, plural, =0 {None yet} one {{words} photograph} other {{words} photographs}}",
+      "noRecords": "No record sits in this town yet.",
+      "recordsWithoutPhotograph": "{records, plural, one {{recordWords} record sits in this town and it does not carry a photograph.} other {{recordWords} records sit in this town and not one of them carries a photograph.}}",
+      "records": "{records, plural, one {{recordWords} record sits in this town.} other {{recordWords} records sit in this town.}}",
+      "unconfirmed": "{count, plural, one {{words} photograph in the archive has coordinates that fall inside {name}, but nobody has confirmed the place, so it is not attached here.} other {{words} photographs in the archive have coordinates that fall inside {name}, but nobody has confirmed the place, so they are not attached here.}}",
+      "give": "Give a photograph of {name}",
+      "seeUnconfirmed": "{count, plural, one {See the {words} unconfirmed photograph} other {See the {words} unconfirmed photographs}}"
+    },
+    "questions": {
+      "population": "How many people live in {name}?",
+      "elevation": "How high above the sea is it?",
+      "founded": "When was the town founded?",
+      "highlights": "What should a visitor walk to first?"
+    },
+    "recordedHere": "Recorded here",
+    "openInMap": "Open in the map explorer",
+    "notRecorded": "Not recorded",
+    "noPhotograph": "no photograph"
+  },
+  "entry": {
+    "heroAlt": "{name}, {town}",
+    "noPhotographRecorded": "no photograph recorded",
+    "noPhotographer": "photographer not recorded",
+    "thisRecord": "This record",
+    "notRecorded": "not recorded",
+    "photographs": {
+      "heading": "Photographs of this place",
+      "count": "{count, plural, one {{words} photograph of this place is in the archive.} other {{words} photographs of this place are in the archive.}}",
+      "promptAnother": "Do you have another photograph of {name}?",
+      "heroOnly": "None yet. The photograph above came in as the record's hero image, not as an archive record.",
+      "prompt": "Do you have a photograph of {name}?",
+      "give": "Give a photograph to the archive"
+    },
+    "alsoRecorded": {
+      "inTown": "Also recorded in {town}",
+      "nearby": "Also recorded nearby",
+      "onlyRecord": "Nothing else. This is the only record in the settlement."
+    },
+    "suggestCorrection": "Suggest a correction",
+    "openInMap": "Open in the map explorer",
+    "nothingHereYet": "Nothing here yet",
+    "ratingNote": "{category} records carry no rating. Ratings appear only where a visitor can stay.",
+    "related": {
+      "heading": "Explore Related Content",
+      "loadingLabel": "Loading related content",
+      "errorLabel": "Related content error",
+      "error": "Failed to load related content. Please try again later.",
+      "emptyLabel": "No related content available",
+      "empty": "No related heritage content available at this time.",
+      "label": "Related cultural heritage content",
+      "swipe": "Swipe to see more →",
+      "viewDetails": "View details for {name}",
+      "photoAlt": "Photo of {name}",
+      "noImage": "No image available"
+    }
+  },
+  "stay": {
+    "heading": "Stay",
+    "standfirst": {
+      "empty": "No place to stay is recorded on Brava yet.",
+      "counts": "{total, plural, one {{openingWords} place to stay on Brava. This is the only part of the archive where a rating belongs, and {rated, plural, =0 {it has not been rated yet} other {it has been rated}}.} other {{openingWords} places to stay on Brava. This is the only part of the archive where a rating belongs, and {rated, plural, =0 {none of the {totalWords} has been rated yet} one {{ratedWords} of the {totalWords} has been rated} other {{ratedWords} of the {totalWords} have been rated}}.}}"
+    },
+    "notYetRated": "Not yet rated",
+    "photoAlt": "{name}, {town}",
+    "noPhotographRecorded": "no photograph recorded",
+    "stayedHere": "Stayed here?"
+  },
+  "films": {
+    "untitled": "Untitled film",
+    "sources": {
+      "youtube": "YouTube",
+      "vimeo": "Vimeo",
+      "file": "Archive file"
+    },
+    "facets": {
+      "all": "All films",
+      "titled": "Titled",
+      "youtube": "YouTube",
+      "vimeo": "Vimeo",
+      "file": "Archive file"
+    },
+    "eyebrow": "{source, select, youtube {Film · YouTube} vimeo {Film · Vimeo} file {Film · Archive file} other {Film}}",
+    "filmedNear": "Filmed near {place}",
+    "sourceLine": {
+      "file": "Archive file: {name}",
+      "listed": "Listed on {source} as “{title}”"
+    },
+    "helpLine": {
+      "maker": "Not yet recorded: who filmed it.",
+      "placeAndMaker": "Not yet recorded: where it was filmed or who filmed it."
+    },
+    "countWords": "{count, plural, =0 {None in the archive yet} other {{words} in the archive}}",
+    "card": {
+      "preview": "Preview · muted",
+      "cantPlay": "Can’t play here"
+    },
+    "strip": {
+      "heading": "Films",
+      "seeAll": "See all films →",
+      "intro": "Footage of Brava contributed to the archive."
+    },
+    "cinema": {
+      "heading": "Films",
+      "allFilms": "All films",
+      "filterLabel": "Filter films",
+      "invitation": {
+        "question": "Have a film of Brava?",
+        "body": "A YouTube or Vimeo link is enough.",
+        "cta": "Send a film link"
+      },
+      "hero": {
+        "label": "Featured film",
+        "playingMuted": "Playing muted",
+        "playing": "Playing",
+        "ofTheMonth": "Film of the month",
+        "playMuted": "Play {title}, muted",
+        "pause": "Pause",
+        "soundOff": "Sound off · Turn on",
+        "soundOn": "Sound on · Mute",
+        "watchWithSound": "Watch with sound",
+        "filmPage": "Film page"
+      }
+    },
+    "theatre": {
+      "allFilms": "← All films",
+      "photographsFromHere": "Photographs from here →",
+      "helpComplete": "Help complete this record"
+    },
+    "upNext": {
+      "heading": "Up next",
+      "autoplay": "Autoplay",
+      "empty": "No other films in the archive yet.",
+      "cantPlay": "Can’t play here",
+      "samePlace": "Same place",
+      "next": "Next"
+    },
+    "player": {
+      "play": "Play {title}",
+      "loading": "{host, select, none {Loading from its host} other {Loading from {host}}}",
+      "soundOffChip": "Sound off",
+      "pause": "Pause",
+      "resume": "Play",
+      "soundOn": "Sound on",
+      "mute": "Mute",
+      "exitFullScreen": "Exit full screen",
+      "fullScreen": "Full screen",
+      "seek": "Seek",
+      "cantPlay": "Can’t play here",
+      "blockedTitle": "{host, select, none {its host won’t let this film play here} other {{host} won’t let this film play here}}",
+      "missingTitle": "The source file is missing from the archive",
+      "blockedBody": "The record stays. You can still watch it on its host.",
+      "missingBody": "The record stays. If you have a copy of this film, the curators would like to hear from you.",
+      "watchOn": "{host, select, none {Watch on its host} other {Watch on {host}}}",
+      "sendCopy": "Send a copy",
+      "upNextIn": "Up next in {count}",
+      "upNext": "Up next",
+      "lastFilm": "That was the last film",
+      "playNow": "Play now",
+      "cancel": "Cancel",
+      "watchAgain": "Watch again"
+    }
+  },
+  "photographs": {
+    "heading": {
+      "near": "Near {place}",
+      "brava": "A photograph of Brava"
+    },
+    "eyebrow": "Photograph",
+    "untitled": "Untitled",
+    "chips": {
+      "label": "Filter by place",
+      "all": "All",
+      "unplaced": "Not yet placed"
+    },
+    "moreFrom": "More from {place}",
+    "moreUnplaced": "Also waiting for a place",
+    "missing": {
+      "photographer": "who took it",
+      "place": "where",
+      "date": "when"
+    },
+    "viewerHelp": "Not yet recorded: {missing}.",
+    "indexHelp": {
+      "everyUncredited": "Every photograph here is still missing its photographer{unplaced, plural, =0 {} one {, and {unplacedWords} has no place} other {, and {unplacedWords} have no place}}. Recognise one?",
+      "someUncredited": "{uncredited, plural, one {{uncreditedWords} photograph is} other {{uncreditedWords} photographs are}} still missing a photographer{unplaced, plural, =0 {} one {, and {unplacedWords} has no place} other {, and {unplacedWords} have no place}}. Recognise one?",
+      "unplaced": "{unplaced, plural, one {{unplacedWords} photograph has} other {{unplacedWords} photographs have}} no place yet. Recognise one?"
+    },
+    "pills": {
+      "title": "no title",
+      "photographer": "no photographer",
+      "place": "no place",
+      "date": "no date",
+      "category": "no category"
+    },
+    "index": {
+      "heading": "Photographs",
+      "featureEyebrow": "Photographs · Today’s photograph",
+      "empty": "The archive holds no photographs yet.",
+      "showNeedy": "Show me one that needs help",
+      "films": "Films",
+      "seeAllFilms": "See all films →",
+      "invitation": {
+        "question": "Have a photograph of Brava?",
+        "body": "A family print, a slide, or a phone picture of one. You keep the copyright.",
+        "cta": "Give a photograph"
+      }
+    },
+    "gallery": {
+      "photoAlt": "Gallery photo",
+      "imageAlt": "Gallery image",
+      "bravaIsland": "Brava Island",
+      "communityContributor": "Community Contributor",
+      "anonymous": "Anonymous",
+      "photoOfTheDay": "Photo of the Day",
+      "weeklyDiscoveries": "This Week's Discoveries",
+      "identifyButton": "Help Identify",
+      "video": {
+        "player": "Video player",
+        "thumbnail": "Video thumbnail",
+        "play": "Play {title}",
+        "playUntitled": "Play video",
+        "nowPlaying": "Now Playing",
+        "featured": "Featured Video",
+        "fallbackCategory": "Video",
+        "none": "No videos found"
+      },
+      "grid": {
+        "emptySearch": "No results for “{query}”",
+        "emptyAll": "No photos yet",
+        "emptyCategory": "No {category} photos yet",
+        "emptySearchHint": "Try a different search term or clear your filters.",
+        "emptyHint": "Help preserve Brava’s visual heritage by sharing your photographs with the community.",
+        "beFirst": "Be the first to share",
+        "loadingMore": "Loading more photos...",
+        "loadMore": "Load More Photos (showing {shown} of {total})",
+        "showing": "Showing {shown} of {total} photos"
+      },
+      "map": {
+        "label": "Gallery photo map of Brava Island",
+        "emptyFiltered": "No photos with locations match your filters",
+        "empty": "No photos with location data yet",
+        "emptyFilteredHint": "Try adjusting your filters to see more results.",
+        "emptyHint": "Photos taken with GPS-enabled cameras will appear on this map.",
+        "clearFilters": "Clear Filters",
+        "gridView": "Switch to Grid View",
+        "unavailable": "Map unavailable",
+        "refresh": "Try refreshing the page.",
+        "loading": "Loading map...",
+        "cluster": "Cluster of {count} photos. Click to expand.",
+        "viewPhoto": "View photo: {title}",
+        "viewVideo": "View video: {title}",
+        "openInGallery": "Open in Gallery",
+        "located": "{count, plural, one {{n} photo with locations} other {{n} photos with locations}}"
+      },
+      "picker": {
+        "title": "Select from Gallery",
+        "close": "Close modal",
+        "search": "Search by title, description, or category...",
+        "loadFailed": "Failed to load gallery images",
+        "tryAgain": "Try Again",
+        "noMatch": "No images match your search",
+        "noImages": "No approved images available",
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page {page} ({total} total)",
+        "selected": "Selected: <strong>{title}</strong>",
+        "clickToSelect": "Click an image to select it",
+        "use": "Use Selected Image"
+      },
+      "manualMetadata": {
+        "title": "Historical Photo Details",
+        "optional": "(Optional)",
+        "approximateDate": "Approximate Date",
+        "approximateDatePlaceholder": "e.g., circa 1960s, Summer 1985",
+        "locationName": "Location Name",
+        "locationNamePlaceholder": "Village or landmark name",
+        "archiveSource": "Source / Archive",
+        "archiveSourcePlaceholder": "e.g., Family collection, Municipal archive"
+      },
+      "contributePhotos": {
+        "signInTitle": "Sign in to Contribute Photos",
+        "signInDescription": "Photo contributions require an account to ensure proper attribution and moderation.",
+        "thanks": "Thank you for contributing to our community.",
+        "uploadAnother": "Upload another photo",
+        "title": "Contribute Photos",
+        "intro": "Have a photo of this location? Share it with the community!"
+      }
+    },
+    "metadataBadges": {
+      "dateUnknown": "Date unknown",
+      "unknownCamera": "Unknown camera",
+      "addDetails": "Add details",
+      "gps": {
+        "FULL": "Full location",
+        "APPROXIMATE": "~100m accuracy",
+        "STRIPPED": "Location removed",
+        "NONE": "No location data"
+      }
+    },
+    "photoType": {
+      "label": "Photo Type",
+      "CULTURAL_SITE": {
+        "label": "Cultural Site",
+        "description": "Full GPS for heritage locations"
+      },
+      "COMMUNITY_EVENT": {
+        "label": "Community Event",
+        "description": "Location rounded to ~100m"
+      },
+      "PERSONAL": {
+        "label": "Personal",
+        "description": "Location removed entirely"
+      }
+    }
+  },
+  "viewer": {
+    "back": "← Photographs",
+    "backTo": "← Photographs · {place}",
+    "about": "About this photograph",
+    "photographBy": "Photograph by {credit}",
+    "showOnMap": "Show on map",
+    "helpComplete": "Help complete this record",
+    "askSomeone": "Ask someone who might know",
+    "documentTitle": "{heading} | Nos Ilha",
+    "stage": {
+      "region": "Photograph",
+      "close": "✕ Close",
+      "hideDetails": "Hide details",
+      "details": "Details",
+      "fit": "Fit",
+      "zoom": "Zoom",
+      "exitFullScreen": "Exit full screen",
+      "fullScreen": "Full screen",
+      "previous": "Previous photograph",
+      "next": "Next photograph",
+      "position": "{position} of {total}",
+      "hintPointer": "← → to move · Esc to go back",
+      "hintTouch": "swipe to move"
+    }
+  },
+  "identify": {
+    "eyebrow": "Help identify",
+    "title": "Tell us what you recognise",
+    "intro": "Answer only what you know. A guess marked as a guess is more use to the archive than a blank.",
+    "questions": {
+      "place": {
+        "label": "Where was this taken?",
+        "placeholder": "Faja d'Água, by the harbour"
+      },
+      "photographer": {
+        "label": "Who took it?",
+        "placeholder": "A name, or “not known”"
+      },
+      "when": {
+        "label": "Roughly when?",
+        "placeholder": "1984 — or “sometime in the sixties”"
+      },
+      "people": {
+        "label": "Who is in it?",
+        "placeholder": "A name, a family, or “my grandmother’s sister”"
+      }
+    },
+    "askedAbout": "Asked about: {field}",
+    "yourName": "Your name",
+    "yourEmail": "Your email",
+    "send": "Send to the curators",
+    "signIn": "Sign in instead",
+    "footnote": "A person reads every suggestion. A curator may write to you about yours.",
+    "sent": "Thank you — a curator will read this.",
+    "notSent": "Your answer was not sent. Please try again.",
+    "errors": {
+      "account": "We could not read your account. Please sign in again.",
+      "rateLimited": "Too many answers from this connection. Please try again in an hour.",
+      "generic": "Could not send that. Please try again.",
+      "noAnswer": "Answer at least one question, even if it is a guess.",
+      "guest": "Add your name and an email a curator can reach you at."
+    },
+    "placeFields": {
+      "labels": {
+        "settlement": "Settlement",
+        "category": "Category",
+        "established": "Established",
+        "coordinates": "Coordinates",
+        "conditionStatus": "Status",
+        "festival": "Festival",
+        "photographer": "Photographer",
+        "openingHours": "Opening hours",
+        "architect": "Architect",
+        "rating": "Rating",
+        "phoneNumber": "Phone",
+        "email": "Email",
+        "website": "Website",
+        "cuisine": "Cuisine",
+        "amenities": "Amenities"
+      },
+      "questions": {
+        "settlement": "Which settlement is this in?",
+        "category": "What kind of place is this?",
+        "established": "When was it established?",
+        "coordinates": "Where exactly is it?",
+        "conditionStatus": "What condition is it in now?",
+        "festival": "Does a festival happen here?",
+        "photographer": "Who took the photograph above?",
+        "openingHours": "When can a visitor go in?",
+        "architect": "Who built it?",
+        "rating": "Have you stayed here?",
+        "phoneNumber": "Is there a telephone number?",
+        "email": "Is there an email address?",
+        "website": "Is there a website?",
+        "cuisine": "What do they cook?",
+        "amenities": "What does a room come with?"
+      },
+      "completeness": "{total, plural, one {{documentedWords} of {totalWords} field recorded} other {{documentedWords} of {totalWords} fields recorded}}",
+      "nothingRecorded": "nothing recorded yet"
+    },
+    "suggestImprovement": {
+      "types": {
+        "CORRECTION": "Correction - Fix factual errors or inaccuracies",
+        "ADDITION": "Addition - Add missing information or context",
+        "FEEDBACK": "Feedback - General feedback on content quality"
+      },
+      "sent": "Thank you! Your suggestion has been submitted.",
+      "failed": "An error occurred while submitting your suggestion. Please try again later.",
+      "title": "Suggest Improvement",
+      "description": "Help us improve this content about <strong>{title}</strong>. Your suggestions help preserve the accuracy and richness of Brava Island's cultural heritage.",
+      "successTitle": "Thank you for helping preserve our cultural heritage!",
+      "successBody": "Your suggestion has been received and will be reviewed by our team. We appreciate your contribution to maintaining the accuracy of Brava Island's cultural content.",
+      "name": "Your Name *",
+      "namePlaceholder": "Enter your name",
+      "email": "Your Email *",
+      "emailPlaceholder": "your.email@example.com",
+      "emailHint": "We may contact you for clarification on your suggestion.",
+      "submittingAs": "Submitting as: <strong>{email}</strong>",
+      "type": "Suggestion Type *",
+      "typePlaceholder": "Select suggestion type",
+      "message": "Your Suggestion *",
+      "messagePlaceholder": "Please provide details about your suggestion...",
+      "count": "{count}/5000 characters (minimum 10)",
+      "submitting": "Submitting...",
+      "submit": "Submit Suggestion"
+    }
+  },
   "map": {
     "loading": "Loading Brava…",
     "canvas": {
@@ -927,6 +1447,117 @@
     "notesMin": "Please provide at least 10 characters",
     "notesTooLong": "Notes are too long"
   },
-  "share": {},
-  "metadata": {}
+  "share": {
+    "ask": {
+      "title": "Do you recognise this photograph?",
+      "description": "The Brava archive does not know {missing}.",
+      "missing": {
+        "photographer": "who took it",
+        "place": "where it was taken",
+        "date": "when it was taken"
+      },
+      "barLabel": "A question about this photograph",
+      "tellUs": "Tell us"
+    },
+    "photo": "{facts}. From the Brava archive.",
+    "film": "{title}. A film in the Brava archive.",
+    "town": {
+      "withHoldings": "{name} in the Brava archive: {holdings}.",
+      "plain": "{name} in the Brava archive."
+    },
+    "holdings": {
+      "photographs": "{count, plural, one {{n} photograph} other {{n} photographs}}",
+      "placeRecords": "{count, plural, one {{n} place record} other {{n} place records}}"
+    },
+    "arrival": {
+      "photosNear": "From the Brava archive · {count, plural, one {{n} more photograph} other {{n} more photographs}} near {place}",
+      "photo": "From the Brava archive, a community record of Brava Island",
+      "films": "From the Brava archive · {count, plural, =0 {more films} one {{n} more film} other {{n} more films}}",
+      "town": "Part of the Brava archive · all settlements"
+    }
+  },
+  "metadata": {
+    "site": {
+      "title": "Nos Ilha - Your Guide to Brava, Cape Verde",
+      "titleTemplate": "%s | Nos Ilha",
+      "description": "The definitive cultural heritage hub for Brava Island, Cape Verde. Preserve and celebrate Cape Verdean culture, explore authentic heritage experiences, connect with the global diaspora, and discover local cultural sites and businesses.",
+      "ogImageAlt": "Nos Ilha - Cultural Heritage Platform for Brava Island, Cape Verde"
+    },
+    "home": {
+      "title": "An archive of Brava, built from what people send us",
+      "description": "A community archive of Brava Island, Cape Verde: settlements, place records and photographs, with every gap stated rather than hidden.",
+      "placeDescription": "The flower island of Cape Verde, a cultural heritage hub preserving Cape Verdean traditions, known for its lush landscapes, rich cultural memory, and authentic heritage experiences."
+    },
+    "settlements": {
+      "title": "Settlements",
+      "description": "Every settlement named on Brava Island, and how much of each one the archive actually holds."
+    },
+    "town": {
+      "about": "What the archive holds about {name}, a settlement on Brava Island, Cape Verde.",
+      "withHoldings": "{holdings}. {about}"
+    },
+    "entry": {
+      "about": "What the archive holds about {name} on Brava Island, Cape Verde."
+    },
+    "stay": {
+      "title": "Stay",
+      "description": "Every recorded place to stay on Brava Island, Cape Verde — and what the archive still does not know about them."
+    },
+    "films": {
+      "title": "Films",
+      "description": "Films of Brava Island contributed to the archive, played in place."
+    },
+    "film": {
+      "description": "A film of Brava Island from the archive, played in place."
+    },
+    "photographs": {
+      "title": "Photographs",
+      "description": "Photographs of Brava Island from the archive, by the place they were taken near, and the films contributed alongside them."
+    },
+    "photograph": {
+      "untitled": "An untitled photograph of Brava",
+      "description": "A record in the Brava Island archive, with what it is still missing."
+    },
+    "about": {
+      "title": "About Nos Ilha - Community-Driven Platform for Brava Island",
+      "description": "Learn about Nos Ilha, a volunteer-driven, open-source platform celebrating the cultural heritage and natural beauty of Brava Island, Cape Verde.",
+      "ogTitle": "About Nos Ilha - Community-Driven Heritage Platform",
+      "ogDescription": "A volunteer-supported, open-source platform preserving and sharing the cultural heritage of Brava Island."
+    },
+    "contact": {
+      "title": "Contact Us | Nos Ilha - Get in Touch",
+      "description": "Contact the Nos Ilha team for inquiries, contributions, technical support, or to learn more about our community-driven platform for Brava Island.",
+      "ogTitle": "Contact Nos Ilha",
+      "ogDescription": "Get in touch with the Nos Ilha community for support, contributions, or general inquiries about Brava Island."
+    },
+    "contribute": {
+      "title": "Give to the Archive",
+      "description": "Give a photograph or a film link of Brava Island to the Nos Ilha archive. You keep the copyright — we record who took it and who gave it."
+    },
+    "contributeDirectory": {
+      "title": "Add Directory Entry | Nos Ilha",
+      "description": "Help us document Brava Island's cultural heritage by adding a new location to our directory."
+    },
+    "privacy": {
+      "title": "Privacy Policy | Nos Ilha",
+      "description": "Learn how Nos Ilha collects, uses, and protects your personal information. Our privacy policy explains our commitment to data protection and user rights.",
+      "ogTitle": "Privacy Policy - Nos Ilha",
+      "ogDescription": "Our privacy policy explains how we collect, use, and protect your personal information on the Nos Ilha platform."
+    },
+    "terms": {
+      "title": "Community Guidelines | Nos Ilha",
+      "description": "Join our community dedicated to preserving Brava Island's cultural heritage. Read our welcoming guidelines for sharing stories, photos, and celebrating our island's traditions together.",
+      "ogTitle": "Community Guidelines - Nos Ilha",
+      "ogDescription": "Community guidelines for the Nos Ilha platform, celebrating Brava Island's cultural heritage through respectful participation and shared passion."
+    },
+    "history": {
+      "title": "{title} | Nos Ilha",
+      "notFound": "History Not Found"
+    },
+    "article": {
+      "historyTitle": "{title} | History | Nos Ilha",
+      "peopleTitle": "{title} | People | Nos Ilha",
+      "notFound": "Page Not Found"
+    }
+  }
 }

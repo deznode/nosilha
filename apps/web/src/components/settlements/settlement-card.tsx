@@ -1,3 +1,5 @@
+import { useLocale, useTranslations } from "next-intl";
+
 import { Link } from "@/i18n/navigation";
 
 import { getTownStatus, statusVar } from "@/lib/status";
@@ -17,9 +19,12 @@ import {
  * the prototype's.
  */
 export function SettlementCard({ town }: { town: TownStatusSummary }) {
-  const status = getTownStatus(town);
-  const line = settlementStatusLine(town);
-  const [population, elevation] = settlementMetaRow(town);
+  const t = useTranslations("settlements");
+  const locale = useLocale();
+  const tStatus = useTranslations("status");
+  const status = getTownStatus(town, tStatus);
+  const line = settlementStatusLine(t, locale, town);
+  const [population, elevation] = settlementMetaRow(t, town);
   const hasRecords = town.entryCount > 0;
 
   return (

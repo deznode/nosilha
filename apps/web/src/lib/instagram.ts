@@ -1,11 +1,14 @@
 import { cacheLife, cacheTag } from "next/cache";
 
-import { DEFAULT_LOCALE } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
 import { env } from "@/lib/env";
 import { createComponentLogger } from "@/lib/logger";
 import { trimmed } from "@/lib/text";
 
 const log = createComponentLogger("Instagram");
+
+/** The words the home's Instagram tiles use (spec 041). */
+export type InstagramTranslator = Translator<"archiveHome.instagram">;
 
 export interface InstagramPost {
   id: string;
@@ -140,12 +143,15 @@ function hasTileImage(post: InstagramPost): boolean {
 }
 
 /** Text badge, never an icon, so it is announced. Plain images get none. */
-export function badgeLabel(post: InstagramPost): string | null {
+export function badgeLabel(
+  t: InstagramTranslator,
+  post: InstagramPost
+): string | null {
   switch (post.media_type) {
     case "VIDEO":
-      return "Video";
+      return t("badge.video");
     case "CAROUSEL_ALBUM":
-      return "Album";
+      return t("badge.album");
     default:
       return null;
   }
@@ -189,9 +195,10 @@ const AGE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
  * `locale`'s words. Units are floored, so eight days reads "1 week ago".
  */
 export function relativeAge(
+  t: InstagramTranslator,
   timestamp: string,
   now: number,
-  locale: string = DEFAULT_LOCALE
+  locale: string
 ): string {
   const seconds = Math.max(0, (now - new Date(timestamp).getTime()) / 1000);
   for (const [unit, size] of AGE_UNITS) {
@@ -199,7 +206,7 @@ export function relativeAge(
       return relativeFormat(locale).format(-Math.floor(seconds / size), unit);
     }
   }
-  return "just now";
+  return t("justNow");
 }
 
 const ACCESSIBLE_CAPTION_CHARS = 80;
@@ -209,12 +216,16 @@ const ACCESSIBLE_CAPTION_CHARS = 80;
  * carries the name: "Instagram post, 3 days ago: {first 80 characters}".
  */
 export function tileAccessibleName(
+  t: InstagramTranslator,
   post: InstagramPost,
   now: number,
-  locale: string = DEFAULT_LOCALE
+  locale: string
 ): string {
-  const name = `Instagram post, ${relativeAge(post.timestamp, now, locale)}`;
+  const age = relativeAge(t, post.timestamp, now, locale);
   const caption = trimmed(post.caption?.replace(/\s+/g, " "));
-  if (!caption) return name;
-  return `${name}: ${Array.from(caption).slice(0, ACCESSIBLE_CAPTION_CHARS).join("")}`;
+  if (!caption) return t("tileName", { age });
+  return t("tileNameWithCaption", {
+    age,
+    caption: Array.from(caption).slice(0, ACCESSIBLE_CAPTION_CHARS).join(""),
+  });
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
@@ -43,12 +44,14 @@ export function FilmTheatre({
   /** Whether the film's settlement has photographs to link to. */
   hasPlacePhotos: boolean;
 }) {
+  const t = useTranslations("films");
+  const tShare = useTranslations("share");
   const router = useRouter();
   const [autoNext, setAutoNext] = useState(true);
   const ordered = films === null ? null : upNext(film, films);
   const next = ordered?.find(canPlay) ?? null;
-  const source = filmSourceLine(film);
-  const arrival = filmArrivalLine(film, films);
+  const source = filmSourceLine(t, film);
+  const arrival = filmArrivalLine(film, films, tShare);
 
   const playNext = useCallback(
     (target: Film) => router.push(filmHref(target.id, { play: true })),
@@ -76,23 +79,25 @@ export function FilmTheatre({
             href="/films"
             className="text-muted hover:text-body hit-area self-start text-[13px] transition-colors"
           >
-            ← All films
+            {t("theatre.allFilms")}
           </Link>
           <span className="text-ocean-blue text-[10px] tracking-[.18em] uppercase">
-            {filmEyebrow(film)}
+            {filmEyebrow(t, film)}
           </span>
           <h1 className="text-body m-0 font-serif text-[30px] leading-[1.08] font-normal tracking-[-0.02em] text-pretty md:text-[42px]">
             {film.displayTitle}
           </h1>
           {film.place && (
             <div className="flex flex-wrap items-baseline gap-3.5">
-              <span className="text-body text-[15px]">{filmedNear(film)}</span>
+              <span className="text-body text-[15px]">
+                {filmedNear(t, film)}
+              </span>
               {hasPlacePhotos && (
                 <Link
                   href={photographsHref(film.place.slug)}
                   className="text-ocean-blue hover:text-brand text-[13px]"
                 >
-                  Photographs from here →
+                  {t("theatre.photographsFromHere")}
                 </Link>
               )}
             </div>
@@ -108,7 +113,9 @@ export function FilmTheatre({
             </div>
           )}
           <div className="border-border-subtle mt-1 flex flex-wrap items-baseline gap-3 border-t pt-3.5">
-            <span className="text-muted text-[13px]">{filmHelpLine(film)}</span>
+            <span className="text-muted text-[13px]">
+              {filmHelpLine(t, film)}
+            </span>
             <IdentifyQuestion
               contentType="media"
               contentId={film.id}
@@ -117,11 +124,11 @@ export function FilmTheatre({
               pageTitle={film.displayTitle}
               variant="link"
             >
-              Help complete this record
+              {t("theatre.helpComplete")}
             </IdentifyQuestion>
             <ShareAction
               title={film.displayTitle}
-              text={filmShareText(film)}
+              text={filmShareText(film, tShare)}
               moment="film"
               itemId={film.id}
               className="hit-area focus-ring"

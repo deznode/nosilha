@@ -1,4 +1,6 @@
-import { capitalise, countSentence, toWords } from "@/lib/copy/number-words";
+import type { Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
+import { capitalise, toWords, type Gender } from "@/lib/copy/number-words";
 import {
   photoCredit,
   photoIsIdentifiablePerson,
@@ -17,7 +19,22 @@ import type { TownStatusSummary } from "@/types/town";
  * The page is an argument — here is what we hold, here is what is missing — so every
  * sentence is composed from live counts. A literal would let the argument drift from
  * the archive it is about.
+ *
+ * The wording lives in the `archiveHome` messages (spec 041): one message per
+ * sentence, with counts as plurals and number words passed in as arguments.
  */
+
+export type ArchiveHomeTranslator = Translator<"archiveHome">;
+
+/** A count in words, agreeing with its noun where the language asks (`uma fotografia`). */
+function words(n: number, locale: Locale, gender: Gender = "masculine") {
+  return toWords(n, { locale, gender });
+}
+
+/** The same, capitalised to open a sentence. */
+function openingWords(n: number, locale: Locale, gender: Gender = "masculine") {
+  return capitalise(words(n, locale, gender), locale);
+}
 
 /** How many tiles the "what each one is missing" row shows. */
 export const PHOTOGRAPH_ROW_SIZE = 4;
@@ -28,11 +45,13 @@ export const PHOTOGRAPH_ROW_SIZE = 4;
  * rule is that an image in a promotional position never appears uncredited, and is
  * never quietly attached to a place it merely resembles.
  */
-export const SHIPPED_HERO = {
-  url: "/images/hero.jpg",
-  alt: "A rocky coastline below steep mountains on Brava",
-  credit: "NosIlha, 2024 · CC BY-SA 4.0 · place not yet recorded",
-} as const;
+export function shippedHero(t: ArchiveHomeTranslator) {
+  return {
+    url: "/images/hero.jpg",
+    alt: t("shippedHero.alt"),
+    credit: t("shippedHero.credit"),
+  };
+}
 
 /**
  * Whether a record may head the home page.
@@ -57,30 +76,19 @@ export interface ArchiveTotals {
   facets: GalleryFacets;
 }
 
-export function heroStandfirst({
-  settlements,
-  records,
-  facets,
-}: ArchiveTotals): string {
-  const parts = [
-    countSentence(settlements, {
-      one: "{n} settlement",
-      many: "{n} settlements",
-      zero: "No settlement",
-    }),
-    countSentence(records, {
-      one: "{n} place record",
-      many: "{n} place records",
-      zero: "no place record",
-    }).toLowerCase(),
-    countSentence(facets.photographs, {
-      one: "{n} photograph",
-      many: "{n} photographs",
-      zero: "no photograph",
-    }).toLowerCase(),
-  ];
-
-  return `${parts.join(", ")}. Most of it is still missing, and every gap here is a question.`;
+export function heroStandfirst(
+  t: ArchiveHomeTranslator,
+  locale: Locale,
+  { settlements, records, facets }: ArchiveTotals
+): string {
+  return t("standfirst", {
+    settlements,
+    settlementWords: openingWords(settlements, locale),
+    records,
+    recordWords: words(records, locale),
+    photographs: facets.photographs,
+    photographWords: words(facets.photographs, locale, "feminine"),
+  });
 }
 
 /**
@@ -91,19 +99,22 @@ export function heroStandfirst({
  * promotional position with nothing said about it is exactly the silence the archive
  * exists to break.
  */
-export function heroCreditChip(hero: PublicGalleryMedia | null): string | null {
+export function heroCreditChip(
+  t: ArchiveHomeTranslator,
+  hero: PublicGalleryMedia | null
+): string | null {
   if (!hero) return null;
 
-  const parts: string[] = [photoCredit(hero) ?? "photographer not recorded"];
+  const parts: string[] = [photoCredit(hero) ?? t("credit.noPhotographer")];
 
   if (isPublicUserUploadMedia(hero)) {
     const source = hero.archiveSource?.trim();
     if (source) parts.push(source);
 
     if (!photoIsLocated(hero)) {
-      parts.push("place not yet recorded");
+      parts.push(t("credit.placeNotRecorded"));
     } else {
-      parts.push(hero.locationName?.trim() || "place not named");
+      parts.push(hero.locationName?.trim() || t("credit.placeNotNamed"));
     }
   }
 
@@ -116,96 +127,92 @@ export interface RouteCard {
   note: string;
 }
 
-export function routeCards({
-  towns,
-  facets,
-  stays,
-  ratedStays,
-}: {
-  towns: TownStatusSummary[];
-  facets: GalleryFacets;
-  stays: number;
-  ratedStays: number;
-}): RouteCard[] {
-  const documented = towns.filter((t) => t.status === "DOCUMENTED").length;
+export function routeCards(
+  t: ArchiveHomeTranslator,
+  locale: Locale,
+  {
+    towns,
+    facets,
+    stays,
+    ratedStays,
+  }: {
+    towns: TownStatusSummary[];
+    facets: GalleryFacets;
+    stays: number;
+    ratedStays: number;
+  }
+): RouteCard[] {
+  const documented = towns.filter(
+    (town) => town.status === "DOCUMENTED"
+  ).length;
   const credited = facets.total - facets.uncredited;
-
-  const names = countSentence(towns.length, {
-    one: "{n} name",
-    many: "{n} names",
-    zero: "No name",
-  });
-  const documentedNote =
-    documented === 0
-      ? "None documented."
-      : `${capitalise(toWords(documented))} documented.`;
-
-  const records = countSentence(facets.total, {
-    one: "{n} record",
-    many: "{n} records",
-    zero: "Nothing yet",
-  });
-  const creditNote =
-    credited === 0
-      ? "None credited."
-      : `${capitalise(toWords(credited))} credited.`;
-
-  const stayNote =
-    stays === 0
-      ? "No place to stay is recorded yet."
-      : `${countSentence(stays, {
-          one: "{n} place",
-          many: "{n} places",
-          zero: "",
-        })}. ${
-          ratedStays === 0
-            ? "None rated."
-            : `${capitalise(toWords(ratedStays))} rated.`
-        }`;
 
   return [
     {
-      label: "Settlements",
+      label: t("routes.settlements.label"),
       href: "/settlements",
-      note: `${names}. ${documentedNote}`,
+      note: t("routes.settlements.note", {
+        names: towns.length,
+        nameWords: openingWords(towns.length, locale),
+        documented,
+        documentedWords: openingWords(documented, locale),
+      }),
     },
     {
-      label: "Photographs",
+      label: t("routes.photographs.label"),
       href: "/photographs",
-      note: `${records}. ${creditNote}`,
+      note: t("routes.photographs.note", {
+        records: facets.total,
+        recordWords: openingWords(facets.total, locale),
+        credited,
+        creditedWords: openingWords(credited, locale),
+      }),
     },
     {
-      label: "Map",
+      label: t("routes.map.label"),
       href: "/map",
-      note: "Every point we hold, coloured by what is known.",
+      note: t("routes.map.note"),
     },
-    { label: "Stay", href: "/stay", note: stayNote },
+    {
+      label: t("routes.stay.label"),
+      href: "/stay",
+      note: t("routes.stay.note", {
+        stays,
+        stayWords: openingWords(stays, locale),
+        rated: ratedStays,
+        ratedWords: openingWords(ratedStays, locale),
+      }),
+    },
   ];
 }
 
-export function photographRowHeading(shown: number): string {
-  return shown === 1
-    ? "One photograph, and what it is missing"
-    : `${countSentence(shown, {
-        one: "{n} photograph",
-        many: "{n} photographs",
-        zero: "No photographs",
-      })}, and what each one is missing`;
+export function photographRowHeading(
+  t: ArchiveHomeTranslator,
+  locale: Locale,
+  shown: number
+): string {
+  return t("photographRow.heading", {
+    count: shown,
+    words: openingWords(shown, locale, "feminine"),
+  });
 }
 
-export function photographRowNote(row: PublicGalleryMedia[]): string {
+export function photographRowNote(
+  t: ArchiveHomeTranslator,
+  locale: Locale,
+  row: PublicGalleryMedia[]
+): string {
   const uncredited = row.filter((media) => photoCredit(media) === null).length;
 
   if (uncredited === row.length && row.length > 0) {
-    return "Nobody has told us who took any of these.";
+    return t("photographRow.noneCredited");
   }
-  if (uncredited === 0) return "Every one of these names its photographer.";
+  if (uncredited === 0) return t("photographRow.allCredited");
 
-  return `${countSentence(uncredited, {
-    one: "{n} of these has no photographer",
-    many: "{n} of these have no photographer",
-    zero: "",
-  })}.`;
+  return t("photographRow.someUncredited", {
+    count: uncredited,
+    words: openingWords(uncredited, locale, "feminine"),
+  });
 }
 
 /**
@@ -229,15 +236,18 @@ export function pickPhotographRow(
 }
 
 export function emptySettlementsStandfirst(
+  t: ArchiveHomeTranslator,
+  locale: Locale,
   empty: number,
   total: number
 ): string {
-  if (empty === 0) return "Every settlement on the island holds something.";
+  if (empty === 0) return t("emptySettlements.none");
 
-  return (
-    `${capitalise(toWords(empty))} of the ${toWords(total)} have a name and a point ` +
-    "on the map and nothing else. No photograph, no description, no record of who lives there."
-  );
+  return t("emptySettlements.standfirst", {
+    empty,
+    emptyWords: openingWords(empty, locale),
+    totalWords: words(total, locale),
+  });
 }
 
 /** A name-only settlement's only home is its pin, so the chip selects it there. */

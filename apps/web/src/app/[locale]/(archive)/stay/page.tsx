@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { StayContent } from "@/components/stay/stay-content";
 import { getEntriesByCategory, getTownStatusSummary } from "@/lib/api";
@@ -10,10 +10,10 @@ import { townSlugsById } from "@/lib/place-path";
 const STAY_PAGE_SIZE = 100;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.stay");
   return generatePageMetadata({
-    title: "Stay",
-    description:
-      "Every recorded place to stay on Brava Island, Cape Verde — and what the archive still does not know about them.",
+    title: t("title"),
+    description: t("description"),
     path: "/stay",
     locale: await getLocale(),
     keywords: [

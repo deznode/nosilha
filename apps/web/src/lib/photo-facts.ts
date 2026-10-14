@@ -1,7 +1,6 @@
 import { createFormatter } from "next-intl";
 
-import { DEFAULT_LOCALE } from "@/i18n/config";
-import { formats, TIME_ZONE } from "@/i18n/formats";
+import type { Translator } from "@/i18n/types";
 import { trimmed } from "@/lib/text";
 import {
   isPublicUserUploadMedia,
@@ -27,18 +26,31 @@ export const ASPECT_FALLBACK = "388 / 300";
 /** A credit that answers the question without naming anyone. */
 const CREDIT_NOT_KNOWN = "not known";
 
+/** The `photographs` messages: the placeholder title and the missing pills. */
+export type PhotoFactsTranslator = Translator<"photographs">;
+
+/** The ochre pills, in the prototype's order; each has a `photographs.pills` message. */
+type MissingPill = "title" | "photographer" | "place" | "date" | "category";
+
+function pill(key: MissingPill, t: PhotoFactsTranslator): string {
+  return t(`pills.${key}`);
+}
+
 export interface PhotoTitle {
   text: string;
   /** Renders italic and in secondary ink, so a placeholder never reads as a name. */
   untitled: boolean;
 }
 
-/** A record's title, or the placeholder that says it has none. */
-export function photoTitle(media: PublicGalleryMedia): PhotoTitle {
+/** A record's title, or the placeholder that says it has none, in `t`'s language. */
+export function photoTitle(
+  media: PublicGalleryMedia,
+  t: PhotoFactsTranslator
+): PhotoTitle {
   const title = trimmed(media.title);
   return title
     ? { text: title, untitled: false }
-    : { text: "Untitled", untitled: true };
+    : { text: t("untitled"), untitled: true };
 }
 
 /**
@@ -53,16 +65,6 @@ export type DateFormatter = Pick<
 
 /** How a file date reads: "July 12, 2024" or "July 2024" in English. */
 export type PhotoDateStyle = "longDate" | "monthYear";
-
-/**
- * Only for callers that have not been handed the page's formatter yet. Every new
- * caller passes its own, so the date follows the page's language.
- */
-const DEFAULT_FORMAT: DateFormatter = createFormatter({
-  locale: DEFAULT_LOCALE,
-  timeZone: TIME_ZONE,
-  formats,
-});
 
 /**
  * When the photograph was taken: the date read from the file, else the approximate
@@ -142,9 +144,10 @@ export interface PhotoFacts {
  */
 export function photoFacts(
   media: PublicGalleryMedia,
-  format: DateFormatter = DEFAULT_FORMAT
+  format: DateFormatter,
+  t: PhotoFactsTranslator
 ): PhotoFacts {
-  const title = photoTitle(media);
+  const title = photoTitle(media, t);
   const date = photoDateLabel(media, format);
   const credit = photoCredit(media);
   const located = photoIsLocated(media);
@@ -152,11 +155,11 @@ export function photoFacts(
   const isUpload = isPublicUserUploadMedia(media);
 
   const missing: string[] = [];
-  if (title.untitled) missing.push("no title");
-  if (!credit) missing.push("no photographer");
-  if (isUpload && !located) missing.push("no place");
-  if (isUpload && !date) missing.push("no date");
-  if (!category) missing.push("no category");
+  if (title.untitled) missing.push(pill("title", t));
+  if (!credit) missing.push(pill("photographer", t));
+  if (isUpload && !located) missing.push(pill("place", t));
+  if (isUpload && !date) missing.push(pill("date", t));
+  if (!category) missing.push(pill("category", t));
 
   const known: string[] = [];
   if (date) known.push(date);

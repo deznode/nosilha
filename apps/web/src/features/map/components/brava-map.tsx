@@ -41,6 +41,20 @@ const NARROW_EASE_BOTTOM_SHARE = 0.6;
  */
 export default function BravaMap() {
   const t = useTranslations("map");
+  const tStatus = useTranslations("status");
+  const tCategories = useTranslations("categories");
+  const tPhotographs = useTranslations("photographs");
+  // Read by the load below, which runs once per visit rather than per translator.
+  const itemCopyRef = useRef({
+    categories: tCategories,
+    photographs: tPhotographs,
+  });
+  useEffect(() => {
+    itemCopyRef.current = {
+      categories: tCategories,
+      photographs: tPhotographs,
+    };
+  }, [tCategories, tPhotographs]);
   const locale = useLocale();
   const mapRef = useRef<MapRef>(null);
   const [mapReady, setMapReady] = useState(false);
@@ -69,7 +83,7 @@ export default function BravaMap() {
     // Activity keeps this component's state across a hide; an open sheet or fan from
     // the last visit should not greet the next one.
     store.resetTransient();
-    store.fetchData();
+    store.fetchData(itemCopyRef.current);
 
     // Prevent iOS Safari body bounce scrolling behind the full-screen map
     const prevOverflow = document.body.style.overflow;
@@ -224,7 +238,7 @@ export default function BravaMap() {
       ? photographsNote(t, locale, unlocatedCount)
       : null;
   const rows = ready
-    ? legendRows(t, mode, counts, photos, unlocatedCount)
+    ? legendRows(t, mode, counts, photos, unlocatedCount, tStatus)
     : null;
   const clearSelection = () => useMapStore.getState().clearSelection();
   const sheetView: SheetView = sheetOpen

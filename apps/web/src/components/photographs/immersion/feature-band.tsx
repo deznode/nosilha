@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import {
@@ -17,9 +18,10 @@ import {
  * reduced motion.
  */
 export function FeatureBand({ photo }: { photo: ArchivePhoto }) {
-  const heading = photoHeading(photo);
+  const t = useTranslations("photographs");
+  const heading = photoHeading(photo, t);
   const caption = photoCaption(photo);
-  const line = photoLine(photo);
+  const line = photoLine(photo, t);
 
   return (
     // Named by its eyebrow and heading: the band is one link, and without this its
@@ -45,7 +47,7 @@ export function FeatureBand({ photo }: { photo: ArchivePhoto }) {
           id="feature-band-eyebrow"
           className="text-[11px] tracking-[.18em] uppercase opacity-[.85]"
         >
-          Photographs · Today&rsquo;s photograph
+          {t("index.featureEyebrow")}
         </span>
         <h2
           id="feature-band-heading"

@@ -32,7 +32,8 @@ export function MapHoverPopup({ item }: { item: MapItem }) {
 /** The popup's body, separate so it can be rendered without a map. */
 export function MapHoverCard({ item }: { item: MapItem }) {
   const t = useTranslations("map");
-  const copy = popupContent(t, item);
+  const tStatus = useTranslations("status");
+  const copy = popupContent(t, item, tStatus);
 
   return (
     <div

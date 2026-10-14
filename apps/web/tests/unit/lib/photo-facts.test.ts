@@ -1,5 +1,6 @@
 import { createFormatter } from "next-intl";
-import { describe, expect, it } from "vitest";
+import { getTranslations } from "next-intl/server";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { formats, TIME_ZONE } from "@/i18n/formats";
 
@@ -9,6 +10,7 @@ import {
   photoDateLabel,
   photoFacts,
   photoTitle,
+  type PhotoFactsTranslator,
 } from "@/lib/photo-facts";
 import type {
   PublicExternalMedia,
@@ -63,28 +65,33 @@ function film(
   };
 }
 
+const FORMAT = createFormatter({ locale: "en", timeZone: TIME_ZONE, formats });
+
+let t: PhotoFactsTranslator;
+beforeAll(async () => {
+  t = await getTranslations("photographs");
+});
+
 /** Spec 034 T-25 / T-30 / T-31 — one derivation for every photograph surface. */
 describe("photoTitle", () => {
   it("falls back to Untitled in italic secondary ink", () => {
-    expect(photoTitle(upload({ title: null }))).toEqual({
+    expect(photoTitle(upload({ title: null }), t)).toEqual({
       text: "Untitled",
       untitled: true,
     });
   });
 
   it("keeps a recorded title", () => {
-    expect(photoTitle(upload({ title: "Lomba Tantun" }))).toEqual({
+    expect(photoTitle(upload({ title: "Lomba Tantun" }), t)).toEqual({
       text: "Lomba Tantun",
       untitled: false,
     });
   });
 
   it("treats a blank title as untitled", () => {
-    expect(photoTitle(upload({ title: "   " })).untitled).toBe(true);
+    expect(photoTitle(upload({ title: "   " }), t).untitled).toBe(true);
   });
 });
-
-const FORMAT = createFormatter({ locale: "en", timeZone: TIME_ZONE, formats });
 
 describe("photoDateLabel", () => {
   it("reads a date taken as a long date", () => {
@@ -154,7 +161,9 @@ describe("photoFacts", () => {
         dateTaken: undefined,
         latitude: undefined,
         longitude: undefined,
-      })
+      }),
+      FORMAT,
+      t
     );
 
     expect(facts.missing).toEqual([
@@ -174,7 +183,9 @@ describe("photoFacts", () => {
         title: "Lomba Tantun",
         category: "Landscape",
         photographerCredit: "Ana Lopes",
-      })
+      }),
+      FORMAT,
+      t
     );
 
     expect(facts.missing).toEqual([]);
@@ -183,18 +194,22 @@ describe("photoFacts", () => {
   });
 
   it('counts "not known" as no photographer, because it is an answer not a name', () => {
-    const facts = photoFacts(upload({ photographerCredit: "not known" }));
+    const facts = photoFacts(
+      upload({ photographerCredit: "not known" }),
+      FORMAT,
+      t
+    );
 
     expect(facts.missing).toContain("no photographer");
   });
 
   it("reads a film's credit from its author", () => {
-    expect(photoFacts(film({ author: "RTC" })).missing).not.toContain(
-      "no photographer"
-    );
+    expect(
+      photoFacts(film({ author: "RTC" }), FORMAT, t).missing
+    ).not.toContain("no photographer");
   });
 
   it("never asks a film for a place: films carry no coordinates", () => {
-    expect(photoFacts(film()).missing).not.toContain("no place");
+    expect(photoFacts(film(), FORMAT, t).missing).not.toContain("no place");
   });
 });

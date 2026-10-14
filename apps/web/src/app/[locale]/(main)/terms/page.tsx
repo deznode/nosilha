@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getFormatter, getLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { withLocaleMetadata } from "@/lib/metadata";
 import { Link } from "@/i18n/navigation";
 import { cacheLife } from "next/cache";
@@ -554,15 +554,14 @@ export default async function TermsPage() {
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.terms");
   return withLocaleMetadata(
     {
-      title: "Community Guidelines | Nos Ilha",
-      description:
-        "Join our community dedicated to preserving Brava Island's cultural heritage. Read our welcoming guidelines for sharing stories, photos, and celebrating our island's traditions together.",
+      title: t("title"),
+      description: t("description"),
       openGraph: {
-        title: "Community Guidelines - Nos Ilha",
-        description:
-          "Community guidelines for the Nos Ilha platform, celebrating Brava Island's cultural heritage through respectful participation and shared passion.",
+        title: t("ogTitle"),
+        description: t("ogDescription"),
         images: ["/images/terms/community-guidelines.jpg"],
       },
       robots: {

@@ -34,16 +34,6 @@ function isCategoryKey(category: string): category is CategoryKey {
   return (CATEGORY_KEYS as readonly string[]).includes(category);
 }
 
-/**
- * English only, for callers not yet passing a translator; it goes once they all do.
- * A test holds it equal to `messages/en.json` meanwhile.
- */
-const ENGLISH_LABELS: Record<string, string> = { Hotel: "Stay" };
-
-export function categoryLabel(
-  category: string,
-  t?: CategoryTranslator
-): string {
-  if (t) return isCategoryKey(category) ? t(category) : category;
-  return ENGLISH_LABELS[category] ?? category;
+export function categoryLabel(category: string, t: CategoryTranslator): string {
+  return isCategoryKey(category) ? t(category) : category;
 }

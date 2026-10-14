@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 
@@ -44,6 +45,7 @@ export function CinemaHero({ film }: { film: Film }) {
     pause,
     setMuted,
   } = useFilmHost(film, { loop: true });
+  const t = useTranslations("films");
   const running = state === "playing" || state === "loading";
 
   // Decided on arrival and on every Activity restore (which stopped the film).
@@ -51,16 +53,16 @@ export function CinemaHero({ film }: { film: Film }) {
     if (heroMayAutoplay()) start({ muted: true });
   }, [start]);
 
-  const place = filmedNear(film);
+  const place = filmedNear(t, film);
   const eyebrow = running
     ? muted
-      ? "Playing muted"
-      : "Playing"
-    : "Film of the month";
+      ? t("cinema.hero.playingMuted")
+      : t("cinema.hero.playing")
+    : t("cinema.hero.ofTheMonth");
 
   return (
     <section
-      aria-label="Featured film"
+      aria-label={t("cinema.hero.label")}
       className="bg-stage [container-type:size] relative h-[calc((100dvh-var(--chrome-top-bar-height))*0.62)] overflow-hidden md:h-[calc((100dvh-var(--chrome-top-bar-height))*0.84)]"
     >
       {film.thumbnailUrl && (
@@ -90,7 +92,7 @@ export function CinemaHero({ film }: { film: Film }) {
 
       {!running && !unplayable && (
         <PlayButton
-          label={`Play ${film.displayTitle}, muted`}
+          label={t("cinema.hero.playMuted", { title: film.displayTitle })}
           onClick={() => (state === "paused" ? play() : start({ muted: true }))}
           className="top-[42%]"
         />
@@ -106,14 +108,14 @@ export function CinemaHero({ film }: { film: Film }) {
             onClick={pause}
             className="focus-ring rounded-full border border-white/28 bg-[rgba(12,10,8,.55)] px-4 py-2.5 text-[13px] text-[#F6F1E9] backdrop-blur-[8px] transition-colors hover:bg-[rgba(12,10,8,.75)]"
           >
-            Pause
+            {t("cinema.hero.pause")}
           </button>
           <button
             type="button"
             onClick={() => setMuted(!muted)}
             className="focus-ring rounded-full border border-white/28 bg-[rgba(12,10,8,.55)] px-4 py-2.5 text-[13px] text-[#F6F1E9] backdrop-blur-[8px] transition-colors hover:bg-[rgba(12,10,8,.75)]"
           >
-            {muted ? "Sound off · Turn on" : "Sound on · Mute"}
+            {muted ? t("cinema.hero.soundOff") : t("cinema.hero.soundOn")}
           </button>
         </div>
       )}
@@ -143,13 +145,13 @@ export function CinemaHero({ film }: { film: Film }) {
             href={filmHref(film.id, { play: true })}
             className="focus-ring rounded-lg bg-[#F6F1E9] px-5 py-3 text-sm font-medium text-[#16130F] transition-opacity hover:opacity-[.92]"
           >
-            Watch with sound
+            {t("cinema.hero.watchWithSound")}
           </Link>
           <Link
             href={`/films/${film.id}`}
             className="focus-ring rounded-lg border border-white/30 bg-white/12 px-5 py-3 text-sm text-[#F6F1E9] transition-colors hover:bg-white/20"
           >
-            Film page
+            {t("cinema.hero.filmPage")}
           </Link>
         </div>
       </div>

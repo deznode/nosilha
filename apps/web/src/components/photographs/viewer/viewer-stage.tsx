@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { useReducedMotion } from "framer-motion";
 
 import { usePointerFine } from "@/hooks/use-pointer-fine";
@@ -59,6 +60,8 @@ export function ViewerStage({
   /** True while the identify sheet is open: keys belong to it. */
   keysDisabled: boolean;
 }) {
+  const t = useTranslations("viewer.stage");
+  const tPhotographs = useTranslations("photographs");
   const reduceMotion = useReducedMotion();
   const pointerFine = usePointerFine();
   const [fullScreen, setFullScreen] = useState(false);
@@ -162,13 +165,13 @@ export function ViewerStage({
 
   const chromeVisible = !fullScreen || chromeAwake;
   const counter = [
-    `${position} of ${total}`,
+    t("position", { position, total }),
     placeLabel || null,
-    pointerFine ? "← → to move · Esc to go back" : "swipe to move",
+    pointerFine ? t("hintPointer") : t("hintTouch"),
   ]
     .filter(Boolean)
     .join(" · ");
-  const heading = photoHeading(photo);
+  const heading = photoHeading(photo, tPhotographs);
   const caption = photoCaption(photo);
   const transition = reduceMotion
     ? "none"
@@ -179,7 +182,7 @@ export function ViewerStage({
   return (
     <div
       role="region"
-      aria-label="Photograph"
+      aria-label={t("region")}
       className={clsx(
         // Vertical drags scroll the page past the photograph; swipes, which are
         // horizontal, still reach the stage. Zoomed or full screen, it takes every
@@ -252,7 +255,7 @@ export function ViewerStage({
             onClick={() => setFullScreen(false)}
             className="dark-pill hit-area pointer-events-auto absolute top-3.5 left-3.5 inline-flex !px-3.5"
           >
-            ✕ Close
+            {t("close")}
           </button>
         )}
 
@@ -264,7 +267,7 @@ export function ViewerStage({
               aria-pressed={panelOpen}
               className="dark-pill hit-area hidden md:inline-flex"
             >
-              {panelOpen ? "Hide details" : "Details"}
+              {panelOpen ? t("hideDetails") : t("details")}
             </button>
           )}
           <button
@@ -273,7 +276,7 @@ export function ViewerStage({
             aria-pressed={zoomed}
             className="dark-pill hit-area inline-flex"
           >
-            {zoomed ? "Fit" : "Zoom"}
+            {zoomed ? t("fit") : t("zoom")}
           </button>
           <button
             type="button"
@@ -281,7 +284,7 @@ export function ViewerStage({
             aria-pressed={fullScreen}
             className="dark-pill hit-area inline-flex"
           >
-            {fullScreen ? "Exit full screen" : "Full screen"}
+            {fullScreen ? t("exitFullScreen") : t("fullScreen")}
           </button>
         </div>
 
@@ -289,16 +292,12 @@ export function ViewerStage({
           <>
             <StepArrow
               side="left"
-              label="Previous photograph"
+              label={t("previous")}
               onClick={() => onStep(-1)}
             >
               ←
             </StepArrow>
-            <StepArrow
-              side="right"
-              label="Next photograph"
-              onClick={() => onStep(1)}
-            >
+            <StepArrow side="right" label={t("next")} onClick={() => onStep(1)}>
               →
             </StepArrow>
           </>

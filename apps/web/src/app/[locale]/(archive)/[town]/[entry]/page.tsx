@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { PlaceRecord } from "@/components/place-record/place-record";
 import {
@@ -43,12 +43,11 @@ export async function generateMetadata({
   if (!entry) return {};
   const town = summaries.find((item) => item.slug === townSlug);
   if (!town || !belongsToSettlement(entry, town)) return {};
+  const t = await getTranslations("metadata.entry");
 
   return generatePageMetadata({
     title: entry.name,
-    description:
-      entry.description?.trim() ||
-      `What the archive holds about ${entry.name} on Brava Island, Cape Verde.`,
+    description: entry.description?.trim() || t("about", { name: entry.name }),
     path: `/${town.slug}/${entry.slug}`,
     locale: await getLocale(),
     keywords: [entry.name, entry.category, "Brava Island", "Cape Verde"],

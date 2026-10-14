@@ -24,7 +24,8 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { clsx } from "clsx";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { getPathname } from "@/i18n/navigation";
 import { CreditDisplay } from "@/components/ui/credit-display";
 import { ShareButton } from "@/components/content/actions/share-button";
 import { PhotoIdentificationForm } from "@/components/gallery/photo-identification-form";
@@ -73,12 +74,19 @@ interface ImageLightboxProps {
 const SWIPE_THRESHOLD = 50;
 const DISMISS_THRESHOLD = 100;
 
-function getShareUrl(photo: Photo): string {
-  const path = `/photographs/${photo.id || ""}`;
-  if (typeof window !== "undefined") {
-    return `${window.location.origin}${path}`;
-  }
-  return path;
+/** A photograph's address in the visitor's language, absolute once in the browser. */
+function useShareUrl(): (photo: Photo) => string {
+  const locale = useLocale();
+  return (photo) => {
+    const path = getPathname({
+      href: `/photographs/${photo.id || ""}`,
+      locale,
+    });
+    if (typeof window !== "undefined") {
+      return `${window.location.origin}${path}`;
+    }
+    return path;
+  };
 }
 
 function isNeedsIdentification(photo: Photo): boolean {
@@ -105,6 +113,7 @@ export function ImageLightbox({
   const videoIframeRef = useRef<HTMLIFrameElement>(null);
   const shouldReduceMotion = useReducedMotion();
   const t = useTranslations("common.lightbox");
+  const shareUrl = useShareUrl();
 
   // Sync current index when the caller selects a different photo
   if (prevInitialIndex !== initialIndex) {
@@ -441,7 +450,7 @@ export function ImageLightbox({
         <PhotoIdentificationForm
           mediaId={photo.id}
           photoTitle={photo.title || photo.description || photo.alt}
-          pageUrl={getShareUrl(photo)}
+          pageUrl={shareUrl(photo)}
           isOpen={identifyOpen}
           onClose={() => setIdentifyOpen(false)}
           inline
@@ -533,6 +542,7 @@ function IdentifyButton({ onClick }: { onClick: () => void }) {
 
 function ActionsPanel({ photo, isVideo }: { photo: Photo; isVideo?: boolean }) {
   const t = useTranslations("common.lightbox");
+  const shareUrl = useShareUrl();
 
   return (
     <div className="mt-6 border-t border-white/20 pt-6">
@@ -549,7 +559,7 @@ function ActionsPanel({ photo, isVideo }: { photo: Photo; isVideo?: boolean }) {
         )}
         <ShareButton
           title={photo.alt}
-          url={getShareUrl(photo)}
+          url={shareUrl(photo)}
           description={photo.description}
           variant="icon-only"
         />
@@ -624,6 +634,7 @@ function MobileBottomSheet({
   onShowOnMap?: (lat: number, lng: number, photoId: string) => void;
 }) {
   const t = useTranslations("common.lightbox");
+  const shareUrl = useShareUrl();
   const handleSheetDragEnd = useCallback(
     (_: unknown, info: { offset: { y: number } }) => {
       // Drag up to expand, drag down to collapse
@@ -708,7 +719,7 @@ function MobileBottomSheet({
             </a>
             <ShareButton
               title={photo.alt}
-              url={getShareUrl(photo)}
+              url={shareUrl(photo)}
               description={photo.description}
               variant="icon-only"
             />

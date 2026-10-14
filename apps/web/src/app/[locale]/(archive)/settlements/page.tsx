@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { SettlementsContent } from "@/components/settlements/settlements-content";
 import { parseSettlementFilter } from "@/components/settlements/settlements-copy";
@@ -10,10 +10,10 @@ import { getTownStatusSummary } from "@/lib/api";
 import { generatePageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.settlements");
   return generatePageMetadata({
-    title: "Settlements",
-    description:
-      "Every settlement named on Brava Island, and how much of each one the archive actually holds.",
+    title: t("title"),
+    description: t("description"),
     path: "/settlements",
     locale: await getLocale(),
     keywords: [

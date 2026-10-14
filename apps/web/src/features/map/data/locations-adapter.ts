@@ -4,18 +4,19 @@ import {
   type PublicGalleryMedia,
 } from "@/types/gallery";
 import type { TownStatusSummary } from "@/types/town";
-import { categoryLabel } from "@/lib/category-label";
+import { categoryLabel, type CategoryTranslator } from "@/lib/category-label";
 import {
   photoCredit,
   photoIsIdentifiablePerson,
   photoIsLocated,
   photoTitle,
+  type PhotoFactsTranslator,
 } from "@/lib/photo-facts";
 import { foldAccents } from "@/lib/accent-fold";
 import { trimmed } from "@/lib/text";
 import {
-  getEntryStatus,
-  getTownStatus,
+  entryStatus,
+  townStatus,
   type DocumentationStatus,
 } from "@/lib/status";
 import type { MapItem, StatusFilter } from "./types";
@@ -24,7 +25,9 @@ import type { MapItem, StatusFilter } from "./types";
  * API responses → map items, one builder per mode. Spec 034 FR-011.
  *
  * Status comes from the one status table (FR-002); the pin reads its colour from the
- * status token at render time, so nothing here holds a colour.
+ * status token at render time, so nothing here holds a colour. The word above a
+ * settlement's or a photograph's name is the map's own (`itemEyebrow`), so only a
+ * record carries one from here: its category label.
  */
 
 /** Every settlement, pinned at its recorded coordinate. */
@@ -33,10 +36,9 @@ export function settlementItems(towns: TownStatusSummary[]): MapItem[] {
     key: `s:${town.slug}`,
     kind: "settlement",
     name: town.name,
-    eyebrow: "Settlement",
     description: town.description ?? "",
     coordinates: { lat: town.latitude, lng: town.longitude },
-    status: getTownStatus(town).status,
+    status: townStatus(town),
     hasRecords: town.entryCount > 0,
     // A name-only settlement still has a page: it is where its questions are asked.
     href: `/${town.slug}`,
@@ -55,7 +57,8 @@ export function settlementItems(towns: TownStatusSummary[]): MapItem[] {
  */
 export function recordItems(
   entries: DirectoryEntry[],
-  townSlugs: Record<string, string>
+  townSlugs: Record<string, string>,
+  tCategories: CategoryTranslator
 ): MapItem[] {
   return entries
     .filter((entry) => entry.latitude != null && entry.longitude != null)
@@ -66,10 +69,10 @@ export function recordItems(
         key: `r:${entry.slug}`,
         kind: "record",
         name: entry.name,
-        eyebrow: categoryLabel(entry.category),
+        eyebrow: categoryLabel(entry.category, tCategories),
         description: entry.description ?? "",
         coordinates: { lat: entry.latitude, lng: entry.longitude },
-        status: getEntryStatus(entry).status,
+        status: entryStatus(entry),
         hasRecords: false,
         href: townSlug ? `/${townSlug}/${entry.slug}` : null,
         regionSlug: townSlug,
@@ -105,7 +108,8 @@ function nearestSlug(
  */
 export function photoItems(
   media: PublicGalleryMedia[],
-  towns: TownStatusSummary[]
+  towns: TownStatusSummary[],
+  tPhotographs: PhotoFactsTranslator
 ): MapItem[] {
   const items: MapItem[] = [];
 
@@ -122,8 +126,7 @@ export function photoItems(
     items.push({
       key: `p:${record.id}`,
       kind: "photo",
-      name: photoTitle(record).text,
-      eyebrow: "Photograph",
+      name: photoTitle(record, tPhotographs).text,
       description: trimmed(record.description) ?? "",
       coordinates: { lat, lng },
       // A pin from a file's coordinates: records a point, not a documented place.

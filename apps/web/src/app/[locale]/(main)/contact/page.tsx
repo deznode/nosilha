@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { withLocaleMetadata } from "@/lib/metadata";
 import { cacheLife } from "next/cache";
 import { ContactPageContent } from "@/components/pages/contact-page-content";
@@ -12,15 +12,14 @@ export default async function ContactPage() {
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.contact");
   return withLocaleMetadata(
     {
-      title: "Contact Us | Nos Ilha - Get in Touch",
-      description:
-        "Contact the Nos Ilha team for inquiries, contributions, technical support, or to learn more about our community-driven platform for Brava Island.",
+      title: t("title"),
+      description: t("description"),
       openGraph: {
-        title: "Contact Nos Ilha",
-        description:
-          "Get in touch with the Nos Ilha community for support, contributions, or general inquiries about Brava Island.",
+        title: t("ogTitle"),
+        description: t("ogDescription"),
         images: ["/images/contact/contact-hero.jpg"],
       },
     },

@@ -21,12 +21,11 @@ import type {
  * cultural heritage sites, and business listings with proper structured data.
  */
 
-// Base configuration for the site
+// Base configuration for the site. The site's title and description for public pages
+// are in the `metadata.site` messages; `title` here serves only the English-only admin.
 export const siteConfig = {
   name: "Nos Ilha",
   title: "Nos Ilha - Your Guide to Brava, Cape Verde",
-  description:
-    "The definitive cultural heritage hub for Brava Island, Cape Verde. Preserve and celebrate Cape Verdean culture, explore authentic heritage experiences, connect with the global diaspora, and discover local cultural sites and businesses.",
   url:
     process.env.NODE_ENV === "production"
       ? "https://nosilha.com"
@@ -206,16 +205,18 @@ export function generatePageMetadata(
 }
 
 /**
- * Generate organization structured data for the main site
+ * Generate organization structured data for the main site. The description is the
+ * page language's `metadata.site.description`.
  */
 export function generateOrganizationSchema(
+  description: string,
   baseUrl: string = siteConfig.url
 ): OrganizationSchema {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: siteConfig.name,
-    description: siteConfig.description,
+    description,
     url: baseUrl,
     logo: {
       "@type": "ImageObject",

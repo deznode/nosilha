@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { FilmTheatre } from "@/components/films/theatre/film-theatre";
 import {
@@ -36,7 +36,11 @@ export async function generateMetadata({
 }: FilmRouteProps): Promise<Metadata> {
   const { id } = await params;
   const media = await getFilmMedia(id).catch(() => null);
-  const film = media ? toFilm(media) : null;
+  const [tFilms, t] = await Promise.all([
+    getTranslations("films"),
+    getTranslations("metadata.film"),
+  ]);
+  const film = media ? toFilm(media, [], tFilms) : null;
   if (!film) return {};
 
   const image = sharePreviewImage(film.thumbnailUrl, film.displayTitle);
@@ -45,7 +49,7 @@ export async function generateMetadata({
     title: film.displayTitle,
     description: film.description
       ? excerpt(film.description)
-      : "A film of Brava Island from the archive, played in place.",
+      : t("description"),
     path: `/films/${film.id}`,
     locale: await getLocale(),
     keywords: ["Brava Island", "Cape Verde", "archive film"],
@@ -89,18 +93,21 @@ async function cachedFilm(id: string) {
   // rejection a handler now rather than letting it surface as unhandled.
   settlementsPromise.catch(() => undefined);
 
-  const media = await mediaPromise;
-  if (!media || !toFilm(media)) notFound();
+  const [media, t] = await Promise.all([
+    mediaPromise,
+    getTranslations("films"),
+  ]);
+  if (!media || !toFilm(media, [], t)) notFound();
 
   const [settlements, others, archive] = await Promise.all([
     settlementsPromise,
     othersPromise,
     archivePromise,
   ]);
-  const film = toFilm(media, settlements);
+  const film = toFilm(media, settlements, t);
   if (!film) notFound();
 
-  const films = others === null ? null : toFilms(others, settlements);
+  const films = others === null ? null : toFilms(others, settlements, t);
   const hasPlacePhotos =
     !!film.place &&
     !!archive?.photos.some((p) => p.near?.slug === film.place?.slug);

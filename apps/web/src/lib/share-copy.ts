@@ -1,11 +1,13 @@
+import type { Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
 import {
   missingFields,
   photoHeading,
   photographsHref,
   type ArchivePhoto,
-  type MissingField,
+  type PhotographsTranslator,
 } from "@/lib/archive-photographs";
-import { joinList, plural } from "@/lib/copy/number-words";
+import { joinList } from "@/lib/copy/number-words";
 import type { Film } from "@/lib/films";
 import type { TownStatusSummary } from "@/types/town";
 
@@ -13,59 +15,79 @@ import type { TownStatusSummary } from "@/types/town";
  * Every sentence a share sends or a share arrival reads. Spec 040 FR-002, FR-004,
  * FR-006. Kept in one place so the preview, the prefilled message and the page say
  * the same thing.
+ *
+ * Each sentence is one message in the `share` namespace (spec 041 FR-004). Counts
+ * go in as strings beside the plural selector, so a large number keeps the digits
+ * it has today instead of gaining a thousands separator.
  */
 
-const ARCHIVE = "the Brava archive";
+type ShareT = Translator<"share">;
 
 /** The preview title and the bar on an ask link. */
-export const ASK_TITLE = "Do you recognise this photograph?";
-
-const ASK_WORDS: Record<MissingField, string> = {
-  photographer: "who took it",
-  place: "where it was taken",
-  date: "when it was taken",
-};
+export function askTitle(t: ShareT): string {
+  return t("ask.title");
+}
 
 /** What the archive does not know about a photograph; null when it knows it all. */
-export function askDescription(photo: ArchivePhoto): string | null {
-  const missing = missingFields(photo).map((field) => ASK_WORDS[field]);
+export function askDescription(
+  photo: ArchivePhoto,
+  t: ShareT,
+  locale: Locale
+): string | null {
+  const missing = missingFields(photo).map((field) =>
+    t(`ask.missing.${field}`)
+  );
   return missing.length
-    ? `The Brava archive does not know ${joinList(missing, "or")}.`
+    ? t("ask.description", { missing: joinList(missing, "or", locale) })
     : null;
 }
 
 /** The message an "ask" share prefills; null when there is nothing to ask. */
-export function askShareText(photo: ArchivePhoto): string | null {
-  const description = askDescription(photo);
-  return description ? `${ASK_TITLE} ${description}` : null;
+export function askShareText(
+  photo: ArchivePhoto,
+  t: ShareT,
+  locale: Locale
+): string | null {
+  const description = askDescription(photo, t, locale);
+  return description ? `${askTitle(t)} ${description}` : null;
 }
 
-/** `Title, place, Month YYYY. From the Brava archive.`, with only what is recorded. */
-export function photoShareText(photo: ArchivePhoto): string {
+/**
+ * `Title, place, Month YYYY. From the Brava archive.`, with only what is recorded.
+ * `tPhotographs` words the heading of an untitled photograph.
+ */
+export function photoShareText(
+  photo: ArchivePhoto,
+  t: ShareT,
+  tPhotographs: PhotographsTranslator
+): string {
   // An untitled photograph's heading is already "Near X": don't say the settlement twice.
   const place = photo.placeName ?? (photo.title ? photo.near?.name : null);
-  const facts = [photoHeading(photo), place, photo.monthYear]
+  const facts = [photoHeading(photo, tPhotographs), place, photo.monthYear]
     .filter(Boolean)
     .join(", ");
-  return `${facts}. From ${ARCHIVE}.`;
+  return t("photo", { facts });
 }
 
-export function filmShareText(film: Pick<Film, "displayTitle">): string {
-  return `${film.displayTitle}. A film in ${ARCHIVE}.`;
-}
-
-function counted(n: number, one: string, many: string): string | null {
-  return n > 0 ? `${n} ${plural(n, one, many)}` : null;
+export function filmShareText(
+  film: Pick<Film, "displayTitle">,
+  t: ShareT
+): string {
+  return t("film", { title: film.displayTitle });
 }
 
 /** `23 photographs · 5 place records`; null when the archive holds neither. */
 export function townHoldings(
-  summary: Pick<TownStatusSummary, "photographCount" | "entryCount">
+  summary: Pick<TownStatusSummary, "photographCount" | "entryCount">,
+  t: ShareT
 ): string | null {
+  const count = (n: number) => ({ count: n, n: String(n) });
   return (
     [
-      counted(summary.photographCount, "photograph", "photographs"),
-      counted(summary.entryCount, "place record", "place records"),
+      summary.photographCount > 0 &&
+        t("holdings.photographs", count(summary.photographCount)),
+      summary.entryCount > 0 &&
+        t("holdings.placeRecords", count(summary.entryCount)),
     ]
       .filter(Boolean)
       .join(" · ") || null
@@ -73,12 +95,13 @@ export function townHoldings(
 }
 
 export function townShareText(
-  summary: Pick<TownStatusSummary, "name" | "photographCount" | "entryCount">
+  summary: Pick<TownStatusSummary, "name" | "photographCount" | "entryCount">,
+  t: ShareT
 ): string {
-  const holdings = townHoldings(summary);
+  const holdings = townHoldings(summary, t);
   return holdings
-    ? `${summary.name} in ${ARCHIVE}: ${holdings}.`
-    : `${summary.name} in ${ARCHIVE}.`;
+    ? t("town.withHoldings", { name: summary.name, holdings })
+    : t("town.plain", { name: summary.name });
 }
 
 /** One sentence and where it leads, for a visitor who arrived from a shared link. */
@@ -89,37 +112,40 @@ export interface ArrivalLine {
 
 export function photoArrivalLine(
   photo: ArchivePhoto,
-  photos: readonly ArchivePhoto[]
+  photos: readonly ArchivePhoto[],
+  t: ShareT
 ): ArrivalLine {
   const near = photo.near;
   const others = near
     ? photos.filter((p) => p.id !== photo.id && p.near?.slug === near.slug)
         .length
     : 0;
-  const more = counted(others, "more photograph", "more photographs");
 
-  if (near && more) {
+  if (near && others > 0) {
     return {
-      text: `From ${ARCHIVE} · ${more} near ${near.name}`,
+      text: t("arrival.photosNear", {
+        count: others,
+        n: String(others),
+        place: near.name,
+      }),
       href: photographsHref(near.slug),
     };
   }
-  return {
-    text: `From ${ARCHIVE}, a community record of Brava Island`,
-    href: "/photographs",
-  };
+  return { text: t("arrival.photo"), href: "/photographs" };
 }
 
 export function filmArrivalLine(
   film: Pick<Film, "id">,
-  films: readonly Pick<Film, "id">[] | null
+  films: readonly Pick<Film, "id">[] | null,
+  t: ShareT
 ): ArrivalLine {
   const others = films?.filter((f) => f.id !== film.id).length ?? 0;
-  const more = counted(others, "more film", "more films") ?? "more films";
-  return { text: `From ${ARCHIVE} · ${more}`, href: "/films" };
+  return {
+    text: t("arrival.films", { count: others, n: String(others) }),
+    href: "/films",
+  };
 }
 
-export const TOWN_ARRIVAL_LINE: ArrivalLine = {
-  text: `Part of ${ARCHIVE} · all settlements`,
-  href: "/settlements",
-};
+export function townArrivalLine(t: ShareT): ArrivalLine {
+  return { text: t("arrival.town"), href: "/settlements" };
+}

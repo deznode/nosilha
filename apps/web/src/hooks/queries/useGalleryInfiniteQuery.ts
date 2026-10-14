@@ -1,7 +1,8 @@
 import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
-import { useFormatter } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { getGalleryMedia } from "@/lib/api";
 import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
+import type { Translator } from "@/i18n/types";
 import type { DateFormatter } from "@/lib/photo-facts";
 import type { MediaItem } from "@/types/media";
 
@@ -42,10 +43,11 @@ export function galleryGetNextPageParam(lastPage: GalleryPage) {
 
 /**
  * Shared queryFn factory for both prefetch and client-side use. `format` writes each
- * item's date in the page's language.
+ * item's date, and `t` its placeholders, in the page's language.
  */
 export function galleryQueryFn(
   format: DateFormatter,
+  t: Translator<"photographs">,
   filters?: GalleryFilters
 ) {
   return async ({ pageParam }: { pageParam: unknown }) => {
@@ -59,7 +61,7 @@ export function galleryQueryFn(
     });
     return {
       items: response.items.map((item) =>
-        mapGalleryMediaToMediaItem(item, format)
+        mapGalleryMediaToMediaItem(item, format, t)
       ),
       totalItems: response.totalItems,
       totalPages: response.totalPages,
@@ -76,9 +78,10 @@ export function useGalleryInfiniteQuery({
   filters,
 }: UseGalleryInfiniteQueryOptions = {}) {
   const format = useFormatter();
+  const t = useTranslations("photographs");
   const query = useInfiniteQuery<GalleryPage>({
     queryKey: galleryQueryKey(filters),
-    queryFn: galleryQueryFn(format, filters),
+    queryFn: galleryQueryFn(format, t, filters),
     initialPageParam: 0,
     getNextPageParam: galleryGetNextPageParam,
     placeholderData: keepPreviousData,

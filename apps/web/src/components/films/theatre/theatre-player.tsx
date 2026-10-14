@@ -9,10 +9,11 @@ import {
   useSyncExternalStore,
 } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { clsx } from "clsx";
 
-import type { Film } from "@/lib/films";
+import { filmSourceName, type Film, type FilmsTranslator } from "@/lib/films";
 
 import { useFilmHost } from "../use-film-host";
 
@@ -28,6 +29,11 @@ export const COUNTDOWN_SECONDS = 5;
 
 const BAR_BUTTON =
   "focus-ring rounded-md bg-white/14 px-3 py-[7px] text-xs text-[#F6F1E9] transition-colors hover:bg-white/24";
+/** The film's host as a sentence names it, or "none" for the messages' own phrase. */
+function hostArg(t: FilmsTranslator, film: Film): string {
+  return film.source ? filmSourceName(t, film.source) : "none";
+}
+
 const OUTLINE_BUTTON =
   "focus-ring rounded-lg border border-white/40 bg-transparent px-4 py-[9px] text-[13px] text-[#F6F1E9] transition-colors hover:bg-white/10";
 
@@ -72,6 +78,8 @@ export function TheatrePlayer({
     setMuted,
     replay,
   } = useFilmHost(film);
+  const t = useTranslations("films.player");
+  const tFilms = useTranslations("films");
   const [countdown, setCountdown] = useState(0);
 
   // `?play=1`: play with sound on arrival. Client navigation keeps the user's
@@ -208,7 +216,7 @@ export function TheatrePlayer({
             }}
           />
           <PlayButton
-            label={`Play ${film.displayTitle}`}
+            label={t("play", { title: film.displayTitle })}
             onClick={() => start()}
             className="top-1/2"
           />
@@ -220,7 +228,7 @@ export function TheatrePlayer({
           role="status"
           className="absolute inset-0 flex items-center justify-center bg-[rgba(10,8,6,.35)] text-xs text-[#F6F1E9]/80"
         >
-          Loading from {film.source ?? "its host"}
+          {t("loading", { host: hostArg(tFilms, film) })}
         </div>
       )}
 
@@ -230,7 +238,7 @@ export function TheatrePlayer({
         <>
           {muted && (
             <span className="absolute top-3 right-3 rounded-full bg-[rgba(10,8,6,.6)] px-3 py-1.5 text-xs text-[#F6F1E9]">
-              Sound off
+              {t("soundOffChip")}
             </span>
           )}
           <div
@@ -241,7 +249,7 @@ export function TheatrePlayer({
             }}
           >
             <button type="button" onClick={toggle} className={BAR_BUTTON}>
-              {state === "playing" ? "Pause" : "Play"}
+              {state === "playing" ? t("pause") : t("resume")}
             </button>
             <SeekTrack progress={progress} onSeek={seek} />
             <button
@@ -249,7 +257,7 @@ export function TheatrePlayer({
               onClick={() => setMuted(!muted)}
               className={BAR_BUTTON}
             >
-              {muted ? "Sound on" : "Mute"}
+              {muted ? t("soundOn") : t("mute")}
             </button>
             {fullScreenSupported && (
               <button
@@ -258,7 +266,7 @@ export function TheatrePlayer({
                 aria-pressed={fullScreen}
                 className={BAR_BUTTON}
               >
-                {fullScreen ? "Exit full screen" : "Full screen"}
+                {fullScreen ? t("exitFullScreen") : t("fullScreen")}
               </button>
             )}
           </div>
@@ -315,12 +323,13 @@ function SeekTrack({
   progress: number;
   onSeek: (fraction: number) => void;
 }) {
+  const t = useTranslations("films.player");
   const percent = Math.round(progress * 100);
   return (
     <div
       role="slider"
       tabIndex={0}
-      aria-label="Seek"
+      aria-label={t("seek")}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={percent}
@@ -346,21 +355,19 @@ function SeekTrack({
 }
 
 function CantPlay({ film, blocked }: { film: Film; blocked: boolean }) {
-  const host = film.source ?? "its host";
+  const t = useTranslations("films.player");
+  const tFilms = useTranslations("films");
+  const host = hostArg(tFilms, film);
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 p-5 text-center text-[#F6F1E9]">
       <span className="text-[11px] tracking-[.18em] text-[#E3C39E] uppercase">
-        Can&rsquo;t play here
+        {t("cantPlay")}
       </span>
       <span className="max-w-[26ch] font-serif text-[22px] leading-[1.2]">
-        {blocked
-          ? `${host} won’t let this film play here`
-          : "The source file is missing from the archive"}
+        {blocked ? t("blockedTitle", { host }) : t("missingTitle")}
       </span>
       <span className="max-w-[44ch] text-[13px] leading-normal opacity-[.82]">
-        {blocked
-          ? "The record stays. You can still watch it on its host."
-          : "The record stays. If you have a copy of this film, the curators would like to hear from you."}
+        {blocked ? t("blockedBody") : t("missingBody")}
       </span>
       {blocked && film.watchUrl ? (
         <a
@@ -369,11 +376,11 @@ function CantPlay({ film, blocked }: { film: Film; blocked: boolean }) {
           rel="noopener noreferrer"
           className={clsx(OUTLINE_BUTTON, "mt-1")}
         >
-          Watch on {host}
+          {t("watchOn", { host })}
         </a>
       ) : (
         <Link href={SEND_A_COPY_HREF} className={clsx(OUTLINE_BUTTON, "mt-1")}>
-          Send a copy
+          {t("sendCopy")}
         </Link>
       )}
     </div>
@@ -396,6 +403,7 @@ function EndedOverlay({
   onCancel: () => void;
   onReplay: () => void;
 }) {
+  const t = useTranslations("films.player");
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-[rgba(10,8,6,.84)] p-5 text-[#F6F1E9]">
       <div className="flex max-w-[560px] flex-wrap items-center justify-center gap-[18px]">
@@ -417,10 +425,12 @@ function EndedOverlay({
                 aria-live="polite"
                 className="text-[11px] tracking-[.16em] uppercase opacity-[.78]"
               >
-                {countdown > 0 ? `Up next in ${countdown}` : "Up next"}
+                {countdown > 0
+                  ? t("upNextIn", { count: countdown })
+                  : t("upNext")}
               </span>
               <span className="font-serif text-[22px] leading-[1.2]">
-                {next ? next.displayTitle : "That was the last film"}
+                {next ? next.displayTitle : t("lastFilm")}
               </span>
             </>
           )}
@@ -431,7 +441,7 @@ function EndedOverlay({
                 onClick={onPlayNext}
                 className="focus-ring rounded-lg bg-[#F6F1E9] px-4 py-[9px] text-[13px] font-medium text-[#16130F]"
               >
-                Play now
+                {t("playNow")}
               </button>
             )}
             {countdown > 0 && (
@@ -440,11 +450,11 @@ function EndedOverlay({
                 onClick={onCancel}
                 className={OUTLINE_BUTTON}
               >
-                Cancel
+                {t("cancel")}
               </button>
             )}
             <button type="button" onClick={onReplay} className={OUTLINE_BUTTON}>
-              Watch again
+              {t("watchAgain")}
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense, type ReactNode } from "react";
 
 import { ArchiveHome } from "@/components/archive-home/archive-home";
@@ -27,10 +27,10 @@ import type { PlaceSchema } from "@/types/metadata";
 const ROW_POOL_SIZE = 12;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.home");
   return generatePageMetadata({
-    title: "An archive of Brava, built from what people send us",
-    description:
-      "A community archive of Brava Island, Cape Verde: settlements, place records and photographs, with every gap stated rather than hidden.",
+    title: t("title"),
+    description: t("description"),
     path: "/",
     locale: await getLocale(),
     keywords: [
@@ -57,8 +57,7 @@ export async function generateMetadata(): Promise<Metadata> {
         "@type": "Place",
         additionalType: "https://schema.org/LandmarksOrHistoricalBuildings",
         name: "Brava Island, Cape Verde",
-        description:
-          "The flower island of Cape Verde, a cultural heritage hub preserving Cape Verdean traditions, known for its lush landscapes, rich cultural memory, and authentic heritage experiences.",
+        description: t("placeDescription"),
         image: [`${siteConfig.url}/images/hero.jpg`],
         address: {
           "@type": "PostalAddress",
@@ -106,7 +105,7 @@ async function ArchiveHomeContent({ instagram }: { instagram: ReactNode }) {
   // degrade it — it would change "twenty-five settlements" into "no settlement" and
   // then `use cache` would hold that lie for an hour. An error the next request
   // retries is better than a confident wrong number nobody can see is wrong.
-  const [towns, allEntries, facets, stays, featured, pool, films] =
+  const [towns, allEntries, facets, stays, featured, pool, films, tFilms] =
     await Promise.all([
       getTownStatusSummary(),
       getEntriesByCategory("all", 0, 1),
@@ -117,6 +116,7 @@ async function ArchiveHomeContent({ instagram }: { instagram: ReactNode }) {
       // Every film, not just the three the strip shows: its sub-line counts titles
       // across the whole archive.
       getGalleryMedia({ mediaType: "VIDEO", size: FILMS_FETCH_SIZE }),
+      getTranslations("films"),
     ]);
 
   return (
@@ -132,7 +132,7 @@ async function ArchiveHomeContent({ instagram }: { instagram: ReactNode }) {
       }
       hero={pickHero(featured)}
       photographRow={pickPhotographRow(pool.items)}
-      films={toFilms(films.items, towns)}
+      films={toFilms(films.items, towns, tFilms)}
       instagram={instagram}
     />
   );

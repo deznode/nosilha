@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { clsx } from "clsx";
 
@@ -8,7 +9,8 @@ import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { submitSuggestion } from "@/lib/api";
 import { ApiError } from "@/lib/api-error";
-import { fieldPhrase } from "@/lib/field-labels";
+import { fieldPhrase, type FieldTranslator } from "@/lib/field-labels";
+import type { Translator } from "@/i18n/types";
 import { trackEvent } from "@/lib/ga";
 import { supabase } from "@/lib/supabase-client";
 import { useUser } from "@/stores/authStore";
@@ -30,45 +32,23 @@ import { useShareArrivalStore } from "@/stores/shareArrivalStore";
  * said anything loses the thing they knew. Sign-in is offered, not required.
  * Spec 040 FR-008.
  *
- * Copy and metrics are the prototype's, verbatim.
+ * Copy and metrics are the prototype's, verbatim; the words are the `identify`
+ * messages (spec 041 FR-004).
  */
 
-interface Question {
-  /** Stable key used in the composed message. */
-  key: string;
-  label: string;
-  placeholder: string;
-}
+type IdentifyTranslator = Translator<"identify">;
 
-const QUESTIONS: Question[] = [
-  {
-    key: "place",
-    label: "Where was this taken?",
-    placeholder: "Faja d'Água, by the harbour",
-  },
-  {
-    key: "photographer",
-    label: "Who took it?",
-    placeholder: "A name, or “not known”",
-  },
-  {
-    key: "when",
-    label: "Roughly when?",
-    placeholder: "1984 — or “sometime in the sixties”",
-  },
-];
+/** Stable keys used in the composed message; each names its label and placeholder. */
+type Question = "place" | "photographer" | "when" | "people";
+
+const QUESTIONS: Question[] = ["place", "photographer", "when"];
 
 /**
- * Asked only about a photograph or a film. The record has no field for it yet, so
- * the answer reaches the curators as text with the others. Spec 040 FR-008.
+ * `people` is asked only about a photograph or a film. The record has no field for
+ * it yet, so the answer reaches the curators as text with the others. Spec 040
+ * FR-008.
  */
-const PEOPLE_QUESTION: Question = {
-  key: "people",
-  label: "Who is in it?",
-  placeholder: "A name, a family, or “my grandmother’s sister”",
-};
-
-const MEDIA_QUESTIONS: Question[] = [...QUESTIONS, PEOPLE_QUESTION];
+const MEDIA_QUESTIONS: Question[] = [...QUESTIONS, "people"];
 
 const EMPTY_ANSWERS: Record<string, string> = {
   place: "",
@@ -106,15 +86,20 @@ const LABEL_STYLE: React.CSSProperties = {
 function composeMessage(
   field: string,
   answers: Record<string, string>,
-  questions: Question[]
+  questions: Question[],
+  t: IdentifyTranslator,
+  fields: FieldTranslator
 ): string {
   const answered = questions
-    .filter((q) => answers[q.key]?.trim())
-    .map((q) => `${q.label} ${answers[q.key].trim()}`);
+    .filter((q) => answers[q]?.trim())
+    .map((q) => `${t(`questions.${q}.label`)} ${answers[q].trim()}`);
 
   // The field arrives as a code key; curators read the queue, so it goes out as a
   // phrase. The lead also keeps a one-word answer past the API's ten-character floor.
-  return [`Asked about: ${fieldPhrase(field)}`, ...answered].join("\n");
+  return [
+    t("askedAbout", { field: fieldPhrase(field, fields) }),
+    ...answered,
+  ].join("\n");
 }
 
 export function IdentifySheet() {
@@ -133,6 +118,9 @@ export function IdentifySheet() {
 }
 
 function IdentifyForm({ context }: { context: IdentifyContext }) {
+  const t = useTranslations("identify");
+  const tFields = useTranslations("fields");
+  const tCommon = useTranslations("common");
   const close = useCloseIdentify();
   const openedOn = useIdentifyOpenedOn();
   const pathname = usePathname();
@@ -212,7 +200,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
         const account = (data.session?.user?.email ?? user?.email ?? "").trim();
 
         if (!account) {
-          setError("We could not read your account. Please sign in again.");
+          setError(t("errors.account"));
           return;
         }
         // The session carries an email and no display name, so that is what the
@@ -230,7 +218,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
         email,
         suggestionType:
           context.contentType === "media" ? "PHOTO_IDENTIFICATION" : "ADDITION",
-        message: composeMessage(context.field, answers, questions),
+        message: composeMessage(context.field, answers, questions, t, tFields),
         ...(context.mediaId ? { mediaId: context.mediaId } : {}),
         ...(from ? { honeypot: from.website } : {}),
       });
@@ -243,24 +231,20 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
       }
 
       useIdentifyStore.getState().markAnswered(context.contentId);
-      toast.success("Thank you — a curator will read this.").show();
+      toast.success(t("sent")).show();
       if (stillOpen()) close();
     } catch (caught) {
       if (!stillOpen()) {
         // Nobody is looking at this sheet any more, so its error line is unseen.
-        toast.error("Your answer was not sent. Please try again.").show();
+        toast.error(t("notSent")).show();
         return;
       }
       // The typed answers stay on screen: they are the thing worth keeping
       if (caught instanceof ApiError && caught.status === 429) {
-        setError(
-          "Too many answers from this connection. Please try again in an hour."
-        );
+        setError(t("errors.rateLimited"));
       } else {
         setError(
-          caught instanceof Error
-            ? caught.message
-            : "Could not send that. Please try again."
+          caught instanceof Error ? caught.message : t("errors.generic")
         );
       }
     } finally {
@@ -272,9 +256,9 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
     event.preventDefault();
     if (submitting) return;
 
-    const hasAnswer = questions.some((q) => answers[q.key]?.trim());
+    const hasAnswer = questions.some((q) => answers[q]?.trim());
     if (!hasAnswer) {
-      setError("Answer at least one question, even if it is a guess.");
+      setError(t("errors.noAnswer"));
       return;
     }
 
@@ -286,7 +270,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
     // The API asks for a name of two characters and an email it can parse; say so
     // here rather than let a 400 come back in its words.
     if (guest.name.trim().length < 2 || !EMAIL_SHAPE.test(guest.email.trim())) {
-      setError("Add your name and an email a curator can reach you at.");
+      setError(t("errors.guest"));
       return;
     }
     void send(guest);
@@ -354,7 +338,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
               marginBottom: "10px",
             }}
           >
-            Help identify
+            {t("eyebrow")}
           </div>
           <h3
             id={titleId}
@@ -366,7 +350,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
               lineHeight: 1.15,
             }}
           >
-            Tell us what you recognise
+            {t("title")}
           </h3>
           <p
             style={{
@@ -376,25 +360,26 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
               lineHeight: 1.55,
             }}
           >
-            Answer only what you know. A guess marked as a guess is more use to
-            the archive than a blank.
+            {t("intro")}
           </p>
 
           <div className="flex flex-col" style={{ gap: "14px" }}>
             {questions.map((question) => (
               <label
-                key={question.key}
+                key={question}
                 className="flex flex-col"
                 style={{ gap: "6px" }}
               >
-                <span style={LABEL_STYLE}>{question.label}</span>
+                <span style={LABEL_STYLE}>
+                  {t(`questions.${question}.label`)}
+                </span>
                 <input
-                  value={answers[question.key]}
-                  placeholder={question.placeholder}
+                  value={answers[question]}
+                  placeholder={t(`questions.${question}.placeholder`)}
                   onChange={(event) =>
                     setAnswers((previous) => ({
                       ...previous,
-                      [question.key]: event.target.value,
+                      [question]: event.target.value,
                     }))
                   }
                   style={FIELD_STYLE}
@@ -414,7 +399,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
               }}
             >
               <label className="flex flex-col" style={{ gap: "6px" }}>
-                <span style={LABEL_STYLE}>Your name</span>
+                <span style={LABEL_STYLE}>{t("yourName")}</span>
                 <input
                   value={guest.name}
                   autoComplete="name"
@@ -423,7 +408,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
                 />
               </label>
               <label className="flex flex-col" style={{ gap: "6px" }}>
-                <span style={LABEL_STYLE}>Your email</span>
+                <span style={LABEL_STYLE}>{t("yourEmail")}</span>
                 <input
                   type="email"
                   inputMode="email"
@@ -484,7 +469,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
                 fontWeight: 500,
               }}
             >
-              Send to the curators
+              {t("send")}
             </button>
             <button
               type="button"
@@ -499,7 +484,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
                 fontSize: "13px",
               }}
             >
-              Cancel
+              {tCommon("cancel")}
             </button>
             {!user && (
               <button
@@ -516,7 +501,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
                   textUnderlineOffset: "3px",
                 }}
               >
-                Sign in instead
+                {t("signIn")}
               </button>
             )}
           </div>
@@ -528,8 +513,7 @@ function IdentifyForm({ context }: { context: IdentifyContext }) {
               fontSize: "12px",
             }}
           >
-            A person reads every suggestion. A curator may write to you about
-            yours.
+            {t("footnote")}
           </p>
         </form>
       </div>

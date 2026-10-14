@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { SettlementDetail } from "@/components/settlements/settlement-detail/settlement-detail";
 import {
@@ -50,14 +50,16 @@ export async function generateMetadata({
     ? await cachedTownPreviewSource(summary.id).catch(() => null)
     : null;
   const image = sharePreviewImage(src, town.name);
-  const holdings = summary ? townHoldings(summary) : null;
-  const about =
-    town.description?.trim() ||
-    `What the archive holds about ${town.name}, a settlement on Brava Island, Cape Verde.`;
+  const [t, tShare] = await Promise.all([
+    getTranslations("metadata.town"),
+    getTranslations("share"),
+  ]);
+  const holdings = summary ? townHoldings(summary, tShare) : null;
+  const about = town.description?.trim() || t("about", { name: town.name });
 
   return generatePageMetadata({
     title: town.name,
-    description: holdings ? `${holdings}. ${about}` : about,
+    description: holdings ? t("withHoldings", { holdings, about }) : about,
     path: `/${town.slug}`,
     locale: await getLocale(),
     keywords: [town.name, "Brava Island", "Cape Verde", "settlement"],

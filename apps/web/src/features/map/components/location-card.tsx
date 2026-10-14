@@ -15,6 +15,7 @@ interface LocationCardProps {
 export function LocationCard({ item, active, onSelect }: LocationCardProps) {
   const t = useTranslations("map");
   const locale = useLocale();
+  const tStatus = useTranslations("status");
   return (
     <button
       type="button"
@@ -45,7 +46,7 @@ export function LocationCard({ item, active, onSelect }: LocationCardProps) {
           className="block text-xs leading-[1.45]"
           style={{ color: "var(--foreground-secondary)" }}
         >
-          {listStatusLine(t, locale, item)}
+          {listStatusLine(t, locale, item, tStatus)}
         </span>
       </span>
     </button>

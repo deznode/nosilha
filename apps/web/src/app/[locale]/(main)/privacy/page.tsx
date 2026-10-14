@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getFormatter, getLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { withLocaleMetadata } from "@/lib/metadata";
 import { Link } from "@/i18n/navigation";
 import { cacheLife } from "next/cache";
@@ -505,15 +505,14 @@ export default async function PrivacyPage() {
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.privacy");
   return withLocaleMetadata(
     {
-      title: "Privacy Policy | Nos Ilha",
-      description:
-        "Learn how Nos Ilha collects, uses, and protects your personal information. Our privacy policy explains our commitment to data protection and user rights.",
+      title: t("title"),
+      description: t("description"),
       openGraph: {
-        title: "Privacy Policy - Nos Ilha",
-        description:
-          "Our privacy policy explains how we collect, use, and protect your personal information on the Nos Ilha platform.",
+        title: t("ogTitle"),
+        description: t("ogDescription"),
         images: ["/images/privacy/privacy-policy.jpg"],
       },
       robots: {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { withLocaleMetadata } from "@/lib/metadata";
 import { cacheLife } from "next/cache";
 import { AboutPageContent } from "@/components/pages/about-page-content";
@@ -12,15 +12,14 @@ export default async function AboutPage() {
 
 // Generate metadata for SEO
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.about");
   return withLocaleMetadata(
     {
-      title: "About Nos Ilha - Community-Driven Platform for Brava Island",
-      description:
-        "Learn about Nos Ilha, a volunteer-driven, open-source platform celebrating the cultural heritage and natural beauty of Brava Island, Cape Verde.",
+      title: t("title"),
+      description: t("description"),
       openGraph: {
-        title: "About Nos Ilha - Community-Driven Heritage Platform",
-        description:
-          "A volunteer-supported, open-source platform preserving and sharing the cultural heritage of Brava Island.",
+        title: t("ogTitle"),
+        description: t("ogDescription"),
         images: ["/images/about/community-collaboration.jpg"],
       },
     },

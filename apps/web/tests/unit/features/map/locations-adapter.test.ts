@@ -13,6 +13,10 @@ import type {
   PublicUserUploadMedia,
 } from "@/types/gallery";
 import type { TownStatusSummary } from "@/types/town";
+import { getTranslations } from "next-intl/server";
+
+const tCategories = await getTranslations("categories");
+const tPhotographs = await getTranslations("photographs");
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -105,7 +109,6 @@ describe("settlementItems", () => {
       key: "s:faja-de-agua",
       kind: "settlement",
       name: "Fajã d'Água",
-      eyebrow: "Settlement",
       status: "partial",
       hasRecords: true,
       recordCount: 5,
@@ -142,7 +145,7 @@ describe("recordItems", () => {
   const slugs = { "town-faja": "faja-de-agua" };
 
   it("keys a record by its entry slug and links it under its settlement", () => {
-    const [item] = recordItems([entry()], slugs);
+    const [item] = recordItems([entry()], slugs, tCategories);
 
     expect(item).toMatchObject({
       key: "r:nos-raiz",
@@ -158,7 +161,8 @@ describe("recordItems", () => {
   it("names the category as the archive does", () => {
     const [hotel, church] = recordItems(
       [entry(), entry({ slug: "igreja", category: "Church" })],
-      slugs
+      slugs,
+      tCategories
     );
     expect(hotel.eyebrow).toBe("Stay");
     expect(church.eyebrow).toBe("Church");
@@ -170,14 +174,15 @@ describe("recordItems", () => {
         entry({ slug: "a", imageUrl: "https://r2.example/hero.jpg" }),
         entry({ slug: "b", imageUrl: null }),
       ],
-      slugs
+      slugs,
+      tCategories
     );
     expect(withPhoto.status).toBe("documented");
     expect(without.status).toBe("partial");
   });
 
   it("has no page when its settlement has not resolved", () => {
-    const [item] = recordItems([entry({ townId: null })], slugs);
+    const [item] = recordItems([entry({ townId: null })], slugs, tCategories);
     expect(item.href).toBeNull();
     expect(item.regionSlug).toBeNull();
   });
@@ -185,7 +190,8 @@ describe("recordItems", () => {
   it("drops a record without coordinates, which has nowhere to pin", () => {
     const items = recordItems(
       [entry({ latitude: null as unknown as number })],
-      slugs
+      slugs,
+      tCategories
     );
     expect(items).toEqual([]);
   });
@@ -206,13 +212,12 @@ describe("photoItems", () => {
   ];
 
   it("pins a located upload with its thumbnail and page", () => {
-    const [item] = photoItems([photo()], towns);
+    const [item] = photoItems([photo()], towns, tPhotographs);
 
     expect(item).toMatchObject({
       key: "p:media-1",
       kind: "photo",
       name: "Untitled",
-      eyebrow: "Photograph",
       status: "partial",
       image: "https://r2.example/DJI_0047.JPG",
       placeName: null,
@@ -223,20 +228,25 @@ describe("photoItems", () => {
   });
 
   it("narrows to the nearest settlement", () => {
-    const [item] = photoItems([photo()], towns);
+    const [item] = photoItems([photo()], towns, tPhotographs);
     expect(item.regionSlug).toBe("nova-sintra");
   });
 
   it("skips films and unlocated uploads, which have no point", () => {
     const items = photoItems(
       [film, photo({ id: "x", latitude: undefined, longitude: undefined })],
-      towns
+      towns,
+      tPhotographs
     );
     expect(items).toEqual([]);
   });
 
   it("shows no thumbnail of an identifiable person nobody has vouched for", () => {
-    const [item] = photoItems([photo({ identifiablePerson: true })], towns);
+    const [item] = photoItems(
+      [photo({ identifiablePerson: true })],
+      towns,
+      tPhotographs
+    );
     expect(item.image).toBeUndefined();
   });
 
@@ -249,7 +259,8 @@ describe("photoItems", () => {
           photographerCredit: "Maria Lopes",
         }),
       ],
-      towns
+      towns,
+      tPhotographs
     );
     expect(item).toMatchObject({
       name: "Harbour at dusk",

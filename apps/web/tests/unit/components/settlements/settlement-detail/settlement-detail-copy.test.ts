@@ -7,6 +7,9 @@ import {
   unconfirmedLink,
 } from "@/components/settlements/settlement-detail/settlement-detail-copy";
 import type { Town, TownStatusSummary } from "@/types/town";
+import { getTranslations } from "next-intl/server";
+
+const t = await getTranslations("town");
 
 function summary(
   overrides: Partial<TownStatusSummary> = {}
@@ -50,19 +53,23 @@ function town(overrides: Partial<Town> = {}): Town {
 /** Spec 034 T-27 / FR-008 — a settlement page states its own gaps. */
 describe("settlementSubLine", () => {
   it("counts the records and says the town has no photograph", () => {
-    expect(settlementSubLine(summary())).toBe(
+    expect(settlementSubLine(t, "en", summary())).toBe(
       "Five place records · no photograph of the town itself"
     );
   });
 
   it("counts the photographs once any are attached", () => {
     expect(
-      settlementSubLine(summary({ photographCount: 2, hasPhotograph: true }))
+      settlementSubLine(
+        t,
+        "en",
+        summary({ photographCount: 2, hasPhotograph: true })
+      )
     ).toBe("Five place records · two photographs");
   });
 
   it("says so when nothing is recorded here at all", () => {
-    expect(settlementSubLine(summary({ entryCount: 0 }))).toBe(
+    expect(settlementSubLine(t, "en", summary({ entryCount: 0 }))).toBe(
       "No place record · no photograph of the town itself"
     );
   });
@@ -70,7 +77,7 @@ describe("settlementSubLine", () => {
 
 describe("photographPanel", () => {
   it("heads the panel with the settlement and reports none yet", () => {
-    const panel = photographPanel(summary());
+    const panel = photographPanel(t, "en", summary());
 
     expect(panel.eyebrow).toBe("Photographs of Nova Sintra");
     expect(panel.heading).toBe("None yet");
@@ -78,7 +85,7 @@ describe("photographPanel", () => {
   });
 
   it("explains that the records carry nothing and names the unconfirmed ones", () => {
-    expect(photographPanel(summary()).body).toBe(
+    expect(photographPanel(t, "en", summary()).body).toBe(
       "Five records sit in this town and not one of them carries a photograph. " +
         "Three photographs in the archive have coordinates that fall inside Nova " +
         "Sintra, but nobody has confirmed the place, so they are not attached here."
@@ -87,8 +94,11 @@ describe("photographPanel", () => {
 
   it("agrees in number for a single unconfirmed photograph", () => {
     expect(
-      photographPanel(summary({ entryCount: 1, unconfirmedPhotographCount: 1 }))
-        .body
+      photographPanel(
+        t,
+        "en",
+        summary({ entryCount: 1, unconfirmedPhotographCount: 1 })
+      ).body
     ).toBe(
       "One record sits in this town and it does not carry a photograph. " +
         "One photograph in the archive has coordinates that fall inside Nova " +
@@ -98,7 +108,7 @@ describe("photographPanel", () => {
 
   it("drops the unconfirmed sentence when there are none", () => {
     expect(
-      photographPanel(summary({ unconfirmedPhotographCount: 0 })).body
+      photographPanel(t, "en", summary({ unconfirmedPhotographCount: 0 })).body
     ).toBe(
       "Five records sit in this town and not one of them carries a photograph."
     );
@@ -106,16 +116,18 @@ describe("photographPanel", () => {
 
   it("hides the unconfirmed action at zero rather than linking to nothing", () => {
     expect(
-      photographPanel(summary({ unconfirmedPhotographCount: 0 }))
+      photographPanel(t, "en", summary({ unconfirmedPhotographCount: 0 }))
         .unconfirmedLabel
     ).toBeNull();
-    expect(photographPanel(summary()).unconfirmedLabel).toBe(
+    expect(photographPanel(t, "en", summary()).unconfirmedLabel).toBe(
       "See the three unconfirmed photographs"
     );
   });
 
   it("counts the attached photographs in the heading when there are some", () => {
     const panel = photographPanel(
+      t,
+      "en",
       summary({
         photographCount: 3,
         hasPhotograph: true,
@@ -129,8 +141,11 @@ describe("photographPanel", () => {
 
   it("says the town is empty when it holds no record", () => {
     expect(
-      photographPanel(summary({ entryCount: 0, unconfirmedPhotographCount: 0 }))
-        .body
+      photographPanel(
+        t,
+        "en",
+        summary({ entryCount: 0, unconfirmedPhotographCount: 0 })
+      ).body
     ).toBe("No record sits in this town yet.");
   });
 });
@@ -143,7 +158,7 @@ describe("unconfirmedLink", () => {
 
 describe("settlementQuestions", () => {
   it("asks only about what is not recorded", () => {
-    expect(settlementQuestions(town(), summary())).toEqual([
+    expect(settlementQuestions(t, town(), summary())).toEqual([
       { field: "population", question: "How many people live in Nova Sintra?" },
       { field: "elevation", question: "How high above the sea is it?" },
       { field: "founded", question: "When was the town founded?" },
@@ -153,6 +168,7 @@ describe("settlementQuestions", () => {
 
   it("drops a question once its field is recorded", () => {
     const questions = settlementQuestions(
+      t,
       town({ founded: "1573", highlights: ["The praça"] }),
       summary({ population: "1,069 (2010 census)" })
     );
@@ -163,6 +179,7 @@ describe("settlementQuestions", () => {
   it("asks nothing when the settlement is fully recorded", () => {
     expect(
       settlementQuestions(
+        t,
         town({ founded: "1573", highlights: ["The praça"] }),
         summary({ population: "1,069", elevation: "530m" })
       )
@@ -171,6 +188,7 @@ describe("settlementQuestions", () => {
 
   it("treats a blank string as not recorded", () => {
     const questions = settlementQuestions(
+      t,
       town({ founded: "   " }),
       summary({ population: "  ", elevation: "530m" })
     );

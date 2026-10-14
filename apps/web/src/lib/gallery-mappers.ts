@@ -18,6 +18,10 @@ import type { MediaItem, MediaCategory, MediaType } from "@/types/media";
 import type { Photo } from "@/components/ui/image-lightbox";
 import type { GeoPointFeature } from "@/features/map/shared";
 import type { DateFormatter } from "@/lib/photo-facts";
+import type { Translator } from "@/i18n/types";
+
+/** The `photographs` messages: the placeholder title, credit and alt text. */
+type GalleryTranslator = Translator<"photographs">;
 
 const NON_IMAGE_URL_PATTERNS = [
   "youtube.com/watch",
@@ -136,10 +140,14 @@ export function isMediaId(id: string): boolean {
   return MEDIA_ID.test(id);
 }
 
-/** `format` writes the upload date ("Jun 2024") in the page's language. */
+/**
+ * `format` writes the upload date ("Jun 2024") and `t` the placeholders in the page's
+ * language.
+ */
 export function mapGalleryMediaToMediaItem(
   media: PublicGalleryMedia,
-  format: DateFormatter
+  format: DateFormatter,
+  t: GalleryTranslator
 ): MediaItem {
   const category = CATEGORY_MAP[media.category || ""] || undefined;
   const date = format.dateTime(new Date(media.createdAt), "shortMonthYear");
@@ -147,7 +155,9 @@ export function mapGalleryMediaToMediaItem(
   // FR-019: the upload no longer copies the filename into `title`, and rows where it
   // did were untitled by the same migration. A record without one reads "Untitled".
   const rawTitle = media.title || "";
-  const title = isRawFilename(rawTitle) ? "Untitled" : rawTitle || "Untitled";
+  const title = isRawFilename(rawTitle)
+    ? t("untitled")
+    : rawTitle || t("untitled");
 
   const base = {
     id: media.id,
@@ -190,7 +200,7 @@ export function mapGalleryMediaToMediaItem(
     author:
       media.photographerCredit ||
       media.uploaderDisplayName ||
-      "Community Contributor",
+      t("gallery.communityContributor"),
     creditPlatform: media.creditPlatform,
     creditHandle: media.creditHandle,
     source: "user" as const,
@@ -212,13 +222,14 @@ export function mapGalleryMediaToMediaItem(
  */
 export function publicUserUploadToPhoto(
   media: PublicUserUploadMedia,
-  format: DateFormatter
+  format: DateFormatter,
+  t: GalleryTranslator
 ): Photo {
   return {
     id: media.id,
     src: media.publicUrl || "",
-    alt: media.altText || media.title || "Gallery photo",
-    location: media.locationName || "Brava Island",
+    alt: media.altText || media.title || t("gallery.photoAlt"),
+    location: media.locationName || t("gallery.bravaIsland"),
     date: media.dateTaken
       ? format.dateTime(new Date(media.dateTaken), "shortMonthYear")
       : media.approximateDate || "",

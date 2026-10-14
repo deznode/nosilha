@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { withLocale } from "@/i18n/paths";
 import { clsx } from "clsx";
@@ -64,6 +64,9 @@ function ViewingRoom({
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
+  const tShare = useTranslations("share");
+  const t = useTranslations("viewer");
+  const tPhotographs = useTranslations("photographs");
   const identifyOpen = useIdentifyContext() !== null;
   const [panelOpen, setPanelOpen] = useState(true);
   const [fullScreen, setFullScreen] = useState(false);
@@ -90,8 +93,8 @@ function ViewingRoom({
     0,
     list.findIndex((p) => p.id === current.id)
   );
-  const label = labelOf(place, photos);
-  const arrival = photoArrivalLine(current, photos);
+  const label = labelOf(place, photos, tPhotographs);
+  const arrival = photoArrivalLine(current, photos, tShare);
   const answered = useWasAnswered(current.id);
   // The question belongs to the photograph the link named, not the ones stepped to,
   // and is not asked again of someone who has just answered it.
@@ -107,9 +110,11 @@ function ViewingRoom({
         "",
         withLocale(photographHref(photo.id, place), locale)
       );
-      document.title = `${photoHeading(photo)} | Nos Ilha`;
+      document.title = t("documentTitle", {
+        heading: photoHeading(photo, tPhotographs),
+      });
     },
-    [place, locale]
+    [place, locale, t, tPhotographs]
   );
 
   // A "More from" thumb sits far down the details. On a phone the stage and the
@@ -188,7 +193,7 @@ function ViewingRoom({
       />
       <aside
         ref={asideRef}
-        aria-label="About this photograph"
+        aria-label={t("about")}
         // Behind the full-screen stage: out of the tab order and the reading order.
         inert={fullScreen}
         className={clsx(

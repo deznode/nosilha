@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { getTranslations } from "next-intl/server";
+
 import {
-  SHIPPED_HERO,
   emptySettlementChipLink,
   emptySettlementsStandfirst,
   heroCreditChip,
@@ -11,6 +12,7 @@ import {
   pickHero,
   pickPhotographRow,
   routeCards,
+  shippedHero,
 } from "@/components/archive-home/archive-home-copy";
 import type {
   GalleryFacets,
@@ -18,6 +20,8 @@ import type {
   PublicUserUploadMedia,
 } from "@/types/gallery";
 import type { TownStatusSummary } from "@/types/town";
+
+const t = await getTranslations("archiveHome");
 
 function town(overrides: Partial<TownStatusSummary> = {}): TownStatusSummary {
   return {
@@ -72,7 +76,7 @@ const FACETS: GalleryFacets = {
 describe("heroStandfirst", () => {
   it("counts settlements, place records and photographs in words", () => {
     expect(
-      heroStandfirst({ settlements: 25, records: 8, facets: FACETS })
+      heroStandfirst(t, "en", { settlements: 25, records: 8, facets: FACETS })
     ).toBe(
       "Twenty-five settlements, eight place records, seventeen photographs. " +
         "Most of it is still missing, and every gap here is a question."
@@ -81,7 +85,7 @@ describe("heroStandfirst", () => {
 
   it("agrees in number when the archive holds one of something", () => {
     expect(
-      heroStandfirst({
+      heroStandfirst(t, "en", {
         settlements: 1,
         records: 1,
         facets: { ...FACETS, photographs: 1 },
@@ -97,6 +101,7 @@ describe("heroCreditChip", () => {
   it("names the credit, the source and the missing place", () => {
     expect(
       heroCreditChip(
+        t,
         upload({
           photographerCredit: "NosIlha, 2024",
           archiveSource: "CC BY-SA 4.0",
@@ -106,7 +111,7 @@ describe("heroCreditChip", () => {
   });
 
   it("says the photographer is not recorded rather than leaving a gap", () => {
-    expect(heroCreditChip(upload())).toBe(
+    expect(heroCreditChip(t, upload())).toBe(
       "photographer not recorded · place not yet recorded"
     );
   });
@@ -114,6 +119,7 @@ describe("heroCreditChip", () => {
   it("names the place when the record carries one", () => {
     expect(
       heroCreditChip(
+        t,
         upload({
           photographerCredit: "Ana Lopes",
           latitude: 14.86,
@@ -125,13 +131,13 @@ describe("heroCreditChip", () => {
   });
 
   it("admits a coordinate without a name", () => {
-    expect(heroCreditChip(upload({ latitude: 14.86, longitude: -24.71 }))).toBe(
-      "photographer not recorded · place not named"
-    );
+    expect(
+      heroCreditChip(t, upload({ latitude: 14.86, longitude: -24.71 }))
+    ).toBe("photographer not recorded · place not named");
   });
 
   it("is null when there is no hero to credit", () => {
-    expect(heroCreditChip(null)).toBeNull();
+    expect(heroCreditChip(t, null)).toBeNull();
   });
 });
 
@@ -148,7 +154,7 @@ describe("routeCards", () => {
   ];
 
   it("notes each destination from live counts", () => {
-    const cards = routeCards({
+    const cards = routeCards(t, "en", {
       towns,
       facets: FACETS,
       stays: 4,
@@ -176,7 +182,7 @@ describe("routeCards", () => {
   });
 
   it("counts the credited records once any exist", () => {
-    const cards = routeCards({
+    const cards = routeCards(t, "en", {
       towns,
       facets: { ...FACETS, uncredited: 24 },
       stays: 4,
@@ -188,7 +194,7 @@ describe("routeCards", () => {
   });
 
   it("says so when there is nothing to stay in", () => {
-    const cards = routeCards({
+    const cards = routeCards(t, "en", {
       towns,
       facets: FACETS,
       stays: 0,
@@ -201,29 +207,32 @@ describe("routeCards", () => {
 
 describe("photographRow", () => {
   it("heads the row with the number it actually shows", () => {
-    expect(photographRowHeading(4)).toBe(
+    expect(photographRowHeading(t, "en", 4)).toBe(
       "Four photographs, and what each one is missing"
     );
-    expect(photographRowHeading(1)).toBe(
+    expect(photographRowHeading(t, "en", 1)).toBe(
       "One photograph, and what it is missing"
     );
   });
 
   it("says nobody has credited any of them when none is credited", () => {
-    expect(photographRowNote([upload(), upload()])).toBe(
+    expect(photographRowNote(t, "en", [upload(), upload()])).toBe(
       "Nobody has told us who took any of these."
     );
   });
 
   it("counts the uncredited ones once some are credited", () => {
     expect(
-      photographRowNote([upload(), upload({ photographerCredit: "Ana Lopes" })])
+      photographRowNote(t, "en", [
+        upload(),
+        upload({ photographerCredit: "Ana Lopes" }),
+      ])
     ).toBe("One of these has no photographer.");
   });
 
   it("says so when every one is credited", () => {
     expect(
-      photographRowNote([upload({ photographerCredit: "Ana Lopes" })])
+      photographRowNote(t, "en", [upload({ photographerCredit: "Ana Lopes" })])
     ).toBe("Every one of these names its photographer.");
   });
 });
@@ -255,14 +264,14 @@ describe("pickPhotographRow", () => {
 
 describe("emptySettlements", () => {
   it("counts the empty ones against the whole island", () => {
-    expect(emptySettlementsStandfirst(22, 25)).toBe(
+    expect(emptySettlementsStandfirst(t, "en", 22, 25)).toBe(
       "Twenty-two of the twenty-five have a name and a point on the map and " +
         "nothing else. No photograph, no description, no record of who lives there."
     );
   });
 
   it("says so when every settlement holds something", () => {
-    expect(emptySettlementsStandfirst(0, 25)).toBe(
+    expect(emptySettlementsStandfirst(t, "en", 0, 25)).toBe(
       "Every settlement on the island holds something."
     );
   });
@@ -322,9 +331,9 @@ describe("pickHero", () => {
   });
 });
 
-describe("SHIPPED_HERO", () => {
+describe("shippedHero", () => {
   it("states its credit and the place it does not record", () => {
-    expect(SHIPPED_HERO.credit).toBe(
+    expect(shippedHero(t).credit).toBe(
       "NosIlha, 2024 · CC BY-SA 4.0 · place not yet recorded"
     );
   });

@@ -12,6 +12,8 @@ import {
   recordItems,
   settlementItems,
 } from "@/features/map/data/locations-adapter";
+import type { CategoryTranslator } from "@/lib/category-label";
+import type { PhotoFactsTranslator } from "@/lib/photo-facts";
 import { townSlugsById } from "@/lib/place-path";
 
 /**
@@ -72,7 +74,17 @@ interface MapState extends MapQueryState {
   hydrate: (state: MapQueryState) => void;
   /** Closes what an Activity restore should not bring back open. */
   resetTransient: () => void;
-  fetchData: () => Promise<void>;
+  /**
+   * Loads every mode's items. Record eyebrows and untitled photographs are named in
+   * the translators' language.
+   */
+  fetchData: (copy: MapItemCopy) => Promise<void>;
+}
+
+/** The translators the loaded items are named with. */
+export interface MapItemCopy {
+  categories: CategoryTranslator;
+  photographs: PhotoFactsTranslator;
 }
 
 export const initialMapState = {
@@ -115,7 +127,7 @@ export const useMapStore = create<MapState>()(
         set({ mode, status, query, selectedKey, expandedGroupKey: null }),
       resetTransient: () => set({ sheetOpen: false, expandedGroupKey: null }),
 
-      fetchData: async () => {
+      fetchData: async (copy) => {
         // Under Activity every return to `/map` loads again. Say so, so nothing that
         // waits for data acts on the previous visit's items, and let only the newest
         // load write: a slow earlier answer must not replace a later one.
@@ -146,8 +158,12 @@ export const useMapStore = create<MapState>()(
 
           set({
             settlements: settlementItems(towns),
-            records: recordItems(entries.items, townSlugsById(towns)),
-            photos: photoItems(media.items, towns),
+            records: recordItems(
+              entries.items,
+              townSlugsById(towns),
+              copy.categories
+            ),
+            photos: photoItems(media.items, towns, copy.photographs),
             unlocatedCount: facets.withoutPlace,
             isLoading: false,
             fetchError: null,

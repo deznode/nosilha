@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { clsx } from "clsx";
 
@@ -61,6 +62,7 @@ export function ImmersionGrid({
   /** Called before a tile navigates, so the index can remember its scroll. */
   onOpen?: () => void;
 }) {
+  const t = useTranslations("photographs");
   return (
     <>
       <div className={clsx("mt-4", GRID)}>
@@ -80,9 +82,9 @@ export function ImmersionGrid({
           height; a single 200px desktop row already does. */}
       <div className={clsx("mt-2.5", GRID)}>
         <InvitationCell
-          question="Have a photograph of Brava?"
-          body="A family print, a slide, or a phone picture of one. You keep the copyright."
-          ctaLabel="Give a photograph"
+          question={t("index.invitation.question")}
+          body={t("index.invitation.body")}
+          ctaLabel={t("index.invitation.cta")}
           href="/contribute/media"
           className="col-span-1 row-span-2 md:row-span-1"
         />
@@ -103,7 +105,8 @@ export function ImmersionTile({
   className?: string;
   onOpen?: () => void;
 }) {
-  const line = photoLine(photo);
+  const t = useTranslations("photographs");
+  const line = photoLine(photo, t);
   return (
     <Link
       href={href}

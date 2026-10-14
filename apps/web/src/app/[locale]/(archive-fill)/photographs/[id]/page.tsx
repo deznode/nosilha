@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { PhotoViewer } from "@/components/photographs/viewer/photo-viewer";
 import { getGalleryMediaById } from "@/lib/api";
@@ -9,12 +9,13 @@ import { toArchivePhoto } from "@/lib/archive-photographs";
 import { isMediaId } from "@/lib/gallery-mappers";
 import {
   archiveDateFormatter,
+  archiveTranslator,
   getArchivePhotographs,
 } from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
 import { photoTitle } from "@/lib/photo-facts";
 import { isAskLink, sharePreviewImage } from "@/lib/share";
-import { ASK_TITLE, askDescription } from "@/lib/share-copy";
+import { askDescription, askTitle } from "@/lib/share-copy";
 
 /**
  * Blocking rather than streaming a shell, so an unknown id answers 404 rather than 200
@@ -36,26 +37,34 @@ export async function generateMetadata({
   const media = await getGalleryMediaById(id).catch(() => undefined);
   if (!media) return {};
 
-  const title = photoTitle(media);
+  const [t, tShare, tPhotographs, locale] = await Promise.all([
+    getTranslations("metadata.photograph"),
+    getTranslations("share"),
+    getTranslations("photographs"),
+    getLocale(),
+  ]);
+  const title = photoTitle(media, tPhotographs);
   // No settlements: the preview needs what is missing and the image, not "Near X".
-  const photo = toArchivePhoto(media, [], await archiveDateFormatter());
+  const photo = toArchivePhoto(
+    media,
+    [],
+    await archiveDateFormatter(),
+    tPhotographs
+  );
   // An ask link to a record that has since been completed is a plain link.
-  const asking = isAskLink(ask) ? askDescription(photo) : null;
+  const asking = isAskLink(ask) ? askDescription(photo, tShare, locale) : null;
   const image = sharePreviewImage(photo.src, photo.alt);
 
   return generatePageMetadata({
     title: asking
-      ? ASK_TITLE
+      ? askTitle(tShare)
       : title.untitled
-        ? "An untitled photograph of Brava"
+        ? t("untitled")
         : title.text,
-    description:
-      asking ??
-      (media.description?.trim() ||
-        "A record in the Brava Island archive, with what it is still missing."),
+    description: asking ?? (media.description?.trim() || t("description")),
     // The canonical address never carries `ask` or a share tag.
     path: `/photographs/${media.id}`,
-    locale: await getLocale(),
+    locale,
     keywords: ["Brava Island", "Cape Verde", "archive photograph"],
     images: image ? [image] : [],
   });
@@ -102,13 +111,16 @@ async function cachedPhoto(id: string) {
 
   // Not caught: a missing dataset would be cached as an archive of one photograph.
   const { photos, settlements } = await archivePromise;
-  const format = await archiveDateFormatter();
+  const [format, t] = await Promise.all([
+    archiveDateFormatter(),
+    archiveTranslator(),
+  ]);
 
   // A record outside the image list (an external still, say) is still viewable, on
   // its own at the head of the list.
   const listed = photos.some((p) => p.id === media.id)
     ? photos
-    : [toArchivePhoto(media, settlements, format), ...photos];
+    : [toArchivePhoto(media, settlements, format, t), ...photos];
 
   return { photos: listed, initialId: media.id };
 }

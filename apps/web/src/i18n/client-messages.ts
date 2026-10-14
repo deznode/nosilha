@@ -15,9 +15,19 @@ export const CLIENT_NAMESPACES = [
   "about",
   "contact",
   "map",
+  "films",
+  "settlements",
+  "status",
+  "categories",
+  "entry",
   "auth",
   "contribute",
   "validation",
+  "share",
+  "photographs",
+  "viewer",
+  "identify",
+  "fields",
 ] as const satisfies readonly string[];
 
 export function pickClientMessages(

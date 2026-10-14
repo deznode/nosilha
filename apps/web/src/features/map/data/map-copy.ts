@@ -1,7 +1,12 @@
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
 import { capitalise, toWords } from "@/lib/copy/number-words";
-import { STATUS_CONFIG, type DocumentationStatus } from "@/lib/status";
+import {
+  statusLabel,
+  statusLine,
+  type DocumentationStatus,
+  type StatusTranslator,
+} from "@/lib/status";
 import type { MapItem, MapMode } from "./types";
 
 /**
@@ -37,7 +42,7 @@ export function itemEyebrow(t: MapTranslator, item: MapItem): string {
     case "photo":
       return t("copy.eyebrow.photograph");
     case "record":
-      return item.eyebrow;
+      return item.eyebrow ?? "";
   }
 }
 
@@ -68,12 +73,13 @@ function photoGaps(item: MapItem): "both" | "place" | "credit" | "none" {
 export function listStatusLine(
   t: MapTranslator,
   locale: Locale,
-  item: MapItem
+  item: MapItem,
+  tStatus: StatusTranslator
 ): string {
   switch (item.kind) {
     case "settlement": {
       const n = item.recordCount ?? 0;
-      if (n === 0) return STATUS_CONFIG.name.line;
+      if (n === 0) return statusLine("name", tStatus);
       return t("copy.settlementLine", {
         records: n,
         recordWords: capitalise(words(n, locale), locale),
@@ -158,7 +164,11 @@ export interface PopupCopy {
 }
 
 /** The hover preview. */
-export function popupContent(t: MapTranslator, item: MapItem): PopupCopy {
+export function popupContent(
+  t: MapTranslator,
+  item: MapItem,
+  tStatus: StatusTranslator
+): PopupCopy {
   if (item.kind === "photo") {
     return {
       image: item.image ?? null,
@@ -176,7 +186,7 @@ export function popupContent(t: MapTranslator, item: MapItem): PopupCopy {
     title: item.name,
     eyebrow: itemEyebrow(t, item),
     status: item.status,
-    statusLabel: STATUS_CONFIG[item.status].label,
+    statusLabel: statusLabel(item.status, tStatus),
   };
 }
 
@@ -195,7 +205,8 @@ export function legendRows(
   mode: MapMode,
   counts: Record<DocumentationStatus, number>,
   photos: MapItem[],
-  unlocated: number
+  unlocated: number,
+  tStatus: StatusTranslator
 ): LegendRow[] {
   if (mode === "photographs") {
     const allUnnamed = photos.every((photo) => !photo.placeName);
@@ -214,7 +225,7 @@ export function legendRows(
 
   return (["documented", "partial", "name"] as const).map((status) => ({
     status,
-    label: STATUS_CONFIG[status].label,
+    label: statusLabel(status, tStatus),
     count: counts[status],
   }));
 }

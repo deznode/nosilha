@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { StayContent } from "@/components/stay/stay-content";
 import { stayStandfirst } from "@/components/stay/stay-copy";
+import { getTranslations } from "next-intl/server";
 import { useIdentifyStore } from "@/stores/identifyStore";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -32,10 +33,12 @@ function stay(overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
 const TOWN_SLUGS = { "town-1": "nova-sintra" };
 
 /** Spec 034 T-29 / FR-014 — the only part of the archive where a rating belongs. */
+const t = await getTranslations("stay");
+
 describe("stayStandfirst", () => {
-  it("counts the places and says none is rated", () => {
+  it("counts the places and says none is rated", async () => {
     expect(
-      stayStandfirst([
+      stayStandfirst(t, "en", [
         stay(),
         stay({ id: "s2" }),
         stay({ id: "s3" }),
@@ -47,22 +50,26 @@ describe("stayStandfirst", () => {
     );
   });
 
-  it("counts the rated ones once any exist", () => {
-    expect(stayStandfirst([stay({ rating: 4.5 }), stay({ id: "s2" })])).toBe(
+  it("counts the rated ones once any exist", async () => {
+    expect(
+      stayStandfirst(t, "en", [stay({ rating: 4.5 }), stay({ id: "s2" })])
+    ).toBe(
       "Two places to stay on Brava. This is the only part of the archive where a " +
         "rating belongs, and one of the two has been rated."
     );
   });
 
-  it("uses a pronoun rather than a fraction for a single record", () => {
-    expect(stayStandfirst([stay()])).toContain("it has not been rated yet");
-    expect(stayStandfirst([stay({ rating: 4.5 })])).toContain(
+  it("uses a pronoun rather than a fraction for a single record", async () => {
+    expect(stayStandfirst(t, "en", [stay()])).toContain(
+      "it has not been rated yet"
+    );
+    expect(stayStandfirst(t, "en", [stay({ rating: 4.5 })])).toContain(
       "it has been rated"
     );
   });
 
-  it("says so when nothing is recorded", () => {
-    expect(stayStandfirst([])).toBe(
+  it("says so when nothing is recorded", async () => {
+    expect(stayStandfirst(t, "en", [])).toBe(
       "No place to stay is recorded on Brava yet."
     );
   });
@@ -73,8 +80,8 @@ describe("StayContent", () => {
     useIdentifyStore.setState({ context: null });
   });
 
-  it("heads the screen and states the counts", () => {
-    render(<StayContent stays={[stay()]} townSlugs={TOWN_SLUGS} />);
+  it("heads the screen and states the counts", async () => {
+    render(await StayContent({ stays: [stay()], townSlugs: TOWN_SLUGS }));
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Stay" })
@@ -87,18 +94,18 @@ describe("StayContent", () => {
     ).toBeInTheDocument();
   });
 
-  it("says a card has no photograph rather than showing an empty box", () => {
-    render(<StayContent stays={[stay()]} townSlugs={TOWN_SLUGS} />);
+  it("says a card has no photograph rather than showing an empty box", async () => {
+    render(await StayContent({ stays: [stay()], townSlugs: TOWN_SLUGS }));
 
     expect(screen.getByText("no photograph recorded")).toBeInTheDocument();
   });
 
-  it("shows the hero when the record carries one", () => {
+  it("shows the hero when the record carries one", async () => {
     render(
-      <StayContent
-        stays={[stay({ imageUrl: "https://cdn.example/p.jpg" })]}
-        townSlugs={TOWN_SLUGS}
-      />
+      await StayContent({
+        stays: [stay({ imageUrl: "https://cdn.example/p.jpg" })],
+        townSlugs: TOWN_SLUGS,
+      })
     );
 
     expect(
@@ -109,15 +116,15 @@ describe("StayContent", () => {
     ).toBeInTheDocument();
   });
 
-  it("marks an unrated place in ochre and prints a real rating", () => {
+  it("marks an unrated place in ochre and prints a real rating", async () => {
     render(
-      <StayContent
-        stays={[
+      await StayContent({
+        stays: [
           stay(),
           stay({ id: "s2", slug: "pousada", name: "Pousada", rating: 4.5 }),
-        ]}
-        townSlugs={TOWN_SLUGS}
-      />
+        ],
+        townSlugs: TOWN_SLUGS,
+      })
     );
 
     expect(screen.getByText("Not yet rated")).toBeInTheDocument();
@@ -126,7 +133,7 @@ describe("StayContent", () => {
 
   it("opens the identify sheet from Stayed here?", async () => {
     const user = userEvent.setup();
-    render(<StayContent stays={[stay()]} townSlugs={TOWN_SLUGS} />);
+    render(await StayContent({ stays: [stay()], townSlugs: TOWN_SLUGS }));
 
     await user.click(screen.getByRole("button", { name: "Stayed here?" }));
 
@@ -138,8 +145,8 @@ describe("StayContent", () => {
     });
   });
 
-  it("links the card at its record under the settlement", () => {
-    render(<StayContent stays={[stay()]} townSlugs={TOWN_SLUGS} />);
+  it("links the card at its record under the settlement", async () => {
+    render(await StayContent({ stays: [stay()], townSlugs: TOWN_SLUGS }));
 
     expect(screen.getByRole("link", { name: "Pensão Paulo" })).toHaveAttribute(
       "href",
@@ -147,9 +154,12 @@ describe("StayContent", () => {
     );
   });
 
-  it("leaves the name unlinked when the settlement has not resolved", () => {
+  it("leaves the name unlinked when the settlement has not resolved", async () => {
     render(
-      <StayContent stays={[stay({ townId: null })]} townSlugs={TOWN_SLUGS} />
+      await StayContent({
+        stays: [stay({ townId: null })],
+        townSlugs: TOWN_SLUGS,
+      })
     );
 
     expect(
@@ -158,8 +168,8 @@ describe("StayContent", () => {
     expect(screen.getByText("Pensão Paulo")).toBeInTheDocument();
   });
 
-  it("shows the town and description on every card", () => {
-    render(<StayContent stays={[stay()]} townSlugs={TOWN_SLUGS} />);
+  it("shows the town and description on every card", async () => {
+    render(await StayContent({ stays: [stay()], townSlugs: TOWN_SLUGS }));
 
     expect(screen.getByText("Nova Sintra")).toBeInTheDocument();
     expect(
