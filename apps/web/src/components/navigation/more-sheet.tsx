@@ -8,7 +8,11 @@ import { Avatar } from "@/components/ui/avatar";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-import { ContributeAction, useChromeAccount } from "./chrome-parts";
+import {
+  ContributeAction,
+  useChromeAccount,
+  useSignInHref,
+} from "./chrome-parts";
 import { LanguageSwitcher } from "./language-switcher";
 import { DESTINATIONS, SHEET_DESTINATION_LIST } from "./nav-config";
 
@@ -54,6 +58,7 @@ export function MoreSheet({
 
 function MoreSheetBody({ onClose }: { onClose: () => void }) {
   const { signedIn, initials, displayName } = useChromeAccount();
+  const signInHref = useSignInHref();
   const t = useTranslations("chrome");
 
   // One string, three rows: the mapped destinations, Profile and Sign in only
@@ -95,7 +100,7 @@ function MoreSheetBody({ onClose }: { onClose: () => void }) {
           </Link>
         ) : (
           <Link
-            href="/login"
+            href={signInHref}
             onClick={onClose}
             className={clsx("text-ocean-blue", rowClasses)}
           >

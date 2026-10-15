@@ -803,6 +803,21 @@
       "reload": "Recarregar o mapa",
       "yourLocation": "A tua localização"
     },
+    "engine": {
+      "map": "Mapa",
+      "marker": "Marcador no mapa",
+      "zoomIn": "Aproximar",
+      "zoomOut": "Afastar",
+      "resetBearing": "Arrasta para rodar o mapa, clica para repor o norte",
+      "toggleAttribution": "Mostrar ou ocultar a atribuição",
+      "mapFeedback": "Comentários sobre o mapa",
+      "logo": "Logótipo MapLibre",
+      "popupClose": "Fechar a janela",
+      "findMyLocation": "Encontrar a minha localização",
+      "locationNotAvailable": "Localização indisponível",
+      "fullscreenEnter": "Entrar em ecrã inteiro",
+      "fullscreenExit": "Sair do ecrã inteiro"
+    },
     "controls": {
       "satellite": "Satélite",
       "terrain": "Relevo 3D",

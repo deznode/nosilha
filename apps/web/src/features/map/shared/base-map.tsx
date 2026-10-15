@@ -1,6 +1,7 @@
 "use client";
 
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, useMemo, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import Map, {
   type MapRef,
   type ViewStateChangeEvent,
@@ -26,6 +27,33 @@ export interface BaseMapProps {
 }
 
 /**
+ * MapLibre's own interface strings (the canvas and marker labels, the zoom and
+ * attribution buttons) in the page's language. MapLibre merges these over its
+ * English defaults, which the English messages repeat word for word. Spec 041 FR-004.
+ */
+function useMapLibreLocale(): Record<string, string> {
+  const t = useTranslations("map.engine");
+  return useMemo(
+    () => ({
+      "Map.Title": t("map"),
+      "Marker.Title": t("marker"),
+      "NavigationControl.ZoomIn": t("zoomIn"),
+      "NavigationControl.ZoomOut": t("zoomOut"),
+      "NavigationControl.ResetBearing": t("resetBearing"),
+      "AttributionControl.ToggleAttribution": t("toggleAttribution"),
+      "AttributionControl.MapFeedback": t("mapFeedback"),
+      "LogoControl.Title": t("logo"),
+      "Popup.Close": t("popupClose"),
+      "GeolocateControl.FindMyLocation": t("findMyLocation"),
+      "GeolocateControl.LocationNotAvailable": t("locationNotAvailable"),
+      "FullscreenControl.Enter": t("fullscreenEnter"),
+      "FullscreenControl.Exit": t("fullscreenExit"),
+    }),
+    [t]
+  );
+}
+
+/**
  * Wrapper around react-map-gl/maplibre with MapLibre GL JS, default center/zoom,
  * open tile style (CARTO Voyager), CSS import, and ref forwarding.
  */
@@ -45,6 +73,7 @@ export const BaseMap = forwardRef<MapRef, BaseMapProps>(
     },
     ref
   ) => {
+    const locale = useMapLibreLocale();
     return (
       <Map
         ref={ref}
@@ -67,6 +96,7 @@ export const BaseMap = forwardRef<MapRef, BaseMapProps>(
         onError={onError}
         onClick={onClick}
         interactiveLayerIds={interactiveLayerIds}
+        locale={locale}
         {...mapProps}
       >
         {children}

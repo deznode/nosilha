@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 
 import { Button } from "@/components/catalyst-ui/button";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -90,6 +90,21 @@ export function ContributeAction({
  * Signed out renders a "Sign in" link rather than nothing: the slot must not
  * collapse, or the bar reflows the moment a visitor signs in. Spec 037 FR-002.
  */
+/** Pages a sign-in should not return to: the auth pages themselves and the home page. */
+const NO_RETURN = new Set(["/", "/login", "/signup"]);
+
+/**
+ * The sign-in address for the bars, carrying the current page so the visitor comes
+ * back to it. The path is unprefixed; the login form returns through the
+ * locale-aware router, which puts `/pt` back (spec 041 FR-002).
+ */
+export function useSignInHref(): string {
+  const pathname = usePathname();
+  return NO_RETURN.has(pathname)
+    ? "/login"
+    : `/login?returnUrl=${encodeURIComponent(pathname)}`;
+}
+
 export function useChromeAccount() {
   const { session, user } = useAuth();
   const t = useTranslations("chrome");
@@ -107,12 +122,13 @@ export function useChromeAccount() {
 
 export function AccountSlot() {
   const { signedIn, initials } = useChromeAccount();
+  const signInHref = useSignInHref();
   const t = useTranslations("chrome");
 
   if (!signedIn) {
     return (
       <Link
-        href="/login"
+        href={signInHref}
         className="text-ocean-blue shrink-0 px-2 py-[11px] text-sm font-medium transition-colors duration-150"
       >
         {t("signIn")}

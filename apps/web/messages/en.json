@@ -803,6 +803,21 @@
       "reload": "Reload the map",
       "yourLocation": "Your location"
     },
+    "engine": {
+      "map": "Map",
+      "marker": "Map marker",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "resetBearing": "Drag to rotate map, click to reset north",
+      "toggleAttribution": "Toggle attribution",
+      "mapFeedback": "Map feedback",
+      "logo": "MapLibre logo",
+      "popupClose": "Close popup",
+      "findMyLocation": "Find my location",
+      "locationNotAvailable": "Location not available",
+      "fullscreenEnter": "Enter fullscreen",
+      "fullscreenExit": "Exit fullscreen"
+    },
     "controls": {
       "satellite": "Satellite",
       "terrain": "3D terrain",
