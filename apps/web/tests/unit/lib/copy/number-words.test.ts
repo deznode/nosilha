@@ -93,12 +93,12 @@ describe("joinList", () => {
   });
 
   it("joins Portuguese lists with e and ou", () => {
-    expect(joinList(["a", "b", "c"], "and", "pt")).toBe("a, b e c");
-    expect(joinList(["a", "b"], "or", "pt")).toBe("a ou b");
+    expect(joinList(["a", "b", "c"], "and", "pt-PT")).toBe("a, b e c");
+    expect(joinList(["a", "b"], "or", "pt-PT")).toBe("a ou b");
   });
 
   it("returns a single item or nothing unchanged", () => {
-    expect(joinList(["a"], "and", "pt")).toBe("a");
+    expect(joinList(["a"], "and", "pt-PT")).toBe("a");
     expect(joinList([], "and")).toBe("");
   });
 });
@@ -113,8 +113,8 @@ describe("plural", () => {
   });
 
   it("treats zero as plural in European Portuguese", () => {
-    expect(plural(0, "registo", "registos", "pt")).toBe("registos");
-    expect(plural(1, "registo", "registos", "pt")).toBe("registo");
+    expect(plural(0, "registo", "registos", "pt-PT")).toBe("registos");
+    expect(plural(1, "registo", "registos", "pt-PT")).toBe("registo");
   });
 });
 
@@ -132,11 +132,11 @@ describe("toWords in Portuguese", () => {
     [32, "feminine", "trinta e duas"],
     [99, "masculine", "noventa e nove"],
   ] as const)("writes %i (%s) as %s", (n, gender, words) => {
-    expect(toWords(n, { locale: "pt", gender })).toBe(words);
+    expect(toWords(n, { locale: "pt-PT", gender })).toBe(words);
   });
 
   it("falls back to digits outside 0 to 99", () => {
-    expect(toWords(100, { locale: "pt" })).toBe("100");
+    expect(toWords(100, { locale: "pt-PT" })).toBe("100");
   });
 });
 
@@ -149,15 +149,15 @@ describe("countSentence in Portuguese", () => {
 
   it("agrees the number with a feminine noun", () => {
     expect(
-      countSentence(1, photographs, { locale: "pt", gender: "feminine" })
+      countSentence(1, photographs, { locale: "pt-PT", gender: "feminine" })
     ).toBe("Uma fotografia");
     expect(
-      countSentence(21, photographs, { locale: "pt", gender: "feminine" })
+      countSentence(21, photographs, { locale: "pt-PT", gender: "feminine" })
     ).toBe("Vinte e uma fotografias");
   });
 
   it("returns the zero sentence as written", () => {
-    expect(countSentence(0, photographs, { locale: "pt" })).toBe(
+    expect(countSentence(0, photographs, { locale: "pt-PT" })).toBe(
       "Nenhuma fotografia"
     );
   });
@@ -165,6 +165,6 @@ describe("countSentence in Portuguese", () => {
 
 describe("capitalise in Portuguese", () => {
   it("upper-cases an accented first letter", () => {
-    expect(capitalise("três registos", "pt")).toBe("Três registos");
+    expect(capitalise("três registos", "pt-PT")).toBe("Três registos");
   });
 });

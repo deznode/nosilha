@@ -1,6 +1,11 @@
 import type { MetadataRoute } from "next";
 
-import { BCP47_TAGS, DEFAULT_LOCALE, type Locale } from "@/i18n/config";
+import {
+  BCP47_TAGS,
+  CONTENT_LANGUAGES,
+  DEFAULT_LOCALE,
+  type Locale,
+} from "@/i18n/config";
 import { localizedUrl } from "@/lib/metadata";
 import { placeRecordPath } from "@/lib/place-path";
 import type { DirectoryEntry } from "@/types/directory";
@@ -155,7 +160,7 @@ export function mdxSitemapEntries(
     if (!english) return [];
 
     const written = locales.filter((locale) =>
-      versions.some((page) => page.language === locale)
+      versions.some((page) => page.language === CONTENT_LANGUAGES[locale])
     );
 
     return entriesFor(

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import en from "../../../messages/en.json";
-import pt from "../../../messages/pt.json";
+import pt from "../../../messages/pt-PT.json";
 
 type Messages = { [key: string]: string | Messages };
 

@@ -6,9 +6,9 @@ import { splitLocalePath, withLocale } from "@/i18n/paths";
 /** Spec 041 FR-001, FR-002 — address building and prefix stripping. */
 describe("splitLocalePath", () => {
   it.each([
-    ["/pt", "pt", "/"],
-    ["/pt/map", "pt", "/map"],
-    ["/pt/photographs/abc", "pt", "/photographs/abc"],
+    ["/pt", "pt-PT", "/"],
+    ["/pt/map", "pt-PT", "/map"],
+    ["/pt/photographs/abc", "pt-PT", "/photographs/abc"],
     ["/", "en", "/"],
     ["/map", "en", "/map"],
     // A town whose name starts with `pt` is not the Portuguese prefix.
@@ -34,8 +34,10 @@ describe("withLocale", () => {
   });
 
   it("prefixes Portuguese addresses and keeps the query", () => {
-    expect(withLocale("/", "pt")).toBe("/pt");
-    expect(withLocale("/map?mode=records", "pt")).toBe("/pt/map?mode=records");
+    expect(withLocale("/", "pt-PT")).toBe("/pt");
+    expect(withLocale("/map?mode=records", "pt-PT")).toBe(
+      "/pt/map?mode=records"
+    );
   });
 
   it("undoes splitLocalePath", () => {

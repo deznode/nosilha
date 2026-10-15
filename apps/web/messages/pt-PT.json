@@ -210,7 +210,7 @@
   },
   "status": {
     "documented": {
-      "label": "documentada",
+      "label": "{subject, select, record {documentado} other {documentada}}",
       "line": "registos e uma fotografia"
     },
     "partial": {

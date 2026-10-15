@@ -1,6 +1,11 @@
 import { defineRouting } from "next-intl/routing";
 
-import { DEFAULT_LOCALE, enabledLocales, type Locale } from "./config";
+import {
+  DEFAULT_LOCALE,
+  enabledLocales,
+  LOCALE_SEGMENTS,
+  type Locale,
+} from "./config";
 
 /**
  * English keeps its unprefixed addresses; Portuguese lives under `/pt`.
@@ -16,7 +21,10 @@ import { DEFAULT_LOCALE, enabledLocales, type Locale } from "./config";
 export const routing = defineRouting({
   locales: enabledLocales() as Locale[],
   defaultLocale: DEFAULT_LOCALE,
-  localePrefix: "as-needed",
+  localePrefix: {
+    mode: "as-needed",
+    prefixes: { "pt-PT": `/${LOCALE_SEGMENTS["pt-PT"]}` },
+  },
   localeDetection: false,
   localeCookie: false,
   alternateLinks: false,

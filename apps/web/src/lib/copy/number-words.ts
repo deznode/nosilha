@@ -108,7 +108,7 @@ export function toWords(
 ): string {
   if (!Number.isInteger(n) || n < 0 || n > 99) return String(n);
 
-  if (locale === "pt") {
+  if (locale === "pt-PT") {
     if (n < 20) return ptUnit(n, gender);
     const tens = PT_TENS[Math.floor(n / 10)];
     const ones = n % 10;

@@ -83,7 +83,7 @@ export function localeAlternates({
     canonical,
     languages: {
       [DEFAULT_LOCALE]: english,
-      [BCP47_TAGS.pt]: localizedUrl(path, "pt"),
+      [BCP47_TAGS["pt-PT"]]: localizedUrl(path, "pt-PT"),
       "x-default": english,
     },
   };

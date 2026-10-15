@@ -54,7 +54,11 @@ describe("generatePageMetadata", () => {
 
     it("makes each language canonical at its own address", () => {
       const english = generatePageMetadata({ ...page, ...on, locale: "en" });
-      const portuguese = generatePageMetadata({ ...page, ...on, locale: "pt" });
+      const portuguese = generatePageMetadata({
+        ...page,
+        ...on,
+        locale: "pt-PT",
+      });
 
       expect(english.alternates?.canonical).toBe(`${BASE}/settlements`);
       expect(portuguese.alternates?.canonical).toBe(`${BASE}/pt/settlements`);
@@ -62,7 +66,11 @@ describe("generatePageMetadata", () => {
     });
 
     it("sends og:locale pt_PT on a Portuguese page", () => {
-      const metadata = generatePageMetadata({ ...page, ...on, locale: "pt" });
+      const metadata = generatePageMetadata({
+        ...page,
+        ...on,
+        locale: "pt-PT",
+      });
 
       expect(openGraph(metadata).locale).toBe("pt_PT");
     });
@@ -74,7 +82,7 @@ describe("generatePageMetadata", () => {
         "x-default": `${BASE}/settlements`,
       };
 
-      for (const locale of ["en", "pt"] as const) {
+      for (const locale of ["en", "pt-PT"] as const) {
         const metadata = generatePageMetadata({ ...page, ...on, locale });
         expect(metadata.alternates?.languages).toEqual(languages);
       }
@@ -85,7 +93,7 @@ describe("generatePageMetadata", () => {
         ...page,
         ...on,
         path: "/",
-        locale: "pt",
+        locale: "pt-PT",
       });
 
       expect(metadata.alternates?.canonical).toBe(`${BASE}/pt`);
@@ -95,7 +103,7 @@ describe("generatePageMetadata", () => {
       const metadata = generatePageMetadata({
         ...page,
         ...on,
-        locale: "pt",
+        locale: "pt-PT",
         hasPortuguese: false,
       });
 
@@ -138,7 +146,7 @@ describe("withLocaleMetadata", () => {
   it("adds og:locale and the Portuguese canonical under /pt", () => {
     const metadata = withLocaleMetadata(handBuilt, {
       path: "/about",
-      locale: "pt",
+      locale: "pt-PT",
       portugueseEnabled: true,
     });
 
@@ -157,7 +165,7 @@ describe("withLocaleMetadata", () => {
   it("keeps a legal page out of the alternates", () => {
     const metadata = withLocaleMetadata(handBuilt, {
       path: "/privacy",
-      locale: "pt",
+      locale: "pt-PT",
       hasPortuguese: false,
       portugueseEnabled: true,
     });
@@ -168,7 +176,11 @@ describe("withLocaleMetadata", () => {
   it("leaves openGraph alone when the page did not write one", () => {
     const metadata = withLocaleMetadata(
       { title: "Add Directory Entry" },
-      { path: "/contribute/directory", locale: "pt", portugueseEnabled: true }
+      {
+        path: "/contribute/directory",
+        locale: "pt-PT",
+        portugueseEnabled: true,
+      }
     );
 
     // An `openGraph` key, even undefined, would drop the layout's inherited block.

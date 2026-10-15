@@ -118,7 +118,7 @@ describe("getTownStatus", () => {
 
   it("takes its labels from the status labels", () => {
     expect(getTownStatus(town("PARTIAL", 2, false), t).label).toBe(
-      statusLabel("partial", t)
+      statusLabel("partial", t, "settlement")
     );
   });
 
@@ -179,11 +179,14 @@ describe("status labels", () => {
   it("reads every label and line from the `status` namespace, word for word", async () => {
     const t = await getTranslations("status");
 
-    expect(statusLabel("documented", t)).toBe("documented");
+    expect(statusLabel("documented", t, "settlement")).toBe("documented");
+    expect(statusLabel("documented", t, "record")).toBe("documented");
     expect(statusLine("documented", t)).toBe("records and a photograph");
-    expect(statusLabel("partial", t)).toBe("records, no photograph");
+    expect(statusLabel("partial", t, "settlement")).toBe(
+      "records, no photograph"
+    );
     expect(statusLine("partial", t)).toBe("records, no photograph");
-    expect(statusLabel("name", t)).toBe("name only");
+    expect(statusLabel("name", t, "settlement")).toBe("name only");
     expect(statusLine("name", t)).toBe("a name and a coordinate, nothing else");
   });
 });

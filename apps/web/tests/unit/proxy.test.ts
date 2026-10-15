@@ -63,14 +63,14 @@ describe("proxy", () => {
       expect(createServerClient).not.toHaveBeenCalled();
     });
 
-    it("serves a Portuguese address as it is, without Supabase", async () => {
+    it("serves a Portuguese address from the pt-PT tree, without Supabase", async () => {
       const { proxy } = await loadProxy(true);
 
       const response = await proxy(request("/pt/settlements"));
 
       expect(response.status).toBe(200);
       expect(location(response)).toBeNull();
-      expect(rewrite(response)).toBeNull();
+      expect(rewrite(response)).toBe(`${ORIGIN}/pt-PT/settlements`);
       expect(createServerClient).not.toHaveBeenCalled();
     });
 
@@ -90,6 +90,19 @@ describe("proxy", () => {
       ["/en/settlements", "/settlements"],
       ["/en/photographs?town=nova-sintra", "/photographs?town=nova-sintra"],
     ])("redirects %s permanently to %s", async (from, to) => {
+      const { proxy } = await loadProxy(true);
+
+      const response = await proxy(request(from));
+
+      expect(response.status).toBe(308);
+      expect(location(response)).toBe(to);
+    });
+
+    it.each([
+      ["/pt-PT", "/pt"],
+      ["/pt-PT/settlements", "/pt/settlements"],
+      ["/pt-pt/map", "/pt/map"],
+    ])("redirects the internal %s permanently to %s", async (from, to) => {
       const { proxy } = await loadProxy(true);
 
       const response = await proxy(request(from));

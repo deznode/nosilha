@@ -89,8 +89,13 @@ vi.mock("@/i18n/navigation", async () => {
     useRouter: () => navigation.useRouter(),
     usePathname: () => navigation.usePathname(),
     redirect: ({ href }: { href: string }) => navigation.redirect(href),
-    getPathname: ({ href, locale }: { href: string; locale: string }) =>
-      withLocale(href, locale),
+    getPathname: ({
+      href,
+      locale,
+    }: {
+      href: string;
+      locale: import("@/i18n/config").Locale;
+    }) => withLocale(href, locale),
   };
 });
 

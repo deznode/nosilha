@@ -186,7 +186,11 @@ export function popupContent(
     title: item.name,
     eyebrow: itemEyebrow(t, item),
     status: item.status,
-    statusLabel: statusLabel(item.status, tStatus),
+    statusLabel: statusLabel(
+      item.status,
+      tStatus,
+      item.kind === "record" ? "record" : "settlement"
+    ),
   };
 }
 
@@ -225,7 +229,11 @@ export function legendRows(
 
   return (["documented", "partial", "name"] as const).map((status) => ({
     status,
-    label: statusLabel(status, tStatus),
+    label: statusLabel(
+      status,
+      tStatus,
+      mode === "records" ? "record" : "settlement"
+    ),
     count: counts[status],
   }));
 }

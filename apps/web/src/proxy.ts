@@ -3,7 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Session } from "@supabase/supabase-js";
 import createIntlProxy from "next-intl/middleware";
 
-import { LOCALE_COOKIE, LOCALES, PORTUGUESE_ENABLED } from "@/i18n/config";
+import {
+  LOCALE_COOKIE,
+  LOCALE_SEGMENTS,
+  PORTUGUESE_ENABLED,
+} from "@/i18n/config";
 import { routing } from "@/i18n/routing";
 
 const intlProxy = createIntlProxy(routing);
@@ -13,11 +17,17 @@ const GUARDED = /^\/(admin|sandbox)(\/|$)/;
 
 /** A guarded address with a locale in front of it: `/pt/admin/x` → `/admin/x`. */
 const PREFIXED_GUARDED = new RegExp(
-  `^/(?:${LOCALES.join("|")})(/(?:admin|sandbox)(?:/.*)?)$`
+  `^/(?:${Object.values(LOCALE_SEGMENTS).join("|")})(/(?:admin|sandbox)(?:/.*)?)$`
 );
 
 /** `/en` and `/en/...`; English is served unprefixed. */
 const ENGLISH_PREFIX = /^\/en(\/.*)?$/;
+
+/**
+ * `/pt-PT/...`, the internal tree Portuguese is served from. Its public addresses
+ * are `/pt/...`; without this the same page would answer at two addresses.
+ */
+const PORTUGUESE_TAG_PREFIX = /^\/pt-pt(\/.*)?$/i;
 
 /** Redirects are built from `nextUrl`: on Cloud Run `request.url` is the bind address. */
 function redirectTo(
@@ -60,7 +70,8 @@ function extractUserRole(session: Session | null): string | undefined {
  *    address. The admin area is English only and has no locale prefix.
  * 2. `/admin/*` requires the ADMIN role and `/sandbox/*` a session. Nothing below
  *    runs for them, and nothing above or below calls Supabase.
- * 3. `/en` and `/en/*` redirect permanently to the unprefixed address.
+ * 3. `/en` and `/en/*` redirect permanently to the unprefixed address, and
+ *    `/pt-PT/*` (the internal Portuguese tree) to `/pt/*`.
  * 4. `/` redirects to `/pt` for a visitor who chose Portuguese (the `nosilha-lang`
  *    cookie), while Portuguese is enabled. No other address redirects.
  * 5. Everything else goes to the next-intl proxy, which serves unprefixed
@@ -77,6 +88,14 @@ export async function proxy(request: NextRequest) {
 
   if (GUARDED.test(pathname)) return guard(request);
 
+  const portugueseTagPrefixed = pathname.match(PORTUGUESE_TAG_PREFIX);
+  if (portugueseTagPrefixed)
+    return redirectTo(
+      request,
+      `/${LOCALE_SEGMENTS["pt-PT"]}${portugueseTagPrefixed[1] ?? ""}`,
+      308
+    );
+
   const englishPrefixed = pathname.match(ENGLISH_PREFIX);
   if (englishPrefixed)
     return redirectTo(request, englishPrefixed[1] ?? "/", 308);
@@ -84,9 +103,9 @@ export async function proxy(request: NextRequest) {
   if (
     PORTUGUESE_ENABLED &&
     pathname === "/" &&
-    request.cookies.get(LOCALE_COOKIE)?.value === "pt"
+    request.cookies.get(LOCALE_COOKIE)?.value === LOCALE_SEGMENTS["pt-PT"]
   ) {
-    return redirectTo(request, "/pt");
+    return redirectTo(request, `/${LOCALE_SEGMENTS["pt-PT"]}`);
   }
 
   return intlProxy(request);

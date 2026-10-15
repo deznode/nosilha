@@ -16,7 +16,7 @@ describe("enabledLocales", () => {
   });
 
   it("adds Portuguese when it is on", () => {
-    expect(enabledLocales(true)).toEqual(["en", "pt"]);
+    expect(enabledLocales(true)).toEqual(["en", "pt-PT"]);
   });
 
   it("defaults to off: nothing sets NEXT_PUBLIC_ENABLE_PT in tests", () => {
@@ -26,12 +26,12 @@ describe("enabledLocales", () => {
 
 describe("isEnabledLocale", () => {
   it("refuses Portuguese while it is off", () => {
-    expect(isEnabledLocale("pt", false)).toBe(false);
+    expect(isEnabledLocale("pt-PT", false)).toBe(false);
     expect(isEnabledLocale("en", false)).toBe(true);
   });
 
   it("accepts Portuguese when it is on", () => {
-    expect(isEnabledLocale("pt", true)).toBe(true);
+    expect(isEnabledLocale("pt-PT", true)).toBe(true);
   });
 
   it("refuses anything that is not a routed locale", () => {
@@ -43,14 +43,14 @@ describe("isEnabledLocale", () => {
 
 describe("locale tags", () => {
   it("maps each locale to its BCP 47 tag", () => {
-    expect(BCP47_TAGS).toEqual({ en: "en-US", pt: "pt-PT" });
+    expect(BCP47_TAGS).toEqual({ en: "en-US", "pt-PT": "pt-PT" });
   });
 
   it("keeps <html lang> as `en` for English", () => {
-    expect(HTML_LANG).toEqual({ en: "en", pt: "pt-PT" });
+    expect(HTML_LANG).toEqual({ en: "en", "pt-PT": "pt-PT" });
   });
 
   it("spells Open Graph locales with an underscore", () => {
-    expect(OG_LOCALES).toEqual({ en: "en_US", pt: "pt_PT" });
+    expect(OG_LOCALES).toEqual({ en: "en_US", "pt-PT": "pt_PT" });
   });
 });

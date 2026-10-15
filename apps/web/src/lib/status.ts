@@ -40,12 +40,19 @@ export const STATUS_CONFIG: Record<DocumentationStatus, StatusConfig> = {
   name: { token: "--brand-sobrado-ochre" },
 };
 
+/**
+ * What a status label describes. Portuguese agrees the label with it: a settlement
+ * (*localidade*) is "documentada", a record (*registo*) "documentado".
+ */
+export type StatusSubject = "settlement" | "record";
+
 /** Short label, as on chips and the legend, in the translator's language. */
 export function statusLabel(
   status: DocumentationStatus,
-  t: StatusTranslator
+  t: StatusTranslator,
+  subject: StatusSubject
 ): string {
-  return t(`${status}.label`);
+  return t(`${status}.label`, { subject });
 }
 
 /** Status line, as under a settlement or record name, in the translator's language. */
@@ -97,7 +104,7 @@ export function getTownStatus(
 ): DocumentationState {
   const status = TOWN_STATES[town.status];
   if (!status) return { status: "name", label: t("unknown") };
-  return { status, label: statusLabel(status, t) };
+  return { status, label: statusLabel(status, t, "settlement") };
 }
 
 /**
