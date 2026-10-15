@@ -275,16 +275,17 @@ export function listFooter(
 ): string {
   switch (mode) {
     case "settlements": {
+      // `localidade` is feminine in Portuguese.
       const recorded = t("copy.settlementsRecorded", {
         count: items.length,
-        words: capitalise(words(items.length, locale), locale),
+        words: capitalise(words(items.length, locale, "feminine"), locale),
       });
       if (items.length === 0) return recorded;
 
       const holding = items.filter((item) => item.hasRecords).length;
       const records = t("copy.settlementsHolding", {
         count: holding,
-        words: capitalise(words(holding, locale), locale),
+        words: capitalise(words(holding, locale, "feminine"), locale),
       });
       return `${recorded} ${records}`;
     }

@@ -244,8 +244,11 @@ export function completenessSentence(
   // `campo` is masculine in Portuguese.
   return copy.t("placeFields.completeness", {
     total,
-    documentedWords: toWords(documented, { locale: copy.locale }),
-    totalWords: toWords(total, { locale: copy.locale }),
+    documentedWords: toWords(documented, {
+      locale: copy.locale,
+      gender: "masculine",
+    }),
+    totalWords: toWords(total, { locale: copy.locale, gender: "masculine" }),
   });
 }
 

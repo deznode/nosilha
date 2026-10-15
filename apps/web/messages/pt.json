@@ -1,1 +1,1563 @@
-{}
+{
+  "common": {
+    "close": "Fechar",
+    "loading": "A carregar",
+    "loadingDirectory": "A carregar os registos",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "processing": "A processar...",
+    "dismiss": "Dispensar",
+    "dismissBanner": "Fechar aviso",
+    "dismissNotification": "Fechar notificação",
+    "showMore": "Mostrar mais",
+    "showLess": "Mostrar menos",
+    "backToTop": "Voltar ao topo",
+    "goBack": "Voltar",
+    "scroll": "Deslizar",
+    "scrollDown": "Deslizar até ao conteúdo",
+    "selectPlaceholder": "Escolhe uma opção",
+    "heroImageAlt": "Imagem de fundo do cabeçalho",
+    "imageUnavailable": "Imagem não disponível",
+    "courtesyOf": "Cortesia de: {courtesy}",
+    "creditOnPlatform": "{credit} no {platform} (abre num novo separador)",
+    "rating": "Classificação: {rating} em 5 estrelas",
+    "share": "Partilhar",
+    "copyLink": "Copiar ligação",
+    "linkCopied": "Ligação copiada",
+    "messageAndLinkCopied": "Mensagem e ligação copiadas",
+    "copyFailed": "Não foi possível copiar a ligação",
+    "filters": {
+      "clear": "Limpar {label}",
+      "clearAll": "Limpar tudo",
+      "apply": "Aplicar",
+      "showResults": "{count, plural, one {Mostrar # resultado} other {Mostrar # resultados}}"
+    },
+    "pagination": {
+      "label": "Paginação",
+      "previous": "Página anterior",
+      "next": "Página seguinte",
+      "page": "Página {page}",
+      "pageOf": "Página {page} de {total}",
+      "showing": "A mostrar {start}–{end} de {total}"
+    },
+    "theme": {
+      "light": "Modo claro",
+      "dark": "Modo escuro",
+      "system": "Modo do sistema ({system, select, dark {escuro} other {claro}})",
+      "title": "{mode}. Clica para mudar de tema.",
+      "ariaLabel": "Tema atual: {mode}. Clica para mudar de tema."
+    },
+    "citations": {
+      "title": "Fontes e referências",
+      "show": "Mostrar referências",
+      "hide": "Ocultar referências",
+      "intro": "A informação apresentada neste artigo baseia-se em várias fontes históricas e académicas. Acreditamos em dar o devido crédito aos investigadores, autores e instituições que fizeram o trabalho difícil de preservar e partilhar a história de Brava.",
+      "byline": "Por {author} ({year})",
+      "readMore": "Ler mais"
+    },
+    "gallery": {
+      "empty": "Ainda não foram carregadas imagens para este lugar.",
+      "view": "Ver {alt}",
+      "viewFullSize": "Ver em tamanho real"
+    },
+    "lightbox": {
+      "label": "Visualizador de fotografias",
+      "announcement": "{kind, select, video {Vídeo} other {Fotografia}} {index} de {total}: {alt}",
+      "position": "{index} de {total}",
+      "close": "Fechar visualizador",
+      "previous": "Imagem anterior",
+      "next": "Imagem seguinte",
+      "videoPlayer": "Leitor de vídeo",
+      "showOnMap": "Ver no mapa",
+      "showOnMapLabel": "Ver no mapa onde foi tirada a fotografia",
+      "approximate": " (aprox.)",
+      "helpIdentify": "Ajuda a identificar esta fotografia",
+      "download": "Descarregar",
+      "save": "Guardar",
+      "identify": "Identificar",
+      "map": "Mapa",
+      "expandDetails": "Mostrar detalhes",
+      "collapseDetails": "Ocultar detalhes"
+    },
+    "uploader": {
+      "uploading": "A carregar...",
+      "size": "{loaded, number, ::.0} MB / {total, number, ::.0} MB",
+      "preparingUpload": "A preparar o envio...",
+      "finalizingUpload": "A concluir o envio...",
+      "preparing": "A preparar...",
+      "finalizing": "A concluir...",
+      "cancel": "Cancelar",
+      "cancelUpload": "Cancelar envio",
+      "retry": "Tentar de novo",
+      "remove": "Remover",
+      "change": "Remover / mudar ficheiro",
+      "complete": "Envio concluído!",
+      "previewAlt": "Pré-visualização da imagem escolhida",
+      "uploadFile": "Carrega um ficheiro",
+      "dragAndDrop": "ou arrasta-o para aqui",
+      "formats": "JPEG, PNG, WebP, GIF ou MP4 até 50 MB"
+    },
+    "search": {
+      "placeholder": "Pesquisar lugares e artigos...",
+      "clear": "Limpar pesquisa",
+      "submit": "Pesquisar",
+      "results": "Resultados da pesquisa",
+      "searching": "A pesquisar...",
+      "noResults": "Sem resultados para “{query}”",
+      "places": "Lugares",
+      "articles": "Artigos"
+    },
+    "social": {
+      "label": "Ligações para redes sociais",
+      "facebook": {
+        "label": "Visitar a página do Nos Ilha no Facebook",
+        "description": "Segue o Nos Ilha no Facebook para novidades da comunidade e histórias do património cultural"
+      },
+      "instagram": {
+        "label": "Visitar o perfil do Nos Ilha no Instagram",
+        "description": "Descobre fotografias e momentos da ilha Brava no Instagram"
+      },
+      "youtube": {
+        "label": "Visitar o canal do Nos Ilha no YouTube",
+        "description": "Vê vídeos sobre a cultura, a história e as tradições da ilha Brava no YouTube"
+      }
+    }
+  },
+  "chrome": {
+    "skipToContent": "Saltar para o conteúdo principal",
+    "nav": {
+      "home": "Início",
+      "settlements": "Localidades",
+      "culture": "Cultura",
+      "map": "Mapa",
+      "photographs": "Fotografias",
+      "films": "Filmes",
+      "stay": "Alojamento",
+      "about": "Sobre",
+      "contact": "Contacto",
+      "privacy": "Privacidade",
+      "terms": "Termos"
+    },
+    "primaryNav": "Principal",
+    "mobileNav": "Navegação móvel",
+    "moreDestinations": "Mais destinos",
+    "more": "Mais",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "contribute": "Contribuir",
+    "signIn": "Entrar",
+    "signedIn": "Sessão iniciada",
+    "profile": "Perfil",
+    "yourProfile": "O teu perfil",
+    "yourAccount": "A tua conta",
+    "homeLink": "Página inicial do Nos Ilha",
+    "archive": "Arquivo",
+    "theme": {
+      "dark": "Escuro",
+      "light": "Claro",
+      "switchTo": "Mudar para o tema {theme, select, dark {escuro} other {claro}}"
+    },
+    "language": {
+      "chipTitle": "Inglês. O português e o Kriolu chegam em breve.",
+      "heading": "Idioma",
+      "comingSoon": "Em breve",
+      "comingSoonParenthetical": "(Em breve)"
+    },
+    "header": {
+      "openMainMenu": "Abrir menu principal",
+      "openUserMenu": "Abrir menu do utilizador",
+      "historyOfBrava": "História de Brava",
+      "historyDescription": "O rico passado da ilha",
+      "historicalFigures": "Personalidades históricas",
+      "figuresDescription": "As pessoas que moldaram Brava",
+      "admin": "Administração",
+      "signedInAs": "Sessão iniciada como",
+      "yourProfile": "O teu perfil",
+      "settings": "Definições",
+      "addEntry": "Adicionar registo",
+      "signOut": "Sair",
+      "logIn": "Entrar",
+      "signUp": "Criar conta",
+      "guestUser": "Visitante",
+      "contributeStory": "+ Contribuir com uma história"
+    }
+  },
+  "footer": {
+    "heading": "Rodapé",
+    "tagline": "Nos terra, nos gente, nos memoria.",
+    "updates": "Recebe novidades sobre novas histórias, eventos culturais e formas de contribuir.",
+    "haveSomething": "Tens alguma coisa de Brava?",
+    "give": "Envia uma fotografia ou um filme →",
+    "copyright": "© {year} Nos Ilha. Projeto de património cultural de código aberto."
+  },
+  "errors": {
+    "notFound": {
+      "title": "Página não encontrada",
+      "body": "A página que procuras não existe ou foi movida. Explora o nosso diretório ou volta à página inicial.",
+      "home": "Página inicial",
+      "settlements": "Explorar localidades",
+      "map": "Ver mapa",
+      "help": "Precisas de ajuda? <link>Contacta-nos</link>"
+    },
+    "error": {
+      "title": "Algo correu mal",
+      "body": "Ocorreu um erro inesperado. Tenta de novo ou volta à página inicial.",
+      "digest": "Resumo: {digest}",
+      "retry": "Tentar de novo",
+      "home": "Voltar ao início"
+    },
+    "mapLoadFailed": "O mapa não conseguiu carregar o arquivo. Tenta atualizar a página."
+  },
+  "status": {
+    "documented": {
+      "label": "documentada",
+      "line": "registos e uma fotografia"
+    },
+    "partial": {
+      "label": "registos, sem fotografia",
+      "line": "registos, sem fotografia"
+    },
+    "name": {
+      "label": "só o nome",
+      "line": "um nome e uma coordenada, mais nada"
+    },
+    "unknown": "estado desconhecido",
+    "entry": {
+      "documented": "tem fotografia",
+      "partial": "sem fotografia"
+    }
+  },
+  "categories": {
+    "Restaurant": "Restaurante",
+    "Hotel": "Alojamento",
+    "Beach": "Praia",
+    "Heritage": "Património",
+    "Nature": "Natureza",
+    "Viewpoint": "Miradouro",
+    "Trail": "Trilho",
+    "Church": "Igreja",
+    "Port": "Porto"
+  },
+  "fields": {
+    "settlement": "em que localidade fica",
+    "category": "que tipo de lugar é",
+    "established": "quando foi fundado",
+    "coordinates": "onde fica exatamente",
+    "conditionStatus": "o seu estado atual",
+    "festival": "a sua festa",
+    "photographer": "quem tirou a fotografia",
+    "openingHours": "o seu horário de funcionamento",
+    "architect": "quem o construiu",
+    "rating": "uma classificação",
+    "phoneNumber": "o seu número de telefone",
+    "email": "o seu endereço de e-mail",
+    "website": "o seu site",
+    "cuisine": "o que lá se cozinha",
+    "amenities": "o que um quarto inclui",
+    "photographerCredit": "quem tirou esta fotografia",
+    "title": "um título para esta fotografia",
+    "latitude": "onde foi tirada esta fotografia",
+    "locationName": "como se chama este lugar",
+    "dateTaken": "mais ou menos quando foi tirada",
+    "filmmaker": "quem filmou este filme",
+    "placeId": "onde foi feito este filme",
+    "population": "quantas pessoas lá vivem",
+    "elevation": "a que altitude fica acima do mar",
+    "founded": "quando a localidade foi fundada",
+    "highlights": "o que um visitante deve ir ver primeiro",
+    "photograph": "uma fotografia",
+    "correction": "uma correção a este registo"
+  },
+  "archiveHome": {
+    "title": "Um arquivo de Brava, feito com o que as pessoas nos enviam",
+    "standfirst": "{settlements, plural, =0 {Nenhuma localidade} one {{settlementWords} localidade} other {{settlementWords} localidades}}, {records, plural, =0 {nenhum registo de lugar} one {{recordWords} registo de lugar} other {{recordWords} registos de lugar}}, {photographs, plural, =0 {nenhuma fotografia} one {{photographWords} fotografia} other {{photographWords} fotografias}}. A maior parte ainda falta, e cada lacuna aqui é uma pergunta.",
+    "shippedHero": {
+      "alt": "Uma costa rochosa sob montanhas íngremes em Brava",
+      "credit": "NosIlha, 2024 · CC BY-SA 4.0 · lugar ainda não registado"
+    },
+    "credit": {
+      "noPhotographer": "autoria não registada",
+      "placeNotRecorded": "lugar ainda não registado",
+      "placeNotNamed": "lugar sem nome"
+    },
+    "navLabel": "O arquivo",
+    "routes": {
+      "settlements": {
+        "label": "Localidades",
+        "note": "{names, plural, =0 {Nenhum nome} one {{nameWords} nome} other {{nameWords} nomes}}. {documented, plural, =0 {Nenhum documentado.} one {{documentedWords} documentado.} other {{documentedWords} documentados.}}"
+      },
+      "photographs": {
+        "label": "Fotografias",
+        "note": "{records, plural, =0 {Ainda nada} one {{recordWords} registo} other {{recordWords} registos}}. {credited, plural, =0 {Nenhum com autoria.} other {{creditedWords} com autoria.}}"
+      },
+      "map": {
+        "label": "Mapa",
+        "note": "Cada ponto que temos, colorido segundo o que se sabe."
+      },
+      "stay": {
+        "label": "Alojamento",
+        "note": "{stays, plural, =0 {Ainda não há alojamento registado.} one {{stayWords} alojamento. {rated, plural, =0 {Nenhum avaliado.} other {{ratedWords} avaliado.}}} other {{stayWords} alojamentos. {rated, plural, =0 {Nenhum avaliado.} one {{ratedWords} avaliado.} other {{ratedWords} avaliados.}}}}"
+      }
+    },
+    "photographRow": {
+      "heading": "{count, plural, =0 {Nenhuma fotografia, e o que falta a cada uma} one {{words} fotografia, e o que lhe falta} other {{words} fotografias, e o que falta a cada uma}}",
+      "noneCredited": "Ninguém nos disse quem tirou qualquer uma destas.",
+      "allCredited": "Cada uma destas indica quem a fotografou.",
+      "someUncredited": "{count, plural, one {{words} destas não indica quem a fotografou.} other {{words} destas não indicam quem as fotografou.}}"
+    },
+    "emptySettlements": {
+      "heading": "Localidades sem nada registado",
+      "none": "Todas as localidades da ilha têm alguma coisa.",
+      "standfirst": "{empty, plural, one {{emptyWords} das {totalWords} tem um nome e um ponto no mapa e mais nada. Sem fotografia, sem descrição, sem registo de quem lá vive.} other {{emptyWords} das {totalWords} têm um nome e um ponto no mapa e mais nada. Sem fotografia, sem descrição, sem registo de quem lá vive.}}"
+    },
+    "instagram": {
+      "heading": "Do Instagram",
+      "follow": "Seguir no Instagram →",
+      "onePost": "Uma publicação até agora.",
+      "unavailable": "Não conseguimos chegar ao Instagram neste momento. As publicações continuam lá.",
+      "empty": "Ainda nada publicado.",
+      "loadingLine": "A conta, não o arquivo.",
+      "standfirstShort": "A conta, não o arquivo: avisos, festas e aquilo em que estamos a trabalhar.",
+      "standfirstLong": "A conta, não o arquivo: avisos, festas e aquilo em que estivermos a trabalhar nessa semana.",
+      "closingAsk": "Tens uma fotografia de Brava? Marca <strong>@nosilha</strong>, ou <link>envia-a para o arquivo →</link>",
+      "badge": {
+        "video": "Vídeo",
+        "album": "Álbum"
+      },
+      "justNow": "agora mesmo",
+      "tileName": "Publicação do Instagram, {age}",
+      "tileNameWithCaption": "Publicação do Instagram, {age}: {caption}"
+    }
+  },
+  "settlements": {
+    "heading": "Localidades",
+    "filters": {
+      "all": "Todas as localidades",
+      "has": "Com registos",
+      "none": "Ainda nada"
+    },
+    "standfirst": {
+      "empty": "Ainda nenhuma localidade de Brava tem nome.",
+      "counts": "{total, plural, one {{totalWords} localidade tem nome em Brava} other {{totalWords} localidades têm nome em Brava}}. {documented, plural, =0 {Nenhuma está documentada} one {{documentedWords} está documentada} other {{documentedWords} estão documentadas}}, {partial, plural, =0 {nenhuma tem registos sem fotografia} one {{partialWords} tem registos sem fotografia} other {{partialWords} têm registos sem fotografia}} e {nameOnly, plural, =0 {nenhuma é só um nome e uma coordenada} one {{nameOnlyWords} é só um nome e uma coordenada} other {{nameOnlyWords} são só um nome e uma coordenada}}."
+    },
+    "statusLine": {
+      "nameOnly": "um nome e uma coordenada, mais nada",
+      "records": "{records, plural, one {{recordWords} registo} other {{recordWords} registos}} · {photoState, select, counted {{photos, plural, one {{photoWords} fotografia} other {{photoWords} fotografias}}} hero {uma fotografia} other {sem fotografia}}"
+    },
+    "meta": {
+      "populationNotRecorded": "população não registada",
+      "elevationNotRecorded": "altitude não registada"
+    }
+  },
+  "town": {
+    "backLink": "← Todas as localidades",
+    "subLine": "{records, plural, =0 {Nenhum registo de lugar} one {{recordWords} registo de lugar} other {{recordWords} registos de lugar}} · {photos, plural, =0 {nenhuma fotografia da própria localidade} one {{photoWords} fotografia} other {{photoWords} fotografias}}",
+    "shareLabel": "Partilhar esta localidade",
+    "panel": {
+      "eyebrow": "Fotografias de {name}",
+      "heading": "{count, plural, =0 {Ainda nenhuma} one {{words} fotografia} other {{words} fotografias}}",
+      "noRecords": "Ainda não há nenhum registo nesta localidade.",
+      "recordsWithoutPhotograph": "{records, plural, one {{recordWords} registo pertence a esta localidade e não tem fotografia.} other {{recordWords} registos pertencem a esta localidade e nenhum deles tem fotografia.}}",
+      "records": "{records, plural, one {{recordWords} registo pertence a esta localidade.} other {{recordWords} registos pertencem a esta localidade.}}",
+      "unconfirmed": "{count, plural, one {{words} fotografia do arquivo tem coordenadas que ficam dentro de {name}, mas ninguém confirmou o lugar, por isso não está associada aqui.} other {{words} fotografias do arquivo têm coordenadas que ficam dentro de {name}, mas ninguém confirmou o lugar, por isso não estão associadas aqui.}}",
+      "give": "Envia uma fotografia de {name}",
+      "seeUnconfirmed": "{count, plural, one {Ver a fotografia por confirmar} other {Ver as {words} fotografias por confirmar}}"
+    },
+    "questions": {
+      "population": "Quantas pessoas vivem em {name}?",
+      "elevation": "A que altitude fica, acima do nível do mar?",
+      "founded": "Quando foi fundada a localidade?",
+      "highlights": "Aonde deve um visitante ir a pé primeiro?"
+    },
+    "recordedHere": "Registado aqui",
+    "openInMap": "Abrir no explorador do mapa",
+    "notRecorded": "Sem registo",
+    "noPhotograph": "sem fotografia"
+  },
+  "entry": {
+    "heroAlt": "{name}, {town}",
+    "noPhotographRecorded": "nenhuma fotografia registada",
+    "noPhotographer": "autoria não registada",
+    "thisRecord": "Este registo",
+    "notRecorded": "sem registo",
+    "photographs": {
+      "heading": "Fotografias deste lugar",
+      "count": "{count, plural, one {{words} fotografia deste lugar está no arquivo.} other {{words} fotografias deste lugar estão no arquivo.}}",
+      "promptAnother": "Tens outra fotografia de {name}?",
+      "heroOnly": "Ainda nenhuma. A fotografia acima entrou como imagem principal do registo, não como registo do arquivo.",
+      "prompt": "Tens uma fotografia de {name}?",
+      "give": "Envia uma fotografia para o arquivo"
+    },
+    "alsoRecorded": {
+      "inTown": "Outros registos em {town}",
+      "nearby": "Outros registos por perto",
+      "onlyRecord": "Mais nada. Este é o único registo da localidade."
+    },
+    "suggestCorrection": "Sugerir uma correção",
+    "openInMap": "Abrir no explorador do mapa",
+    "nothingHereYet": "Ainda nada aqui",
+    "ratingNote": "Os registos da categoria {category} não têm classificação. As classificações só aparecem onde um visitante pode ficar.",
+    "related": {
+      "heading": "Explorar conteúdo relacionado",
+      "loadingLabel": "A carregar conteúdo relacionado",
+      "errorLabel": "Erro no conteúdo relacionado",
+      "error": "Não foi possível carregar o conteúdo relacionado. Tenta novamente mais tarde.",
+      "emptyLabel": "Nenhum conteúdo relacionado disponível",
+      "empty": "De momento, não há conteúdo de património relacionado.",
+      "label": "Conteúdo de património cultural relacionado",
+      "swipe": "Desliza para ver mais →",
+      "viewDetails": "Ver detalhes de {name}",
+      "photoAlt": "Fotografia de {name}",
+      "noImage": "Sem imagem disponível"
+    }
+  },
+  "stay": {
+    "heading": "Alojamento",
+    "standfirst": {
+      "empty": "Ainda não há alojamento registado em Brava.",
+      "counts": "{total, plural, one {{openingWords} alojamento em Brava. Esta é a única parte do arquivo onde uma classificação faz sentido, e {rated, plural, =0 {ainda não foi avaliado} other {já foi avaliado}}.} other {{openingWords} alojamentos em Brava. Esta é a única parte do arquivo onde uma classificação faz sentido, e {rated, plural, =0 {nenhum dos {totalWords} foi ainda avaliado} one {{ratedWords} dos {totalWords} foi avaliado} other {{ratedWords} dos {totalWords} foram avaliados}}.}}"
+    },
+    "notYetRated": "Ainda sem classificação",
+    "photoAlt": "{name}, {town}",
+    "noPhotographRecorded": "nenhuma fotografia registada",
+    "stayedHere": "Ficaste aqui?"
+  },
+  "films": {
+    "untitled": "Filme sem título",
+    "sources": {
+      "youtube": "YouTube",
+      "vimeo": "Vimeo",
+      "file": "Ficheiro do arquivo"
+    },
+    "facets": {
+      "all": "Todos os filmes",
+      "titled": "Com título",
+      "youtube": "YouTube",
+      "vimeo": "Vimeo",
+      "file": "Ficheiro do arquivo"
+    },
+    "eyebrow": "{source, select, youtube {Filme · YouTube} vimeo {Filme · Vimeo} file {Filme · Ficheiro do arquivo} other {Filme}}",
+    "filmedNear": "Filmado perto de {place}",
+    "sourceLine": {
+      "file": "Ficheiro do arquivo: {name}",
+      "listed": "Publicado no {source} como “{title}”"
+    },
+    "helpLine": {
+      "maker": "Ainda por registar: quem o filmou.",
+      "placeAndMaker": "Ainda por registar: onde foi filmado ou quem o filmou."
+    },
+    "countWords": "{count, plural, =0 {Ainda nenhum no arquivo} other {{words} no arquivo}}",
+    "card": {
+      "preview": "Pré-visualização · sem som",
+      "cantPlay": "Não é possível reproduzir aqui"
+    },
+    "strip": {
+      "heading": "Filmes",
+      "seeAll": "Ver todos os filmes →",
+      "intro": "Filmagens de Brava oferecidas ao arquivo."
+    },
+    "cinema": {
+      "heading": "Filmes",
+      "allFilms": "Todos os filmes",
+      "filterLabel": "Filtrar filmes",
+      "invitation": {
+        "question": "Tens um filme de Brava?",
+        "body": "Basta uma ligação do YouTube ou do Vimeo.",
+        "cta": "Envia a ligação de um filme"
+      },
+      "hero": {
+        "label": "Filme em destaque",
+        "playingMuted": "A reproduzir sem som",
+        "playing": "A reproduzir",
+        "ofTheMonth": "Filme do mês",
+        "playMuted": "Reproduzir {title} sem som",
+        "pause": "Pausa",
+        "soundOff": "Som desligado · Ligar",
+        "soundOn": "Som ligado · Silenciar",
+        "watchWithSound": "Ver com som",
+        "filmPage": "Página do filme"
+      }
+    },
+    "theatre": {
+      "allFilms": "← Todos os filmes",
+      "photographsFromHere": "Fotografias deste lugar →",
+      "helpComplete": "Ajuda a completar este registo"
+    },
+    "upNext": {
+      "heading": "A seguir",
+      "autoplay": "Reprodução automática",
+      "empty": "Ainda não há outros filmes no arquivo.",
+      "cantPlay": "Não é possível reproduzir aqui",
+      "samePlace": "Mesmo lugar",
+      "next": "Seguinte"
+    },
+    "player": {
+      "play": "Reproduzir {title}",
+      "loading": "{host, select, none {A carregar da plataforma de origem} other {A carregar do {host}}}",
+      "soundOffChip": "Sem som",
+      "pause": "Pausa",
+      "resume": "Reproduzir",
+      "soundOn": "Ligar o som",
+      "mute": "Silenciar",
+      "exitFullScreen": "Sair do ecrã inteiro",
+      "fullScreen": "Ecrã inteiro",
+      "seek": "Procurar",
+      "cantPlay": "Não é possível reproduzir aqui",
+      "blockedTitle": "{host, select, none {a plataforma de origem não deixa reproduzir este filme aqui} other {o {host} não deixa reproduzir este filme aqui}}",
+      "missingTitle": "O ficheiro original não está no arquivo",
+      "blockedBody": "O registo fica. Podes vê-lo na plataforma de origem.",
+      "missingBody": "O registo fica. Se tens uma cópia deste filme, os curadores gostariam de saber.",
+      "watchOn": "{host, select, none {Ver na plataforma de origem} other {Ver no {host}}}",
+      "sendCopy": "Envia uma cópia",
+      "upNextIn": "A seguir dentro de {count}",
+      "upNext": "A seguir",
+      "lastFilm": "Foi o último filme",
+      "playNow": "Reproduzir agora",
+      "cancel": "Cancelar",
+      "watchAgain": "Ver de novo"
+    }
+  },
+  "photographs": {
+    "heading": {
+      "near": "Perto de {place}",
+      "brava": "Uma fotografia de Brava"
+    },
+    "eyebrow": "Fotografia",
+    "untitled": "Sem título",
+    "chips": {
+      "label": "Filtrar por lugar",
+      "all": "Todas",
+      "unplaced": "Ainda sem lugar"
+    },
+    "moreFrom": "Mais de {place}",
+    "moreUnplaced": "Também à espera de um lugar",
+    "missing": {
+      "photographer": "quem a tirou",
+      "place": "onde",
+      "date": "quando"
+    },
+    "viewerHelp": "Ainda por registar: {missing}.",
+    "indexHelp": {
+      "everyUncredited": "Todas as fotografias aqui continuam sem autor{unplaced, plural, =0 {} one {, e {unplacedWords} não tem lugar} other {, e {unplacedWords} não têm lugar}}. Reconheces alguma?",
+      "someUncredited": "{uncredited, plural, one {{uncreditedWords} fotografia continua} other {{uncreditedWords} fotografias continuam}} sem autor{unplaced, plural, =0 {} one {, e {unplacedWords} não tem lugar} other {, e {unplacedWords} não têm lugar}}. Reconheces alguma?",
+      "unplaced": "{unplaced, plural, one {{unplacedWords} fotografia ainda não tem} other {{unplacedWords} fotografias ainda não têm}} lugar. Reconheces alguma?"
+    },
+    "pills": {
+      "title": "sem título",
+      "photographer": "sem autor",
+      "place": "sem lugar",
+      "date": "sem data",
+      "category": "sem categoria"
+    },
+    "index": {
+      "heading": "Fotografias",
+      "featureEyebrow": "Fotografias · Fotografia do dia",
+      "empty": "O arquivo ainda não tem fotografias.",
+      "showNeedy": "Mostra-me uma que precise de ajuda",
+      "films": "Filmes",
+      "seeAllFilms": "Ver todos os filmes →",
+      "invitation": {
+        "question": "Tens uma fotografia de Brava?",
+        "body": "Uma fotografia de família em papel, um diapositivo, ou uma foto tirada com o telemóvel a uma delas. Os direitos de autor continuam a ser teus.",
+        "cta": "Envia uma fotografia"
+      }
+    },
+    "gallery": {
+      "photoAlt": "Fotografia da galeria",
+      "imageAlt": "Imagem da galeria",
+      "bravaIsland": "Ilha Brava",
+      "communityContributor": "Membro da comunidade",
+      "anonymous": "Anónimo",
+      "photoOfTheDay": "Fotografia do dia",
+      "weeklyDiscoveries": "Descobertas da semana",
+      "identifyButton": "Ajuda a identificar",
+      "video": {
+        "player": "Leitor de vídeo",
+        "thumbnail": "Miniatura do vídeo",
+        "play": "Reproduzir {title}",
+        "playUntitled": "Reproduzir vídeo",
+        "nowPlaying": "A reproduzir",
+        "featured": "Vídeo em destaque",
+        "fallbackCategory": "Vídeo",
+        "none": "Nenhum vídeo encontrado"
+      },
+      "grid": {
+        "emptySearch": "Sem resultados para “{query}”",
+        "emptyAll": "Ainda não há fotografias",
+        "emptyCategory": "Ainda não há fotografias de {category}",
+        "emptySearchHint": "Experimenta outro termo de pesquisa ou limpa os filtros.",
+        "emptyHint": "Ajuda a preservar o património visual de Brava partilhando as tuas fotografias com a comunidade.",
+        "beFirst": "Partilha a primeira fotografia",
+        "loadingMore": "A carregar mais fotografias...",
+        "loadMore": "Carregar mais fotografias (a mostrar {shown} de {total})",
+        "showing": "A mostrar {shown} de {total} fotografias"
+      },
+      "map": {
+        "label": "Mapa das fotografias da galeria da ilha Brava",
+        "emptyFiltered": "Nenhuma fotografia com localização corresponde aos filtros",
+        "empty": "Ainda não há fotografias com dados de localização",
+        "emptyFilteredHint": "Experimenta ajustar os filtros para ver mais resultados.",
+        "emptyHint": "As fotografias tiradas com câmaras com GPS vão aparecer neste mapa.",
+        "clearFilters": "Limpar filtros",
+        "gridView": "Mudar para a vista em grelha",
+        "unavailable": "Mapa indisponível",
+        "refresh": "Experimenta atualizar a página.",
+        "loading": "A carregar o mapa...",
+        "cluster": "Grupo de {count} fotografias. Clica para expandir.",
+        "viewPhoto": "Ver fotografia: {title}",
+        "viewVideo": "Ver vídeo: {title}",
+        "openInGallery": "Abrir na galeria",
+        "located": "{count, plural, one {{n} fotografia com localização} other {{n} fotografias com localização}}"
+      },
+      "picker": {
+        "title": "Escolher da galeria",
+        "close": "Fechar janela",
+        "search": "Pesquisar por título, descrição ou categoria...",
+        "loadFailed": "Não foi possível carregar as imagens da galeria",
+        "tryAgain": "Tentar novamente",
+        "noMatch": "Nenhuma imagem corresponde à pesquisa",
+        "noImages": "Não há imagens aprovadas disponíveis",
+        "previous": "Anterior",
+        "next": "Seguinte",
+        "page": "Página {page} ({total} no total)",
+        "selected": "Selecionada: <strong>{title}</strong>",
+        "clickToSelect": "Clica numa imagem para a selecionar",
+        "use": "Usar a imagem selecionada"
+      },
+      "manualMetadata": {
+        "title": "Detalhes da fotografia histórica",
+        "optional": "(Opcional)",
+        "approximateDate": "Data aproximada",
+        "approximateDatePlaceholder": "p. ex., por volta dos anos 60, verão de 1985",
+        "locationName": "Nome do local",
+        "locationNamePlaceholder": "Nome da localidade ou de um ponto de referência",
+        "archiveSource": "Fonte / arquivo",
+        "archiveSourcePlaceholder": "p. ex., coleção de família, arquivo municipal"
+      },
+      "contributePhotos": {
+        "signInTitle": "Inicia sessão para contribuir com fotografias",
+        "signInDescription": "Para contribuir com fotografias é preciso ter uma conta, para garantir a atribuição correta e a moderação.",
+        "thanks": "Obrigado por contribuíres para a nossa comunidade.",
+        "uploadAnother": "Carregar outra fotografia",
+        "title": "Contribuir com fotografias",
+        "intro": "Tens uma fotografia deste lugar? Partilha-a com a comunidade!"
+      }
+    },
+    "metadataBadges": {
+      "dateUnknown": "Data desconhecida",
+      "unknownCamera": "Câmara desconhecida",
+      "addDetails": "Acrescentar detalhes",
+      "gps": {
+        "FULL": "Localização completa",
+        "APPROXIMATE": "Precisão de ~100 m",
+        "STRIPPED": "Localização removida",
+        "NONE": "Sem dados de localização"
+      }
+    },
+    "photoType": {
+      "label": "Tipo de fotografia",
+      "CULTURAL_SITE": {
+        "label": "Sítio cultural",
+        "description": "GPS completo para locais de património"
+      },
+      "COMMUNITY_EVENT": {
+        "label": "Evento comunitário",
+        "description": "Localização arredondada a ~100 m"
+      },
+      "PERSONAL": {
+        "label": "Pessoal",
+        "description": "Localização totalmente removida"
+      }
+    }
+  },
+  "viewer": {
+    "back": "← Fotografias",
+    "backTo": "← Fotografias · {place}",
+    "about": "Sobre esta fotografia",
+    "photographBy": "Fotografia de {credit}",
+    "showOnMap": "Mostrar no mapa",
+    "helpComplete": "Ajuda a completar este registo",
+    "askSomeone": "Pergunta a alguém que possa saber",
+    "documentTitle": "{heading} | Nos Ilha",
+    "stage": {
+      "region": "Fotografia",
+      "close": "✕ Fechar",
+      "hideDetails": "Ocultar detalhes",
+      "details": "Detalhes",
+      "fit": "Ajustar",
+      "zoom": "Ampliar",
+      "exitFullScreen": "Sair do ecrã inteiro",
+      "fullScreen": "Ecrã inteiro",
+      "previous": "Fotografia anterior",
+      "next": "Fotografia seguinte",
+      "position": "{position} de {total}",
+      "hintPointer": "← → para mudar · Esc para voltar",
+      "hintTouch": "desliza para mudar"
+    }
+  },
+  "identify": {
+    "eyebrow": "Ajuda a identificar",
+    "title": "Diz-nos o que reconheces",
+    "intro": "Responde só ao que sabes. Um palpite assinalado como palpite é mais útil ao arquivo do que um espaço em branco.",
+    "questions": {
+      "place": {
+        "label": "Onde foi tirada?",
+        "placeholder": "Faja d'Água, junto ao porto"
+      },
+      "photographer": {
+        "label": "Quem a tirou?",
+        "placeholder": "Um nome, ou “não se sabe”"
+      },
+      "when": {
+        "label": "Mais ou menos quando?",
+        "placeholder": "1984 — ou “algures nos anos sessenta”"
+      },
+      "people": {
+        "label": "Quem aparece nela?",
+        "placeholder": "Um nome, uma família, ou “a irmã da minha avó”"
+      }
+    },
+    "askedAbout": "Pergunta sobre: {field}",
+    "yourName": "O teu nome",
+    "yourEmail": "O teu e-mail",
+    "send": "Enviar aos curadores",
+    "signIn": "Iniciar sessão em vez disso",
+    "footnote": "Uma pessoa lê cada sugestão. Um curador pode escrever-te sobre a tua.",
+    "sent": "Obrigado — um curador vai ler isto.",
+    "notSent": "A tua resposta não foi enviada. Tenta novamente.",
+    "errors": {
+      "account": "Não conseguimos ler a tua conta. Inicia sessão novamente.",
+      "rateLimited": "Demasiadas respostas a partir desta ligação. Tenta novamente daqui a uma hora.",
+      "generic": "Não foi possível enviar. Tenta novamente.",
+      "noAnswer": "Responde a pelo menos uma pergunta, mesmo que seja um palpite.",
+      "guest": "Acrescenta o teu nome e um e-mail onde um curador te possa contactar."
+    },
+    "placeFields": {
+      "labels": {
+        "settlement": "Localidade",
+        "category": "Categoria",
+        "established": "Fundação",
+        "coordinates": "Coordenadas",
+        "conditionStatus": "Estado",
+        "festival": "Festa",
+        "photographer": "Autor da fotografia",
+        "openingHours": "Horário",
+        "architect": "Arquiteto",
+        "rating": "Avaliação",
+        "phoneNumber": "Telefone",
+        "email": "E-mail",
+        "website": "Sítio web",
+        "cuisine": "Cozinha",
+        "amenities": "Comodidades"
+      },
+      "questions": {
+        "settlement": "Em que localidade fica?",
+        "category": "Que tipo de lugar é este?",
+        "established": "Quando foi fundado?",
+        "coordinates": "Onde fica exatamente?",
+        "conditionStatus": "Em que estado está agora?",
+        "festival": "Há alguma festa aqui?",
+        "photographer": "Quem tirou a fotografia acima?",
+        "openingHours": "Quando se pode visitar?",
+        "architect": "Quem o construiu?",
+        "rating": "Já ficaste aqui?",
+        "phoneNumber": "Há um número de telefone?",
+        "email": "Há um endereço de e-mail?",
+        "website": "Há um sítio web?",
+        "cuisine": "O que se cozinha aqui?",
+        "amenities": "O que inclui um quarto?"
+      },
+      "completeness": "{total, plural, one {{documentedWords} de {totalWords} campo registado} other {{documentedWords} de {totalWords} campos registados}}",
+      "nothingRecorded": "ainda nada registado"
+    },
+    "suggestImprovement": {
+      "types": {
+        "CORRECTION": "Correção - Corrigir erros factuais ou imprecisões",
+        "ADDITION": "Acréscimo - Acrescentar informação ou contexto em falta",
+        "FEEDBACK": "Comentário - Comentário geral sobre a qualidade do conteúdo"
+      },
+      "sent": "Obrigado! A tua sugestão foi enviada.",
+      "failed": "Ocorreu um erro ao enviar a tua sugestão. Tenta novamente mais tarde.",
+      "title": "Sugerir uma melhoria",
+      "description": "Ajuda-nos a melhorar este conteúdo sobre <strong>{title}</strong>. As tuas sugestões ajudam a preservar o rigor e a riqueza do património cultural da ilha Brava.",
+      "successTitle": "Obrigado por ajudares a preservar o nosso património cultural!",
+      "successBody": "A tua sugestão foi recebida e vai ser revista pela nossa equipa. Agradecemos o teu contributo para manter o rigor do conteúdo cultural da ilha Brava.",
+      "name": "O teu nome *",
+      "namePlaceholder": "Escreve o teu nome",
+      "email": "O teu e-mail *",
+      "emailPlaceholder": "o.teu.email@exemplo.com",
+      "emailHint": "Podemos contactar-te para esclarecer a tua sugestão.",
+      "submittingAs": "A enviar como: <strong>{email}</strong>",
+      "type": "Tipo de sugestão *",
+      "typePlaceholder": "Escolhe o tipo de sugestão",
+      "message": "A tua sugestão *",
+      "messagePlaceholder": "Dá-nos detalhes sobre a tua sugestão...",
+      "count": "{count}/5000 caracteres (mínimo 10)",
+      "submitting": "A enviar...",
+      "submit": "Enviar sugestão"
+    }
+  },
+  "map": {
+    "loading": "A carregar Brava…",
+    "canvas": {
+      "label": "Mapa de Brava com as suas localidades, registos de lugar e fotografias localizadas",
+      "loadError": "Não foi possível carregar o mapa. Verifica a tua ligação e tenta novamente.",
+      "reload": "Recarregar o mapa",
+      "yourLocation": "A tua localização"
+    },
+    "controls": {
+      "satellite": "Satélite",
+      "terrain": "Relevo 3D",
+      "reset": "Repor a vista",
+      "myLocation": "A minha localização"
+    },
+    "pin": {
+      "label": "{name}, {eyebrow}",
+      "coincident": "{count, plural, one {# registo num só ponto} other {# registos num só ponto}}"
+    },
+    "selection": {
+      "announcement": "Selecionado: {name}, {eyebrow}.",
+      "label": "Selecionado: {name}",
+      "close": "Fechar",
+      "filterPhotographs": "Filtrar as fotografias desta zona"
+    },
+    "sidebar": {
+      "label": "Filtros e lista",
+      "modeGroup": "Modo do mapa",
+      "modes": {
+        "settlements": "Localidades",
+        "records": "Registos de lugar",
+        "photographs": "Fotografias"
+      },
+      "searchPlaceholder": "Pesquisar em Brava…",
+      "searchLabel": "Pesquisar em Brava",
+      "statusGroup": "Filtrar por estado",
+      "chips": {
+        "all": "Tudo",
+        "documented": "Documentado",
+        "partial": "Sem fotografia",
+        "name": "Só o nome"
+      },
+      "noMatch": "Nada no mapa corresponde a isso."
+    },
+    "sheet": {
+      "label": "Filtros e lista",
+      "show": "Filtros e lista",
+      "hide": "Esconder a lista"
+    },
+    "legend": {
+      "label": "Legenda das cores dos marcadores",
+      "noPlaceTray": "Abrir as fotografias sem lugar"
+    },
+    "copy": {
+      "eyebrow": {
+        "settlement": "Localidade",
+        "photograph": "Fotografia"
+      },
+      "settlementLine": "{recordWords} {records, plural, one {registo} other {registos}}, {photoState, select, none {sem fotografia} hero {uma fotografia} other {{photoWords} {photos, plural, one {fotografia} other {fotografias}}}}",
+      "recordLine": "{documented, select, yes {uma fotografia} other {sem fotografia}}",
+      "photoGaps": "{gaps, select, both {sem nome de lugar, sem autoria} place {sem nome de lugar} credit {sem autoria} other {}}",
+      "settlementStatus": "{records, plural, =0 {só o nome · ainda nada registado aqui} one {{recordWords} registo de lugar · {photoState, select, none {sem fotografia} hero {uma fotografia} other {{photoWords} {photos, plural, one {fotografia} other {fotografias}}}}} other {{recordWords} registos de lugar · {photoState, select, none {sem fotografia} hero {uma fotografia} other {{photoWords} {photos, plural, one {fotografia} other {fotografias}}}}}}",
+      "recordStatus": "{documented, select, yes {documentado · uma fotografia} other {nenhuma fotografia registada}}",
+      "photoStatus": "{named, select, yes {coordenadas do ficheiro · {placeName}} other {coordenadas do ficheiro · sem nome de lugar}}",
+      "nothingRecorded": "Nada está registado aqui além do nome e do ponto. Se conheces este lugar, o arquivo está à escuta.",
+      "photoDescription": "Coordenadas lidas do ficheiro.{gaps, select, both { Sem nome de lugar, sem autoria.} place { Sem nome de lugar.} credit { Sem autoria.} other {}}",
+      "primary": {
+        "settlement": "Abrir localidade",
+        "record": "Abrir registo",
+        "photo": "Abrir fotografia"
+      },
+      "photoPin": {
+        "named": "coordenadas do ficheiro",
+        "unnamed": "coordenadas, sem nome de lugar"
+      },
+      "noCoordinates": "sem coordenadas",
+      "recordsFooter": "{count, plural, =0 {Ainda nenhum registo de lugar tem coordenadas.} one {{words} registo de lugar tem coordenadas.} other {{words} registos de lugar têm coordenadas.}}",
+      "recordsShareAtTown": "{sharingWords} dos {totalWords} partilham a mesma coordenada em {town}.",
+      "recordsShare": "{sharingWords} dos {totalWords} partilham uma coordenada com outro registo.",
+      "settlementsRecorded": "{count, plural, =0 {Ainda nenhuma localidade está registada.} one {{words} localidade está registada.} other {{words} localidades estão registadas.}}",
+      "settlementsHolding": "{count, plural, =0 {Nenhuma tem ainda registos de lugar.} one {{words} tem registos de lugar.} other {{words} têm registos de lugar.}}",
+      "photographsFooter": "{count, plural, =0 {Ainda nenhuma fotografia tem coordenadas.} one {{words} fotografia tem coordenadas.} other {{words} fotografias têm coordenadas.}}",
+      "photographsNote": "{count, plural, one {{words} fotografia não tem coordenadas e não pode aparecer aqui.} other {{words} fotografias não têm coordenadas e não podem aparecer aqui.}}"
+    }
+  },
+  "about": {
+    "title": "Sobre o Nos Ilha",
+    "subtitle": "Uma plataforma comunitária que celebra o património cultural e a beleza natural da ilha Brava, Cabo Verde.",
+    "hero": {
+      "heading": "Preservar o património, construir comunidade",
+      "intro": "O Nos Ilha é um centro de património cultural—uma ponte digital que liga a ilha Brava ao mundo. Através da tecnologia e da colaboração comunitária, estamos a preservar e a celebrar a rica memória cultural da ilha, ligando a diáspora global às suas raízes e acolhendo os visitantes que procuram experiências autênticas de património.",
+      "approach": "A nossa abordagem, assente no voluntariado e no código aberto, garante que a plataforma se mantém fiel às suas raízes comunitárias, aproveitando a tecnologia moderna para mostrar a beleza autêntica da ilha Brava.",
+      "imageAlt": "Membros da comunidade a colaborar na preservação do património da ilha Brava"
+    },
+    "mission": {
+      "heading": "A nossa missão e os nossos valores",
+      "communityFirst": {
+        "title": "A comunidade primeiro",
+        "description": "Cada funcionalidade que construímos serve a comunidade local da ilha Brava, com o contributo de residentes, proprietários de negócios e especialistas em cultura."
+      },
+      "culturalPreservation": {
+        "title": "Preservação cultural",
+        "description": "Documentamos e preservamos a história, as tradições e as histórias únicas de Brava para as gerações futuras e para públicos de todo o mundo."
+      },
+      "openCollaboration": {
+        "title": "Colaboração aberta",
+        "description": "Como projeto de código aberto, acolhemos contributos de programadores, criadores de conteúdo e entusiastas da cultura de todo o mundo."
+      }
+    },
+    "technical": {
+      "heading": "Excelência técnica ao serviço da cultura",
+      "architecture": {
+        "heading": "Arquitetura moderna",
+        "body": "Construída com Next.js 16, React 19 e Spring Boot, a nossa plataforma combina tecnologia web de ponta com serviços de backend robustos para oferecer uma experiência rápida e acessível a todos os utilizadores.",
+        "appRouter": "• Next.js App Router com Server Components",
+        "kotlin": "• Spring Boot com backend em Kotlin",
+        "database": "• Base de dados PostgreSQL com integração Google Cloud",
+        "ai": "• Análise de imagens e metadados com IA"
+      },
+      "community": {
+        "heading": "Desenvolvimento orientado pela comunidade",
+        "body": "Cada decisão técnica é tomada a pensar nas necessidades da comunidade, garantindo que a plataforma se mantém acessível, culturalmente adequada e verdadeiramente útil, tanto para os habitantes locais como para os visitantes.",
+        "openSource": "• Código aberto no GitHub",
+        "mobileFirst": "• Design responsivo pensado primeiro para o telemóvel",
+        "multilingual": "• Planeamento do suporte multilingue",
+        "accessibility": "• Conformidade com as normas de acessibilidade (WCAG AA)"
+      }
+    },
+    "features": {
+      "heading": "Funcionalidades da plataforma",
+      "map": {
+        "title": "Mapa interativo",
+        "description": "Navega pela ilha Brava com o nosso mapa interativo detalhado, com negócios, pontos de referência e locais culturais."
+      },
+      "galleries": {
+        "title": "Galerias de fotografias",
+        "description": "Galerias de fotografias com contributos da comunidade mostram a beleza natural e os eventos culturais da ilha."
+      },
+      "directory": {
+        "title": "Sistema de diretório",
+        "description": "Diretório completo de restaurantes, hotéis, pontos de referência e locais culturais, com informação detalhada."
+      }
+    },
+    "impact": {
+      "heading": "Impacto na comunidade",
+      "openSourceValue": "100%",
+      "openSourceLabel": "Código aberto",
+      "openSourceBody": "Todo o código está disponível publicamente, garantindo transparência e propriedade comunitária.",
+      "volunteerLabel": "Movido por voluntários",
+      "volunteerBody": "Impulsionado por voluntários apaixonados, dedicados a preservar o património cultural da ilha Brava."
+    },
+    "join": {
+      "heading": "Junta-te à nossa comunidade",
+      "body": "Quer sejas programador, fotógrafo, escritor ou entusiasta da cultura, há um lugar para ti na comunidade Nos Ilha.",
+      "contribute": "Contribuir com conteúdo",
+      "github": "Ver no GitHub",
+      "contact": "Entrar em contacto",
+      "learnMore": "Saber mais"
+    }
+  },
+  "contact": {
+    "title": "Contacta-nos",
+    "subtitle": "Entra em contacto com a comunidade Nos Ilha. Estamos aqui para ajudar e gostaríamos muito de saber de ti.",
+    "form": {
+      "heading": "Envia-nos uma mensagem",
+      "nameLabel": "O teu nome",
+      "namePlaceholder": "Escreve o teu nome",
+      "emailLabel": "Endereço de e-mail",
+      "emailPlaceholder": "Escreve o teu e-mail",
+      "subjectLabel": "Assunto",
+      "subjectPlaceholder": "Escolhe um assunto",
+      "messageLabel": "Mensagem",
+      "messagePlaceholder": "Diz-nos como te podemos ajudar...",
+      "privacyAgreement": "Aceito a <link>política de privacidade</link>",
+      "sending": "A enviar...",
+      "submit": "Enviar mensagem"
+    },
+    "subjects": {
+      "general": "Pedido geral",
+      "content": "Sugestão de conteúdo",
+      "technical": "Problema técnico",
+      "partnership": "Oportunidade de parceria"
+    },
+    "success": {
+      "heading": "Obrigado!",
+      "defaultMessage": "Obrigado pela tua mensagem. Vamos responder-te dentro de 24-48 horas.",
+      "sendAnother": "Enviar outra mensagem"
+    },
+    "errors": {
+      "rateLimited": "Demasiados envios. Espera uma hora antes de tentares novamente.",
+      "invalid": "Dados do formulário inválidos. Verifica o que escreveste e tenta novamente.",
+      "failed": "Não foi possível enviar a tua mensagem. Tenta novamente mais tarde.",
+      "unexpected": "Ocorreu um erro inesperado. Tenta novamente mais tarde."
+    },
+    "validation": {
+      "nameMin": "O nome deve ter pelo menos 2 caracteres",
+      "nameMax": "O nome é demasiado longo",
+      "emailRequired": "O e-mail é obrigatório",
+      "emailInvalid": "Introduz um endereço de e-mail válido",
+      "subjectRequired": "Escolhe um assunto",
+      "messageMin": "A mensagem deve ter pelo menos 10 caracteres",
+      "messageMax": "A mensagem é demasiado longa",
+      "privacyRequired": "Tens de aceitar a política de privacidade"
+    },
+    "faq": {
+      "heading": "Perguntas frequentes",
+      "business": {
+        "question": "Como posso adicionar o meu negócio ao diretório?",
+        "answer": "Visita a nossa <link>página de contributos</link> para veres as instruções detalhadas. Precisamos do nome do teu negócio, da localização, dos contactos, de uma descrição e, se possível, de fotografias. Todos os envios são revistos pela nossa equipa de voluntários no prazo de 1-2 semanas, para garantir o rigor e a autenticidade cultural."
+      },
+      "photos": {
+        "question": "Posso contribuir com fotografias da ilha Brava?",
+        "answer": "Sim! Acolhemos especialmente fotografias de boa qualidade de paisagens, eventos culturais, negócios locais e do dia a dia em Brava. Certifica-te de que as fotografias são tuas ou de que tens autorização para as partilhar. Usa o formulário de contacto acima, com “Contributo de conteúdo” selecionado, para enviares as tuas fotografias com os detalhes do local."
+      },
+      "languages": {
+        "question": "A plataforma está disponível noutras línguas?",
+        "answer": "De momento, está disponível apenas em inglês. Estamos a planear ativamente o suporte para português e Kriolu (crioulo cabo-verdiano) em 2026. Se dominas estas línguas e tens interesse em ajudar a traduzir conteúdos, usa o formulário de contacto com “Oportunidade de parceria” selecionado."
+      },
+      "development": {
+        "question": "Como posso participar no desenvolvimento?",
+        "answer": "O Nos Ilha é totalmente de código aberto! Visita o nosso <link>repositório no GitHub</link> para veres as issues em aberto, as regras para contribuir e a stack tecnológica (Next.js, React, Spring Boot, Kotlin). Quem está a começar pode procurar as etiquetas “good first issue” ou usar o formulário de contacto com “Suporte técnico” para pedir orientação."
+      }
+    },
+    "community": {
+      "heading": "Junta-te à nossa comunidade",
+      "body": "Liga-te a outros entusiastas da ilha Brava e acompanha as novidades da plataforma.",
+      "contribute": "Contribuir com conteúdo",
+      "github": "Ver no GitHub",
+      "about": "Saber mais sobre nós"
+    }
+  },
+  "auth": {
+    "form": {
+      "brandTitleLogin": "De volta à alma de Brava.",
+      "brandTitleSignup": "Junta-te à comunidade Nos Ilha.",
+      "brandBodyLogin": "Entra na tua conta para gerir os teus contributos e manter a ligação ao património.",
+      "brandBodySignup": "Cria uma conta para preservar a cultura, partilhar histórias e contribuir.",
+      "back": "Voltar",
+      "backLabel": "Voltar",
+      "headingLogin": "Iniciar sessão",
+      "headingSignup": "Criar uma conta",
+      "leadLogin": "Introduz os teus dados para entrar na tua conta",
+      "leadSignup": "Começa hoje o teu percurso connosco",
+      "orEmail": "Ou continua com o e-mail",
+      "email": "E-mail",
+      "emailPlaceholder": "tu@exemplo.com",
+      "password": "Palavra-passe",
+      "showPassword": "Mostrar palavra-passe",
+      "hidePassword": "Ocultar palavra-passe",
+      "forgotPassword": "Esqueceste a palavra-passe?",
+      "submitLogin": "Entrar",
+      "submitSignup": "Criar conta",
+      "noAccount": "Não tens conta?",
+      "haveAccount": "Já tens conta?",
+      "toSignup": "Cria uma conta grátis",
+      "toLogin": "Entrar",
+      "footer": "© {year} Nos Ilha. A preservar a cultura através do código.",
+      "signupSuccess": "Verifica o teu e-mail para encontrares a ligação de confirmação!",
+      "oauthFailed": "Falha ao entrar com OAuth",
+      "unexpectedError": "Ocorreu um erro inesperado"
+    },
+    "signInDialog": {
+      "heldTitle": "A tua {noun, select, film {ligação do filme} other {fotografia}} está guardada, não perdida",
+      "photographer": "Autoria · <v>{text}</v>",
+      "givenBy": "Enviada por · <v>{text}</v>",
+      "place": "Lugar · <v>{text}</v>",
+      "notRecorded": "sem registo",
+      "notYetRecorded": "ainda sem registo",
+      "heldNote": "Ao iniciares sessão, é enviada. Nada foi carregado antes de chegares aqui.",
+      "title": "Iniciar sessão",
+      "lead": "Para retomares um contributo que começaste, ou veres o que já enviaste.",
+      "email": "E-mail",
+      "emailPlaceholder": "tu@exemplo.com",
+      "password": "Palavra-passe",
+      "showPassword": "Mostrar palavra-passe",
+      "hidePassword": "Ocultar palavra-passe",
+      "show": "Mostrar",
+      "hide": "Ocultar",
+      "submitHeld": "Entrar e enviar",
+      "submit": "Entrar",
+      "noAccount": "Ainda não tens conta?",
+      "createOne": "Cria uma",
+      "createNoteHeld": "Criar uma conta abre uma nova página, e a fotografia não fica guardada — terás de a adicionar outra vez depois.",
+      "createNote": "Criar uma conta abre uma nova página, e o que escreveste não fica guardado.",
+      "accountNote": "Só precisas de uma conta para registar o crédito e para poderes retirar algo mais tarde. Para explorar o arquivo, nunca é preciso.",
+      "signInFailed": "Não foi possível iniciar sessão. Tenta de novo."
+    },
+    "inlinePrompt": {
+      "title": "Inicia sessão para continuar",
+      "description": "Inicia sessão para concluir esta ação.",
+      "signIn": "Entrar",
+      "createAccount": "Criar conta"
+    }
+  },
+  "contribute": {
+    "landing": {
+      "title": "Oferece algo ao arquivo",
+      "lead": "Fotografias e filmes de Brava, de quem os tiver. Os direitos de autor continuam a ser teus. Registamos quem os fez e quem no-los ofereceu.",
+      "photo": {
+        "title": "Uma fotografia",
+        "body": "Uma impressão, um diapositivo ou uma foto tirada com o telemóvel a uma delas.",
+        "cta": "Envia uma fotografia →"
+      },
+      "film": {
+        "title": "Uma ligação para um filme",
+        "body": "Uma ligação do YouTube ou do Vimeo para um filme de Brava.",
+        "cta": "Envia uma ligação para um filme →"
+      },
+      "footer": "Uma pessoa revê tudo antes de aparecer. Sabes antes alguma coisa sobre um lugar? <link>Escreve-nos</link>."
+    },
+    "form": {
+      "kindPhoto": "Fotografia",
+      "kindFilm": "Ligação para filme",
+      "permission": "Tenho o direito de partilhar isto e aceito que apareça no arquivo público sob a licença CC BY-SA 4.0, com o crédito acima.",
+      "nextTitle": "O que acontece a seguir",
+      "nextBody": "Uma pessoa revê-o antes de ser publicado · fica creditado com o nome que deste, e não o publicamos sem esse crédito · podes pedir que seja retirado a qualquer momento",
+      "sending": "A enviar…",
+      "sendingProgress": "A enviar · {progress}%",
+      "uploadProgress": "Progresso do envio",
+      "keepOpen": "Mantém esta página aberta até terminar. Com uma ligação lenta, pode demorar um minuto."
+    },
+    "photo": {
+      "previewAlt": "A fotografia que estás a oferecer",
+      "change": "Mudar",
+      "choose": "Escolhe uma fotografia",
+      "chooseHint": "Uma foto de uma impressão tirada com o telemóvel serve. A maior parte das fotografias de Brava não está em Brava — está em New Bedford, Pawtucket e Brockton.",
+      "drop": "ou larga o ficheiro aqui",
+      "titleLabel": "Como se chama?",
+      "titlePlaceholder": "Poucas palavras, p. ex. “Casamento em Nossa Senhora do Monte”",
+      "descriptionLabel": "O que mostra?",
+      "descriptionPlaceholder": "Nomes, a ocasião, tudo o que souberes",
+      "descriptionHint": "Quem aparece, a ocasião, tudo o que souberes. Opcional.",
+      "placeLabel": "Onde foi tirada?",
+      "photographerLabel": "Quem tirou esta fotografia?",
+      "photographerPlaceholder": "Um nome, ou “não se sabe”",
+      "sourceLabel": "Quem no-la está a oferecer?",
+      "sourcePlaceholder": "O teu nome, tal como queres que apareça",
+      "dateLabel": "Mais ou menos quando?",
+      "datePlaceholder": "1984 — ou “algures nos anos sessenta”",
+      "dateHint": "Uma década chega."
+    },
+    "film": {
+      "urlLabel": "Ligação para o filme",
+      "urlPlaceholder": "Cola uma ligação do YouTube ou do Vimeo",
+      "urlUnrecognised": "Isto não parece uma ligação do YouTube ou do Vimeo. Copia o endereço no botão Partilhar do vídeo e cola-o aqui.",
+      "urlHint": "Só YouTube ou Vimeo, por agora.",
+      "titleLabel": "Título do filme",
+      "titlePlaceholder": "Como é conhecido, ou uma descrição curta",
+      "authorLabel": "Quem fez este filme?",
+      "authorPlaceholder": "Um nome, ou “não se sabe”",
+      "descriptionLabel": "O que mostra?",
+      "descriptionPlaceholder": "Quem aparece, a ocasião, tudo o que souberes",
+      "descriptionHint": "Opcional.",
+      "placeLabel": "Onde foi filmado?",
+      "dateLabel": "Mais ou menos quando?",
+      "datePlaceholder": "1984 — ou “algures nos anos sessenta”",
+      "thumbnailAlt": "Miniatura do YouTube",
+      "vimeoNoPreview": "O Vimeo não partilha uma imagem de pré-visualização",
+      "recognised": "Ligação do {platform} reconhecida"
+    },
+    "duplicate": {
+      "pendingEyebrow": "Já enviado · à espera de revisão",
+      "pendingMeta": "{platform} · ainda não é público",
+      "pendingBody": "Alguém já enviou esta ligação. Uma pessoa vai revê-la em breve, por isso ainda não é pública.",
+      "pendingNote": "Quem fizer a revisão vai vê-la junto da original.",
+      "publicEyebrow": "Já está no arquivo",
+      "publicBody": "Este filme já está no arquivo, por isso não é preciso enviá-lo outra vez.",
+      "seeInArchive": "Vê-o no arquivo →",
+      "correctionLabel": "Sabes algo sobre ele que nós não sabemos?",
+      "correctionPlaceholder": "Um título melhor, quem aparece, onde ou quando foi filmado",
+      "correctionTooLong": "Usa menos de {max} caracteres.",
+      "correctionFailed": "Não foi enviado. Tenta outra vez.",
+      "sending": "A enviar…",
+      "sendCorrection": "Envia o que sabes",
+      "correctionNote": "Uma pessoa lê-o antes de mudar qualquer coisa no registo.",
+      "correctionSent": "Obrigado. Uma pessoa vai lê-lo."
+    },
+    "town": {
+      "change": "Mudar",
+      "photoAlt": "Uma fotografia de {town}",
+      "alsoAppears": "Também vai aparecer na página de {town}.",
+      "detailLabel": "Mais exatamente, por palavras tuas",
+      "detailHint": "Mais exatamente, por palavras tuas. Opcional.",
+      "choose": "Escolhe uma localidade",
+      "orFree": "Ou <link>descreve o lugar por palavras tuas</link>.",
+      "freeHint": "Por palavras tuas. Não fica ligado à página de nenhuma localidade. <link>Escolhe também uma localidade</link>",
+      "close": "Fechar",
+      "search": "Pesquisar as localidades de Brava",
+      "freeInstead": "Prefiro descrevê-lo por palavras minhas"
+    },
+    "signIn": {
+      "label": "Confirma que és tu",
+      "heldEyebrow": "Guardado nesta página · não enviado",
+      "heldFilmNamed": "{title} · ligação para filme",
+      "heldFilm": "Ligação para filme",
+      "heldPhoto": "A tua fotografia",
+      "cancelledTitle": "Não terminaste o início de sessão com a Google",
+      "cancelledText": "Nada foi enviado, e a tua {kind, select, film {ligação para o filme} other {fotografia}} continua aqui. Tenta outra vez, ou usa um código por e-mail.",
+      "blockedTitle": "O início de sessão com a Google não abriu",
+      "blockedText": "Algumas aplicações abrem as ligações no seu próprio navegador, e este bloqueia a Google. Usa um código por e-mail, ou abre esta página no Safari ou no Chrome.",
+      "noSaveTitle": "Este navegador não consegue guardar a tua {kind, select, film {ligação para o filme} other {fotografia}} enquanto estás fora",
+      "noSaveText": "É o que acontece na navegação privada. Usa antes um código por e-mail. Funciona sem saíres desta página.",
+      "startTitle": "Confirma que és tu",
+      "startLead": "Para te podermos dar o crédito, e para poderes pedir mais tarde que seja retirado.",
+      "emailMeCode": "Envia-me um código por e-mail",
+      "newHere": "És novo aqui? Isto cria a tua conta.",
+      "usePassword": "Usar uma palavra-passe",
+      "googleUnavailable": "A Google não está disponível neste navegador",
+      "google": "Continuar com a Google",
+      "or": "ou",
+      "email": "E-mail",
+      "codeTitle": "Vê o teu e-mail",
+      "codeLead": "Enviámos um código de 6 dígitos para <email>{address}</email>. Escreve-o aqui. Não precisas de sair desta página.",
+      "rateLimited": "Foram enviados demasiados códigos. Espera alguns minutos.",
+      "codeResent": "Vem a caminho um código novo. Só o mais recente funciona.",
+      "codeWrong": "Esse código não corresponde. Confirma que é do e-mail mais recente, ou pede um código novo.",
+      "codeExpired": "Esse código expirou. Cada código funciona durante 10 minutos.",
+      "sendNewCode": "Enviar um código novo",
+      "sendNewCodeIn": "Enviar um código novo daqui a {time}",
+      "linkNote": "O e-mail também traz uma ligação. Num telemóvel, o código é mais fiável.",
+      "wrongEmail": "E-mail errado?",
+      "didntGetIt": "Não o recebeste?",
+      "codeLabel": "Código de 6 dígitos",
+      "backToCode": "Voltar ao código",
+      "noEmailTitle": "Ainda sem e-mail?",
+      "noEmailWait": "Pode demorar um ou dois minutos.",
+      "noEmailSpam": "Procura em Spam, Lixo ou Promoções. Vem da Nos Ilha.",
+      "noEmailAddress": "Confirma o endereço: {email}. <change>Muda-o</change>",
+      "googleInstead": "Continuar antes com a Google",
+      "otherWays": "Outras formas de iniciar sessão",
+      "passwordTitle": "Inicia sessão com a tua palavra-passe",
+      "password": "Palavra-passe",
+      "showPassword": "Mostrar palavra-passe",
+      "hidePassword": "Ocultar palavra-passe",
+      "show": "Mostrar",
+      "hide": "Ocultar",
+      "signInAndSend": "Iniciar sessão e enviar",
+      "forgotten": "Esqueceste-te dela? <link>Envia-me antes um código por e-mail</link>",
+      "savedOn": "Guardado neste {device, select, phone {telemóvel} other {computador}}",
+      "leavingTitle": "A levar-te para a Google",
+      "leavingBody": "A tua {kind, select, film {ligação para o filme} other {fotografia}} e tudo o que escreveste ficam guardados neste navegador. Quando voltares, vão estar aqui. Nada foi enviado.",
+      "leavingNote": "Volta neste mesmo navegador, neste {device, select, phone {telemóvel} other {computador}}. Outra aplicação ou outro dispositivo não os vai encontrar.",
+      "errors": {
+        "signInFailed": "O início de sessão falhou. Tenta outra vez.",
+        "codeNotSent": "Não foi possível enviar o código. Tenta outra vez."
+      }
+    },
+    "media": {
+      "steps": {
+        "photographer": "Indica quem tirou a fotografia para continuar",
+        "contributor": "Acrescenta o teu nome para continuar",
+        "permission": "Confirma a autorização para continuar",
+        "file": "Acrescenta a fotografia para continuar",
+        "filmTitle": "Acrescenta o título do filme para continuar",
+        "filmUrl": "Cola uma ligação do YouTube ou do Vimeo para continuar"
+      },
+      "untitledFilm": "Ligação para filme",
+      "untitledPhoto": "A tua fotografia",
+      "madeBy": "realizado por {name}",
+      "takenBy": "tirada por {name}",
+      "rows": {
+        "title": "Título",
+        "place": "Lugar",
+        "madeBy": "Realizado por",
+        "takenBy": "Tirada por",
+        "givenBy": "Oferecida por",
+        "when": "Quando"
+      },
+      "sending": "A enviar…",
+      "sendingProgress": "A enviar · {progress}%",
+      "send": "Enviar para o arquivo",
+      "tryAgain": "Tentar outra vez",
+      "sendAgainIn": "Podes voltar a enviar daqui a cerca de {minutes, plural, one {# minuto} other {# minutos}}.",
+      "checkingSignIn": "A verificar a sessão…",
+      "signedInAs": "Sessão iniciada como {email}.",
+      "nextConfirm": "A seguir confirmas o teu e-mail. Nada é enviado antes disso.",
+      "rateLimitedTitle": "Enviaste muita coisa em pouco tempo",
+      "rateLimitedBody": "Espera cerca de {minutes, plural, one {# minuto} other {# minutos}} e volta a enviar. Tudo o que escreveste continua aqui.",
+      "uploadFailedTitle": "A fotografia não foi carregada",
+      "uploadFailedBody": "A ligação caiu a meio. Está tudo aqui, por isso podes tentar outra vez.",
+      "filmFailedTitle": "A ligação para o filme não foi enviada",
+      "filmFailedBody": "{error} Tudo o que escreveste continua aqui.",
+      "filmFailedFallback": "Algo correu mal do nosso lado.",
+      "filmTitle": "Oferece um filme ao arquivo",
+      "filmLead": "Basta uma ligação. O filme fica onde está; registamos onde está e quem o fez.",
+      "photoTitle": "Oferece uma fotografia ao arquivo",
+      "photoLeadShort": "Os direitos de autor continuam a ser teus. Registamos quem a tirou.",
+      "photoLeadLong": "Os direitos de autor continuam a ser teus. Registamos quem a tirou e quem a ofereceu, e não a publicamos sem esse crédito.",
+      "noDraftTitle": "Não encontrámos a tua {kind, select, film {ligação para o filme} other {fotografia}} neste navegador",
+      "noDraftBody": "Pode ter sido aberta noutro navegador, ou já passou mais de um dia. Agora tens sessão iniciada, por isso {kind, select, film {cola-a outra vez} other {escolhe-a outra vez}} e será enviada logo."
+    },
+    "restored": {
+      "eyebrow": "Sessão iniciada · ainda não enviado",
+      "title": "A tua {kind, select, film {ligação para o filme} other {fotografia}} continua aqui",
+      "signedInAs": "Tens sessão iniciada como {email}. Confirma que é a conta que querias e depois envia.",
+      "signedIn": "Tens sessão iniciada. Confirma que é a conta que querias e depois envia.",
+      "change": "Mudar algo primeiro"
+    },
+    "confirmation": {
+      "photo": {
+        "body": "Uma pessoa vê cada fotografia antes de entrar no arquivo. Será publicada com o crédito que deste, e nunca sem ele.",
+        "again": "Enviar outra fotografia",
+        "see": "Ver as fotografias"
+      },
+      "film": {
+        "body": "Antes de entrar no arquivo, uma pessoa confirma que a ligação funciona e que o filme é sobre Brava. O filme fica no seu serviço de origem; nós mostramo-lo numa página própria.",
+        "again": "Enviar outra ligação para um filme",
+        "see": "Ver os filmes"
+      },
+      "headingFilm": "Obrigado. A ligação para o filme já está connosco.",
+      "headingNamed": "Obrigado, {name}. Já está connosco.",
+      "heading": "Obrigado. Já está connosco.",
+      "lastStepFilm": "No arquivo, em Filmes",
+      "lastStepTown": "No arquivo e na página de {town}",
+      "lastStep": "No arquivo",
+      "received": "Recebido hoje",
+      "review": "Uma pessoa da equipa do arquivo revê-o · normalmente em poucos dias",
+      "newAccount": "Foi a tua primeira vez, por isso criámos uma conta para {email}. Serve para os créditos e para retirar conteúdos, mais nada. Da próxima vez, inicia sessão da mesma forma."
+    },
+    "newsletter": {
+      "thanks": "Obrigado por subscreveres!",
+      "unexpectedError": "Ocorreu um erro inesperado. Tenta outra vez mais tarde.",
+      "validationFailed": "A validação falhou",
+      "tooManyRequests": "Demasiados pedidos. Tenta outra vez daqui a alguns minutos.",
+      "failed": "Não foi possível subscrever. Tenta outra vez mais tarde.",
+      "emailLabel": "Endereço de e-mail",
+      "emailPlaceholder": "o.teu@email.com",
+      "emailAria": "Endereço de e-mail para subscrever a newsletter",
+      "subscribe": "Subscrever",
+      "subscribing": "A subscrever…",
+      "privacy": "Respeitamos a tua privacidade. Podes cancelar a subscrição a qualquer momento."
+    },
+    "directory": {
+      "categories": {
+        "restaurant": {
+          "label": "Restauração",
+          "description": "Restaurantes e cafés locais"
+        },
+        "hotel": {
+          "label": "Alojamento",
+          "description": "Hotéis e pensões"
+        },
+        "beach": {
+          "label": "Praia",
+          "description": "Destinos costeiros"
+        },
+        "heritage": {
+          "label": "Património",
+          "description": "Locais históricos e monumentos"
+        },
+        "nature": {
+          "label": "Natureza",
+          "description": "Trilhos e piscinas naturais"
+        }
+      },
+      "submitted": "Lugar enviado para revisão",
+      "aiFailed": "Não foi possível gerar o conteúdo. Tenta outra vez.",
+      "unexpectedError": "Ocorreu um erro inesperado",
+      "successTitle": "Registo enviado",
+      "successBody": "Obrigado por nos ajudares a documentar Brava. A nossa equipa vai rever <strong>{name}</strong> para garantir que toda a informação está correta.",
+      "backToDirectory": "Voltar ao diretório",
+      "cancelReturn": "Cancelar e voltar",
+      "portal": "Portal de contributos",
+      "heroTitle": "Documentar a paisagem de Brava",
+      "heroBody": "Cada café, cada fonte e cada casa histórica conta uma história do crescimento e da resiliência da nossa ilha.",
+      "authPromptTitle": "Inicia sessão para acrescentar um lugar",
+      "authPromptBody": "Para enviar registos para o diretório é preciso uma conta, para garantir a atribuição correta e o controlo de qualidade.",
+      "sectionDetails": "1. Dados essenciais",
+      "nameLabel": "Nome do lugar",
+      "namePlaceholder": "p. ex., Pensão Sodade",
+      "aiMapping": "A mapear...",
+      "aiAssist": "Ajuda da IA",
+      "categoryLabel": "Categoria",
+      "townLabel": "Localidade",
+      "pickFromList": "Escolher da lista",
+      "addVillage": "Acrescentar nova localidade",
+      "customTownPlaceholder": "Escreve o nome da localidade...",
+      "sectionContext": "2. Contexto e história",
+      "descriptionLabel": "Descrição",
+      "descriptionPlaceholder": "Descreve o ambiente, a importância ou a história deste lugar...",
+      "tagsLabel": "Etiquetas de descoberta",
+      "tagsPlaceholder": "vista-mar, histórico, recanto-escondido",
+      "price": "Preço:",
+      "sectionVisuals": "3. Imagens e localização",
+      "primaryPhoto": "Fotografia principal",
+      "photoUploaded": "Fotografia carregada com sucesso",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "contributorNote": "<strong>Nota para quem contribui:</strong> O teu envio vai ser revisto pela nossa equipa antes de ser publicado. Assim garantimos que toda a informação está correta.",
+      "discard": "Descartar",
+      "submitting": "A enviar...",
+      "signInToSubmit": "Inicia sessão para enviar",
+      "submitEntry": "Enviar registo"
+    },
+    "photoIdentification": {
+      "title": "Ajuda a identificar esta fotografia",
+      "description": "Sabes alguma coisa sobre esta fotografia? Ajuda-nos a identificar o lugar, a data ou o tema. Todos os pormenores que puderes partilhar ajudam a preservar este pedaço da história de Brava.",
+      "submitted": "Obrigado! A tua identificação foi enviada.",
+      "error": "Ocorreu um erro. Tenta outra vez mais tarde.",
+      "successTitle": "Obrigado por ajudares a identificar esta fotografia!",
+      "successBody": "O teu contributo vai ser revisto pela nossa equipa e usado para enriquecer o arquivo.",
+      "close": "Fechar",
+      "nameLabel": "O teu nome *",
+      "namePlaceholder": "Escreve o teu nome",
+      "emailLabel": "O teu e-mail *",
+      "emailPlaceholder": "o.teu.email@exemplo.com",
+      "submittingAs": "A enviar como: <strong>{email}</strong>",
+      "titleLabel": "Título sugerido",
+      "titlePlaceholder": "O que achas que esta fotografia mostra?",
+      "locationLabel": "Lugar sugerido",
+      "locationPlaceholder": "Onde foi tirada? (p. ex., Nova Sintra, Fajã d'Água)",
+      "dateLabel": "Data aproximada",
+      "datePlaceholder": "Quando foi tirada? (p. ex., anos 60, verão de 1985)",
+      "notesLabel": "Notas *",
+      "notesPlaceholder": "Partilha o que sabes sobre esta fotografia...",
+      "notesCount": "{count}/5000 caracteres (mínimo 10)",
+      "cancel": "Cancelar",
+      "submitting": "A enviar...",
+      "submit": "Enviar identificação"
+    }
+  },
+  "validation": {
+    "emailRequired": "O e-mail é obrigatório",
+    "emailInvalid": "Introduz um endereço de e-mail válido",
+    "passwordMin6": "A palavra-passe tem de ter pelo menos 6 caracteres",
+    "passwordMin8": "A palavra-passe tem de ter pelo menos 8 caracteres",
+    "passwordTooLong": "A palavra-passe é demasiado longa",
+    "passwordStrength": "A palavra-passe tem de ter pelo menos uma letra maiúscula, uma letra minúscula e um número",
+    "confirmPassword": "Confirma a tua palavra-passe",
+    "displayNameMin": "O nome a apresentar tem de ter pelo menos 2 caracteres",
+    "displayNameTooLong": "O nome a apresentar é demasiado longo",
+    "passwordsMismatch": "As palavras-passe não coincidem",
+    "nameMin": "O nome tem de ter pelo menos 2 caracteres",
+    "nameTooLong": "O nome é demasiado longo",
+    "suggestionType": "Escolhe um tipo de sugestão",
+    "messageMin": "A mensagem tem de ter pelo menos 10 caracteres",
+    "messageTooLong": "A mensagem é demasiado longa",
+    "invalidSubmission": "Envio inválido",
+    "categoryRequired": "Escolhe uma categoria",
+    "townRequired": "Escolhe uma localidade",
+    "descriptionMin": "A descrição tem de ter pelo menos 10 caracteres",
+    "descriptionTooLong": "A descrição é demasiado longa",
+    "latitudeRange": "A latitude tem de estar entre -90 e 90",
+    "longitudeRange": "A longitude tem de estar entre -180 e 180",
+    "urlInvalid": "Introduz um URL válido",
+    "titleTooLong": "O título é demasiado longo",
+    "locationTooLong": "O local é demasiado longo",
+    "dateTooLong": "A data é demasiado longa",
+    "notesMin": "Escreve pelo menos 10 caracteres",
+    "notesTooLong": "As notas são demasiado longas"
+  },
+  "share": {
+    "ask": {
+      "title": "Reconheces esta fotografia?",
+      "description": "O arquivo de Brava não sabe {missing}.",
+      "missing": {
+        "photographer": "quem a tirou",
+        "place": "onde foi tirada",
+        "date": "quando foi tirada"
+      },
+      "barLabel": "Uma pergunta sobre esta fotografia",
+      "tellUs": "Diz-nos"
+    },
+    "photo": "{facts}. Do arquivo de Brava.",
+    "film": "{title}. Um filme do arquivo de Brava.",
+    "town": {
+      "withHoldings": "{name} no arquivo de Brava: {holdings}.",
+      "plain": "{name} no arquivo de Brava."
+    },
+    "holdings": {
+      "photographs": "{count, plural, one {{n} fotografia} other {{n} fotografias}}",
+      "placeRecords": "{count, plural, one {{n} registo de lugar} other {{n} registos de lugar}}"
+    },
+    "arrival": {
+      "photosNear": "Do arquivo de Brava · {count, plural, one {mais {n} fotografia} other {mais {n} fotografias}} perto de {place}",
+      "photo": "Do arquivo de Brava, um registo comunitário da ilha Brava",
+      "films": "Do arquivo de Brava · {count, plural, =0 {mais filmes} one {mais {n} filme} other {mais {n} filmes}}",
+      "town": "Parte do arquivo de Brava · todas as localidades"
+    }
+  },
+  "metadata": {
+    "site": {
+      "title": "Nos Ilha - O teu guia da Brava, Cabo Verde",
+      "titleTemplate": "%s | Nos Ilha",
+      "description": "O centro de referência do património cultural da ilha Brava, Cabo Verde. Preserva e celebra a cultura cabo-verdiana, explora experiências autênticas de património, liga-te à diáspora global e descobre lugares culturais e negócios locais.",
+      "ogImageAlt": "Nos Ilha - Plataforma de património cultural da ilha Brava, Cabo Verde"
+    },
+    "home": {
+      "title": "Um arquivo de Brava, feito com o que as pessoas nos enviam",
+      "description": "Um arquivo comunitário da ilha Brava, Cabo Verde: localidades, registos de lugares e fotografias, com cada lacuna assinalada em vez de escondida.",
+      "placeDescription": "A ilha das flores de Cabo Verde, um centro de património cultural que preserva as tradições cabo-verdianas, conhecida pelas paisagens verdejantes, pela rica memória cultural e por experiências autênticas de património."
+    },
+    "settlements": {
+      "title": "Localidades",
+      "description": "Todas as localidades com nome na ilha Brava, e quanto de cada uma o arquivo guarda realmente."
+    },
+    "town": {
+      "about": "O que o arquivo guarda sobre {name}, uma localidade da ilha Brava, Cabo Verde.",
+      "withHoldings": "{holdings}. {about}"
+    },
+    "entry": {
+      "about": "O que o arquivo guarda sobre {name}, na ilha Brava, Cabo Verde."
+    },
+    "stay": {
+      "title": "Alojamento",
+      "description": "Todos os alojamentos registados na ilha Brava, Cabo Verde — e o que o arquivo ainda não sabe sobre eles."
+    },
+    "films": {
+      "title": "Filmes",
+      "description": "Filmes da ilha Brava enviados para o arquivo, vistos no lugar onde foram feitos."
+    },
+    "film": {
+      "description": "Um filme da ilha Brava do arquivo, visto no lugar onde foi feito."
+    },
+    "photographs": {
+      "title": "Fotografias",
+      "description": "Fotografias da ilha Brava do arquivo, organizadas pelo lugar onde foram tiradas, e os filmes enviados com elas."
+    },
+    "photograph": {
+      "untitled": "Uma fotografia de Brava sem título",
+      "description": "Um registo do arquivo da ilha Brava, com o que ainda lhe falta."
+    },
+    "about": {
+      "title": "Sobre o Nos Ilha - Plataforma comunitária da ilha Brava",
+      "description": "Conhece o Nos Ilha, uma plataforma voluntária e de código aberto que celebra o património cultural e a beleza natural da ilha Brava, Cabo Verde.",
+      "ogTitle": "Sobre o Nos Ilha - Plataforma comunitária de património",
+      "ogDescription": "Uma plataforma de código aberto, apoiada por voluntários, que preserva e partilha o património cultural da ilha Brava."
+    },
+    "contact": {
+      "title": "Contacto | Nos Ilha - Fala connosco",
+      "description": "Contacta a equipa do Nos Ilha para pedidos de informação, contributos, apoio técnico ou para saberes mais sobre a nossa plataforma comunitária da ilha Brava.",
+      "ogTitle": "Contactar o Nos Ilha",
+      "ogDescription": "Fala com a comunidade Nos Ilha para apoio, contributos ou perguntas gerais sobre a ilha Brava."
+    },
+    "contribute": {
+      "title": "Contribuir para o arquivo",
+      "description": "Envia uma fotografia ou a ligação de um filme da ilha Brava para o arquivo Nos Ilha. Os direitos de autor são teus — registamos a autoria e quem fez o envio."
+    },
+    "contributeDirectory": {
+      "title": "Adicionar registo | Nos Ilha",
+      "description": "Ajuda-nos a documentar o património cultural da ilha Brava acrescentando um novo lugar ao nosso diretório."
+    },
+    "privacy": {
+      "title": "Política de privacidade | Nos Ilha",
+      "description": "Vê como o Nos Ilha recolhe, usa e protege os teus dados pessoais. A nossa política explica o compromisso com a proteção de dados e os direitos dos utilizadores.",
+      "ogTitle": "Política de privacidade - Nos Ilha",
+      "ogDescription": "A nossa política de privacidade explica como recolhemos, usamos e protegemos os teus dados pessoais na plataforma Nos Ilha."
+    },
+    "terms": {
+      "title": "Regras da comunidade | Nos Ilha",
+      "description": "Junta-te à nossa comunidade dedicada a preservar o património cultural da ilha Brava. Lê as nossas regras para partilhar histórias e fotografias e celebrar juntos as tradições da ilha.",
+      "ogTitle": "Regras da comunidade - Nos Ilha",
+      "ogDescription": "Regras da comunidade da plataforma Nos Ilha, que celebra o património cultural da ilha Brava com participação respeitosa e paixão partilhada."
+    },
+    "history": {
+      "title": "{title} | Nos Ilha",
+      "notFound": "História não encontrada"
+    },
+    "article": {
+      "historyTitle": "{title} | História | Nos Ilha",
+      "peopleTitle": "{title} | Personalidades | Nos Ilha",
+      "notFound": "Página não encontrada"
+    }
+  }
+}

@@ -94,15 +94,16 @@ export function settlementStandfirst(
   const partial = count("PARTIAL");
   const nameOnly = count("NAME_ONLY");
 
+  // Every count here is of settlements: `localidade` is feminine in Portuguese.
   return t("standfirst.counts", {
     total: towns.length,
-    totalWords: openingWords(towns.length, locale),
+    totalWords: openingWords(towns.length, locale, "feminine"),
     documented,
-    documentedWords: openingWords(documented, locale),
+    documentedWords: openingWords(documented, locale, "feminine"),
     partial,
-    partialWords: words(partial, locale),
+    partialWords: words(partial, locale, "feminine"),
     nameOnly,
-    nameOnlyWords: words(nameOnly, locale),
+    nameOnlyWords: words(nameOnly, locale, "feminine"),
   });
 }
 

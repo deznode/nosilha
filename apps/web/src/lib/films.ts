@@ -339,6 +339,7 @@ export function filmsCountWords(
 ): string {
   return t("countWords", {
     count,
-    words: capitalise(toWords(count, { locale }), locale),
+    // `filme` is masculine in Portuguese (`um filme`).
+    words: capitalise(toWords(count, { locale, gender: "masculine" }), locale),
   });
 }

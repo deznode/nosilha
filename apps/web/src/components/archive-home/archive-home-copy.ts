@@ -83,7 +83,8 @@ export function heroStandfirst(
 ): string {
   return t("standfirst", {
     settlements,
-    settlementWords: openingWords(settlements, locale),
+    // `localidade` is feminine in Portuguese.
+    settlementWords: openingWords(settlements, locale, "feminine"),
     records,
     recordWords: words(records, locale),
     photographs: facets.photographs,
@@ -245,8 +246,9 @@ export function emptySettlementsStandfirst(
 
   return t("emptySettlements.standfirst", {
     empty,
-    emptyWords: openingWords(empty, locale),
-    totalWords: words(total, locale),
+    // Counts settlements: `localidade` is feminine in Portuguese.
+    emptyWords: openingWords(empty, locale, "feminine"),
+    totalWords: words(total, locale, "feminine"),
   });
 }
 
