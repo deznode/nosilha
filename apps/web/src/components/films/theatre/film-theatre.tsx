@@ -7,6 +7,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { ShareArrivalLine } from "@/components/share/share-arrival";
 import { ShareAction } from "@/components/ui/archive-actions";
+import { RecordText } from "@/components/ui/record-text";
 import { photographsHref } from "@/lib/archive-photographs";
 import {
   canPlay,
@@ -84,9 +85,13 @@ export function FilmTheatre({
           <span className="text-ocean-blue text-[10px] tracking-[.18em] uppercase">
             {filmEyebrow(t, film)}
           </span>
-          <h1 className="text-body m-0 font-serif text-[30px] leading-[1.08] font-normal tracking-[-0.02em] text-pretty md:text-[42px]">
+          <RecordText
+            as="h1"
+            when={!!film.title}
+            className="text-body m-0 font-serif text-[30px] leading-[1.08] font-normal tracking-[-0.02em] text-pretty md:text-[42px]"
+          >
             {film.displayTitle}
-          </h1>
+          </RecordText>
           {film.place && (
             <div className="flex flex-wrap items-baseline gap-3.5">
               <span className="text-body text-[15px]">
@@ -103,9 +108,12 @@ export function FilmTheatre({
             </div>
           )}
           {film.description && (
-            <p className="text-body m-0 max-w-[62ch] text-base leading-[1.6] text-pretty">
+            <RecordText
+              as="p"
+              className="text-body m-0 max-w-[62ch] text-base leading-[1.6] text-pretty"
+            >
               {film.description}
-            </p>
+            </RecordText>
           )}
           {source && (
             <div className="text-muted font-mono text-[11.5px] leading-normal break-words">

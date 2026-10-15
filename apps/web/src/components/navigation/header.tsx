@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Fragment } from "react";
+import { Fragment } from "react";
 import {
   Disclosure,
   DisclosureButton,
@@ -18,10 +18,8 @@ import {
 import {
   Menu as MenuIcon,
   X,
-  Globe,
   UserCircle,
   Plus,
-  Check,
   ChevronDown,
   Shield,
 } from "lucide-react";
@@ -35,7 +33,8 @@ import { supabase } from "@/lib/supabase-client";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 // --- Navigation Config ---
-import { navigation, languages } from "@/components/navigation/nav-config";
+import { LanguageSwitcher } from "@/components/navigation/language-switcher";
+import { navigation } from "@/components/navigation/nav-config";
 
 export interface HeaderProps {
   className?: string;
@@ -50,7 +49,6 @@ export function Header({
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("chrome");
-  const [currentLang, setCurrentLang] = useState(languages[0]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -208,57 +206,7 @@ export function Header({
               {/* Right Section: Utilities */}
               <div className="flex items-center space-x-2 md:space-x-3">
                 <div className="hidden items-center space-x-2 md:flex">
-                  {/* Language Selector */}
-                  <Menu as="div" className="relative">
-                    <MenuButton className="text-text-secondary hover:text-ocean-blue focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2">
-                      <div className="border-border-primary bg-background-secondary text-ocean-blue hover:bg-background-tertiary flex h-8 w-8 items-center justify-center rounded-full border transition-colors">
-                        <Globe className="h-4 w-4" />
-                      </div>
-                      <span className="hidden lg:inline">
-                        {currentLang.code}
-                      </span>
-                    </MenuButton>
-                    <MenuItems className="bg-canvas shadow-elevated absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 ring-1 ring-black/5 focus:outline-none">
-                      {languages.map((lang) => (
-                        <MenuItem key={lang.code} disabled={lang.disabled}>
-                          {({ active }) => (
-                            <button
-                              onClick={() =>
-                                !lang.disabled && setCurrentLang(lang)
-                              }
-                              disabled={lang.disabled}
-                              title={
-                                lang.disabled
-                                  ? t("language.comingSoon")
-                                  : undefined
-                              }
-                              className={clsx(
-                                lang.disabled
-                                  ? "text-text-tertiary cursor-not-allowed opacity-50"
-                                  : active
-                                    ? "bg-background-secondary text-ocean-blue"
-                                    : "text-text-primary",
-                                "group flex w-full items-center justify-between px-4 py-2 text-sm"
-                              )}
-                            >
-                              <span className="flex items-center gap-2">
-                                <span>{lang.flag}</span>
-                                {lang.label}
-                                {lang.disabled && (
-                                  <span className="text-text-tertiary ml-1 text-xs italic">
-                                    {t("language.comingSoonParenthetical")}
-                                  </span>
-                                )}
-                              </span>
-                              {currentLang.code === lang.code && (
-                                <Check className="text-ocean-blue h-4 w-4" />
-                              )}
-                            </button>
-                          )}
-                        </MenuItem>
-                      ))}
-                    </MenuItems>
-                  </Menu>
+                  <LanguageSwitcher size="compact" />
 
                   <ThemeToggle />
 
@@ -440,34 +388,8 @@ export function Header({
 
             {/* Mobile Actions / Language / Auth */}
             <div className="border-border-primary border-t pt-4 pb-3">
-              {/* Language Selection Mobile */}
               <div className="mb-4 px-4">
-                <div className="text-text-tertiary mb-2 text-xs font-semibold tracking-wider uppercase">
-                  {t("language.heading")}
-                </div>
-                <div className="flex space-x-2">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => !lang.disabled && setCurrentLang(lang)}
-                      disabled={lang.disabled}
-                      title={
-                        lang.disabled ? t("language.comingSoon") : undefined
-                      }
-                      className={clsx(
-                        "flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-                        lang.disabled
-                          ? "border-border-primary text-text-tertiary cursor-not-allowed bg-transparent opacity-40"
-                          : currentLang.code === lang.code
-                            ? "border-ocean-blue bg-ocean-blue text-white"
-                            : "border-border-primary text-text-secondary hover:border-ocean-blue bg-transparent"
-                      )}
-                    >
-                      <span>{lang.flag}</span>
-                      {lang.code}
-                    </button>
-                  ))}
-                </div>
+                <LanguageSwitcher className="w-fit" />
               </div>
 
               <div className="flex items-center space-x-3 px-4">

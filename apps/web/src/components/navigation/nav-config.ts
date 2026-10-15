@@ -1,6 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import { BookOpen, Grid3X3, Home, Map, Users } from "lucide-react";
 
+import type { Locale } from "@/i18n/config";
+
 /**
  * Shared public navigation config — the one place the site's destinations live.
  *
@@ -283,18 +285,18 @@ export const navigation: NavItem[] = [
 ];
 
 /**
- * Each language is named in itself (an endonym), so these labels are the same on
- * every page and are not messages. The language control is replaced in spec 041
- * wave 4.
+ * The languages the language control offers, in display order. Spec 041 FR-003.
+ *
+ * Each is named in itself (an endonym), so these labels are the same on every page
+ * and are not messages. `lang` is the language of the label itself, so a screen
+ * reader pronounces "Português" as Portuguese on an English page.
  */
-export const languages = [
-  { code: "EN", label: "English", flag: "🇺🇸", disabled: false },
-  { code: "PT", label: "Português", flag: "🇵🇹", disabled: true },
-  { code: "CV", label: "Kriolu", flag: "🇨🇻", disabled: true },
+export const LANGUAGES: readonly {
+  locale: Locale;
+  code: string;
+  label: string;
+  lang: string;
+}[] = [
+  { locale: "en", code: "EN", label: "English", lang: "en" },
+  { locale: "pt-PT", code: "PT", label: "Português", lang: "pt-PT" },
 ];
-
-/**
- * The locale the chrome shows. One place, because four surfaces were each
- * reaching for `languages[0]` to decide the same thing.
- */
-export const currentLanguage = languages[0];

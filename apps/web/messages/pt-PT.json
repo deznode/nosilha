@@ -26,6 +26,7 @@
     "linkCopied": "Ligação copiada",
     "messageAndLinkCopied": "Mensagem e ligação copiadas",
     "copyFailed": "Não foi possível copiar a ligação",
+    "englishOnly": "Esta página só está disponível em inglês.",
     "filters": {
       "clear": "Limpar {label}",
       "clearAll": "Limpar tudo",
@@ -158,10 +159,7 @@
       "switchTo": "Mudar para o tema {theme, select, dark {escuro} other {claro}}"
     },
     "language": {
-      "chipTitle": "Inglês. O português e o Kriolu chegam em breve.",
-      "heading": "Idioma",
-      "comingSoon": "Em breve",
-      "comingSoonParenthetical": "(Em breve)"
+      "heading": "Idioma"
     },
     "header": {
       "openMainMenu": "Abrir menu principal",

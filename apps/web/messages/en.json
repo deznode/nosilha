@@ -26,6 +26,7 @@
     "linkCopied": "Link copied",
     "messageAndLinkCopied": "Message and link copied",
     "copyFailed": "Could not copy the link",
+    "englishOnly": "This page is available in English only.",
     "filters": {
       "clear": "Clear {label}",
       "clearAll": "Clear All",
@@ -158,10 +159,7 @@
       "switchTo": "Switch to the {theme, select, dark {dark} other {light}} theme"
     },
     "language": {
-      "chipTitle": "English. Português and Kriolu are coming soon.",
-      "heading": "Language",
-      "comingSoon": "Coming soon",
-      "comingSoonParenthetical": "(Coming soon)"
+      "heading": "Language"
     },
     "header": {
       "openMainMenu": "Open main menu",

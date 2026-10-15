@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 import type { ReactNode } from "react";
 
 import {
@@ -346,12 +347,13 @@ function InstagramTile({
         compact
       />
       {caption && (
-        <div
+        <RecordText
+          as="div"
           className="mt-[10px] hidden truncate text-[13px] leading-[1.45] min-[700px]:block"
           style={{ color: "var(--foreground)" }}
         >
           {caption}
-        </div>
+        </RecordText>
       )}
       <PostAge
         {...copy}
@@ -373,12 +375,13 @@ function SinglePost({ post, ...copy }: TileCopy & { post: InstagramPost }) {
       <TileImage t={copy.t} post={post} sizes="180px" />
       <div>
         {post.caption && (
-          <div
+          <RecordText
+            as="div"
             className="text-[14px] leading-[1.5] break-words whitespace-pre-line"
             style={{ color: "var(--foreground)" }}
           >
             {post.caption}
-          </div>
+          </RecordText>
         )}
         <PostAge post={post} {...copy} className="mt-[6px]" />
       </div>

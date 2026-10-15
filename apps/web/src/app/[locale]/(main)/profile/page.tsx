@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createFormatter } from "next-intl";
 import { UserCircle } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   ProfileHeader,
@@ -32,7 +33,19 @@ const ENGLISH_FORMAT = createFormatter({
   formats,
 });
 
+/**
+ * The page body stays English under `/pt` (spec 041 FR-006); the site bars and
+ * footer around it are translated by the layout.
+ */
 export default function ProfilePage() {
+  return (
+    <RecordText as="div">
+      <ProfileBody />
+    </RecordText>
+  );
+}
+
+function ProfileBody() {
   const { session, loading: authLoading } = useAuth();
   const toast = useToast();
   const [activeTab, setActiveTab] = useState<ProfileTabType>("activity");

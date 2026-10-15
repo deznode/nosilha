@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
+import { PORTUGUESE_ENABLED } from "@/i18n/config";
 import { Link, usePathname } from "@/i18n/navigation";
 
 import {
@@ -11,6 +12,7 @@ import {
   ContributeAction,
   ThemePill,
 } from "./chrome-parts";
+import { LanguageSwitcher } from "./language-switcher";
 import { DESKTOP_BAR_DESTINATIONS, isDestinationActive } from "./nav-config";
 
 /**
@@ -74,6 +76,9 @@ export function DesktopTopBar({ className }: { className?: string }) {
         })}
       </nav>
 
+      {/* The desktop bar never had the static chip, so with Portuguese off it
+          stays as it was (FR-009). */}
+      {PORTUGUESE_ENABLED && <LanguageSwitcher size="compact" />}
       <ThemePill />
       <ContributeAction />
       <AccountSlot />

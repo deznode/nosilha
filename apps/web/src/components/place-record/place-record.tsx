@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { MiniMap } from "@/features/map/components/mini-map";
 import { MissingPills } from "@/components/ui/missing-pills";
+import { RecordText } from "@/components/ui/record-text";
 import { CopyLinkAction, ShareAction } from "@/components/ui/archive-actions";
 import { formatCoordinates } from "@/lib/coordinates";
 import {
@@ -31,6 +32,20 @@ import {
   photographsNote,
   ratingNote,
 } from "./place-record-copy";
+
+/**
+ * Grid rows whose recorded value is free text written in English, marked `lang="en"`
+ * off English (spec 041 FR-005). The others hold names (settlement, festival,
+ * architect, photographer), an interface label (category), or values with no
+ * language (coordinates, rating, phone, email, website).
+ */
+const RECORD_TEXT_FIELDS = new Set([
+  "established",
+  "conditionStatus",
+  "openingHours",
+  "cuisine",
+  "amenities",
+]);
 
 /**
  * One place record. Spec 034 FR-013.
@@ -181,7 +196,8 @@ export async function PlaceRecord({
       >
         <div className="flex min-w-0 flex-col" style={{ gap: "30px" }}>
           {entry.description?.trim() && (
-            <p
+            <RecordText
+              as="p"
               className="text-pretty"
               style={{
                 margin: 0,
@@ -191,7 +207,7 @@ export async function PlaceRecord({
               }}
             >
               {entry.description}
-            </p>
+            </RecordText>
           )}
 
           <section
@@ -274,7 +290,11 @@ export async function PlaceRecord({
                   >
                     {field.label}
                   </dt>
-                  <dd
+                  <RecordText
+                    as="dd"
+                    when={
+                      field.value !== null && RECORD_TEXT_FIELDS.has(field.key)
+                    }
                     className={field.mono ? "font-mono" : undefined}
                     style={{
                       margin: 0,
@@ -286,7 +306,7 @@ export async function PlaceRecord({
                     }}
                   >
                     {field.value ?? t("notRecorded")}
-                  </dd>
+                  </RecordText>
                   {field.value === null && (
                     <IdentifyQuestion
                       {...identify}
@@ -569,7 +589,9 @@ function PlacePhotographTile({
         )}
       </div>
       <div style={{ padding: "10px 11px 11px" }}>
-        <div
+        <RecordText
+          as="div"
+          when={!facts.title.untitled}
           className="font-serif"
           style={{
             fontWeight: 400,
@@ -582,7 +604,7 @@ function PlacePhotographTile({
           }}
         >
           {facts.title.text}
-        </div>
+        </RecordText>
         <MissingPills missing={facts.missing} />
       </div>
     </Link>

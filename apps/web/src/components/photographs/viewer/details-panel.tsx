@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { CopyLinkAction, ShareAction } from "@/components/ui/archive-actions";
+import { RecordText } from "@/components/ui/record-text";
 import {
   firstMissingField,
   moreFrom,
@@ -89,19 +90,24 @@ export function DetailsPanel({
         <span className="text-ocean-blue text-[10px] tracking-[.18em] uppercase">
           {photoEyebrow(photo, tPhotographs)}
         </span>
-        <h1
+        <RecordText
+          as="h1"
+          when={!!photo.title}
           ref={headingRef}
           tabIndex={-1}
           className="text-body m-0 font-serif text-[28px] leading-[1.1] font-normal tracking-[-0.015em] text-pretty md:text-[32px]"
         >
           {heading}
-        </h1>
+        </RecordText>
       </div>
 
       {caption && (
-        <p className="text-body m-0 text-[15px] leading-[1.6] text-pretty">
+        <RecordText
+          as="p"
+          className="text-body m-0 text-[15px] leading-[1.6] text-pretty"
+        >
           {caption}
-        </p>
+        </RecordText>
       )}
 
       {/* What the record holds about the picture itself; the credit travels with it

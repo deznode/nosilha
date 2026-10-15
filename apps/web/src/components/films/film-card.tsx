@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 import { clsx } from "clsx";
 
 import {
@@ -111,9 +112,12 @@ export function FilmCard({
       </div>
 
       <div className="flex min-w-0 flex-col gap-[3px]">
-        <span className="text-body font-serif text-[17px] leading-[1.25] text-pretty">
+        <RecordText
+          when={!!film.title}
+          className="text-body font-serif text-[17px] leading-[1.25] text-pretty"
+        >
           {film.displayTitle}
-        </span>
+        </RecordText>
         {place && <span className="text-muted text-xs">{place}</span>}
       </div>
     </Link>

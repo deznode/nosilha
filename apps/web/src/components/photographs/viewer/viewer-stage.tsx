@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { useReducedMotion } from "framer-motion";
 
 import { usePointerFine } from "@/hooks/use-pointer-fine";
+import { RecordText } from "@/components/ui/record-text";
 import {
   photoCaption,
   photoHeading,
@@ -320,11 +321,16 @@ export function ViewerStage({
             className="absolute bottom-[54px] left-5 hidden max-w-[460px] flex-col gap-1 rounded-xl px-4 py-3 text-[#F6F1E9] backdrop-blur-[10px] md:flex"
             style={{ background: "rgba(12,10,8,.55)" }}
           >
-            <span className="font-serif text-xl leading-[1.2]">{heading}</span>
+            <RecordText
+              when={!!photo.title}
+              className="font-serif text-xl leading-[1.2]"
+            >
+              {heading}
+            </RecordText>
             {caption && (
-              <span className="text-[13px] leading-normal opacity-[.88]">
+              <RecordText className="text-[13px] leading-normal opacity-[.88]">
                 {caption}
-              </span>
+              </RecordText>
             )}
           </div>
         )}

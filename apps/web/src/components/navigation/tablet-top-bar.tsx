@@ -3,7 +3,7 @@
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import clsx from "clsx";
 import { ChevronDown } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -13,8 +13,8 @@ import {
   ChromeBar,
   ChromeWordmark,
   ContributeAction,
-  LanguageChip,
 } from "./chrome-parts";
+import { LanguageSwitcher } from "./language-switcher";
 import {
   TABLET_INLINE_DESTINATIONS,
   TABLET_OVERFLOW_DESTINATIONS,
@@ -33,6 +33,7 @@ import {
  */
 export function TabletTopBar({ className }: { className?: string }) {
   const pathname = usePathname();
+  const locale = useLocale();
   const t = useTranslations("chrome");
 
   return (
@@ -69,8 +70,9 @@ export function TabletTopBar({ className }: { className?: string }) {
         })}
 
         {/* Keyed on pathname so a route change remounts it closed — Headless UI
-            gives Escape, outside-click and aria-expanded for free. */}
-        <Popover key={pathname} className="relative flex">
+            gives Escape, outside-click and aria-expanded for free. The locale is
+            in the key too: switching language keeps the unprefixed pathname. */}
+        <Popover key={`${locale}:${pathname}`} className="relative flex">
           <PopoverButton
             className={clsx(
               "text-muted hover:text-body flex items-center gap-[5px] rounded-[7px] px-[11px] py-[11px] text-[13.5px] whitespace-nowrap transition-colors duration-150",
@@ -99,7 +101,7 @@ export function TabletTopBar({ className }: { className?: string }) {
               </Link>
             ))}
             <div className="border-hairline dark:border-chrome-line mt-[5px] flex items-center gap-1.5 border-t pt-[5px]">
-              <LanguageChip className="flex-1" />
+              <LanguageSwitcher className="flex-1" />
               <ThemeToggle showContainer={false} shape="square" />
             </div>
           </PopoverPanel>

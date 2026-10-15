@@ -3,6 +3,7 @@
 import { Link } from "@/i18n/navigation";
 import { clsx } from "clsx";
 import { useLocale, useTranslations } from "next-intl";
+import { RecordText } from "@/components/ui/record-text";
 import { statusVar } from "@/lib/status";
 import { selectionCard } from "../data/map-copy";
 import type { MapItem } from "../data/types";
@@ -94,12 +95,14 @@ export function LocationDetailBody({ item, onClose }: LocationDetailBodyProps) {
         </span>
       </div>
       {/* The full text stays in the DOM for screen readers; the page holds it in full. */}
-      <p
+      <RecordText
+        as="p"
+        when={!!item.description.trim()}
         className="mb-3.5 line-clamp-3 text-[13px] leading-[1.55] text-pretty"
         style={{ color: "var(--foreground-secondary)" }}
       >
         {copy.description}
-      </p>
+      </RecordText>
 
       <div className="flex flex-wrap gap-2">
         {item.href && (

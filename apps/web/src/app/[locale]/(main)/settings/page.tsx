@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Settings, Bell, Globe, Moon, Shield, UserCircle } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 import { getProfile, updateProfile } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox, CheckboxField } from "@/components/catalyst-ui/checkbox";
@@ -16,7 +17,19 @@ import type {
   NotificationPreferences,
 } from "@/types/profile";
 
+/**
+ * The page body stays English under `/pt` (spec 041 FR-006); the site bars and
+ * footer around it are translated by the layout.
+ */
 export default function SettingsPage() {
+  return (
+    <RecordText as="div">
+      <SettingsBody />
+    </RecordText>
+  );
+}
+
+function SettingsBody() {
   const { session, loading: authLoading } = useAuth();
   const toast = useToast();
 

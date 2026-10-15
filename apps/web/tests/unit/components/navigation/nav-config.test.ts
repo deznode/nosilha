@@ -9,7 +9,7 @@ import {
   TABLET_INLINE_DESTINATIONS,
   TABLET_OVERFLOW_DESTINATIONS,
   isDestinationActive,
-  languages,
+  LANGUAGES,
   navigation,
   type Destination,
 } from "@/components/navigation/nav-config";
@@ -159,10 +159,11 @@ describe("nav-config", () => {
     });
   });
 
-  describe("languages", () => {
-    it("enables only English", () => {
-      expect(languages.filter((l) => !l.disabled).map((l) => l.code)).toEqual([
-        "EN",
+  describe("LANGUAGES", () => {
+    it("offers English and Portuguese, each named in itself, and no Kriolu", () => {
+      expect(LANGUAGES.map((l) => [l.code, l.label, l.locale])).toEqual([
+        ["EN", "English", "en"],
+        ["PT", "Português", "pt-PT"],
       ]);
     });
   });

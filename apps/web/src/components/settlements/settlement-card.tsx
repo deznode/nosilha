@@ -1,6 +1,7 @@
 import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 
 import { getTownStatus, statusVar } from "@/lib/status";
 import type { TownStatusSummary } from "@/types/town";
@@ -80,8 +81,9 @@ export function SettlementCard({ town }: { town: TownStatusSummary }) {
           paddingTop: "9px",
         }}
       >
-        <span>{population}</span>
-        <span>{elevation}</span>
+        {/* The record's own values are English; "not recorded" lines are not. */}
+        <RecordText when={!!town.population?.trim()}>{population}</RecordText>
+        <RecordText when={!!town.elevation?.trim()}>{elevation}</RecordText>
       </div>
     </Link>
   );

@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { ShareArrivalLine } from "@/components/share/share-arrival";
 import { CopyLinkAction, ShareAction } from "@/components/ui/archive-actions";
+import { RecordText } from "@/components/ui/record-text";
 import { MiniMap } from "@/features/map/components/mini-map";
 import { categoryLabel, type CategoryTranslator } from "@/lib/category-label";
 import { formatCoordinates } from "@/lib/coordinates";
@@ -135,7 +136,8 @@ export async function SettlementDetail({
       </div>
 
       {town.description?.trim() && (
-        <p
+        <RecordText
+          as="p"
           style={{
             margin: "0 0 4px",
             maxWidth: "620px",
@@ -145,7 +147,7 @@ export async function SettlementDetail({
           }}
         >
           {town.description}
-        </p>
+        </RecordText>
       )}
 
       <div

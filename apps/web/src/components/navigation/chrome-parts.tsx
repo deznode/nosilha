@@ -10,17 +10,16 @@ import { Avatar } from "@/components/ui/avatar";
 import { useResolvedTheme } from "@/hooks/use-resolved-theme";
 import { useUiStore } from "@/stores/uiStore";
 
-import { currentLanguage } from "./nav-config";
-
 /**
  * The parts the top bars share, and the phone sheet borrows.
  *
  * They live here rather than in whichever bar happened to need them first: the
  * bars are meant to be one chrome, so the pieces most likely to change — the
- * brand mark, the account affordance, the locale chip — are stated once.
- * `LanguageChip` in particular used to be exported from `tablet-top-bar.tsx` and
- * imported by the phone-only `more-sheet.tsx`, which made the tablet bar a module
- * boundary it was never meant to be.
+ * brand mark, the account affordance — are stated once. The language control
+ * is its own module, `language-switcher.tsx`, for the same reason: it used to be
+ * exported from `tablet-top-bar.tsx` and imported by the phone-only
+ * `more-sheet.tsx`, which made the tablet bar a module boundary it was never
+ * meant to be.
  */
 
 /**
@@ -131,30 +130,6 @@ export function AccountSlot() {
           variant, on the same ground as the bar it sits in. */}
       <Avatar initials={initials} size="md" onDark />
     </Link>
-  );
-}
-
-/**
- * The current locale, shown but not switchable — `PT` and `CV` are disabled in
- * `languages`, and a disabled locale must not render as though it were available.
- *
- * Reads `currentLanguage` itself rather than taking it as a prop: there is only
- * one locale to show, and both call sites were computing `languages[0]` to pass
- * the same value in.
- */
-export function LanguageChip({ className }: { className?: string }) {
-  const t = useTranslations("chrome");
-
-  return (
-    <span
-      className={clsx(
-        "border-hairline text-muted dark:border-chrome-line dark:text-chrome-ink-muted flex h-11 items-center justify-center rounded-lg border font-mono text-[13px]",
-        className
-      )}
-      title={t("language.chipTitle")}
-    >
-      {currentLanguage.code}
-    </span>
   );
 }
 

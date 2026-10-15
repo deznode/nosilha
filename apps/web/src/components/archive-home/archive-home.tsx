@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 
 import { FilmsStrip } from "@/components/films/films-strip";
 import { MissingPills } from "@/components/ui/missing-pills";
+import { RecordText } from "@/components/ui/record-text";
 import type { Film } from "@/lib/films";
 import { photoFacts, type PhotoFacts } from "@/lib/photo-facts";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
@@ -322,7 +323,9 @@ function HomePhotographTile({
         )}
       </div>
       <div style={{ padding: "13px" }}>
-        <div
+        <RecordText
+          as="div"
+          when={!facts.title.untitled}
           className="font-serif"
           style={{
             fontWeight: 400,
@@ -335,7 +338,7 @@ function HomePhotographTile({
           }}
         >
           {facts.title.text}
-        </div>
+        </RecordText>
         <MissingPills missing={facts.missing} />
       </div>
     </Link>

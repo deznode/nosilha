@@ -8,11 +8,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-import {
-  ContributeAction,
-  LanguageChip,
-  useChromeAccount,
-} from "./chrome-parts";
+import { ContributeAction, useChromeAccount } from "./chrome-parts";
+import { LanguageSwitcher } from "./language-switcher";
 import { DESTINATIONS, SHEET_DESTINATION_LIST } from "./nav-config";
 
 /**
@@ -109,7 +106,7 @@ function MoreSheetBody({ onClose }: { onClose: () => void }) {
 
       <div className="border-hairline mt-1.5 flex items-center gap-2 border-t pt-2.5">
         <ContributeAction className="flex-1" onClick={onClose} />
-        <LanguageChip className="w-11 shrink-0" />
+        <LanguageSwitcher className="min-w-11 shrink-0" onChoose={onClose} />
         <ThemeToggle showContainer={false} shape="square" />
       </div>
 

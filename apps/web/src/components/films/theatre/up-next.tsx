@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 import { clsx } from "clsx";
 
 import {
@@ -116,9 +117,12 @@ export function UpNext({
                     )}
                   </div>
                   <div className="flex min-w-0 flex-col gap-1 pt-0.5">
-                    <span className="text-body font-serif text-[15px] leading-[1.25]">
+                    <RecordText
+                      when={!!film.title}
+                      className="text-body font-serif text-[15px] leading-[1.25]"
+                    >
                       {film.displayTitle}
-                    </span>
+                    </RecordText>
                     {place && (
                       <span className="text-muted text-xs">{place}</span>
                     )}

@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
+import { RecordText } from "@/components/ui/record-text";
 import { statusVar } from "@/lib/status";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -143,7 +144,8 @@ function StayCard({
         </div>
 
         {entry.description?.trim() && (
-          <p
+          <RecordText
+            as="p"
             style={{
               margin: 0,
               fontSize: "13px",
@@ -152,7 +154,7 @@ function StayCard({
             }}
           >
             {entry.description}
-          </p>
+          </RecordText>
         )}
 
         <div

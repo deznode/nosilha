@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 
 import { filmHref, filmedNear, type Film } from "@/lib/films";
 
@@ -129,16 +130,20 @@ export function CinemaHero({ film }: { film: Film }) {
         >
           {eyebrow}
         </span>
-        <h1 className="m-0 font-serif text-[32px] leading-[1.04] font-normal tracking-[-0.02em] text-pretty md:text-[58px]">
+        <RecordText
+          as="h1"
+          when={!!film.title}
+          className="m-0 font-serif text-[32px] leading-[1.04] font-normal tracking-[-0.02em] text-pretty md:text-[58px]"
+        >
           {film.displayTitle}
-        </h1>
+        </RecordText>
         {place && <span className="text-sm opacity-[.88]">{place}</span>}
         {film.description && (
           // Clamped: a host description can run to 2,048 characters, and the band's
           // height is fixed, so an unclamped one pushes the title off its top.
-          <span className="line-clamp-2 max-w-[56ch] text-[15px] leading-normal opacity-90 md:line-clamp-4">
+          <RecordText className="line-clamp-2 max-w-[56ch] text-[15px] leading-normal opacity-90 md:line-clamp-4">
             {film.description}
-          </span>
+          </RecordText>
         )}
         <div className="pointer-events-auto mt-1.5 flex flex-wrap gap-2">
           <Link

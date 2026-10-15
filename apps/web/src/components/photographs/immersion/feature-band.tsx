@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 
 import {
   photoCaption,
@@ -49,18 +50,20 @@ export function FeatureBand({ photo }: { photo: ArchivePhoto }) {
         >
           {t("index.featureEyebrow")}
         </span>
-        <h2
+        <RecordText
+          as="h2"
+          when={!!photo.title}
           id="feature-band-heading"
           className="m-0 line-clamp-3 font-serif text-[34px] leading-[1.04] font-normal tracking-[-0.02em] md:text-[56px]"
         >
           {heading}
-        </h2>
+        </RecordText>
         {caption && (
           // Clamped: real captions run to 700 characters, and the band's height is
           // fixed, so an unclamped one pushes the heading off its top on a phone.
-          <span className="line-clamp-3 text-[15px] leading-normal text-pretty opacity-90 md:line-clamp-4">
+          <RecordText className="line-clamp-3 text-[15px] leading-normal text-pretty opacity-90 md:line-clamp-4">
             {caption}
-          </span>
+          </RecordText>
         )}
         {line && <span className="text-xs opacity-[.78]">{line}</span>}
       </div>

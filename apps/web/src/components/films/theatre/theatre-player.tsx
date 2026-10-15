@@ -11,6 +11,7 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 import { clsx } from "clsx";
 
 import { filmSourceName, type Film, type FilmsTranslator } from "@/lib/films";
@@ -429,9 +430,12 @@ function EndedOverlay({
                   ? t("upNextIn", { count: countdown })
                   : t("upNext")}
               </span>
-              <span className="font-serif text-[22px] leading-[1.2]">
+              <RecordText
+                when={!!next?.title}
+                className="font-serif text-[22px] leading-[1.2]"
+              >
                 {next ? next.displayTitle : t("lastFilm")}
-              </span>
+              </RecordText>
             </>
           )}
           <div className="mt-1 flex flex-wrap gap-2">
