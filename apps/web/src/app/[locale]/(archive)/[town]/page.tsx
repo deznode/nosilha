@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { PageMessages } from "@/i18n/page-messages";
 import { SettlementDetail } from "@/components/settlements/settlement-detail/settlement-detail";
 import {
   getEntries,
@@ -90,7 +91,10 @@ export default async function SettlementPage({ params }: SettlementPageProps) {
   // "about" — either way this page has nothing to show.
   if (isReservedSlug(slug)) notFound();
 
-  return cachedSettlement(slug);
+  const page = await cachedSettlement(slug);
+  return (
+    <PageMessages namespaces={["common", "map.engine"]}>{page}</PageMessages>
+  );
 }
 
 async function cachedSettlement(slug: string) {

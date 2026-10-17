@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { PageMessages } from "@/i18n/page-messages";
 import { PlaceRecord } from "@/components/place-record/place-record";
 import {
   getEntries,
@@ -58,7 +59,10 @@ export default async function PlacePage({ params }: PlacePageProps) {
   const { town, entry } = await params;
   if (isReservedSlug(town)) notFound();
 
-  return cachedPlaceRecord(town, entry);
+  const page = await cachedPlaceRecord(town, entry);
+  return (
+    <PageMessages namespaces={["common", "map.engine"]}>{page}</PageMessages>
+  );
 }
 
 async function cachedPlaceRecord(townSlug: string, entrySlug: string) {

@@ -25,7 +25,7 @@ import {
   isEnabledLocale,
   OG_LOCALES,
 } from "@/i18n/config";
-import { pickClientMessages } from "@/i18n/client-messages";
+import { pickMessages, ROOT_MESSAGES } from "@/i18n/client-messages";
 import { AnalyticsListener } from "../analytics-listener";
 import { fraunces, outfit } from "../fonts";
 import { reportWebVitalsToGA } from "../web-vitals";
@@ -175,11 +175,14 @@ export default async function RootLayout({
           <AnalyticsListener />
         </Suspense>
         {/*
-          Only the client namespaces are passed: with no `messages` prop the provider
-          serialises the whole message file into every page. Outermost, so toasts and
+          Only what the layouts and chrome read is passed: with no `messages` prop the
+          provider serialises the whole message file into every page. Pages that read
+          more send it themselves through `PageMessages`. Outermost, so toasts and
           dialogs rendered by the providers can translate too.
         */}
-        <NextIntlClientProvider messages={pickClientMessages(messages)}>
+        <NextIntlClientProvider
+          messages={pickMessages(messages, ROOT_MESSAGES)}
+        >
           <QueryProvider>
             <AuthProvider>
               <ToastProvider>{children}</ToastProvider>

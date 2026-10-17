@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { PageMessages } from "@/i18n/page-messages";
 import NosIlhaAuth from "@/components/auth/auth-form";
 
 function AuthLoading() {
@@ -16,8 +17,10 @@ function AuthLoading() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<AuthLoading />}>
-      <NosIlhaAuth initialView="signup" />
-    </Suspense>
+    <PageMessages namespaces={["auth.form", "validation"]}>
+      <Suspense fallback={<AuthLoading />}>
+        <NosIlhaAuth initialView="signup" />
+      </Suspense>
+    </PageMessages>
   );
 }

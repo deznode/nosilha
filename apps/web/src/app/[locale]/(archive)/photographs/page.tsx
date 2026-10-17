@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
+import { PageMessages } from "@/i18n/page-messages";
 import { redirect } from "@/i18n/navigation";
 
 import { PhotographsImmersion } from "@/components/photographs/immersion/photographs-immersion";
@@ -51,9 +52,11 @@ export default function PhotographsPage({
   searchParams,
 }: PhotographsPageProps) {
   return (
-    <Suspense fallback={<ArchiveSkeleton />}>
-      <PhotographsForRequest searchParams={searchParams} />
-    </Suspense>
+    <PageMessages namespaces={["films", "photographs"]}>
+      <Suspense fallback={<ArchiveSkeleton />}>
+        <PhotographsForRequest searchParams={searchParams} />
+      </Suspense>
+    </PageMessages>
   );
 }
 

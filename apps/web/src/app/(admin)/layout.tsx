@@ -8,7 +8,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { ThemeSync } from "@/components/theme-sync";
-import { pickClientMessages } from "@/i18n/client-messages";
+import { ADMIN_MESSAGES, pickMessages } from "@/i18n/client-messages";
 import { siteConfig } from "@/lib/metadata";
 import { buildThemeInitScript } from "@/lib/theme/initial-theme";
 import { fraunces, outfit } from "../fonts";
@@ -62,7 +62,7 @@ export default async function AdminLayout({
             Outermost, so toasts rendered by the providers can translate too. */}
         <NextIntlClientProvider
           locale="en"
-          messages={pickClientMessages(messages)}
+          messages={pickMessages(messages, ADMIN_MESSAGES)}
         >
           <QueryProvider>
             <AuthProvider>

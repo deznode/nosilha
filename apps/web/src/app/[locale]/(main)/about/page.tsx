@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
+import { PageMessages } from "@/i18n/page-messages";
 import { withLocaleMetadata } from "@/lib/metadata";
 import { cacheLife } from "next/cache";
 import { AboutPageContent } from "@/components/pages/about-page-content";
@@ -7,7 +8,11 @@ import { AboutPageContent } from "@/components/pages/about-page-content";
 export default async function AboutPage() {
   "use cache";
   cacheLife("max");
-  return <AboutPageContent />;
+  return (
+    <PageMessages namespaces={["about"]}>
+      <AboutPageContent />
+    </PageMessages>
+  );
 }
 
 // Generate metadata for SEO

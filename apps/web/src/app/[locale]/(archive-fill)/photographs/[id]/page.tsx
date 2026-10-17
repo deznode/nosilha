@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { PageMessages } from "@/i18n/page-messages";
 import { PhotoViewer } from "@/components/photographs/viewer/photo-viewer";
 import { getGalleryMediaById } from "@/lib/api";
 import { toArchivePhoto } from "@/lib/archive-photographs";
@@ -78,12 +79,14 @@ export default async function PhotoPage({
   const { photos, initialId } = await cachedPhoto(id);
   // `?place=` and `?ask=` stay out of the cache key: the viewer checks them itself.
   return (
-    <PhotoViewer
-      photos={photos}
-      initialId={initialId}
-      place={typeof place === "string" ? place : undefined}
-      ask={isAskLink(ask)}
-    />
+    <PageMessages namespaces={["common", "photographs", "share", "viewer"]}>
+      <PhotoViewer
+        photos={photos}
+        initialId={initialId}
+        place={typeof place === "string" ? place : undefined}
+        ask={isAskLink(ask)}
+      />
+    </PageMessages>
   );
 }
 

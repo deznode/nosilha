@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { PageMessages } from "@/i18n/page-messages";
 import { FilmsCinema } from "@/components/films/cinema/films-cinema";
 import { getGalleryMedia, getTownStatusSummary } from "@/lib/api";
 import { FILMS_FETCH_SIZE, canPlay, pickFeatured, toFilms } from "@/lib/films";
@@ -46,5 +47,9 @@ export default async function FilmsPage() {
   const featured =
     pickFeatured(films.filter(canPlay), locale) ?? pickFeatured(films, locale);
 
-  return <FilmsCinema films={films} featured={featured} />;
+  return (
+    <PageMessages namespaces={["films"]}>
+      <FilmsCinema films={films} featured={featured} />
+    </PageMessages>
+  );
 }

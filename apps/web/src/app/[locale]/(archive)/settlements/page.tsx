@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { PageMessages } from "@/i18n/page-messages";
 import { SettlementsContent } from "@/components/settlements/settlements-content";
 import { parseSettlementFilter } from "@/components/settlements/settlements-copy";
 import { ArchiveSkeleton } from "@/components/ui/archive-skeleton";
@@ -38,9 +39,11 @@ export default function SettlementsPage({
   searchParams,
 }: SettlementsPageProps) {
   return (
-    <Suspense fallback={<ArchiveSkeleton />}>
-      <SettlementsForFilter searchParams={searchParams} />
-    </Suspense>
+    <PageMessages namespaces={["common.filters", "settlements", "status"]}>
+      <Suspense fallback={<ArchiveSkeleton />}>
+        <SettlementsForFilter searchParams={searchParams} />
+      </Suspense>
+    </PageMessages>
   );
 }
 

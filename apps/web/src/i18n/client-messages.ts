@@ -1,41 +1,69 @@
 import type { AbstractIntlMessages } from "next-intl";
 
 /**
- * The message namespaces sent to the browser. Everything else stays on the server.
+ * Which messages reach the browser. Everything else stays on the server.
  *
- * A namespace belongs here when any file calls `useTranslations` with it: that hook
- * is the client-side API, and server code uses `getTranslations`. A unit test
- * (`tests/unit/i18n/client-messages.test.ts`) fails when a `useTranslations`
- * namespace is missing from this list.
+ * `useTranslations` is the client-side API (server code uses `getTranslations`), so
+ * the browser needs exactly the namespaces its client components pass to it. Each
+ * list names message paths: a namespace (`"films"`) or a part of one
+ * (`"auth.signInDialog"`).
+ *
+ * The root layout sends what the layouts and the site chrome read. A page that reads
+ * more wraps itself in `PageMessages` with its own list, which replaces the root's
+ * messages inside the page rather than adding to them. The admin root sends what
+ * every admin page reads.
+ *
+ * `tests/unit/i18n/client-messages.test.ts` compares each list with the
+ * `useTranslations` calls reachable from the files it serves.
  */
-export const CLIENT_NAMESPACES = [
-  "common",
+export const ROOT_MESSAGES = [
+  "auth.signInDialog",
   "chrome",
-  "errors",
-  "about",
-  "contact",
-  "map",
-  "films",
-  "settlements",
-  "status",
-  "categories",
-  "entry",
-  "auth",
-  "contribute",
-  "validation",
-  "share",
-  "photographs",
-  "viewer",
-  "identify",
+  "common",
+  "contribute.newsletter",
+  "errors.error",
   "fields",
-] as const satisfies readonly string[];
+  "identify",
+  "validation",
+] as const;
 
-export function pickClientMessages(
-  messages: AbstractIntlMessages
+export const ADMIN_MESSAGES = [
+  "auth.form",
+  "auth.inlinePrompt",
+  "chrome",
+  "common",
+  "contribute.directory",
+  "contribute.newsletter",
+  "contribute.photoIdentification",
+  "entry.related",
+  "identify.suggestImprovement",
+  "photographs",
+  "validation",
+] as const;
+
+/** The messages under `paths`, keeping their nesting. Missing paths are skipped. */
+export function pickMessages(
+  messages: AbstractIntlMessages,
+  paths: readonly string[]
 ): AbstractIntlMessages {
-  return Object.fromEntries(
-    CLIENT_NAMESPACES.filter((namespace) => namespace in messages).map(
-      (namespace) => [namespace, messages[namespace]]
-    )
-  );
+  const picked: AbstractIntlMessages = {};
+  for (const path of paths) {
+    const keys = path.split(".");
+    let source: AbstractIntlMessages | string | undefined = messages;
+    for (const key of keys) {
+      source =
+        source !== null && typeof source === "object" ? source[key] : undefined;
+    }
+    if (source === undefined) continue;
+
+    let target = picked;
+    for (const key of keys.slice(0, -1)) {
+      const next = target[key];
+      target = (
+        typeof next === "object" ? next : (target[key] = {})
+      ) as AbstractIntlMessages;
+    }
+    target[keys[keys.length - 1]] = source;
+  }
+  return picked;
 }

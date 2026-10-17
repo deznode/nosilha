@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { PageMessages } from "@/i18n/page-messages";
 import { FilmTheatre } from "@/components/films/theatre/film-theatre";
 import {
   getGalleryMedia,
@@ -63,7 +64,12 @@ export async function generateMetadata({
  */
 export default async function FilmRoute({ params }: FilmRouteProps) {
   const { id } = await params;
-  return cachedFilm(id);
+  const page = await cachedFilm(id);
+  return (
+    <PageMessages namespaces={["common", "films", "share"]}>
+      {page}
+    </PageMessages>
+  );
 }
 
 /** Spec 038 FR-040 to FR-043. */

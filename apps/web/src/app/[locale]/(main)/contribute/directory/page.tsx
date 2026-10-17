@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
+import { PageMessages } from "@/i18n/page-messages";
 import { withLocaleMetadata } from "@/lib/metadata";
 import { AddDirectoryEntryForm } from "@/components/directory";
 
@@ -18,5 +19,17 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function ContributeDirectoryPage() {
-  return <AddDirectoryEntryForm />;
+  return (
+    <PageMessages
+      namespaces={[
+        "auth.inlinePrompt",
+        "common",
+        "contribute.directory",
+        "photographs",
+        "validation",
+      ]}
+    >
+      <AddDirectoryEntryForm />
+    </PageMessages>
+  );
 }
