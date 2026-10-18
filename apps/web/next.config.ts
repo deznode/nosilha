@@ -9,6 +9,9 @@ const isDev = process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Explicit false keeps pre-16.4 prefetching and silences the 16.4 warning.
+  // Partial Prefetching becomes the default in Next 17; adopt it on its own.
+  partialPrefetching: false,
   cacheLife: {
     content: {
       stale: 300,
