@@ -76,6 +76,68 @@ vi.mock("next/navigation", () => ({
   useParams: () => ({}),
 }));
 
+// Locale-aware navigation (spec 041). `@/i18n/navigation` is mapped back onto
+// `next/link` and `next/navigation`, so a test that mocks either of those keeps
+// working unchanged. Each call is forwarded when it is made, because a test's own
+// partial mock of `next/navigation` may define only the hooks it uses.
+vi.mock("@/i18n/navigation", async () => {
+  const navigation = await import("next/navigation");
+  const { default: NextLink } = await import("next/link");
+  const { withLocale } = await import("@/i18n/paths");
+  return {
+    Link: NextLink,
+    useRouter: () => navigation.useRouter(),
+    usePathname: () => navigation.usePathname(),
+    redirect: ({ href }: { href: string }) => navigation.redirect(href),
+    getPathname: ({
+      href,
+      locale,
+    }: {
+      href: string;
+      locale: import("@/i18n/config").Locale;
+    }) => withLocale(href, locale),
+  };
+});
+
+// Messages come from the real English file through a real translator, so an English
+// assertion fails if the wording in `messages/en.json` drifts from what it replaced.
+vi.mock("next-intl", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next-intl")>();
+  const { default: messages } = await import("../../messages/en.json");
+  const { formats, TIME_ZONE } = await import("@/i18n/formats");
+  const intl = { locale: "en", timeZone: TIME_ZONE, formats } as const;
+  return {
+    ...actual,
+    useLocale: () => intl.locale,
+    useTranslations: (namespace?: string) =>
+      actual.createTranslator({ ...intl, messages, namespace } as any),
+    useFormatter: () => actual.createFormatter(intl),
+    NextIntlClientProvider: ({ children }: { children: React.ReactNode }) =>
+      children,
+  };
+});
+
+vi.mock("next-intl/server", async () => {
+  const { createFormatter, createTranslator } = await import("next-intl");
+  const { default: messages } = await import("../../messages/en.json");
+  const { formats, TIME_ZONE } = await import("@/i18n/formats");
+  const intl = { locale: "en", timeZone: TIME_ZONE, formats } as const;
+  return {
+    getLocale: async () => intl.locale,
+    getMessages: async () => messages,
+    getTranslations: async (
+      options?: string | { namespace?: string; locale?: string }
+    ) =>
+      createTranslator({
+        ...intl,
+        messages,
+        namespace: typeof options === "string" ? options : options?.namespace,
+      } as any),
+    getFormatter: async () => createFormatter(intl),
+    setRequestLocale: () => {},
+  };
+});
+
 // Mock Next.js Image component
 vi.mock("next/image", () => ({
   default: (props: any) => {

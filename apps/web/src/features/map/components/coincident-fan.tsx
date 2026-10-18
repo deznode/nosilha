@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { statusVar } from "@/lib/status";
 
 /** How far a fanned pin sits from the shared point, in pixels (SPECS §5). */
@@ -41,14 +42,16 @@ interface CoincidentRingProps {
  * and it follows the theme like every other status colour.
  */
 export function CoincidentRing({ count, onExpand }: CoincidentRingProps) {
+  const t = useTranslations("map");
   const blue = statusVar("partial");
+  const label = t("pin.coincident", { count });
 
   return (
     <button
       type="button"
       aria-expanded={false}
-      aria-label={`${count} records at one point`}
-      title={`${count} records at one point`}
+      aria-label={label}
+      title={label}
       onClick={onExpand}
       className="flex size-10 cursor-pointer items-center justify-center rounded-full font-sans text-sm font-semibold"
       style={{

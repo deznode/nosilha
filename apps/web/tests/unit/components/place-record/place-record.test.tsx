@@ -78,17 +78,17 @@ function photo(
   };
 }
 
-function renderRecord(
-  overrides: Partial<React.ComponentProps<typeof PlaceRecord>> = {}
+async function renderRecord(
+  overrides: Partial<Parameters<typeof PlaceRecord>[0]> = {}
 ) {
   return render(
-    <PlaceRecord
-      entry={entry()}
-      townSlug="nossa-senhora-do-monte"
-      photographs={[]}
-      siblings={[]}
-      {...overrides}
-    />
+    await PlaceRecord({
+      entry: entry(),
+      townSlug: "nossa-senhora-do-monte",
+      photographs: [],
+      siblings: [],
+      ...overrides,
+    })
   );
 }
 
@@ -98,8 +98,8 @@ describe("PlaceRecord", () => {
     useIdentifyStore.setState({ context: null });
   });
 
-  it("heads the record with its settlement and category", () => {
-    renderRecord();
+  it("heads the record with its settlement and category", async () => {
+    await renderRecord();
 
     expect(
       screen.getByRole("heading", {
@@ -112,24 +112,24 @@ describe("PlaceRecord", () => {
     ).toBeInTheDocument();
   });
 
-  it("credits the hero, or says the credit is missing", () => {
-    renderRecord();
+  it("credits the hero, or says the credit is missing", async () => {
+    await renderRecord();
     expect(screen.getByText("photographer not recorded")).toBeInTheDocument();
   });
 
-  it("says a record has no photograph rather than heading it with a blank band", () => {
-    renderRecord({ entry: entry({ imageUrl: null, heroImage: null }) });
+  it("says a record has no photograph rather than heading it with a blank band", async () => {
+    await renderRecord({ entry: entry({ imageUrl: null, heroImage: null }) });
 
     expect(screen.getByText("no photograph recorded")).toBeInTheDocument();
   });
 
-  it("counts the recorded fields the way the API does", () => {
-    renderRecord();
+  it("counts the recorded fields the way the API does", async () => {
+    await renderRecord();
     expect(screen.getByText("six of nine fields recorded")).toBeInTheDocument();
   });
 
-  it("renders the heritage grid with its recorded values", () => {
-    renderRecord();
+  it("renders the heritage grid with its recorded values", async () => {
+    await renderRecord();
 
     expect(screen.getByText("Established")).toBeInTheDocument();
     expect(screen.getByText("c. 1826")).toBeInTheDocument();
@@ -140,7 +140,7 @@ describe("PlaceRecord", () => {
 
   it("asks the prototype's question for each empty row", async () => {
     const user = userEvent.setup();
-    renderRecord();
+    await renderRecord();
 
     expect(
       screen.getByRole("button", { name: "When can a visitor go in?" })
@@ -163,7 +163,7 @@ describe("PlaceRecord", () => {
 
   it("explains the hero and offers the archive a photograph", async () => {
     const user = userEvent.setup();
-    renderRecord();
+    await renderRecord();
 
     expect(
       screen.getByText(
@@ -181,8 +181,8 @@ describe("PlaceRecord", () => {
     });
   });
 
-  it("lists the archive's photographs of the place instead of the empty panel", () => {
-    renderRecord({ photographs: [photo(), photo({ id: "p2" })] });
+  it("lists the archive's photographs of the place instead of the empty panel", async () => {
+    await renderRecord({ photographs: [photo(), photo({ id: "p2" })] });
 
     expect(
       screen.getByText("Two photographs of this place are in the archive.")
@@ -195,8 +195,8 @@ describe("PlaceRecord", () => {
     ).toHaveAttribute("href", "/photographs/p1");
   });
 
-  it("says when a record is the only one in its settlement", () => {
-    renderRecord();
+  it("says when a record is the only one in its settlement", async () => {
+    await renderRecord();
 
     expect(
       screen.getByRole("heading", {
@@ -210,8 +210,8 @@ describe("PlaceRecord", () => {
     ).toBeInTheDocument();
   });
 
-  it("links its siblings under the same settlement", () => {
-    renderRecord({
+  it("links its siblings under the same settlement", async () => {
+    await renderRecord({
       siblings: [
         entry({ id: "e2", slug: "praca", name: "Praça Eugénio Tavares" }),
       ],
@@ -223,8 +223,8 @@ describe("PlaceRecord", () => {
     );
   });
 
-  it("closes the record with the prototype's action row", () => {
-    renderRecord();
+  it("closes the record with the prototype's action row", async () => {
+    await renderRecord();
 
     expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
     expect(
@@ -235,14 +235,14 @@ describe("PlaceRecord", () => {
     ).toBeInTheDocument();
   });
 
-  it("does not print 0,0 under the locator map for an unplaced record", () => {
-    renderRecord({ entry: entry({ latitude: 0, longitude: 0 }) });
+  it("does not print 0,0 under the locator map for an unplaced record", async () => {
+    await renderRecord({ entry: entry({ latitude: 0, longitude: 0 }) });
 
     expect(screen.queryByText(/0\.0000/)).not.toBeInTheDocument();
   });
 
-  it("calls a Stay record Stay in its field grid, not Hotel", () => {
-    renderRecord({
+  it("calls a Stay record Stay in its field grid, not Hotel", async () => {
+    await renderRecord({
       entry: entry({
         category: "Hotel",
         details: { amenities: [] },
@@ -254,8 +254,8 @@ describe("PlaceRecord", () => {
     expect(screen.queryByText("Hotel")).not.toBeInTheDocument();
   });
 
-  it("locates the record and explains why it carries no rating", () => {
-    renderRecord();
+  it("locates the record and explains why it carries no rating", async () => {
+    await renderRecord();
 
     expect(screen.getByTestId("mini-map")).toHaveAttribute(
       "data-height",
@@ -269,8 +269,8 @@ describe("PlaceRecord", () => {
     expect(screen.queryByText("Rating")).not.toBeInTheDocument();
   });
 
-  it("gives accommodation a rating row and no rating note", () => {
-    renderRecord({
+  it("gives accommodation a rating row and no rating note", async () => {
+    await renderRecord({
       entry: entry({
         category: "Hotel",
         rating: 4.5,
@@ -284,8 +284,8 @@ describe("PlaceRecord", () => {
     expect(screen.queryByText(/carry no rating/)).not.toBeInTheDocument();
   });
 
-  it("draws one bar segment per field", () => {
-    const { container } = renderRecord();
+  it("draws one bar segment per field", async () => {
+    const { container } = await renderRecord();
     const bar = container.querySelector("[aria-hidden].flex.gap-\\[3px\\]");
 
     expect(bar?.children).toHaveLength(9);

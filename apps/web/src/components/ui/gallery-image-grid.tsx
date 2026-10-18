@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { MapPin, Calendar, Eye, Share2 } from "lucide-react";
@@ -18,6 +19,7 @@ interface GalleryImageGridProps {
 }
 
 export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
+  const t = useTranslations("common");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -53,7 +55,7 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
                     openLightbox(index);
                   }}
                   className="shadow-elevated rounded-full bg-white/90 p-2 hover:bg-white"
-                  aria-label="View full size"
+                  aria-label={t("gallery.viewFullSize")}
                 >
                   <Eye className="text-body h-4 w-4" />
                 </button>
@@ -76,7 +78,7 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
 
               <button className="text-ocean-blue hover:text-ocean-blue/80 flex items-center text-xs font-medium">
                 <Share2 className="mr-1 h-3 w-3" />
-                Share
+                {t("share")}
               </button>
             </div>
           </div>

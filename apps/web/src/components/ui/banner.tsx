@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export interface BannerProps {
   title: string;
@@ -21,6 +22,7 @@ export default function Banner({
   tone = "default",
 }: BannerProps) {
   const [isVisible, setIsVisible] = useState(true);
+  const t = useTranslations("common");
 
   const handleDismiss = () => {
     setIsVisible(false);
@@ -113,9 +115,9 @@ export default function Banner({
             type="button"
             onClick={handleDismiss}
             className="-m-3 p-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
-            aria-label="Dismiss banner"
+            aria-label={t("dismissBanner")}
           >
-            <span className="sr-only">Dismiss</span>
+            <span className="sr-only">{t("dismiss")}</span>
             <X aria-hidden="true" className={`size-5 ${dismissIconClasses}`} />
           </button>
         </div>

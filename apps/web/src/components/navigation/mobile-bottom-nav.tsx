@@ -2,8 +2,8 @@
 
 import clsx from "clsx";
 import { Menu, X } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useState } from "react";
 
 import { MoreSheet } from "./more-sheet";
@@ -29,6 +29,7 @@ import { BOTTOM_BAR_DESTINATIONS, isDestinationActive } from "./nav-config";
  */
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const t = useTranslations("chrome");
   const [moreOpen, setMoreOpen] = useState(false);
 
   // `cacheComponents` wraps routes in <Activity>, which hides rather than
@@ -62,7 +63,7 @@ export function MobileBottomNav() {
         // (`bg-surface` put this bar on #EFE8DC in light and #141B26 in dark,
         // half a step from the top bar either way). Spec 037.
         className="bg-card border-hairline dark:border-chrome-line dark:bg-chrome-raised fixed right-0 bottom-0 left-0 z-50 border-t pb-[env(safe-area-inset-bottom)] md:hidden print:hidden"
-        aria-label="Mobile navigation"
+        aria-label={t("mobileNav")}
       >
         <div className="flex h-(--chrome-bottom-bar-height) items-center justify-around">
           {BOTTOM_BAR_DESTINATIONS.map((destination) => {
@@ -81,7 +82,7 @@ export function MobileBottomNav() {
                   aria-hidden="true"
                 />
                 <span className="text-[10.5px] font-medium">
-                  {destination.label}
+                  {t(destination.labelKey)}
                 </span>
               </Link>
             );
@@ -91,7 +92,7 @@ export function MobileBottomNav() {
             type="button"
             onClick={() => setMoreOpen((open) => !open)}
             className={itemClasses(moreOpen)}
-            aria-label={moreOpen ? "Close menu" : "Open menu"}
+            aria-label={moreOpen ? t("closeMenu") : t("openMenu")}
             aria-expanded={moreOpen}
           >
             {moreOpen ? (
@@ -99,7 +100,7 @@ export function MobileBottomNav() {
             ) : (
               <Menu className="h-5 w-5" aria-hidden="true" />
             )}
-            <span className="text-[10.5px] font-medium">More</span>
+            <span className="text-[10.5px] font-medium">{t("more")}</span>
           </button>
         </div>
       </nav>

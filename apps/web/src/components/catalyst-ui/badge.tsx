@@ -1,6 +1,6 @@
 import * as Headless from "@headlessui/react";
 import clsx from "clsx";
-import NextLink from "next/link";
+import { Link as NextLink } from "@/i18n/navigation";
 import React, { forwardRef } from "react";
 import { TouchTarget } from "./button";
 

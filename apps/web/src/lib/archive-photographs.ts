@@ -1,10 +1,13 @@
-import { capitalise, joinList, plural, toWords } from "@/lib/copy/number-words";
+import type { Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
+import { capitalise, joinList, toWords } from "@/lib/copy/number-words";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { nearestSettlement } from "@/lib/nearest-settlement";
 import { formatCameraInfo } from "@/lib/exif-utils";
 import {
   photoCredit,
   photoDateLabel,
+  type DateFormatter,
   photoIsIdentifiablePerson,
   photoIsLocated,
 } from "@/lib/photo-facts";
@@ -60,21 +63,27 @@ export interface ArchivePhoto {
   missing: { photographer: boolean; date: boolean };
 }
 
+/**
+ * The `photographs` messages: every sentence below is written from them (spec 041
+ * FR-004), so a cached list is cached per locale like its dates.
+ */
+export type PhotographsTranslator = Translator<"photographs">;
+
 /** `all`, a settlement slug, or `unplaced`. */
 export type PlaceFilter = string;
 export const ALL_PLACES = "all";
 export const UNPLACED = "unplaced";
 
-const MONTH_YEAR = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "long",
-  timeZone: "UTC",
-});
-
-/** One gallery record as an archive photograph. */
+/**
+ * One gallery record as an archive photograph. Its dates are written in `format`'s
+ * language and its fallback alt text in `t`'s, so a cached list of these is cached
+ * per locale (see `getArchivePhotographs`).
+ */
 export function toArchivePhoto(
   media: PublicGalleryMedia,
-  settlements: readonly TownStatusSummary[]
+  settlements: readonly TownStatusSummary[],
+  format: DateFormatter,
+  t: PhotographsTranslator
 ): ArchivePhoto {
   const upload = isPublicUserUploadMedia(media) ? media : null;
   const town = nearestSettlement(
@@ -84,8 +93,8 @@ export function toArchivePhoto(
   );
   const near = town ? { slug: town.slug, name: town.name } : null;
   const title = trimmed(media.title);
-  const monthYear = photoDateLabel(media, MONTH_YEAR);
-  const dateLabel = photoDateLabel(media);
+  const monthYear = photoDateLabel(media, format, "monthYear");
+  const dateLabel = photoDateLabel(media, format, "longDate");
   const camera =
     formatCameraInfo(
       trimmed(upload?.cameraMake) ?? undefined,
@@ -114,13 +123,15 @@ export function toArchivePhoto(
       date: dateLabel === null,
     },
   };
-  photo.alt = trimmed(media.altText) ?? photoHeading(photo);
+  photo.alt = trimmed(media.altText) ?? photoHeading(photo, t);
   return photo;
 }
 
 export function toArchivePhotos(
   media: readonly PublicGalleryMedia[],
-  settlements: readonly TownStatusSummary[]
+  settlements: readonly TownStatusSummary[],
+  format: DateFormatter,
+  t: PhotographsTranslator
 ): ArchivePhoto[] {
   return media
     .filter(
@@ -128,7 +139,7 @@ export function toArchivePhotos(
         isPublicUserUploadMedia(m) ||
         ("mediaType" in m && m.mediaType === "IMAGE")
     )
-    .map((m) => toArchivePhoto(m, settlements));
+    .map((m) => toArchivePhoto(m, settlements, format, t));
 }
 
 // ─── Place filter ───────────────────────────────────────────────────────────
@@ -142,9 +153,14 @@ export interface PlaceChip {
 /**
  * `All N`, then each settlement with photographs by count (ties by name), then
  * `Not yet placed N`. Settlements with none are left out; Not yet placed always shows,
- * as in the handoff, so a zero reads as an achievement rather than an absence.
+ * as in the handoff, so a zero reads as an achievement rather than an absence. Names
+ * that tie sort in `locale`'s alphabetical order.
  */
-export function placeChips(photos: readonly ArchivePhoto[]): PlaceChip[] {
+export function placeChips(
+  photos: readonly ArchivePhoto[],
+  locale: string,
+  t: PhotographsTranslator
+): PlaceChip[] {
   const bySlug = new Map<string, PlaceChip>();
   let unplaced = 0;
   for (const photo of photos) {
@@ -162,13 +178,13 @@ export function placeChips(photos: readonly ArchivePhoto[]): PlaceChip[] {
       });
   }
   const settlements = [...bySlug.values()].sort(
-    (a, b) => b.count - a.count || a.label.localeCompare(b.label)
+    (a, b) => b.count - a.count || a.label.localeCompare(b.label, locale)
   );
 
   return [
-    { key: ALL_PLACES, label: "All", count: photos.length },
+    { key: ALL_PLACES, label: t("chips.all"), count: photos.length },
     ...settlements,
-    { key: UNPLACED, label: "Not yet placed", count: unplaced },
+    { key: UNPLACED, label: t("chips.unplaced"), count: unplaced },
   ];
 }
 
@@ -209,10 +225,11 @@ export function legacyPlaceParam(params: {
 /** The filter's name as the viewer and the back link show it; empty for all. */
 export function placeLabel(
   place: PlaceFilter,
-  photos: readonly ArchivePhoto[]
+  photos: readonly ArchivePhoto[],
+  t: PhotographsTranslator
 ): string {
   if (place === ALL_PLACES) return "";
-  if (place === UNPLACED) return "Not yet placed";
+  if (place === UNPLACED) return t("chips.unplaced");
   return photos.find((p) => p.near?.slug === place)?.near?.name ?? "";
 }
 
@@ -293,22 +310,30 @@ export function moreFrom(
     .slice(0, limit);
 }
 
-export function moreFromTitle(photo: ArchivePhoto): string {
+export function moreFromTitle(
+  photo: ArchivePhoto,
+  t: PhotographsTranslator
+): string {
   return photo.near
-    ? `More from ${photo.near.name}`
-    : "Also waiting for a place";
+    ? t("moreFrom", { place: photo.near.name })
+    : t("moreUnplaced");
 }
 
 // ─── Copy ───────────────────────────────────────────────────────────────────
 
+/** `Near X`, in `t`'s language. */
+function nearLabel(place: PlaceRef, t: PhotographsTranslator): string {
+  return t("heading.near", { place: place.name });
+}
+
 /** The title, else `Near X`, else `A photograph of Brava`. */
 export function photoHeading(
-  photo: Pick<ArchivePhoto, "title" | "near">
+  photo: Pick<ArchivePhoto, "title" | "near">,
+  t: PhotographsTranslator
 ): string {
-  return (
-    photo.title ??
-    (photo.near ? `Near ${photo.near.name}` : "A photograph of Brava")
-  );
+  if (photo.title) return photo.title;
+  if (photo.near) return nearLabel(photo.near, t);
+  return t("heading.brava");
 }
 
 /** The description, unless it only repeats the title. */
@@ -321,10 +346,11 @@ export function photoCaption(
 
 /** `Near X · Month YYYY`; either part may be absent; null when both are. */
 export function photoLine(
-  photo: Pick<ArchivePhoto, "near" | "monthYear">
+  photo: Pick<ArchivePhoto, "near" | "monthYear">,
+  t: PhotographsTranslator
 ): string | null {
   return (
-    [photo.near ? `Near ${photo.near.name}` : null, photo.monthYear]
+    [photo.near ? nearLabel(photo.near, t) : null, photo.monthYear]
       .filter(Boolean)
       .join(" · ") || null
   );
@@ -338,8 +364,11 @@ export function photoMeta(
 }
 
 /** `Photograph · Landscape`, or `Photograph`. */
-export function photoEyebrow(photo: Pick<ArchivePhoto, "category">): string {
-  return ["Photograph", photo.category].filter(Boolean).join(" · ");
+export function photoEyebrow(
+  photo: Pick<ArchivePhoto, "category">,
+  t: PhotographsTranslator
+): string {
+  return [t("eyebrow"), photo.category].filter(Boolean).join(" · ");
 }
 
 /**
@@ -364,20 +393,18 @@ export function missingFields(photo: ArchivePhoto): MissingField[] {
   return missing;
 }
 
-const HELP_WORDS: Record<MissingField, string> = {
-  photographer: "who took it",
-  place: "where",
-  date: "when",
-};
-
 /**
  * `Not yet recorded: who took it, where and when.`, naming only what is missing; null
  * when the record is complete.
  */
-export function viewerHelpLine(photo: ArchivePhoto): string | null {
-  const missing = missingFields(photo).map((field) => HELP_WORDS[field]);
+export function viewerHelpLine(
+  photo: ArchivePhoto,
+  t: PhotographsTranslator,
+  locale: Locale
+): string | null {
+  const missing = missingFields(photo).map((field) => t(`missing.${field}`));
   return missing.length
-    ? `Not yet recorded: ${joinList(missing, "and")}.`
+    ? t("viewerHelp", { missing: joinList(missing, "and", locale) })
     : null;
 }
 
@@ -396,14 +423,15 @@ const IDENTIFY_FIELD: Record<MissingField, string> = {
 /** What the identify sheet is told when it is asked about a photograph. */
 export function photoIdentifyContext(
   photo: ArchivePhoto,
-  field: MissingField
+  field: MissingField,
+  t: PhotographsTranslator
 ): IdentifyContext {
   return {
     contentType: "media",
     contentId: photo.id,
     mediaId: photo.id,
     field: IDENTIFY_FIELD[field],
-    pageTitle: photoHeading(photo),
+    pageTitle: photoHeading(photo, t),
   };
 }
 
@@ -411,38 +439,42 @@ export function photoIdentifyContext(
  * The index's one invitation to help:
  * `Every photograph here is still missing its photographer, and six have no place.
  * Recognise one?` Each clause follows the real counts; null when nothing is missing.
+ * One message per sentence shape, with the counts as plurals and their words as
+ * arguments.
  */
-export function indexHelpLine(photos: readonly ArchivePhoto[]): string | null {
+export function indexHelpLine(
+  photos: readonly ArchivePhoto[],
+  t: PhotographsTranslator,
+  locale: Locale
+): string | null {
   const total = photos.length;
   if (total === 0) return null;
   const uncredited = photos.filter((p) => p.missing.photographer).length;
   const unplaced = photos.filter((p) => !p.near).length;
+  // Photographs are feminine in Portuguese (`uma fotografia`).
+  const words = (n: number) => toWords(n, { locale, gender: "feminine" });
 
-  const placeClause = (lead: boolean) => {
-    const verb = plural(unplaced, "has", "have");
-    const n = lead ? capitalise(toWords(unplaced)) : toWords(unplaced);
-    return lead
-      ? `${n} ${plural(unplaced, "photograph", "photographs")} ${verb} no place yet`
-      : `${n} ${verb} no place`;
-  };
-
-  let sentence: string;
   if (uncredited === total) {
-    sentence = "Every photograph here is still missing its photographer";
-    if (unplaced > 0) sentence += `, and ${placeClause(false)}`;
-  } else if (uncredited > 0) {
-    sentence = `${capitalise(toWords(uncredited))} ${plural(
-      uncredited,
-      "photograph is",
-      "photographs are"
-    )} still missing a photographer`;
-    if (unplaced > 0) sentence += `, and ${placeClause(false)}`;
-  } else if (unplaced > 0) {
-    sentence = placeClause(true);
-  } else {
-    return null;
+    return t("indexHelp.everyUncredited", {
+      unplaced,
+      unplacedWords: words(unplaced),
+    });
   }
-  return `${sentence}. Recognise one?`;
+  if (uncredited > 0) {
+    return t("indexHelp.someUncredited", {
+      uncredited,
+      uncreditedWords: capitalise(words(uncredited), locale),
+      unplaced,
+      unplacedWords: words(unplaced),
+    });
+  }
+  if (unplaced > 0) {
+    return t("indexHelp.unplaced", {
+      unplaced,
+      unplacedWords: capitalise(words(unplaced), locale),
+    });
+  }
+  return null;
 }
 
 /**

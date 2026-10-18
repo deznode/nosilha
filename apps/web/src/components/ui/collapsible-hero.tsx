@@ -2,10 +2,11 @@
 
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 import { useNavHidden } from "@/lib/hooks/use-nav-hidden";
 
 interface CollapsibleHeroProps {
@@ -36,6 +37,7 @@ export function CollapsibleHero({
 }: CollapsibleHeroProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const t = useTranslations("common");
   const navHidden = useNavHidden();
   const [heroPassed, setHeroPassed] = useState(false);
 
@@ -72,7 +74,7 @@ export function CollapsibleHero({
           <button
             onClick={handleBack}
             className="text-body hover:text-brand -ml-1 flex shrink-0 items-center rounded-full p-1 transition-colors"
-            aria-label="Go back"
+            aria-label={t("goBack")}
           >
             <ArrowLeft size={20} />
           </button>

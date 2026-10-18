@@ -1,8 +1,9 @@
 "use client";
 
 import clsx from "clsx";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { PORTUGUESE_ENABLED } from "@/i18n/config";
+import { Link, usePathname } from "@/i18n/navigation";
 
 import {
   AccountSlot,
@@ -11,6 +12,7 @@ import {
   ContributeAction,
   ThemePill,
 } from "./chrome-parts";
+import { LanguageSwitcher } from "./language-switcher";
 import { DESKTOP_BAR_DESTINATIONS, isDestinationActive } from "./nav-config";
 
 /**
@@ -35,6 +37,7 @@ import { DESKTOP_BAR_DESTINATIONS, isDestinationActive } from "./nav-config";
  */
 export function DesktopTopBar({ className }: { className?: string }) {
   const pathname = usePathname();
+  const t = useTranslations("chrome");
 
   return (
     <ChromeBar
@@ -48,7 +51,7 @@ export function DesktopTopBar({ className }: { className?: string }) {
 
       {/* `ml-auto` pushes the row right, as the original did. */}
       <nav
-        aria-label="Primary"
+        aria-label={t("primaryNav")}
         className="ml-auto flex min-w-0 items-center gap-1"
       >
         {DESKTOP_BAR_DESTINATIONS.map((destination) => {
@@ -67,12 +70,15 @@ export function DesktopTopBar({ className }: { className?: string }) {
                   : "text-muted hover:text-body border-transparent"
               )}
             >
-              {destination.label}
+              {t(destination.labelKey)}
             </Link>
           );
         })}
       </nav>
 
+      {/* The desktop bar never had the static chip, so with Portuguese off it
+          stays as it was (FR-009). */}
+      {PORTUGUESE_ENABLED && <LanguageSwitcher size="compact" />}
       <ThemePill />
       <ContributeAction />
       <AccountSlot />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { FilmCard } from "@/components/films/film-card";
 import { ChipRow } from "@/components/ui/chip-row";
 import { InvitationCell } from "@/features/contribute/components/invitation-cell";
@@ -8,6 +9,7 @@ import {
   FILM_FACETS,
   facetCounts,
   filmFacet,
+  filmFacetLabel,
   type Film,
   type FilmFacetKey,
 } from "@/lib/films";
@@ -25,6 +27,7 @@ export function narrowingFacets(films: readonly Film[]) {
 }
 
 export function AllFilmsGrid({ films }: { films: readonly Film[] }) {
+  const t = useTranslations("films");
   const [facet, setFacet] = useState<FilmFacetKey>("all");
   const facets = narrowingFacets(films);
   const shown = films.filter(filmFacet(facet).test);
@@ -34,12 +37,16 @@ export function AllFilmsGrid({ films }: { films: readonly Film[] }) {
       {facets.length > 0 && (
         <ChipRow
           chips={[
-            { key: "all" as const, label: "All films", count: films.length },
-            ...facets,
+            {
+              key: "all" as const,
+              label: filmFacetLabel(t, "all"),
+              count: films.length,
+            },
+            ...facets.map((f) => ({ ...f, label: filmFacetLabel(t, f.key) })),
           ]}
           active={facet}
           onSelect={setFacet}
-          label="Filter films"
+          label={t("cinema.filterLabel")}
           className="mb-[18px]"
         />
       )}
@@ -55,9 +62,9 @@ export function AllFilmsGrid({ films }: { films: readonly Film[] }) {
           {/* Always last (E4), a plain row/column grid so appending it here is
               already the last position — no dense-packing reorder to fight. */}
           <InvitationCell
-            question="Have a film of Brava?"
-            body="A YouTube or Vimeo link is enough."
-            ctaLabel="Send a film link"
+            question={t("cinema.invitation.question")}
+            body={t("cinema.invitation.body")}
+            ctaLabel={t("cinema.invitation.cta")}
             href="/contribute/media?kind=film"
           />
         </div>

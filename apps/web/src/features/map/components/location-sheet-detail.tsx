@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { selectionCard } from "../data/map-copy";
+import { useTranslations } from "next-intl";
 import type { MapItem } from "../data/types";
 import { DetailCloseButton, LocationDetailBody } from "./location-detail";
 
@@ -22,9 +22,10 @@ export function LocationSheetDetail({
   onClose,
   handle,
 }: LocationSheetDetailProps) {
+  const t = useTranslations("map");
   return (
     <section
-      aria-label={`Selected: ${selectionCard(item).name}`}
+      aria-label={t("selection.label", { name: item.name })}
       className="flex min-h-0 flex-1 flex-col"
     >
       <div

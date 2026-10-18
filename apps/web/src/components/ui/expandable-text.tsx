@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 
 interface ExpandableTextProps extends React.HTMLAttributes<HTMLDivElement> {
   text: string;
@@ -26,6 +27,7 @@ export const ExpandableText = React.forwardRef<
     ref
   ) => {
     const textRef = useRef<HTMLParagraphElement>(null);
+    const t = useTranslations("common");
     const [expanded, setExpanded] = useState(false);
     const [needsTruncation, setNeedsTruncation] = useState(false);
 
@@ -71,7 +73,7 @@ export const ExpandableText = React.forwardRef<
               buttonClassName
             )}
           >
-            {expanded ? "Show less" : "Show more"}
+            {expanded ? t("showLess") : t("showMore")}
           </button>
         )}
       </div>

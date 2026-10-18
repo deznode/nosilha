@@ -97,36 +97,36 @@ const TOWNS: TownStatusSummary[] = [
   town({ slug: "campo-baixo", name: "Campo Baixo" }),
 ];
 
-function renderHome(
-  overrides: Partial<React.ComponentProps<typeof ArchiveHome>> = {}
+async function renderHome(
+  overrides: Partial<Parameters<typeof ArchiveHome>[0]> = {}
 ) {
   return render(
-    <ArchiveHome
-      towns={TOWNS}
-      recordCount={8}
-      facets={FACETS}
-      stayCount={4}
-      ratedStayCount={0}
-      hero={upload({
+    await ArchiveHome({
+      towns: TOWNS,
+      recordCount: 8,
+      facets: FACETS,
+      stayCount: 4,
+      ratedStayCount: 0,
+      hero: upload({
         id: "hero",
         photographerCredit: "NosIlha, 2024",
         archiveSource: "CC BY-SA 4.0",
-      })}
-      photographRow={[
+      }),
+      photographRow: [
         upload({ id: "p1" }),
         upload({ id: "p2", title: "Lomba Tantun", category: "Landscape" }),
-      ]}
-      films={[]}
-      instagram={null}
-      {...overrides}
-    />
+      ],
+      films: [],
+      instagram: null,
+      ...overrides,
+    })
   );
 }
 
 /** Spec 034 T-25 / FR-006 — the front door of the archive. */
 describe("ArchiveHome", () => {
-  it("carries the handoff headline over the hero", () => {
-    renderHome();
+  it("carries the handoff headline over the hero", async () => {
+    await renderHome();
 
     expect(
       screen.getByRole("heading", {
@@ -136,8 +136,8 @@ describe("ArchiveHome", () => {
     ).toBeInTheDocument();
   });
 
-  it("states the archive's size from live counts", () => {
-    renderHome();
+  it("states the archive's size from live counts", async () => {
+    await renderHome();
 
     expect(
       screen.getByText(
@@ -147,16 +147,16 @@ describe("ArchiveHome", () => {
     ).toBeInTheDocument();
   });
 
-  it("credits the hero and admits what it does not know about it", () => {
-    renderHome();
+  it("credits the hero and admits what it does not know about it", async () => {
+    await renderHome();
 
     expect(
       screen.getByText("NosIlha, 2024 · CC BY-SA 4.0 · place not yet recorded")
     ).toBeInTheDocument();
   });
 
-  it("falls back to the shipped hero, which states its own credit and gap", () => {
-    renderHome({ hero: null });
+  it("falls back to the shipped hero, which states its own credit and gap", async () => {
+    await renderHome({ hero: null });
 
     expect(screen.getByAltText(/rocky coastline/i)).toHaveAttribute(
       "src",
@@ -167,8 +167,8 @@ describe("ArchiveHome", () => {
     ).toBeInTheDocument();
   });
 
-  it("offers the four routes with live notes", () => {
-    renderHome();
+  it("offers the four routes with live notes", async () => {
+    await renderHome();
 
     const nav = screen.getByRole("navigation", { name: "The archive" });
     for (const [label, href, note] of [
@@ -183,8 +183,8 @@ describe("ArchiveHome", () => {
     }
   });
 
-  it("heads the photograph row with the number it shows", () => {
-    renderHome();
+  it("heads the photograph row with the number it shows", async () => {
+    await renderHome();
 
     expect(
       screen.getByRole("heading", {
@@ -196,8 +196,8 @@ describe("ArchiveHome", () => {
     ).toBeInTheDocument();
   });
 
-  it("names each tile's gaps and opens its detail", () => {
-    renderHome();
+  it("names each tile's gaps and opens its detail", async () => {
+    await renderHome();
 
     const tile = screen.getByRole("link", { name: /Untitled/ });
     expect(tile).toHaveAttribute("href", "/photographs/p1");
@@ -207,16 +207,16 @@ describe("ArchiveHome", () => {
     expect(within(tile).getByText("no category")).toBeInTheDocument();
   });
 
-  it("drops the row entirely when there is nothing showable", () => {
-    renderHome({ photographRow: [] });
+  it("drops the row entirely when there is nothing showable", async () => {
+    await renderHome({ photographRow: [] });
 
     expect(
       screen.queryByText(/and what each one is missing/)
     ).not.toBeInTheDocument();
   });
 
-  it("chips every empty settlement through to its pin", () => {
-    renderHome();
+  it("chips every empty settlement through to its pin", async () => {
+    await renderHome();
 
     expect(
       screen.getByText(
@@ -241,8 +241,8 @@ describe("ArchiveHome", () => {
       film("d", "Brava"),
     ];
 
-    it("shows three films as cards that open their pages (spec 038 FR-050)", () => {
-      renderHome({ films: FILMS, facets: { ...FACETS, films: 4 } });
+    it("shows three films as cards that open their pages (spec 038 FR-050)", async () => {
+      await renderHome({ films: FILMS, facets: { ...FACETS, films: 4 } });
 
       const strip = screen
         .getByRole("heading", { name: "Films" })
@@ -265,13 +265,13 @@ describe("ArchiveHome", () => {
       expect(strip.querySelector("iframe")).toBeNull();
     });
 
-    it("is absent when the archive holds no film", () => {
-      renderHome({ films: [] });
+    it("is absent when the archive holds no film", async () => {
+      await renderHome({ films: [] });
       expect(screen.queryByRole("heading", { name: "Films" })).toBeNull();
     });
 
-    it("keeps a film showing an identifiable person out of the strip", () => {
-      renderHome({
+    it("keeps a film showing an identifiable person out of the strip", async () => {
+      await renderHome({
         films: [
           { ...film("a", "Explorando Furna"), identifiablePerson: true },
           ...FILMS.slice(1),

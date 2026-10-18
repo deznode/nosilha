@@ -1,5 +1,14 @@
+import type { Translator } from "@/i18n/types";
 import type { DirectoryEntry } from "@/types/directory";
 import type { SettlementStatus, TownStatusSummary } from "@/types/town";
+
+/**
+ * The words come from the `status` namespace (spec 041 FR-004). Every function here
+ * that returns a label takes a translator for that namespace, from the hook or from
+ * `getTranslations`. A caller that needs only the state reads `townStatus` or
+ * `entryStatus`, which return no text.
+ */
+export type StatusTranslator = Translator<"status">;
 
 /**
  * How well the archive documents something. Spec 034 FR-002, handoff SPECS §2.
@@ -18,10 +27,6 @@ export interface DocumentationState {
 export interface StatusConfig {
   /** Brand token carrying the colour. Resolves per theme, so never read its value. */
   token: `--brand-${string}`;
-  /** Short label, as on chips and the legend. */
-  label: string;
-  /** Status line, as under a settlement or record name. */
-  line: string;
 }
 
 /**
@@ -30,22 +35,33 @@ export interface StatusConfig {
  * settlement cards, the settlement-detail dot and both mini-map markers read from it.
  */
 export const STATUS_CONFIG: Record<DocumentationStatus, StatusConfig> = {
-  documented: {
-    token: "--brand-valley-green",
-    label: "documented",
-    line: "records and a photograph",
-  },
-  partial: {
-    token: "--brand-ocean-blue",
-    label: "records, no photograph",
-    line: "records, no photograph",
-  },
-  name: {
-    token: "--brand-sobrado-ochre",
-    label: "name only",
-    line: "a name and a coordinate, nothing else",
-  },
+  documented: { token: "--brand-valley-green" },
+  partial: { token: "--brand-ocean-blue" },
+  name: { token: "--brand-sobrado-ochre" },
 };
+
+/**
+ * What a status label describes. Portuguese agrees the label with it: a settlement
+ * (*localidade*) is "documentada", a record (*registo*) "documentado".
+ */
+export type StatusSubject = "settlement" | "record";
+
+/** Short label, as on chips and the legend, in the translator's language. */
+export function statusLabel(
+  status: DocumentationStatus,
+  t: StatusTranslator,
+  subject: StatusSubject
+): string {
+  return t(`${status}.label`, { subject });
+}
+
+/** Status line, as under a settlement or record name, in the translator's language. */
+export function statusLine(
+  status: DocumentationStatus,
+  t: StatusTranslator
+): string {
+  return t(`${status}.line`);
+}
 
 /** The status colour as a CSS value that follows the active theme. */
 export function statusVar(status: DocumentationStatus): string {
@@ -57,10 +73,10 @@ export function statusTint(status: DocumentationStatus, pct: number): string {
   return `color-mix(in srgb, ${statusVar(status)} ${pct}%, transparent)`;
 }
 
-const TOWN_STATES: Record<SettlementStatus, DocumentationState> = {
-  DOCUMENTED: { status: "documented", label: STATUS_CONFIG.documented.label },
-  PARTIAL: { status: "partial", label: STATUS_CONFIG.partial.label },
-  NAME_ONLY: { status: "name", label: STATUS_CONFIG.name.label },
+const TOWN_STATES: Record<SettlementStatus, DocumentationStatus> = {
+  DOCUMENTED: "documented",
+  PARTIAL: "partial",
+  NAME_ONLY: "name",
 };
 
 /**
@@ -70,13 +86,25 @@ const TOWN_STATES: Record<SettlementStatus, DocumentationState> = {
  * media, which moderation state decides and the summary's own fields cannot express.
  *
  * Nothing validates the response at runtime, so a status added in Kotlin before the
- * union here is updated falls back to an unclaimed name-only state rather than
- * crashing the render.
+ * union here is updated falls back to name-only rather than crashing the render.
+ */
+export function townStatus(
+  town: Pick<TownStatusSummary, "status">
+): DocumentationStatus {
+  return TOWN_STATES[town.status] ?? "name";
+}
+
+/**
+ * A settlement's status and its label. An unrecognised status reads as an unclaimed
+ * name-only state, labelled "unknown" rather than claiming to be name only.
  */
 export function getTownStatus(
-  town: Pick<TownStatusSummary, "status">
+  town: Pick<TownStatusSummary, "status">,
+  t: StatusTranslator
 ): DocumentationState {
-  return TOWN_STATES[town.status] ?? { status: "name", label: "unknown" };
+  const status = TOWN_STATES[town.status];
+  if (!status) return { status: "name", label: t("unknown") };
+  return { status, label: statusLabel(status, t, "settlement") };
 }
 
 /**
@@ -89,14 +117,21 @@ export function getTownStatus(
  * photograph-less record in its `RECORDS` fixture is `partial`, and its records-mode
  * legend counts zero name-only pins.
  *
- * Unlike `getTownStatus`, this reads only the record's own `imageUrl`: a photograph
+ * Unlike `townStatus`, this reads only the record's own `imageUrl`: a photograph
  * that exists solely in the gallery does not count, because the entry DTO carries no
  * gallery signal.
  */
-export function getEntryStatus(
+export function entryStatus(
   entry: Pick<DirectoryEntry, "imageUrl">
+): "documented" | "partial" {
+  return entry.imageUrl?.trim() ? "documented" : "partial";
+}
+
+/** A place record's status and its label ("has a photograph", "no photograph"). */
+export function getEntryStatus(
+  entry: Pick<DirectoryEntry, "imageUrl">,
+  t: StatusTranslator
 ): DocumentationState {
-  return entry.imageUrl?.trim()
-    ? { status: "documented", label: "has a photograph" }
-    : { status: "partial", label: "no photograph" };
+  const status = entryStatus(entry);
+  return { status, label: t(`entry.${status}`) };
 }

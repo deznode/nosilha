@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 import { trackEvent } from "@/lib/ga";
 import { isShareArrival } from "@/lib/share";
@@ -26,6 +27,7 @@ export function ShareArrivalStrip() {
   );
   const markArrived = useShareArrivalStore((state) => state.markArrived);
   const dismiss = useShareArrivalStore((state) => state.dismiss);
+  const t = useTranslations("common");
 
   useEffect(() => {
     if (isShareArrival(window.location.search)) markArrived();
@@ -53,7 +55,7 @@ export function ShareArrivalStrip() {
       </Link>
       <button
         type="button"
-        aria-label="Dismiss"
+        aria-label={t("dismiss")}
         onClick={dismiss}
         className="focus-ring hit-area text-muted flex-none cursor-pointer"
       >

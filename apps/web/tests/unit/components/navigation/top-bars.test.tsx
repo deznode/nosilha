@@ -75,6 +75,18 @@ describe("site chrome top bars", () => {
       );
     });
 
+    // Spec 041 FR-002: signing in brings the visitor back to the page, and the
+    // locale-aware router puts the /pt prefix back on the way.
+    it("sends Sign in back to the page it was opened from", () => {
+      mockPathname.mockReturnValue("/contribute/media");
+      render(<MobileTopBar />);
+
+      expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+        "href",
+        "/login?returnUrl=%2Fcontribute%2Fmedia"
+      );
+    });
+
     it("offers the profile avatar when signed in", () => {
       signIn();
       render(<MobileTopBar />);

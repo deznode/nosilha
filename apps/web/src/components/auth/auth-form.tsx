@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,10 +17,9 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import Link from "next/link";
 import { safeNext } from "@/lib/safe-next";
 import { supabase } from "@/lib/supabase-client";
-import { loginSchema, type LoginInput } from "@/schemas/authSchema";
+import { createLoginSchema, type LoginInput } from "@/schemas/authSchema";
 import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
 import { Field, Label, ErrorMessage } from "@/components/catalyst-ui/fieldset";
@@ -77,6 +78,7 @@ function PasswordInput({
 }: Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> & {
   error?: string;
 }) {
+  const t = useTranslations("auth.form");
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -90,7 +92,7 @@ function PasswordInput({
         type="button"
         onClick={() => setShowPassword(!showPassword)}
         className="text-basalt-500 hover:text-basalt-900 absolute top-1/2 right-3 -translate-y-1/2 transition-colors focus:outline-none dark:hover:text-white"
-        aria-label={showPassword ? "Hide password" : "Show password"}
+        aria-label={showPassword ? t("hidePassword") : t("showPassword")}
       >
         {showPassword ? (
           <EyeOff className="h-5 w-5" />
@@ -106,6 +108,9 @@ function PasswordInput({
 export default function NosIlhaAuth({
   initialView = "login",
 }: NosIlhaAuthProps) {
+  const t = useTranslations("auth.form");
+  const tv = useTranslations("validation");
+  const loginSchema = useMemo(() => createLoginSchema(tv), [tv]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLogin, setIsLogin] = useState(initialView === "login");
@@ -150,9 +155,7 @@ export default function NosIlhaAuth({
 
       if (error) throw error;
     } catch (error) {
-      setErrorMsg(
-        error instanceof Error ? error.message : "OAuth login failed"
-      );
+      setErrorMsg(error instanceof Error ? error.message : t("oauthFailed"));
       setIsOAuthLoading(false);
     }
   };
@@ -188,12 +191,12 @@ export default function NosIlhaAuth({
         if (error) throw error;
 
         // Show success message
-        setSuccessMsg("Check your email for the confirmation link!");
+        setSuccessMsg(t("signupSuccess"));
         reset();
       }
     } catch (error) {
       setErrorMsg(
-        error instanceof Error ? error.message : "An unexpected error occurred"
+        error instanceof Error ? error.message : t("unexpectedError")
       );
     }
   };
@@ -234,14 +237,10 @@ export default function NosIlhaAuth({
               </Link>
 
               <h1 className="mb-6 font-serif text-4xl leading-tight">
-                {isLogin
-                  ? "Welcome back to the soul of Brava."
-                  : "Join the Nos Ilha Community."}
+                {isLogin ? t("brandTitleLogin") : t("brandTitleSignup")}
               </h1>
               <p className="max-w-md text-lg leading-relaxed text-mist-100/80">
-                {isLogin
-                  ? "Access your account to manage your contributions and connect with the heritage."
-                  : "Create an account to preserve the culture, share stories, and contribute."}
+                {isLogin ? t("brandBodyLogin") : t("brandBodySignup")}
               </p>
             </div>
           </div>
@@ -253,10 +252,10 @@ export default function NosIlhaAuth({
               onClick={() => router.back()}
               className="text-basalt-500 hover:text-basalt-900 absolute top-4 left-4 flex items-center gap-1.5 text-sm font-medium transition-colors lg:top-6 lg:left-6 dark:text-mist-300 dark:hover:text-white"
               type="button"
-              aria-label="Go back"
+              aria-label={t("backLabel")}
             >
               <ArrowLeft className="h-4 w-4" />
-              <span>Back</span>
+              <span>{t("back")}</span>
             </button>
 
             {/* Mobile Header */}
@@ -279,12 +278,10 @@ export default function NosIlhaAuth({
             >
               <div className="mb-8">
                 <h2 className="text-text-primary mb-2 font-serif text-3xl font-bold">
-                  {isLogin ? "Sign in" : "Create an account"}
+                  {isLogin ? t("headingLogin") : t("headingSignup")}
                 </h2>
                 <p className="text-basalt-500 dark:text-mist-200">
-                  {isLogin
-                    ? "Enter your details to access your account"
-                    : "Start your journey with us today"}
+                  {isLogin ? t("leadLogin") : t("leadSignup")}
                 </p>
               </div>
 
@@ -348,7 +345,7 @@ export default function NosIlhaAuth({
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="dark:bg-basalt-800 text-basalt-500 bg-surface px-2 dark:text-mist-200">
-                    Or continue with email
+                    {t("orEmail")}
                   </span>
                 </div>
               </div>
@@ -358,12 +355,12 @@ export default function NosIlhaAuth({
                 <Field>
                   <Label className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />
-                    Email
+                    {t("email")}
                   </Label>
                   <Input
                     type="email"
                     autoComplete="email"
-                    placeholder="you@example.com"
+                    placeholder={t("emailPlaceholder")}
                     {...register("email")}
                     className={errors.email ? "border-status-error" : ""}
                   />
@@ -375,7 +372,7 @@ export default function NosIlhaAuth({
                 <Field>
                   <Label className="flex items-center gap-2">
                     <Lock className="h-4 w-4" />
-                    Password
+                    {t("password")}
                   </Label>
                   <PasswordInput
                     autoComplete={isLogin ? "current-password" : "new-password"}
@@ -392,7 +389,7 @@ export default function NosIlhaAuth({
                         href="/forgot-password"
                         className="text-ocean-blue hover:text-ocean-blue-light text-sm font-medium hover:underline"
                       >
-                        Forgot password?
+                        {t("forgotPassword")}
                       </Link>
                     </div>
                   )}
@@ -411,7 +408,7 @@ export default function NosIlhaAuth({
                     />
                   ) : (
                     <>
-                      {isLogin ? "Sign In" : "Create Account"}
+                      {isLogin ? t("submitLogin") : t("submitSignup")}
                       <ArrowRight data-slot="icon" strokeWidth={2.5} />
                     </>
                   )}
@@ -422,15 +419,13 @@ export default function NosIlhaAuth({
             {/* Footer / Toggle */}
             <div className="mt-8 text-center">
               <p className="text-basalt-500 dark:text-mist-200">
-                {isLogin
-                  ? "Don't have an account?"
-                  : "Already have an account?"}{" "}
+                {isLogin ? t("noAccount") : t("haveAccount")}{" "}
                 <button
                   onClick={toggleMode}
                   className="text-ocean-blue hover:text-bougainvillea-pink font-medium transition-colors"
                   type="button"
                 >
-                  {isLogin ? "Sign up for free" : "Log in"}
+                  {isLogin ? t("toSignup") : t("toLogin")}
                 </button>
               </p>
             </div>
@@ -440,10 +435,7 @@ export default function NosIlhaAuth({
 
       {/* Footer Branding */}
       <div className="text-basalt-500/50 absolute bottom-4 w-full text-center text-xs dark:text-mist-200/50">
-        <p>
-          © {new Date().getFullYear()} Nos Ilha. Preserving culture through
-          code.
-        </p>
+        <p>{t("footer", { year: String(new Date().getFullYear()) })}</p>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Film } from "lucide-react";
 import { listStagger, listItem } from "@/lib/animation/variants";
 import { CompactVideoCard } from "@/components/gallery/compact-video-card";
@@ -9,6 +10,7 @@ import type { MediaItem } from "@/types/media";
 
 /** Mobile-only inline YouTube card — renders a real iframe for 1-tap play. */
 function InlineYouTubeCard({ item }: { item: MediaItem }) {
+  const t = useTranslations("photographs.gallery.video");
   const iframeSrc = item.url
     ? item.url + (item.url.includes("?") ? "&" : "?") + "rel=0&playsinline=1"
     : "";
@@ -19,7 +21,7 @@ function InlineYouTubeCard({ item }: { item: MediaItem }) {
         <iframe
           src={iframeSrc}
           loading="lazy"
-          title={item.title || "Video player"}
+          title={item.title || t("player")}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           className="absolute inset-0 h-full w-full"
@@ -29,7 +31,7 @@ function InlineYouTubeCard({ item }: { item: MediaItem }) {
         <div className="flex items-center gap-1.5">
           <Film size={12} className="text-bougainvillea-pink" />
           <span className="text-bougainvillea-pink text-[11px] font-semibold tracking-wider uppercase">
-            {item.category || "Video"}
+            {item.category || t("fallbackCategory")}
           </span>
         </div>
         <h3 className="text-body line-clamp-2 text-sm leading-snug font-medium">
@@ -76,6 +78,7 @@ export function VideoGrid({
   videoHref,
   mobileLayout = "inline-embed",
 }: VideoGridProps) {
+  const t = useTranslations("photographs.gallery.video");
   const shouldReduceMotion = useReducedMotion();
 
   // Desktop grid excludes featured video (shown in hero); mobile carousel includes all
@@ -101,7 +104,7 @@ export function VideoGrid({
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <span className="text-muted">No videos found</span>
+        <span className="text-muted">{t("none")}</span>
       </div>
     );
   }

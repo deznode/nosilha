@@ -1,4 +1,7 @@
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+
+import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 
 import { getTownStatus, statusVar } from "@/lib/status";
 import type { TownStatusSummary } from "@/types/town";
@@ -17,9 +20,12 @@ import {
  * the prototype's.
  */
 export function SettlementCard({ town }: { town: TownStatusSummary }) {
-  const status = getTownStatus(town);
-  const line = settlementStatusLine(town);
-  const [population, elevation] = settlementMetaRow(town);
+  const t = useTranslations("settlements");
+  const locale = useLocale();
+  const tStatus = useTranslations("status");
+  const status = getTownStatus(town, tStatus);
+  const line = settlementStatusLine(t, locale, town);
+  const [population, elevation] = settlementMetaRow(t, town);
   const hasRecords = town.entryCount > 0;
 
   return (
@@ -75,8 +81,9 @@ export function SettlementCard({ town }: { town: TownStatusSummary }) {
           paddingTop: "9px",
         }}
       >
-        <span>{population}</span>
-        <span>{elevation}</span>
+        {/* The record's own values are English; "not recorded" lines are not. */}
+        <RecordText when={!!town.population?.trim()}>{population}</RecordText>
+        <RecordText when={!!town.elevation?.trim()}>{elevation}</RecordText>
       </div>
     </Link>
   );

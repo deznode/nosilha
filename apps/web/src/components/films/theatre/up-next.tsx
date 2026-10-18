@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 import { clsx } from "clsx";
 
 import {
@@ -10,19 +12,23 @@ import {
   filmHref,
   filmedNear,
   type Film,
+  type FilmsTranslator,
 } from "@/lib/films";
 
 /** The row's tag: why this film is where it is in the list. */
 export function upNextTag(
+  t: FilmsTranslator,
   film: Film,
   current: Film,
   next: Film | null
 ): { text: string; tone: "ocean" | "ochre" } | null {
-  if (!canPlay(film)) return { text: "Can’t play here", tone: "ochre" };
+  if (!canPlay(film)) return { text: t("upNext.cantPlay"), tone: "ochre" };
   if (current.place && film.place?.slug === current.place.slug) {
-    return { text: "Same place", tone: "ocean" };
+    return { text: t("upNext.samePlace"), tone: "ocean" };
   }
-  if (next && film.id === next.id) return { text: "Next", tone: "ocean" };
+  if (next && film.id === next.id) {
+    return { text: t("upNext.next"), tone: "ocean" };
+  }
   return null;
 }
 
@@ -47,6 +53,7 @@ export function UpNext({
   autoNext: boolean;
   onToggleAutoNext: () => void;
 }) {
+  const t = useTranslations("films");
   return (
     <section aria-labelledby="up-next-heading">
       <div className="mb-2.5 flex items-center gap-2.5">
@@ -54,7 +61,7 @@ export function UpNext({
           id="up-next-heading"
           className="text-body m-0 font-serif text-[21px] font-normal"
         >
-          Up next
+          {t("upNext.heading")}
         </h2>
         <button
           type="button"
@@ -63,7 +70,7 @@ export function UpNext({
           onClick={onToggleAutoNext}
           className="focus-ring text-muted hit-area ml-auto flex items-center gap-2 text-xs"
         >
-          Autoplay
+          {t("upNext.autoplay")}
           <span
             aria-hidden
             className={clsx(
@@ -80,13 +87,13 @@ export function UpNext({
       </div>
 
       {films.length === 0 ? (
-        <p className="text-muted text-sm">No other films in the archive yet.</p>
+        <p className="text-muted text-sm">{t("upNext.empty")}</p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
           {films.map((film) => {
             const playable = canPlay(film);
-            const tag = upNextTag(film, current, next);
-            const place = filmedNear(film);
+            const tag = upNextTag(t, film, current, next);
+            const place = filmedNear(t, film);
             return (
               <li key={film.id}>
                 <Link
@@ -110,9 +117,12 @@ export function UpNext({
                     )}
                   </div>
                   <div className="flex min-w-0 flex-col gap-1 pt-0.5">
-                    <span className="text-body font-serif text-[15px] leading-[1.25]">
+                    <RecordText
+                      when={!!film.title}
+                      className="text-body font-serif text-[15px] leading-[1.25]"
+                    >
                       {film.displayTitle}
-                    </span>
+                    </RecordText>
                     {place && (
                       <span className="text-muted text-xs">{place}</span>
                     )}

@@ -9,6 +9,7 @@ import {
 import type { MapRef } from "react-map-gl/maplibre";
 import { Loader2, Camera, MapPin } from "lucide-react";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { BaseMap, useMapClustering } from "@/features/map/shared";
 import type { MapBounds } from "@/features/map/shared";
 import { MAP_CONFIG } from "@/features/map/data/constants";
@@ -43,6 +44,7 @@ export function GalleryMapCanvas({
   hasActiveFilters,
   onClearFilters,
 }: GalleryMapCanvasProps) {
+  const t = useTranslations("photographs.gallery.map");
   const mapRef = useRef<MapRef>(null);
   const [zoom, setZoom] = useState<number>(MAP_CONFIG.DEFAULT_ZOOM);
   const [bounds, setBounds] = useState<MapBounds>(undefined);
@@ -195,14 +197,10 @@ export function GalleryMapCanvas({
           </div>
         </div>
         <h3 className="text-body text-lg font-medium">
-          {isFiltered
-            ? "No photos with locations match your filters"
-            : "No photos with location data yet"}
+          {isFiltered ? t("emptyFiltered") : t("empty")}
         </h3>
         <p className="text-muted mt-2 max-w-sm text-sm">
-          {isFiltered
-            ? "Try adjusting your filters to see more results."
-            : "Photos taken with GPS-enabled cameras will appear on this map."}
+          {isFiltered ? t("emptyFilteredHint") : t("emptyHint")}
         </p>
         <div className="mt-6 flex gap-3">
           {isFiltered && onClearFilters && (
@@ -211,7 +209,7 @@ export function GalleryMapCanvas({
               onClick={onClearFilters}
               className="bg-brand hover:bg-brand/90 rounded-button px-4 py-2 text-sm font-medium text-white transition-colors"
             >
-              Clear Filters
+              {t("clearFilters")}
             </button>
           )}
           {onViewChange && (
@@ -225,7 +223,7 @@ export function GalleryMapCanvas({
                   : "bg-brand hover:bg-brand/90 text-white"
               )}
             >
-              Switch to Grid View
+              {t("gridView")}
             </button>
           )}
         </div>
@@ -238,10 +236,8 @@ export function GalleryMapCanvas({
     return (
       <div className="bg-surface-alt rounded-card flex h-[60vh] min-h-[400px] flex-col items-center justify-center p-8 text-center">
         <MapPin className="text-muted mb-4 h-10 w-10" />
-        <h3 className="text-body text-lg font-medium">Map unavailable</h3>
-        <p className="text-muted mt-2 max-w-sm text-sm">
-          Try refreshing the page.
-        </p>
+        <h3 className="text-body text-lg font-medium">{t("unavailable")}</h3>
+        <p className="text-muted mt-2 max-w-sm text-sm">{t("refresh")}</p>
       </div>
     );
   }
@@ -250,14 +246,14 @@ export function GalleryMapCanvas({
     <div
       className="rounded-card relative h-[60vh] min-h-[400px] overflow-hidden"
       role="application"
-      aria-label="Gallery photo map of Brava Island"
+      aria-label={t("label")}
     >
       {/* Loading overlay */}
       {!mapReady && (
         <div className="bg-surface-alt absolute inset-0 z-20 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="text-brand h-8 w-8 animate-spin" />
-            <p className="text-muted text-sm">Loading map...</p>
+            <p className="text-muted text-sm">{t("loading")}</p>
           </div>
         </div>
       )}
@@ -296,7 +292,7 @@ export function GalleryMapCanvas({
                     "shadow-medium rounded-full border-[3px] border-white text-sm font-bold text-white",
                     "transition-transform duration-200 hover:scale-110"
                   )}
-                  aria-label={`Cluster of ${pointCount} photos. Click to expand.`}
+                  aria-label={t("cluster", { count: String(pointCount) })}
                 >
                   {pointCount}
                 </button>
@@ -352,8 +348,10 @@ export function GalleryMapCanvas({
       {/* Photo count badge */}
       <div className="absolute bottom-4 left-4 z-10">
         <span className="bg-surface/90 text-muted border-hairline rounded-badge shadow-subtle border px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-          {geoFeatures.length} photo{geoFeatures.length !== 1 ? "s" : ""} with
-          locations
+          {t("located", {
+            count: geoFeatures.length,
+            n: String(geoFeatures.length),
+          })}
         </span>
       </div>
     </div>

@@ -132,6 +132,21 @@ describe("useMapUrlSync", () => {
     unmount();
   });
 
+  // Spec 041 FR-002 — the hook writes to the address it was mounted on, prefix and all.
+  it("keeps the locale prefix when it writes under /pt/map", () => {
+    goTo("/pt/map?status=name");
+    const { unmount } = renderHook(() => useMapUrlSync());
+
+    expect(useMapStore.getState().status).toBe("name");
+
+    act(() => useMapStore.getState().setMode("records"));
+
+    expect(window.location.pathname + window.location.search).toBe(
+      "/pt/map?mode=records&status=name"
+    );
+    unmount();
+  });
+
   it("does not write when a change serialises to what was last written", () => {
     renderHook(() => useMapUrlSync());
     act(() => useMapStore.getState().select("s:furna"));

@@ -5,8 +5,8 @@ import { ContributeLanding } from "@/features/contribute/components/contribute-l
 
 /** Spec 039 E1 — the two-choice landing page, copy exact per the handoff. */
 describe("ContributeLanding", () => {
-  it("shows the heading and lead text", () => {
-    render(<ContributeLanding />);
+  it("shows the heading and lead text", async () => {
+    render(await ContributeLanding());
     expect(
       screen.getByRole("heading", { name: "Give something to the archive" })
     ).toBeInTheDocument();
@@ -17,8 +17,8 @@ describe("ContributeLanding", () => {
     ).toBeInTheDocument();
   });
 
-  it("links the photograph card to the photo form", () => {
-    render(<ContributeLanding />);
+  it("links the photograph card to the photo form", async () => {
+    render(await ContributeLanding());
     expect(screen.getByText("A photograph")).toBeInTheDocument();
     expect(
       screen.getByText("A print, a slide, or a phone picture of one.")
@@ -27,8 +27,8 @@ describe("ContributeLanding", () => {
     expect(card).toHaveAttribute("href", "/contribute/media");
   });
 
-  it("links the film card to the film form with ?kind=film", () => {
-    render(<ContributeLanding />);
+  it("links the film card to the film form with ?kind=film", async () => {
+    render(await ContributeLanding());
     expect(screen.getByText("A film link")).toBeInTheDocument();
     expect(
       screen.getByText("A YouTube or Vimeo link to a film of Brava.")
@@ -37,8 +37,8 @@ describe("ContributeLanding", () => {
     expect(card).toHaveAttribute("href", "/contribute/media?kind=film");
   });
 
-  it("links Write to us to /contact", () => {
-    render(<ContributeLanding />);
+  it("links Write to us to /contact", async () => {
+    render(await ContributeLanding());
     expect(
       screen.getByText(
         /A person reviews everything before it appears\. Knowing something about a place instead\?/

@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 import type { ContributionKind } from "../lib/contribution-draft";
 import { ContributionThumb } from "./confirmation";
@@ -35,20 +36,16 @@ export function RestoredRecord({
   onSend: () => void;
   onChange: () => void;
 }) {
+  const t = useTranslations("contribute.restored");
   return (
     <div className="mx-auto flex max-w-[520px] flex-col gap-[18px]">
       <div>
         <div className="text-ocean-blue mb-2.5 font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
-          Signed in · not sent yet
+          {t("eyebrow")}
         </div>
-        <h1 className={clsx(PAGE_HEADING, "mb-2")}>
-          {kind === "film"
-            ? "Your film link is still here"
-            : "Your photograph is still here"}
-        </h1>
+        <h1 className={clsx(PAGE_HEADING, "mb-2")}>{t("title", { kind })}</h1>
         <p className="text-muted m-0 text-[14.5px] leading-[1.55]">
-          {email ? `You're signed in as ${email}.` : "You're signed in."} Check
-          it&apos;s the one you meant, then send it.
+          {email ? t("signedInAs", { email }) : t("signedIn")}
         </p>
       </div>
 
@@ -79,7 +76,7 @@ export function RestoredRecord({
         {sendLabel}
       </PrimaryButton>
       <LinkButton onClick={onChange} className="self-center text-[14px]">
-        Change something first
+        {t("change")}
       </LinkButton>
     </div>
   );

@@ -5,7 +5,7 @@
 
 import type { MDXComponents } from "mdx/types";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 // UI Components
 import { PageHeader } from "@/components/ui/page-header";

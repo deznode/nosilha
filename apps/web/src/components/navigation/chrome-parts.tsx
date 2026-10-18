@@ -1,7 +1,8 @@
 "use client";
 
 import clsx from "clsx";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 
 import { Button } from "@/components/catalyst-ui/button";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -9,17 +10,16 @@ import { Avatar } from "@/components/ui/avatar";
 import { useResolvedTheme } from "@/hooks/use-resolved-theme";
 import { useUiStore } from "@/stores/uiStore";
 
-import { currentLanguage } from "./nav-config";
-
 /**
  * The parts the top bars share, and the phone sheet borrows.
  *
  * They live here rather than in whichever bar happened to need them first: the
  * bars are meant to be one chrome, so the pieces most likely to change — the
- * brand mark, the account affordance, the locale chip — are stated once.
- * `LanguageChip` in particular used to be exported from `tablet-top-bar.tsx` and
- * imported by the phone-only `more-sheet.tsx`, which made the tablet bar a module
- * boundary it was never meant to be.
+ * brand mark, the account affordance — are stated once. The language control
+ * is its own module, `language-switcher.tsx`, for the same reason: it used to be
+ * exported from `tablet-top-bar.tsx` and imported by the phone-only
+ * `more-sheet.tsx`, which made the tablet bar a module boundary it was never
+ * meant to be.
  */
 
 /**
@@ -68,6 +68,8 @@ export function ContributeAction({
   className?: string;
   onClick?: () => void;
 }) {
+  const t = useTranslations("chrome");
+
   return (
     <Button
       href="/contribute"
@@ -76,7 +78,7 @@ export function ContributeAction({
       className={className}
       onClick={onClick}
     >
-      Contribute
+      {t("contribute")}
     </Button>
   );
 }
@@ -88,8 +90,24 @@ export function ContributeAction({
  * Signed out renders a "Sign in" link rather than nothing: the slot must not
  * collapse, or the bar reflows the moment a visitor signs in. Spec 037 FR-002.
  */
+/** Pages a sign-in should not return to: the auth pages themselves and the home page. */
+const NO_RETURN = new Set(["/", "/login", "/signup"]);
+
+/**
+ * The sign-in address for the bars, carrying the current page so the visitor comes
+ * back to it. The path is unprefixed; the login form returns through the
+ * locale-aware router, which puts `/pt` back (spec 041 FR-002).
+ */
+export function useSignInHref(): string {
+  const pathname = usePathname();
+  return NO_RETURN.has(pathname)
+    ? "/login"
+    : `/login?returnUrl=${encodeURIComponent(pathname)}`;
+}
+
 export function useChromeAccount() {
   const { session, user } = useAuth();
+  const t = useTranslations("chrome");
 
   const email = user?.email ?? session?.user?.email ?? "";
   const localPart = email.split("@")[0] ?? "";
@@ -98,20 +116,22 @@ export function useChromeAccount() {
   return {
     signedIn: Boolean(session),
     initials,
-    displayName: localPart || "Your account",
+    displayName: localPart || t("yourAccount"),
   };
 }
 
 export function AccountSlot() {
   const { signedIn, initials } = useChromeAccount();
+  const signInHref = useSignInHref();
+  const t = useTranslations("chrome");
 
   if (!signedIn) {
     return (
       <Link
-        href="/login"
+        href={signInHref}
         className="text-ocean-blue shrink-0 px-2 py-[11px] text-sm font-medium transition-colors duration-150"
       >
-        Sign in
+        {t("signIn")}
       </Link>
     );
   }
@@ -119,35 +139,13 @@ export function AccountSlot() {
   return (
     <Link
       href="/profile"
-      aria-label="Your profile"
+      aria-label={t("yourProfile")}
       className="focus-ring shrink-0 rounded-full"
     >
       {/* `onDark` is static: the avatar's dark pair is applied by the `dark:`
           variant, on the same ground as the bar it sits in. */}
       <Avatar initials={initials} size="md" onDark />
     </Link>
-  );
-}
-
-/**
- * The current locale, shown but not switchable — `PT` and `CV` are disabled in
- * `languages`, and a disabled locale must not render as though it were available.
- *
- * Reads `currentLanguage` itself rather than taking it as a prop: there is only
- * one locale to show, and both call sites were computing `languages[0]` to pass
- * the same value in.
- */
-export function LanguageChip({ className }: { className?: string }) {
-  return (
-    <span
-      className={clsx(
-        "border-hairline text-muted dark:border-chrome-line dark:text-chrome-ink-muted flex h-11 items-center justify-center rounded-lg border font-mono text-[13px]",
-        className
-      )}
-      title="English. Português and Kriolu are coming soon."
-    >
-      {currentLanguage.code}
-    </span>
   );
 }
 
@@ -168,6 +166,8 @@ export function LanguageChip({ className }: { className?: string }) {
  * span so the taller link can centre it.
  */
 export function ChromeWordmark({ className }: { className?: string }) {
+  const t = useTranslations("chrome");
+
   return (
     <Link
       href="/"
@@ -175,7 +175,7 @@ export function ChromeWordmark({ className }: { className?: string }) {
         "focus-ring touch-target flex shrink-0 items-center rounded-sm",
         className
       )}
-      aria-label="Nos Ilha home"
+      aria-label={t("homeLink")}
     >
       <span className="flex items-baseline gap-2">
         <span className="font-serif text-[21px] font-normal tracking-[-0.01em] lg:text-[19px]">
@@ -183,7 +183,7 @@ export function ChromeWordmark({ className }: { className?: string }) {
           <span className="text-ocean-blue">Ilha</span>
         </span>
         <span className="text-muted text-[10.5px] tracking-[0.18em] uppercase lg:text-[9px]">
-          Archive
+          {t("archive")}
         </span>
       </span>
     </Link>
@@ -201,15 +201,15 @@ export function ChromeWordmark({ className }: { className?: string }) {
 export function ThemePill({ className }: { className?: string }) {
   const resolvedTheme = useResolvedTheme();
   const setTheme = useUiStore((state) => state.setTheme);
+  const t = useTranslations("chrome");
 
   const nextTheme = resolvedTheme === "light" ? "dark" : "light";
-  const label = nextTheme === "dark" ? "Dark" : "Light";
 
   return (
     <button
       type="button"
       onClick={() => setTheme(nextTheme)}
-      title={`Switch to the ${nextTheme} theme`}
+      title={t("theme.switchTo", { theme: nextTheme })}
       // `uiStore` rehydrates from localStorage at module init, so with a stored
       // dark choice the first client render says "Light" while the prerendered
       // HTML says "Dark". The label is client state the server cannot know, and
@@ -220,7 +220,7 @@ export function ThemePill({ className }: { className?: string }) {
         className
       )}
     >
-      {label}
+      {t(nextTheme === "dark" ? "theme.dark" : "theme.light")}
     </button>
   );
 }

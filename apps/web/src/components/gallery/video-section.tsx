@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Film } from "lucide-react";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FeaturedVideoHero } from "@/components/gallery/featured-video-hero";

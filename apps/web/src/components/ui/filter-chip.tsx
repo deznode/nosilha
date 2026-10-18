@@ -3,6 +3,7 @@
 import * as React from "react";
 import clsx from "clsx";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type ColorScheme = "ocean" | "pink";
 
@@ -52,6 +53,7 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
     ref
   ) => {
     const colors = colorClasses[colorScheme];
+    const t = useTranslations("common.filters");
 
     const chipStyles = clsx(
       "touch-target rounded-button inline-flex h-9 shrink-0 items-center gap-1.5 border text-sm font-medium whitespace-nowrap transition-colors",
@@ -94,7 +96,7 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
           </button>
           <button
             type="button"
-            aria-label={`Clear ${label}`}
+            aria-label={t("clear", { label })}
             onClick={onClear}
             className={clsx(
               "mr-1.5 ml-0.5 flex shrink-0 items-center rounded-full p-0.5 transition-colors",

@@ -1,3 +1,5 @@
+import type { Translator } from "@/i18n/types";
+
 /**
  * What a field is called when a person reads it. Spec 034 FR-004.
  *
@@ -5,51 +7,59 @@
  * opens "Asked about: <field>". Those keys are code — `photographerCredit`,
  * `latitude`, `conditionStatus` — and a curator reading the queue should not have to
  * translate them. This is the one place that turns a key into a phrase.
+ *
+ * The phrases come from the `fields` namespace, keyed by field key (spec 041
+ * FR-004). Pass a translator for that namespace, from the hook or from
+ * `getTranslations`.
  */
-const FIELD_PHRASES: Record<string, string> = {
+export type FieldTranslator = Translator<"fields">;
+
+type FieldKey = Parameters<FieldTranslator>[0];
+
+/** Every field key with a phrase in the `fields` namespace. */
+const FIELD_KEYS: ReadonlySet<string> = new Set<FieldKey>([
   // Place record grid
-  settlement: "which settlement this is in",
-  category: "what kind of place this is",
-  established: "when it was established",
-  coordinates: "where exactly it is",
-  conditionStatus: "its present condition",
-  festival: "its festival",
-  photographer: "who took the photograph",
-  openingHours: "its opening hours",
-  architect: "who built it",
-  rating: "a rating",
-  phoneNumber: "its telephone number",
-  email: "its email address",
-  website: "its website",
-  cuisine: "what they cook",
-  amenities: "what a room comes with",
+  "settlement",
+  "category",
+  "established",
+  "coordinates",
+  "conditionStatus",
+  "festival",
+  "photographer",
+  "openingHours",
+  "architect",
+  "rating",
+  "phoneNumber",
+  "email",
+  "website",
+  "cuisine",
+  "amenities",
   // Photograph detail
-  photographerCredit: "who took this photograph",
-  title: "a title for this photograph",
-  latitude: "where this photograph was taken",
-  locationName: "what this place is called",
-  dateTaken: "roughly when this was taken",
+  "photographerCredit",
+  "title",
+  "latitude",
+  "locationName",
+  "dateTaken",
   // Film page (spec 038)
-  filmmaker: "who filmed this film",
-  placeId: "where this film was made",
+  "filmmaker",
+  "placeId",
   // Settlement
-  population: "how many people live there",
-  elevation: "how high above the sea it is",
-  founded: "when the town was founded",
-  highlights: "what a visitor should walk to first",
+  "population",
+  "elevation",
+  "founded",
+  "highlights",
   // Cross-cutting
-  photograph: "a photograph",
-  correction: "a correction to this record",
-};
+  "photograph",
+  "correction",
+]);
 
 /**
  * A field key as a phrase. An unmapped key falls back to its words rather than
  * disappearing — a curator reading "date taken" has lost nothing, and a key nobody
  * mapped is still legible.
  */
-export function fieldPhrase(key: string): string {
-  const mapped = FIELD_PHRASES[key];
-  if (mapped) return mapped;
+export function fieldPhrase(key: string, t: FieldTranslator): string {
+  if (FIELD_KEYS.has(key)) return t(key as FieldKey);
 
   return key
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")

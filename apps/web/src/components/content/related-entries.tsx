@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { DirectoryEntry } from "@/types/directory";
 import { getRelatedContent } from "@/lib/api";
@@ -55,15 +56,17 @@ interface RelatedEntriesProps {
 export function RelatedEntries({
   contentId,
   limit = 5,
-  heading = "Explore Related Content",
+  heading: headingProp,
   className = "",
   relatedEntries: prefetchedEntries,
 }: RelatedEntriesProps) {
+  const t = useTranslations("entry.related");
+  const heading = headingProp ?? t("heading");
   const [relatedEntries, setRelatedEntries] = useState<DirectoryEntry[]>(
     prefetchedEntries ?? []
   );
   const [loading, setLoading] = useState(!prefetchedEntries);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (prefetchedEntries) {
@@ -73,13 +76,13 @@ export function RelatedEntries({
     async function fetchRelatedContent() {
       try {
         setLoading(true);
-        setError(null);
+        setError(false);
 
         const entries = await getRelatedContent(contentId, limit);
         setRelatedEntries(entries);
       } catch (err) {
         console.error("Failed to fetch related content:", err);
-        setError("Failed to load related content. Please try again later.");
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -95,7 +98,7 @@ export function RelatedEntries({
     return (
       <section
         className={`related-content ${className}`}
-        aria-label="Loading related content"
+        aria-label={t("loadingLabel")}
       >
         <div className="container mx-auto px-4 py-8">
           <h2 className="text-body mb-6 text-2xl font-semibold">{heading}</h2>
@@ -118,10 +121,10 @@ export function RelatedEntries({
     return (
       <section
         className={`related-content ${className}`}
-        aria-label="Related content error"
+        aria-label={t("errorLabel")}
       >
         <div className="container mx-auto px-4 py-8">
-          <p className="text-muted text-center">{error}</p>
+          <p className="text-muted text-center">{t("error")}</p>
         </div>
       </section>
     );
@@ -131,23 +134,18 @@ export function RelatedEntries({
     return (
       <section
         className={`related-content ${className}`}
-        aria-label="No related content available"
+        aria-label={t("emptyLabel")}
       >
         <div className="container mx-auto px-4 py-8">
           <h2 className="text-body mb-6 text-2xl font-semibold">{heading}</h2>
-          <p className="text-muted text-center">
-            No related heritage content available at this time.
-          </p>
+          <p className="text-muted text-center">{t("empty")}</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section
-      className={`related-content ${className}`}
-      aria-label="Related cultural heritage content"
-    >
+    <section className={`related-content ${className}`} aria-label={t("label")}>
       <div className="container mx-auto px-4 py-8 lg:py-12">
         <h2 className="text-body mb-6 text-2xl font-semibold">{heading}</h2>
 
@@ -158,6 +156,7 @@ export function RelatedEntries({
 }
 
 function RelatedCardsGrid({ entries }: { entries: DirectoryEntry[] }) {
+  const t = useTranslations("entry.related");
   return (
     <>
       {/* Mobile: Horizontal scroll */}
@@ -172,9 +171,7 @@ function RelatedCardsGrid({ entries }: { entries: DirectoryEntry[] }) {
             </div>
           ))}
         </div>
-        <p className="text-muted mt-2 text-center text-xs">
-          Swipe to see more →
-        </p>
+        <p className="text-muted mt-2 text-center text-xs">{t("swipe")}</p>
       </div>
 
       {/* Tablet & Desktop */}
@@ -193,11 +190,12 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
       ? `${entry.description.slice(0, 77)}…`
       : entry.description;
   const href = usePlaceRecordHref(entry);
+  const t = useTranslations("entry.related");
 
   return (
     <Link
       href={href}
-      aria-label={`View details for ${entry.name}`}
+      aria-label={t("viewDetails", { name: entry.name })}
       className="block h-full"
     >
       <article className="bg-canvas border-hairline rounded-button shadow-subtle hover:shadow-elevated flex h-full flex-col overflow-hidden border transition-all duration-300 hover:-translate-y-1">
@@ -205,14 +203,14 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
           {entry.imageUrl ? (
             <Image
               src={entry.imageUrl}
-              alt={`Photo of ${entry.name}`}
+              alt={t("photoAlt", { name: entry.name })}
               fill
               className="object-cover"
               sizes="(max-width: 640px) 280px, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
             <div className="bg-surface text-muted flex h-full w-full items-center justify-center text-sm">
-              No image available
+              {t("noImage")}
             </div>
           )}
         </div>

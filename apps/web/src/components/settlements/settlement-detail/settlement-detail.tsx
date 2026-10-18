@@ -1,13 +1,21 @@
-import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
+
+import { Link } from "@/i18n/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { ShareArrivalLine } from "@/components/share/share-arrival";
 import { CopyLinkAction, ShareAction } from "@/components/ui/archive-actions";
+import { RecordText } from "@/components/ui/record-text";
 import { MiniMap } from "@/features/map/components/mini-map";
-import { categoryLabel } from "@/lib/category-label";
+import { categoryLabel, type CategoryTranslator } from "@/lib/category-label";
 import { formatCoordinates } from "@/lib/coordinates";
-import { TOWN_ARRIVAL_LINE, townShareText } from "@/lib/share-copy";
-import { getEntryStatus, getTownStatus, statusVar } from "@/lib/status";
+import { townArrivalLine, townShareText } from "@/lib/share-copy";
+import {
+  getEntryStatus,
+  getTownStatus,
+  statusVar,
+  type StatusTranslator,
+} from "@/lib/status";
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town, TownStatusSummary } from "@/types/town";
 
@@ -16,6 +24,7 @@ import {
   settlementQuestions,
   settlementSubLine,
   unconfirmedLink,
+  type TownTranslator,
 } from "./settlement-detail-copy";
 
 /**
@@ -25,7 +34,7 @@ import {
  * not know on the right. The ochre dashed panel leads because the absence of a
  * photograph is the most useful thing the page can tell a reader who might have one.
  */
-export function SettlementDetail({
+export async function SettlementDetail({
   town,
   summary,
   entries,
@@ -34,9 +43,16 @@ export function SettlementDetail({
   summary: TownStatusSummary;
   entries: DirectoryEntry[];
 }) {
-  const status = getTownStatus(summary);
-  const panel = photographPanel(summary);
-  const questions = settlementQuestions(town, summary);
+  const [t, tStatus, tCategories, tShare, locale] = await Promise.all([
+    getTranslations("town"),
+    getTranslations("status"),
+    getTranslations("categories"),
+    getTranslations("share"),
+    getLocale(),
+  ]);
+  const status = getTownStatus(summary, tStatus);
+  const panel = photographPanel(t, locale, summary);
+  const questions = settlementQuestions(t, town, summary);
   const coordinates = formatCoordinates(summary.latitude, summary.longitude);
   const identify = {
     contentType: "town",
@@ -52,7 +68,7 @@ export function SettlementDetail({
         padding: "40px 22px 80px",
       }}
     >
-      <ShareArrivalLine moment="town" {...TOWN_ARRIVAL_LINE} />
+      <ShareArrivalLine moment="town" {...townArrivalLine(tShare)} />
       <Link
         href="/settlements"
         className="inline-block transition-colors hover:text-[var(--foreground)]"
@@ -62,7 +78,7 @@ export function SettlementDetail({
           marginBottom: "18px",
         }}
       >
-        ← All settlements
+        {t("backLink")}
       </Link>
 
       <div className="flex items-start gap-3" style={{ marginBottom: "14px" }}>
@@ -96,7 +112,7 @@ export function SettlementDetail({
               marginTop: "8px",
             }}
           >
-            {settlementSubLine(summary)}
+            {settlementSubLine(t, locale, summary)}
           </div>
           <div
             className="flex flex-wrap gap-[18px]"
@@ -104,8 +120,8 @@ export function SettlementDetail({
           >
             <ShareAction
               title={summary.name}
-              text={townShareText(summary)}
-              label="Share this village"
+              text={townShareText(summary, tShare)}
+              label={t("shareLabel")}
               moment="town"
               itemId={summary.slug}
               className="hit-area focus-ring"
@@ -120,7 +136,8 @@ export function SettlementDetail({
       </div>
 
       {town.description?.trim() && (
-        <p
+        <RecordText
+          as="p"
           style={{
             margin: "0 0 4px",
             maxWidth: "620px",
@@ -130,7 +147,7 @@ export function SettlementDetail({
           }}
         >
           {town.description}
-        </p>
+        </RecordText>
       )}
 
       <div
@@ -220,7 +237,7 @@ export function SettlementDetail({
                   margin: "0 0 14px",
                 }}
               >
-                Recorded here
+                {t("recordedHere")}
               </h2>
               <div className="flex flex-col gap-2">
                 {entries.map((entry) => (
@@ -228,6 +245,9 @@ export function SettlementDetail({
                     key={entry.id}
                     entry={entry}
                     townSlug={summary.slug}
+                    t={t}
+                    tStatus={tStatus}
+                    tCategories={tCategories}
                   />
                 ))}
               </div>
@@ -273,7 +293,7 @@ export function SettlementDetail({
                   color: "var(--foreground)",
                 }}
               >
-                Open in the map explorer
+                {t("openInMap")}
               </Link>
             </div>
           </div>
@@ -296,7 +316,7 @@ export function SettlementDetail({
                   marginBottom: "12px",
                 }}
               >
-                Not recorded
+                {t("notRecorded")}
               </div>
               <div className="flex flex-col gap-[9px]">
                 {questions.map((question) => (
@@ -320,11 +340,17 @@ export function SettlementDetail({
 function RecordRow({
   entry,
   townSlug,
+  t,
+  tStatus,
+  tCategories,
 }: {
   entry: DirectoryEntry;
   townSlug: string;
+  t: TownTranslator;
+  tStatus: StatusTranslator;
+  tCategories: CategoryTranslator;
 }) {
-  const status = getEntryStatus(entry);
+  const status = getEntryStatus(entry, tStatus);
 
   return (
     <Link
@@ -361,7 +387,7 @@ function RecordRow({
             textTransform: "uppercase",
           }}
         >
-          {categoryLabel(entry.category)}
+          {categoryLabel(entry.category, tCategories)}
         </div>
       </div>
       {!entry.imageUrl?.trim() && (
@@ -369,7 +395,7 @@ function RecordRow({
           className="flex-none"
           style={{ fontSize: "12px", color: "var(--brand-sobrado-ochre)" }}
         >
-          no photograph
+          {t("noPhotograph")}
         </span>
       )}
     </Link>

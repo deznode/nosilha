@@ -1,20 +1,19 @@
 import React from "react";
+import { useTranslations } from "next-intl";
 
+/** Platform names are proper names; the words around them are messages. */
 interface SocialMediaItem {
+  key: "facebook" | "instagram" | "youtube";
   name: string;
   href: string;
-  description: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  ariaLabel: string;
 }
 
 const socialMediaData: SocialMediaItem[] = [
   {
+    key: "facebook",
     name: "Facebook",
     href: "https://www.facebook.com/nosilha.cv",
-    description:
-      "Follow Nos Ilha on Facebook for community updates and cultural heritage stories",
-    ariaLabel: "Visit Nos Ilha Facebook page",
     icon: (props: React.SVGProps<SVGSVGElement>) => (
       <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
         <path
@@ -26,11 +25,9 @@ const socialMediaData: SocialMediaItem[] = [
     ),
   },
   {
+    key: "instagram",
     name: "Instagram",
     href: "https://instagram.com/nosilha",
-    description:
-      "Discover beautiful photos and moments from Brava Island on Instagram",
-    ariaLabel: "Visit Nos Ilha Instagram profile",
     icon: (props: React.SVGProps<SVGSVGElement>) => (
       <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
         <path
@@ -42,11 +39,9 @@ const socialMediaData: SocialMediaItem[] = [
     ),
   },
   {
+    key: "youtube",
     name: "YouTube",
     href: "https://www.youtube.com/@nosilha",
-    description:
-      "Watch videos about Brava Island's culture, history, and traditions on YouTube",
-    ariaLabel: "Visit Nos Ilha YouTube channel",
     icon: (props: React.SVGProps<SVGSVGElement>) => (
       <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
         <path d="M23.498 6.186a2.997 2.997 0 00-2.111-2.111C19.505 3.546 12 3.546 12 3.546s-7.505 0-9.387.529A2.997 2.997 0 00.502 6.186C0 8.068 0 12 0 12s0 3.932.502 5.814a2.997 2.997 0 002.111 2.111c1.882.529 9.387.529 9.387.529s7.505 0 9.387-.529a2.997 2.997 0 002.111-2.111C24 15.932 24 12 24 12s0-3.932-.502-5.814zM9.6 15.6V8.4l6.264 3.6L9.6 15.6z" />
@@ -72,6 +67,8 @@ export function SocialMediaLinks({
   variant = "default",
   tone = "default",
 }: SocialMediaLinksProps) {
+  const t = useTranslations("common.social");
+
   if (variant === "compact") {
     // Compact version - similar to existing footer
     return (
@@ -87,7 +84,7 @@ export function SocialMediaLinks({
                 ? "text-footer-muted hover:text-footer-heading"
                 : "text-muted hover:text-ocean-blue"
             }`}
-            aria-label={item.ariaLabel}
+            aria-label={t(`${item.key}.label`)}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -102,7 +99,7 @@ export function SocialMediaLinks({
   // Default version - with harbor effect similar to popular pages
   return (
     <nav
-      aria-label="Social media links"
+      aria-label={t("label")}
       className={`bg-canvas py-12 sm:py-16 ${className}`}
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -112,7 +109,7 @@ export function SocialMediaLinks({
               <a
                 href={item.href}
                 className="group hover:bg-surface border-hairline hover:border-ocean-blue/30 hover:ring-ocean-blue/20 rounded-button hover:shadow-elevated flex flex-col items-center border p-6 text-center transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:ring-2"
-                aria-label={item.ariaLabel}
+                aria-label={t(`${item.key}.label`)}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -131,7 +128,7 @@ export function SocialMediaLinks({
 
                 {/* Description */}
                 <p className="text-muted group-hover:text-body mt-2 max-w-sm text-sm leading-6 transition-colors duration-300">
-                  {item.description}
+                  {t(`${item.key}.description`)}
                 </p>
               </a>
             </li>

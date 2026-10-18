@@ -12,6 +12,8 @@ import {
   recordItems,
   settlementItems,
 } from "@/features/map/data/locations-adapter";
+import type { CategoryTranslator } from "@/lib/category-label";
+import type { PhotoFactsTranslator } from "@/lib/photo-facts";
 import { townSlugsById } from "@/lib/place-path";
 
 /**
@@ -21,6 +23,9 @@ import { townSlugsById } from "@/lib/place-path";
  * `selectedKey` one way (`useMapUrlSync`). Not persisted — a returning visitor's
  * state comes from the link they followed, not from their last visit.
  */
+
+/** Why the map's data did not load, as a key in the `errors` namespace. */
+export type MapFetchError = "mapLoadFailed";
 
 /** The public gallery's page cap. The archive's located photographs fit in one. */
 const PHOTO_PAGE_SIZE = 100;
@@ -47,7 +52,12 @@ interface MapState extends MapQueryState {
   /** Archive photographs with no coordinates, which the map cannot show. */
   unlocatedCount: number;
   isLoading: boolean;
-  fetchError: string | null;
+  /**
+   * A message key in the `errors` namespace, never the words: the store has no
+   * language. Render it with a translator for the `errors` namespace. Spec 041
+   * FR-004.
+   */
+  fetchError: MapFetchError | null;
 
   /** The selection belongs to the mode it was made in, so switching clears it. */
   setMode: (mode: MapMode) => void;
@@ -64,7 +74,17 @@ interface MapState extends MapQueryState {
   hydrate: (state: MapQueryState) => void;
   /** Closes what an Activity restore should not bring back open. */
   resetTransient: () => void;
-  fetchData: () => Promise<void>;
+  /**
+   * Loads every mode's items. Record eyebrows and untitled photographs are named in
+   * the translators' language.
+   */
+  fetchData: (copy: MapItemCopy) => Promise<void>;
+}
+
+/** The translators the loaded items are named with. */
+export interface MapItemCopy {
+  categories: CategoryTranslator;
+  photographs: PhotoFactsTranslator;
 }
 
 export const initialMapState = {
@@ -82,7 +102,7 @@ export const initialMapState = {
   photos: [],
   unlocatedCount: 0,
   isLoading: true,
-  fetchError: null,
+  fetchError: null as MapFetchError | null,
 } satisfies Partial<MapState>;
 
 /** Identifies the newest `fetchData` call. */
@@ -107,7 +127,7 @@ export const useMapStore = create<MapState>()(
         set({ mode, status, query, selectedKey, expandedGroupKey: null }),
       resetTransient: () => set({ sheetOpen: false, expandedGroupKey: null }),
 
-      fetchData: async () => {
+      fetchData: async (copy) => {
         // Under Activity every return to `/map` loads again. Say so, so nothing that
         // waits for data acts on the previous visit's items, and let only the newest
         // load write: a slow earlier answer must not replace a later one.
@@ -138,8 +158,12 @@ export const useMapStore = create<MapState>()(
 
           set({
             settlements: settlementItems(towns),
-            records: recordItems(entries.items, townSlugsById(towns)),
-            photos: photoItems(media.items, towns),
+            records: recordItems(
+              entries.items,
+              townSlugsById(towns),
+              copy.categories
+            ),
+            photos: photoItems(media.items, towns, copy.photographs),
             unlocatedCount: facets.withoutPlace,
             isLoading: false,
             fetchError: null,
@@ -149,8 +173,7 @@ export const useMapStore = create<MapState>()(
           console.error("Failed to fetch map data:", err);
           set({
             isLoading: false,
-            fetchError:
-              "The map could not load the archive. Try refreshing the page.",
+            fetchError: "mapLoadFailed",
           });
         }
       },

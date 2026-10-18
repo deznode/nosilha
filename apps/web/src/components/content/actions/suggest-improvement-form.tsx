@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/catalyst-ui/button";
@@ -19,22 +20,16 @@ import { submitSuggestion } from "@/lib/api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useToast } from "@/hooks/use-toast";
 import {
-  suggestionSchema,
+  createSuggestionSchema,
   type SuggestionInput,
 } from "@/schemas/suggestionSchema";
 
 type SuggestionType = "CORRECTION" | "ADDITION" | "FEEDBACK";
 
-const suggestionTypeOptions = [
-  {
-    value: "CORRECTION",
-    label: "Correction - Fix factual errors or inaccuracies",
-  },
-  { value: "ADDITION", label: "Addition - Add missing information or context" },
-  {
-    value: "FEEDBACK",
-    label: "Feedback - General feedback on content quality",
-  },
+const SUGGESTION_TYPES: SuggestionType[] = [
+  "CORRECTION",
+  "ADDITION",
+  "FEEDBACK",
 ];
 
 interface SuggestImprovementFormProps {
@@ -54,6 +49,14 @@ export function SuggestImprovementForm({
   isOpen,
   onClose,
 }: SuggestImprovementFormProps) {
+  const t = useTranslations("identify.suggestImprovement");
+  const tCommon = useTranslations("common");
+  const tv = useTranslations("validation");
+  const suggestionTypeOptions = SUGGESTION_TYPES.map((value) => ({
+    value,
+    label: t(`types.${value}`),
+  }));
+  const suggestionSchema = useMemo(() => createSuggestionSchema(tv), [tv]);
   const { user, session } = useAuth();
   const isAuthenticated = !!session;
   const toast = useToast();
@@ -122,7 +125,7 @@ export function SuggestImprovementForm({
       setSubmitError(null);
 
       // Show success toast
-      toast.success("Thank you! Your suggestion has been submitted.").show();
+      toast.success(t("sent")).show();
 
       // Reset form
       reset();
@@ -133,10 +136,7 @@ export function SuggestImprovementForm({
       }, 1500);
     } catch (error) {
       console.error("Error submitting suggestion:", error);
-      const errorMsg =
-        error instanceof Error
-          ? error.message
-          : "An error occurred while submitting your suggestion. Please try again later.";
+      const errorMsg = error instanceof Error ? error.message : t("failed");
       setSubmitError(errorMsg);
 
       // Show error toast
@@ -156,11 +156,12 @@ export function SuggestImprovementForm({
 
   return (
     <Dialog open={isOpen} onClose={handleClose}>
-      <DialogTitle>Suggest Improvement</DialogTitle>
+      <DialogTitle>{t("title")}</DialogTitle>
       <DialogDescription>
-        Help us improve this content about <strong>{contentTitle}</strong>. Your
-        suggestions help preserve the accuracy and richness of Brava Island's
-        cultural heritage.
+        {t.rich("description", {
+          title: contentTitle,
+          strong: (chunks) => <strong>{chunks}</strong>,
+        })}
       </DialogDescription>
 
       {submitSuccess ? (
@@ -183,12 +184,10 @@ export function SuggestImprovementForm({
               </div>
               <div className="ml-3">
                 <p className="text-valley-green text-sm font-medium">
-                  Thank you for helping preserve our cultural heritage!
+                  {t("successTitle")}
                 </p>
                 <p className="text-valley-green/90 mt-2 text-sm">
-                  Your suggestion has been received and will be reviewed by our
-                  team. We appreciate your contribution to maintaining the
-                  accuracy of Brava Island's cultural content.
+                  {t("successBody")}
                 </p>
               </div>
             </div>
@@ -217,11 +216,11 @@ export function SuggestImprovementForm({
 
             <div className="space-y-4">
               <Field>
-                <Label>Your Name *</Label>
+                <Label>{t("name")}</Label>
                 <Input
                   {...register("name")}
                   type="text"
-                  placeholder="Enter your name"
+                  placeholder={t("namePlaceholder")}
                   disabled={isSubmitting}
                   data-invalid={errors.name ? "" : undefined}
                 />
@@ -233,17 +232,15 @@ export function SuggestImprovementForm({
               {/* Only show email input for anonymous users */}
               {!isAuthenticated && (
                 <Field>
-                  <Label>Your Email *</Label>
+                  <Label>{t("email")}</Label>
                   <Input
                     {...register("email")}
                     type="email"
-                    placeholder="your.email@example.com"
+                    placeholder={t("emailPlaceholder")}
                     disabled={isSubmitting}
                     data-invalid={errors.email ? "" : undefined}
                   />
-                  <p className="text-muted mt-1 text-sm">
-                    We may contact you for clarification on your suggestion.
-                  </p>
+                  <p className="text-muted mt-1 text-sm">{t("emailHint")}</p>
                   {errors.email && (
                     <ErrorMessage>{errors.email.message}</ErrorMessage>
                   )}
@@ -253,12 +250,15 @@ export function SuggestImprovementForm({
               {/* Show email info for authenticated users */}
               {isAuthenticated && user?.email && (
                 <div className="text-muted text-sm">
-                  Submitting as: <strong>{user.email}</strong>
+                  {t.rich("submittingAs", {
+                    email: user.email,
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })}
                 </div>
               )}
 
               <Field>
-                <Label>Suggestion Type *</Label>
+                <Label>{t("type")}</Label>
                 <Controller
                   name="suggestionType"
                   control={control}
@@ -271,7 +271,7 @@ export function SuggestImprovementForm({
                       }
                       disabled={isSubmitting}
                       invalid={!!errors.suggestionType}
-                      placeholder="Select suggestion type"
+                      placeholder={t("typePlaceholder")}
                     />
                   )}
                 />
@@ -281,16 +281,16 @@ export function SuggestImprovementForm({
               </Field>
 
               <Field>
-                <Label>Your Suggestion *</Label>
+                <Label>{t("message")}</Label>
                 <Textarea
                   {...register("message")}
                   rows={6}
-                  placeholder="Please provide details about your suggestion..."
+                  placeholder={t("messagePlaceholder")}
                   disabled={isSubmitting}
                   data-invalid={errors.message ? "" : undefined}
                 />
                 <p className="text-muted mt-1 text-sm">
-                  {(messageValue || "").length}/5000 characters (minimum 10)
+                  {t("count", { count: String((messageValue || "").length) })}
                 </p>
                 {errors.message && (
                   <ErrorMessage>{errors.message.message}</ErrorMessage>
@@ -307,10 +307,10 @@ export function SuggestImprovementForm({
 
           <DialogActions>
             <Button plain onClick={handleClose} disabled={isSubmitting}>
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit Suggestion"}
+              {isSubmitting ? t("submitting") : t("submit")}
             </Button>
           </DialogActions>
         </form>
@@ -318,7 +318,7 @@ export function SuggestImprovementForm({
 
       {submitSuccess && (
         <DialogActions>
-          <Button onClick={handleClose}>Close</Button>
+          <Button onClick={handleClose}>{tCommon("close")}</Button>
         </DialogActions>
       )}
     </Dialog>

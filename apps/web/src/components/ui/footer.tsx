@@ -1,5 +1,6 @@
 import clsx from "clsx";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 
 import { FooterNewsletterForm } from "@/components/newsletter/footer-newsletter-form";
 import { FOOTER_LEGAL_DESTINATIONS } from "@/components/navigation/nav-config";
@@ -28,7 +29,10 @@ export interface FooterProps {
  * button in dark. Anything dropped in here later must read from `--footer-*` or
  * `--accent-on-dark` rather than reaching for a page token. Spec 037 FR-009.
  */
-export function Footer({ className }: FooterProps) {
+export async function Footer({ className }: FooterProps) {
+  const t = await getTranslations("footer");
+  const tChrome = await getTranslations("chrome");
+
   return (
     <footer
       className={clsx(
@@ -45,7 +49,7 @@ export function Footer({ className }: FooterProps) {
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">
-        Footer
+        {t("heading")}
       </h2>
 
       {/* The footer's only edge treatment. In light mode it declares the boundary
@@ -69,23 +73,22 @@ export function Footer({ className }: FooterProps) {
               />
             </div>
             <p className="text-footer-body text-[13px] leading-[1.55]">
-              Nos terra, nos gente, nos memoria.
+              {t("tagline")}
             </p>
             <p className="text-footer-muted mt-2 hidden text-[13px] leading-[1.55] md:block">
-              Get updates on new stories, cultural events, and ways to
-              contribute.
+              {t("updates")}
             </p>
           </div>
 
           <div className="mt-4 flex flex-col gap-2 md:mt-0 md:flex-1">
             <span className="text-footer-muted font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
-              Have something of Brava?
+              {t("haveSomething")}
             </span>
             <Link
               href="/contribute"
               className="text-accent-on-dark py-1.5 text-[15px] font-semibold hover:underline"
             >
-              Give a photograph or a film →
+              {t("give")}
             </Link>
           </div>
 
@@ -103,7 +106,7 @@ export function Footer({ className }: FooterProps) {
               href={destination.href}
               className="text-footer-body hover:text-footer-heading py-2.5 text-[13px] transition-colors duration-150"
             >
-              {destination.label}
+              {tChrome(destination.labelKey)}
             </Link>
           ))}
           <SocialMediaLinks
@@ -112,8 +115,7 @@ export function Footer({ className }: FooterProps) {
             className="ml-auto"
           />
           <p className="text-footer-muted mt-0.5 w-full text-xs">
-            &copy; {COPYRIGHT_YEAR} Nos Ilha. Open Source Cultural Heritage
-            Project.
+            {t("copyright", { year: String(COPYRIGHT_YEAR) })}
           </p>
         </div>
       </div>

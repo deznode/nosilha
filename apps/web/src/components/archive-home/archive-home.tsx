@@ -1,17 +1,19 @@
 import Image from "next/image";
-import Link from "next/link";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
+
+import { Link } from "@/i18n/navigation";
 
 import { FilmsStrip } from "@/components/films/films-strip";
 import { MissingPills } from "@/components/ui/missing-pills";
+import { RecordText } from "@/components/ui/record-text";
 import type { Film } from "@/lib/films";
-import { photoFacts } from "@/lib/photo-facts";
+import { photoFacts, type PhotoFacts } from "@/lib/photo-facts";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import type { GalleryFacets, PublicGalleryMedia } from "@/types/gallery";
 import type { TownStatusSummary } from "@/types/town";
 
 import {
-  SHIPPED_HERO,
   emptySettlementChipLink,
   emptySettlementsStandfirst,
   heroCreditChip,
@@ -19,6 +21,7 @@ import {
   photographRowHeading,
   photographRowNote,
   routeCards,
+  shippedHero,
 } from "./archive-home-copy";
 
 /**
@@ -48,7 +51,7 @@ export interface ArchiveHomeProps {
   instagram: ReactNode;
 }
 
-export function ArchiveHome({
+export async function ArchiveHome({
   towns,
   recordCount,
   facets,
@@ -59,12 +62,19 @@ export function ArchiveHome({
   films,
   instagram,
 }: ArchiveHomeProps) {
-  const heroUrl = (hero && resolvePublicImageUrl(hero)) || SHIPPED_HERO.url;
-  const heroAlt = hero?.altText?.trim() || SHIPPED_HERO.alt;
+  const [t, tPhotographs, locale, format] = await Promise.all([
+    getTranslations("archiveHome"),
+    getTranslations("photographs"),
+    getLocale(),
+    getFormatter(),
+  ]);
+  const shipped = shippedHero(t);
+  const heroUrl = (hero && resolvePublicImageUrl(hero)) || shipped.url;
+  const heroAlt = hero?.altText?.trim() || shipped.alt;
   // The shipped hero carries a credit of its own; an archive record's is composed.
-  const credit = hero ? heroCreditChip(hero) : SHIPPED_HERO.credit;
+  const credit = hero ? heroCreditChip(t, hero) : shipped.credit;
   const emptyTowns = towns.filter((town) => town.entryCount === 0);
-  const cards = routeCards({
+  const cards = routeCards(t, locale, {
     towns,
     facets,
     stays: stayCount,
@@ -112,7 +122,7 @@ export function ArchiveHome({
                 color: "var(--neutral-mist-50)",
               }}
             >
-              An archive of Brava, built from what people send us
+              {t("title")}
             </h1>
             <p
               style={{
@@ -123,7 +133,7 @@ export function ArchiveHome({
                 lineHeight: 1.55,
               }}
             >
-              {heroStandfirst({
+              {heroStandfirst(t, locale, {
                 settlements: towns.length,
                 records: recordCount,
                 facets,
@@ -159,7 +169,7 @@ export function ArchiveHome({
         }}
       >
         <nav
-          aria-label="The archive"
+          aria-label={t("navLabel")}
           className="grid gap-[10px]"
           style={{
             gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
@@ -202,7 +212,7 @@ export function ArchiveHome({
               className="font-serif"
               style={{ fontWeight: 400, fontSize: "30px", margin: "0 0 6px" }}
             >
-              {photographRowHeading(photographRow.length)}
+              {photographRowHeading(t, locale, photographRow.length)}
             </h2>
             <p
               style={{
@@ -211,7 +221,7 @@ export function ArchiveHome({
                 fontSize: "14px",
               }}
             >
-              {photographRowNote(photographRow)}
+              {photographRowNote(t, locale, photographRow)}
             </p>
             <div
               className="grid gap-[14px]"
@@ -220,7 +230,11 @@ export function ArchiveHome({
               }}
             >
               {photographRow.map((media) => (
-                <HomePhotographTile key={media.id} media={media} />
+                <HomePhotographTile
+                  key={media.id}
+                  media={media}
+                  facts={photoFacts(media, format, tPhotographs)}
+                />
               ))}
             </div>
           </section>
@@ -235,7 +249,7 @@ export function ArchiveHome({
             className="font-serif"
             style={{ fontWeight: 400, fontSize: "30px", margin: "0 0 6px" }}
           >
-            Settlements with nothing recorded
+            {t("emptySettlements.heading")}
           </h2>
           <p
             style={{
@@ -246,7 +260,12 @@ export function ArchiveHome({
               lineHeight: 1.55,
             }}
           >
-            {emptySettlementsStandfirst(emptyTowns.length, towns.length)}
+            {emptySettlementsStandfirst(
+              t,
+              locale,
+              emptyTowns.length,
+              towns.length
+            )}
           </p>
           <div className="flex flex-wrap gap-[7px]">
             {emptyTowns.map((town) => (
@@ -271,8 +290,13 @@ export function ArchiveHome({
   );
 }
 
-function HomePhotographTile({ media }: { media: PublicGalleryMedia }) {
-  const facts = photoFacts(media);
+function HomePhotographTile({
+  media,
+  facts,
+}: {
+  media: PublicGalleryMedia;
+  facts: PhotoFacts;
+}) {
   const url = resolvePublicImageUrl(media);
 
   return (
@@ -299,7 +323,9 @@ function HomePhotographTile({ media }: { media: PublicGalleryMedia }) {
         )}
       </div>
       <div style={{ padding: "13px" }}>
-        <div
+        <RecordText
+          as="div"
+          when={!facts.title.untitled}
           className="font-serif"
           style={{
             fontWeight: 400,
@@ -312,7 +338,7 @@ function HomePhotographTile({ media }: { media: PublicGalleryMedia }) {
           }}
         >
           {facts.title.text}
-        </div>
+        </RecordText>
         <MissingPills missing={facts.missing} />
       </div>
     </Link>

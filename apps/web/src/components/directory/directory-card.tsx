@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { DirectoryEntry } from "@/types/directory";
 import { BookmarkButton } from "@/components/directory/bookmark-button";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { MapPin, Star } from "lucide-react";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { usePlaceRecordHref } from "@/hooks/queries/useTownSummaries";

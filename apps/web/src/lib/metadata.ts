@@ -1,4 +1,12 @@
 import type { Metadata } from "next";
+import {
+  BCP47_TAGS,
+  DEFAULT_LOCALE,
+  OG_LOCALES,
+  PORTUGUESE_ENABLED,
+  type Locale,
+} from "@/i18n/config";
+import { getPathname } from "@/i18n/navigation";
 import type {
   OpenGraphImage,
   PageMetadataOptions,
@@ -13,12 +21,11 @@ import type {
  * cultural heritage sites, and business listings with proper structured data.
  */
 
-// Base configuration for the site
+// Base configuration for the site. The site's title and description for public pages
+// are in the `metadata.site` messages; `title` here serves only the English-only admin.
 export const siteConfig = {
   name: "Nos Ilha",
   title: "Nos Ilha - Your Guide to Brava, Cape Verde",
-  description:
-    "The definitive cultural heritage hub for Brava Island, Cape Verde. Preserve and celebrate Cape Verdean culture, explore authentic heritage experiences, connect with the global diaspora, and discover local cultural sites and businesses.",
   url:
     process.env.NODE_ENV === "production"
       ? "https://nosilha.com"
@@ -41,21 +48,91 @@ export const siteConfig = {
   ],
 };
 
+/** The absolute address of a page in one language. */
+export function localizedUrl(path: string, locale: Locale): string {
+  return `${siteConfig.url}${getPathname({ href: path, locale })}`;
+}
+
+interface LocaleMetadataOptions {
+  /** The page's address without a locale prefix. */
+  path: string;
+  locale: Locale;
+  hasPortuguese?: boolean;
+  /** Overridable so the switched-on behaviour can be tested. */
+  portugueseEnabled?: boolean;
+}
+
+/**
+ * The canonical address and language alternates of a page. Spec 041 FR-008.
+ *
+ * Each language is canonical at its own address. Alternates (`en`, `pt-PT`,
+ * `x-default`) are declared only while Portuguese is enabled and the page has a
+ * Portuguese version, so nothing points at `/pt` before it is public.
+ */
+export function localeAlternates({
+  path,
+  locale,
+  hasPortuguese = true,
+  portugueseEnabled = PORTUGUESE_ENABLED,
+}: LocaleMetadataOptions): NonNullable<Metadata["alternates"]> {
+  const canonical = localizedUrl(path, locale);
+  if (!portugueseEnabled || !hasPortuguese) return { canonical };
+
+  const english = localizedUrl(path, DEFAULT_LOCALE);
+  return {
+    canonical,
+    languages: {
+      [DEFAULT_LOCALE]: english,
+      [BCP47_TAGS["pt-PT"]]: localizedUrl(path, "pt-PT"),
+      "x-default": english,
+    },
+  };
+}
+
+/**
+ * Adds the locale tags to metadata a page built by hand: its own canonical, the
+ * language alternates, and `og:locale` on a Portuguese page. Everything else the
+ * page wrote is passed through, so its English tags stay as they were.
+ */
+export function withLocaleMetadata(
+  metadata: Metadata,
+  options: LocaleMetadataOptions
+): Metadata {
+  const { locale } = options;
+  const localized: Metadata = {
+    ...metadata,
+    alternates: localeAlternates(options),
+  };
+
+  // Only touched when the page wrote one: an `openGraph` key, even an undefined
+  // one, replaces the block the page would otherwise inherit from the layout.
+  if (metadata.openGraph && locale !== DEFAULT_LOCALE) {
+    localized.openGraph = { ...metadata.openGraph, locale: OG_LOCALES[locale] };
+  }
+
+  return localized;
+}
+
 /**
  * Generate comprehensive metadata for Next.js pages
  */
-export function generatePageMetadata(options: PageMetadataOptions): Metadata {
+export function generatePageMetadata(
+  options: PageMetadataOptions & { portugueseEnabled?: boolean }
+): Metadata {
   const {
     title,
     description,
     path,
+    locale,
+    hasPortuguese,
+    portugueseEnabled,
     keywords = [],
     images = [],
     structuredData = [],
   } = options;
 
   const { url: baseUrl, name: siteName } = siteConfig;
-  const url = `${baseUrl}${path}`;
+  const url = localizedUrl(path, locale);
   // Don't append siteName here - let Next.js title template handle it
   const fullTitle = title;
 
@@ -91,7 +168,7 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
     },
     openGraph: {
       type: "website",
-      locale: "en_US",
+      locale: OG_LOCALES[locale],
       url,
       title: fullTitle,
       description,
@@ -112,9 +189,12 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
       site: siteConfig.twitterHandle,
       images: ogImages.map((img) => img.url),
     },
-    alternates: {
-      canonical: url,
-    },
+    alternates: localeAlternates({
+      path,
+      locale,
+      hasPortuguese,
+      portugueseEnabled,
+    }),
     other:
       structuredData.length > 0
         ? {
@@ -125,16 +205,18 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
 }
 
 /**
- * Generate organization structured data for the main site
+ * Generate organization structured data for the main site. The description is the
+ * page language's `metadata.site.description`.
  */
 export function generateOrganizationSchema(
+  description: string,
   baseUrl: string = siteConfig.url
 ): OrganizationSchema {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: siteConfig.name,
-    description: siteConfig.description,
+    description,
     url: baseUrl,
     logo: {
       "@type": "ImageObject",

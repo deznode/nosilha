@@ -1,5 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 
 import {
   photoCaption,
@@ -17,9 +19,10 @@ import {
  * reduced motion.
  */
 export function FeatureBand({ photo }: { photo: ArchivePhoto }) {
-  const heading = photoHeading(photo);
+  const t = useTranslations("photographs");
+  const heading = photoHeading(photo, t);
   const caption = photoCaption(photo);
-  const line = photoLine(photo);
+  const line = photoLine(photo, t);
 
   return (
     // Named by its eyebrow and heading: the band is one link, and without this its
@@ -45,20 +48,22 @@ export function FeatureBand({ photo }: { photo: ArchivePhoto }) {
           id="feature-band-eyebrow"
           className="text-[11px] tracking-[.18em] uppercase opacity-[.85]"
         >
-          Photographs · Today&rsquo;s photograph
+          {t("index.featureEyebrow")}
         </span>
-        <h2
+        <RecordText
+          as="h2"
+          when={!!photo.title}
           id="feature-band-heading"
           className="m-0 line-clamp-3 font-serif text-[34px] leading-[1.04] font-normal tracking-[-0.02em] md:text-[56px]"
         >
           {heading}
-        </h2>
+        </RecordText>
         {caption && (
           // Clamped: real captions run to 700 characters, and the band's height is
           // fixed, so an unclamped one pushes the heading off its top on a phone.
-          <span className="line-clamp-3 text-[15px] leading-normal text-pretty opacity-90 md:line-clamp-4">
+          <RecordText className="line-clamp-3 text-[15px] leading-normal text-pretty opacity-90 md:line-clamp-4">
             {caption}
-          </span>
+          </RecordText>
         )}
         {line && <span className="text-xs opacity-[.78]">{line}</span>}
       </div>

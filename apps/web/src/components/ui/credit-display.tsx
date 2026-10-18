@@ -3,6 +3,7 @@
 import * as React from "react";
 import { clsx } from "clsx";
 import { ExternalLink } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   PLATFORM_PROFILE_URLS,
   PLATFORM_LABELS,
@@ -36,6 +37,8 @@ export const CreditDisplay = React.forwardRef<
     { credit, creditPlatform, creditHandle, variant = "card", className },
     ref
   ) => {
+    const t = useTranslations("common");
+
     if (!credit) return null;
 
     const textSizeClass = variant === "card" ? "text-xs" : "text-sm";
@@ -56,7 +59,10 @@ export const CreditDisplay = React.forwardRef<
             href={profileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`${credit} on ${platformLabel} (opens in new tab)`}
+            aria-label={t("creditOnPlatform", {
+              credit,
+              platform: platformLabel,
+            })}
             className={clsx(
               "text-ocean-blue hover:text-ocean-blue-deep inline-flex items-center gap-1 font-medium transition-colors",
               textSizeClass

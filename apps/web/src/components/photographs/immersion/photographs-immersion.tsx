@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { withLocale } from "@/i18n/paths";
 
 import {
   ALL_PLACES,
@@ -39,15 +42,17 @@ export function PhotographsImmersion({
   films: Film[];
 }) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("photographs");
   const searchParams = useSearchParams();
   const place = parsePlaceParam(searchParams.get("place"), photos);
 
   const feature = photos.find((p) => p.id === featureId) ?? null;
-  const chips = placeChips(photos);
+  const chips = placeChips(photos, locale, t);
   const shown = filterByPlace(photos, place).filter(
     (p) => !(place === ALL_PLACES && p.id === feature?.id)
   );
-  const help = indexHelpLine(photos);
+  const help = indexHelpLine(photos, t, locale);
   const needy = needsHelpPool(photos);
 
   // Coming back from a photograph: return to where the reader was in this filter.
@@ -65,7 +70,11 @@ export function PhotographsImmersion({
   const rememberScroll = () => saveIndexScroll(place, window.scrollY);
 
   const selectPlace = (key: string) => {
-    window.history.replaceState(null, "", photographsHref(key));
+    window.history.replaceState(
+      null,
+      "",
+      withLocale(photographsHref(key), locale)
+    );
   };
 
   const showNeedy = () => {
@@ -77,7 +86,7 @@ export function PhotographsImmersion({
 
   return (
     <div>
-      <h1 className="sr-only">Photographs</h1>
+      <h1 className="sr-only">{t("index.heading")}</h1>
       {feature && <FeatureBand photo={feature} />}
 
       <div className="mx-auto max-w-[1440px] px-4 pt-[18px] md:px-7">
@@ -92,7 +101,7 @@ export function PhotographsImmersion({
           </>
         ) : (
           <p className="text-muted py-12 text-center text-sm">
-            The archive holds no photographs yet.
+            {t("index.empty")}
           </p>
         )}
       </div>
@@ -109,7 +118,7 @@ export function PhotographsImmersion({
                 onClick={showNeedy}
                 className="focus-ring border-sobrado-ochre text-sobrado-ochre hover:bg-sobrado-ochre/10 rounded-full border bg-transparent px-4 py-[9px] text-[13px] transition-colors"
               >
-                Show me one that needs help
+                {t("index.showNeedy")}
               </button>
             )}
           </div>

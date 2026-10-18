@@ -1,5 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 import { clsx } from "clsx";
 
 import {
@@ -32,8 +34,9 @@ export function FilmCard({
   sizes?: string;
   className?: string;
 }) {
+  const t = useTranslations("films");
   const playable = canPlay(film);
-  const place = filmedNear(film);
+  const place = filmedNear(t, film);
 
   return (
     <Link
@@ -85,7 +88,7 @@ export function FilmCard({
               className="film-preview-chip absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-[11px] text-[#F6F1E9] backdrop-blur-[6px]"
               style={{ background: "rgba(10,8,6,.6)" }}
             >
-              Preview · muted
+              {t("card.preview")}
             </span>
             <span
               aria-hidden
@@ -103,15 +106,18 @@ export function FilmCard({
               borderColor: "rgba(255,255,255,.22)",
             }}
           >
-            Can&rsquo;t play here
+            {t("card.cantPlay")}
           </span>
         )}
       </div>
 
       <div className="flex min-w-0 flex-col gap-[3px]">
-        <span className="text-body font-serif text-[17px] leading-[1.25] text-pretty">
+        <RecordText
+          when={!!film.title}
+          className="text-body font-serif text-[17px] leading-[1.25] text-pretty"
+        >
           {film.displayTitle}
-        </span>
+        </RecordText>
         {place && <span className="text-muted text-xs">{place}</span>}
       </div>
     </Link>

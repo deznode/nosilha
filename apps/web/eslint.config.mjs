@@ -94,6 +94,41 @@ const eslintConfig = [
       ],
     },
   },
+  // Public code navigates through the locale-aware wrappers, so a visitor under
+  // /pt stays there (spec 041). The admin area is English only and keeps Next's own.
+  {
+    files: ["src/**/*.ts", "src/**/*.tsx"],
+    ignores: [
+      "src/app/(admin)/**",
+      "src/components/admin/**",
+      "src/i18n/**",
+      // Reports the address as the browser shows it, prefix included.
+      "src/app/analytics-listener.tsx",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "next/link",
+              message: "Import { Link } from '@/i18n/navigation' instead.",
+            },
+            {
+              name: "next/navigation",
+              importNames: [
+                "useRouter",
+                "usePathname",
+                "redirect",
+                "permanentRedirect",
+              ],
+              message: "Import it from '@/i18n/navigation' instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Test file overrides - relaxed rules for test code
   {
     files: ["tests/**/*.ts", "tests/**/*.tsx", "tests/**/*.js"],

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { MapPin, Trash2, Bookmark, AlertCircle, Star } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useBookmarks, useToggleBookmark } from "@/hooks/queries/use-bookmarks";
 import {

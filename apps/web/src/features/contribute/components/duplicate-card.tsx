@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { submitMediaCorrection } from "@/lib/api";
 import { ApiError } from "@/lib/api-error";
-import { UNTITLED_FILM } from "@/lib/films";
 
 import type { FilmLookupResult } from "../hooks/use-film-lookup";
 
@@ -95,24 +95,25 @@ export function DuplicateCard({
   media,
   onNeedsSignIn,
 }: DuplicateCardProps) {
+  const t = useTranslations("contribute.duplicate");
+  const tFilms = useTranslations("films");
   if (status === "pending") {
     return (
       <div className="border-sobrado-ochre bg-card rounded-card flex flex-col gap-3.5 border-[1.5px] p-4">
         <div className="text-sobrado-ochre font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
-          Already sent · waiting for review
+          {t("pendingEyebrow")}
         </div>
         <DuplicateMediaRow
           platform={platform}
           externalId={externalId}
           title={FILM_PLATFORM_LABEL[platform]}
-          meta={`${FILM_PLATFORM_LABEL[platform]} · not public yet`}
+          meta={t("pendingMeta", { platform: FILM_PLATFORM_LABEL[platform] })}
         />
         <p className="text-muted text-[14px] leading-[1.55]">
-          Someone has already sent this link. A person will review it soon, so
-          it isn&apos;t public yet.
+          {t("pendingBody")}
         </p>
         <p className="text-muted text-[12.5px] leading-[1.5]">
-          The reviewer will see it alongside the original.
+          {t("pendingNote")}
         </p>
       </div>
     );
@@ -121,12 +122,12 @@ export function DuplicateCard({
   return (
     <div className="border-valley-green bg-card rounded-card flex flex-col gap-3.5 border-[1.5px] p-4">
       <div className="text-valley-green font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
-        Already in the archive
+        {t("publicEyebrow")}
       </div>
       <DuplicateMediaRow
         platform={platform}
         externalId={externalId}
-        title={media?.title ?? UNTITLED_FILM}
+        title={media?.title ?? tFilms("untitled")}
         meta={[
           FILM_PLATFORM_LABEL[platform],
           media?.place,
@@ -135,10 +136,7 @@ export function DuplicateCard({
           .filter(Boolean)
           .join(" · ")}
       />
-      <p className="text-muted text-[14px] leading-[1.55]">
-        This film is already in the archive, so there&apos;s no need to send it
-        again.
-      </p>
+      <p className="text-muted text-[14px] leading-[1.55]">{t("publicBody")}</p>
       {media && (
         <a
           href={media.url}
@@ -146,7 +144,7 @@ export function DuplicateCard({
           rel="noreferrer"
           className="text-ocean-blue text-[14px] font-semibold"
         >
-          See it in the archive →
+          {t("seeInArchive")}
         </a>
       )}
       {media && (
@@ -163,6 +161,7 @@ function CorrectionForm({
   mediaId: string;
   onNeedsSignIn?: () => void;
 }) {
+  const t = useTranslations("contribute.duplicate");
   const [text, setText] = useState("");
   const [status, setStatus] = useState<
     "idle" | "submitting" | "sent" | "error" | "hidden"
@@ -173,9 +172,7 @@ function CorrectionForm({
   if (status === "sent") {
     return (
       <div className="border-hairline flex flex-col gap-2 border-t pt-[14px]">
-        <p className="text-[14px] font-medium">
-          Thank you. A person will read it.
-        </p>
+        <p className="text-[14px] font-medium">{t("correctionSent")}</p>
       </div>
     );
   }
@@ -208,24 +205,22 @@ function CorrectionForm({
 
   return (
     <div className="border-hairline flex flex-col gap-2.5 border-t pt-[14px]">
-      <div className="text-[13px] font-semibold">
-        Know something about it we don&apos;t?
-      </div>
+      <div className="text-[13px] font-semibold">{t("correctionLabel")}</div>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         disabled={status === "submitting"}
-        placeholder="A better title, who is in it, where or when it was filmed"
+        placeholder={t("correctionPlaceholder")}
         className="border-border-strong bg-card text-body placeholder:text-muted-foreground focus:border-ocean-blue rounded-badge min-h-20 border px-3 py-[11px] text-[15px] leading-[1.45] outline-none focus:border-[1.5px]"
       />
       {tooLong && (
         <p className="text-status-error text-[12.5px]">
-          Keep it under {MAX_CORRECTION_LENGTH} characters.
+          {t("correctionTooLong", { max: String(MAX_CORRECTION_LENGTH) })}
         </p>
       )}
       {status === "error" && (
         <p className="text-status-error text-[12.5px]">
-          That didn&apos;t send. Try again.
+          {t("correctionFailed")}
         </p>
       )}
       <button
@@ -234,10 +229,10 @@ function CorrectionForm({
         disabled={!canSend}
         className="border-border-strong rounded-badge flex h-11 items-center justify-center border text-[14.5px] font-medium disabled:opacity-50"
       >
-        {status === "submitting" ? "Sending…" : "Send what you know"}
+        {status === "submitting" ? t("sending") : t("sendCorrection")}
       </button>
       <p className="text-muted text-[12.5px] leading-[1.5]">
-        A person reads it before anything on the record changes.
+        {t("correctionNote")}
       </p>
     </div>
   );

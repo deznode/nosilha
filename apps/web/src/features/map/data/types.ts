@@ -23,8 +23,6 @@ export interface MapItem {
   key: string;
   kind: MapItemKind;
   name: string;
-  /** "Settlement", the record's category as the archive names it, or "Photograph". */
-  eyebrow: string;
   description: string;
   coordinates: { lat: number; lng: number };
   status: DocumentationStatus;
@@ -44,6 +42,8 @@ export interface MapItem {
   photographCount?: number;
 
   // Records
+  /** The record's category as the archive names it, shown above its name. */
+  eyebrow?: string;
   townName?: string;
 
   // Photographs

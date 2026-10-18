@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -20,6 +21,8 @@ export function LoadingSpinner({
   className,
   text,
 }: LoadingSpinnerProps) {
+  const t = useTranslations("common");
+
   return (
     <div
       className={clsx(
@@ -35,7 +38,7 @@ export function LoadingSpinner({
           repeat: Infinity,
           ease: "linear",
         }}
-        aria-label="Loading"
+        aria-label={t("loading")}
       >
         {/* Outer ring */}
         <div className="border-ocean-blue/20 absolute inset-0 rounded-full border-2" />

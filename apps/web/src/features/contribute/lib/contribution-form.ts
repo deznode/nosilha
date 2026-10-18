@@ -48,14 +48,15 @@ export type Step =
   | "filmUrl"
   | "ready";
 
-export const STEP_LABELS: Record<Exclude<Step, "ready">, string> = {
-  photographer: "Name the photographer to continue",
-  contributor: "Add your name to continue",
-  permission: "Confirm permission to continue",
-  file: "Add the photograph to continue",
-  filmTitle: "Add the film's title to continue",
-  filmUrl: "Paste a YouTube or Vimeo link to continue",
-};
+/**
+ * The message key, under `contribute.media`, that names a step on the send
+ * button ("Add your name to continue"). The component resolves it.
+ */
+export type StepMessageKey = `steps.${Exclude<Step, "ready">}`;
+
+export function stepMessageKey(step: Exclude<Step, "ready">): StepMessageKey {
+  return `steps.${step}`;
+}
 
 /**
  * The photograph (or the link) comes first because it sits first on the

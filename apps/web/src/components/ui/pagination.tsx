@@ -2,6 +2,7 @@
 
 import { clsx } from "clsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { PaginationMetadata } from "@/lib/api-contracts";
 import type { AdminQueueResponse } from "@/types/admin";
 
@@ -100,6 +101,8 @@ export function Pagination({
   onPageChange,
   className,
 }: PaginationProps) {
+  const t = useTranslations("common.pagination");
+
   if (totalPages <= 1) return null;
 
   const isFirst = currentPage === 0;
@@ -125,7 +128,7 @@ export function Pagination({
 
   return (
     <nav
-      aria-label="Pagination"
+      aria-label={t("label")}
       className={clsx(
         "flex flex-col items-center gap-3 py-4 sm:flex-row sm:justify-between",
         className
@@ -137,19 +140,22 @@ export function Pagination({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={isFirst}
           className={navButton}
-          aria-label="Previous page"
+          aria-label={t("previous")}
         >
           <ChevronLeft size={16} />
           <span className="ml-1">Prev</span>
         </button>
         <span className="text-muted px-3 text-sm">
-          Page {currentPage + 1} of {totalPages}
+          {t("pageOf", {
+            page: String(currentPage + 1),
+            total: String(totalPages),
+          })}
         </span>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={isLast}
           className={navButton}
-          aria-label="Next page"
+          aria-label={t("next")}
         >
           <span className="mr-1">Next</span>
           <ChevronRight size={16} />
@@ -162,7 +168,7 @@ export function Pagination({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={isFirst}
           className={navButton}
-          aria-label="Previous page"
+          aria-label={t("previous")}
         >
           <ChevronLeft size={16} />
           <span className="ml-1">Prev</span>
@@ -178,7 +184,7 @@ export function Pagination({
               key={page}
               onClick={() => onPageChange(page)}
               className={page === currentPage ? activePageButton : pageButton}
-              aria-label={`Page ${page + 1}`}
+              aria-label={t("page", { page: String(page + 1) })}
               aria-current={page === currentPage ? "page" : undefined}
             >
               {page + 1}
@@ -190,7 +196,7 @@ export function Pagination({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={isLast}
           className={navButton}
-          aria-label="Next page"
+          aria-label={t("next")}
         >
           <span className="mr-1">Next</span>
           <ChevronRight size={16} />
@@ -199,7 +205,11 @@ export function Pagination({
 
       {/* Item count */}
       <p className="text-muted text-sm">
-        Showing {startItem}&ndash;{endItem} of {totalItems}
+        {t("showing", {
+          start: String(startItem),
+          end: String(endItem),
+          total: String(totalItems),
+        })}
       </p>
     </nav>
   );

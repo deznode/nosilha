@@ -8,6 +8,7 @@ import {
 } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 interface ScrollIndicatorProps {
   /** Whether to fade out the indicator as the user scrolls. Default: true */
@@ -34,6 +35,7 @@ export function ScrollIndicator({
   className,
 }: ScrollIndicatorProps) {
   const shouldReduceMotion = useReducedMotion();
+  const t = useTranslations("common");
 
   // Scroll-linked opacity - fades out as user scrolls
   const { scrollYProgress } = useScroll();
@@ -64,10 +66,10 @@ export function ScrollIndicator({
         "group absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 transform cursor-pointer flex-col items-center gap-2 transition-colors hover:text-white",
         className
       )}
-      aria-label="Scroll down to content"
+      aria-label={t("scrollDown")}
     >
       <span className="text-[10px] tracking-[0.2em] text-white/90 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-colors group-hover:text-white">
-        Scroll
+        {t("scroll")}
       </span>
       <motion.div
         variants={shouldReduceMotion ? undefined : chevronVariants}

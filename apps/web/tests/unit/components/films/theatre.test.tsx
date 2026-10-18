@@ -8,6 +8,9 @@ import { upNextTag } from "@/components/films/theatre/up-next";
 import type { Film } from "@/lib/films";
 
 import { makeFilm } from "./film-fixture";
+import { getTranslations } from "next-intl/server";
+
+const t = await getTranslations("films");
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({
@@ -313,9 +316,9 @@ describe("FilmTheatre", () => {
 
 describe("upNextTag", () => {
   it("tags can't-play, same place and next", () => {
-    expect(upNextTag(BLOCKED, CURRENT, SAME)?.text).toBe("Can’t play here");
-    expect(upNextTag(SAME, CURRENT, SAME)?.text).toBe("Same place");
-    expect(upNextTag(OTHER, OTHER, OTHER)?.text).toBe("Next");
-    expect(upNextTag(OTHER, CURRENT, SAME)).toBeNull();
+    expect(upNextTag(t, BLOCKED, CURRENT, SAME)?.text).toBe("Can’t play here");
+    expect(upNextTag(t, SAME, CURRENT, SAME)?.text).toBe("Same place");
+    expect(upNextTag(t, OTHER, OTHER, OTHER)?.text).toBe("Next");
+    expect(upNextTag(t, OTHER, CURRENT, SAME)).toBeNull();
   });
 });

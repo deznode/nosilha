@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import Image from "next/image";
 import { Play, Sparkles } from "lucide-react";
 import {
@@ -21,14 +22,16 @@ export function WeeklyDiscoverySection({
   photos,
 }: WeeklyDiscoverySectionProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const format = useFormatter();
+  const t = useTranslations("photographs");
 
   const lightboxPhotos: Photo[] = useMemo(
     () =>
       photos.map((p) => {
-        const item = mapGalleryMediaToMediaItem(p);
-        return mediaItemToPhoto(item);
+        const item = mapGalleryMediaToMediaItem(p, format, t);
+        return mediaItemToPhoto(item, t);
       }),
-    [photos]
+    [photos, format, t]
   );
 
   if (photos.length < 3) return null;
@@ -39,7 +42,7 @@ export function WeeklyDiscoverySection({
         <div className="mb-3 flex items-center gap-2">
           <Sparkles size={18} className="text-sunny-yellow" />
           <h2 className="text-body text-sm font-bold tracking-wider uppercase">
-            This Week&apos;s Discoveries
+            {t("gallery.weeklyDiscoveries")}
           </h2>
         </div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:-mx-0 sm:px-0">
@@ -58,7 +61,7 @@ export function WeeklyDiscoverySection({
                 <div className="relative h-32 w-full sm:h-40">
                   <Image
                     src={thumbUrl}
-                    alt={photo.altText ?? photo.title ?? "Gallery photo"}
+                    alt={photo.altText ?? photo.title ?? t("gallery.photoAlt")}
                     fill
                     sizes="224px"
                     className="ease-calm object-cover transition-transform duration-300 group-hover:scale-105"

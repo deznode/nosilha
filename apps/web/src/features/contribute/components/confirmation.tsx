@@ -1,6 +1,8 @@
 import clsx from "clsx";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import type { Translator } from "@/i18n/types";
 
 import type { ContributionKind } from "../lib/contribution-draft";
 import { PAGE_HEADING, STRIPE } from "./form-parts";
@@ -61,31 +63,27 @@ export interface SentRecord {
   newAccountEmail: string | null;
 }
 
-const COPY = {
-  photo: {
-    body: "A person looks at every photograph before it goes into the archive. It will be published with the credit you gave, and not without it.",
-    again: "Give another photograph",
-    see: "See the photographs",
-    href: "/photographs",
-  },
-  film: {
-    body: "A person checks that the link works and that the film is of Brava before it goes into the archive. The film stays with its host; we show it on its own page.",
-    again: "Give another film link",
-    see: "See the films",
-    href: "/films",
-  },
+/** Where "See the photographs" / "See the films" leads. */
+const SEE_HREF = {
+  photo: "/photographs",
+  film: "/films",
 } as const;
 
-function heading({ kind, giverFirstName }: SentRecord): string {
-  if (kind === "film") return "Thank you. The film link is with us.";
+type ConfirmationT = Translator<"contribute.confirmation">;
+
+function heading(
+  t: ConfirmationT,
+  { kind, giverFirstName }: SentRecord
+): string {
+  if (kind === "film") return t("headingFilm");
   return giverFirstName
-    ? `Thank you, ${giverFirstName}. It's with us now.`
-    : "Thank you. It's with us now.";
+    ? t("headingNamed", { name: giverFirstName })
+    : t("heading");
 }
 
-function lastStep({ kind, town }: SentRecord): string {
-  if (kind === "film") return "In the archive, in Films";
-  return town ? `In the archive, and on the ${town} page` : "In the archive";
+function lastStep(t: ConfirmationT, { kind, town }: SentRecord): string {
+  if (kind === "film") return t("lastStepFilm");
+  return town ? t("lastStepTown", { town }) : t("lastStep");
 }
 
 /**
@@ -100,15 +98,15 @@ export function Confirmation({
   record: SentRecord;
   onAgain: () => void;
 }) {
-  const copy = COPY[record.kind];
+  const t = useTranslations("contribute.confirmation");
   const film = record.kind === "film";
 
   return (
     <div className="mx-auto flex max-w-[520px] flex-col gap-[22px]">
       <div>
-        <h1 className={clsx(PAGE_HEADING, "mb-2.5")}>{heading(record)}</h1>
+        <h1 className={clsx(PAGE_HEADING, "mb-2.5")}>{heading(t, record)}</h1>
         <p className="text-muted m-0 text-[14.5px] leading-[1.6]">
-          {copy.body}
+          {t(`${record.kind}.body`)}
         </p>
       </div>
 
@@ -131,30 +129,26 @@ export function Confirmation({
       </div>
 
       <ol className="border-hairline ml-1.5 flex flex-col border-l-2">
-        <Step dot="filled">Received today</Step>
-        <Step dot="current">
-          A person on the archive team reviews it · usually a few days
-        </Step>
-        <Step dot="future">{lastStep(record)}</Step>
+        <Step dot="filled">{t("received")}</Step>
+        <Step dot="current">{t("review")}</Step>
+        <Step dot="future">{lastStep(t, record)}</Step>
       </ol>
 
       <div className="flex flex-wrap gap-2.5">
         <PrimaryButton onClick={onAgain} className="flex-[1_1_200px]">
-          {copy.again}
+          {t(`${record.kind}.again`)}
         </PrimaryButton>
         <Link
-          href={copy.href}
+          href={SEE_HREF[record.kind]}
           className="focus-ring border-edge text-body flex h-12 flex-[1_1_200px] items-center justify-center rounded-lg border text-[15px] font-medium"
         >
-          {copy.see}
+          {t(`${record.kind}.see`)}
         </Link>
       </div>
 
       {record.newAccountEmail && (
         <p className="border-hairline text-muted m-0 border-t pt-3.5 text-[13px] leading-[1.55]">
-          This was your first time, so we&apos;ve made an account for{" "}
-          {record.newAccountEmail}. It&apos;s used for credit and for taking
-          things down, nothing else. Next time, sign in the same way.
+          {t("newAccount", { email: record.newAccountEmail })}
         </p>
       )}
     </div>

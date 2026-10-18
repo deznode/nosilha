@@ -1,7 +1,8 @@
 "use client";
 
 import clsx from "clsx";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 import { Avatar } from "@/components/ui/avatar";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
@@ -9,9 +10,10 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 import {
   ContributeAction,
-  LanguageChip,
   useChromeAccount,
+  useSignInHref,
 } from "./chrome-parts";
+import { LanguageSwitcher } from "./language-switcher";
 import { DESTINATIONS, SHEET_DESTINATION_LIST } from "./nav-config";
 
 /**
@@ -37,11 +39,13 @@ export function MoreSheet({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const t = useTranslations("chrome");
+
   return (
     <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
-      label="More"
+      label={t("more")}
       // Clears the 56px bottom bar. The bar stays above the sheet so the More
       // trigger keeps its X state and remains tappable to dismiss; without this
       // it paints over the legal row instead.
@@ -54,6 +58,8 @@ export function MoreSheet({
 
 function MoreSheetBody({ onClose }: { onClose: () => void }) {
   const { signedIn, initials, displayName } = useChromeAccount();
+  const signInHref = useSignInHref();
+  const t = useTranslations("chrome");
 
   // One string, three rows: the mapped destinations, Profile and Sign in only
   // differ by their colour.
@@ -68,12 +74,12 @@ function MoreSheetBody({ onClose }: { onClose: () => void }) {
             <p className="text-body truncate text-sm font-medium">
               {displayName}
             </p>
-            <p className="text-muted text-xs">Signed in</p>
+            <p className="text-muted text-xs">{t("signedIn")}</p>
           </div>
         </div>
       )}
 
-      <nav aria-label="More destinations" className="grid grid-cols-2">
+      <nav aria-label={t("moreDestinations")} className="grid grid-cols-2">
         {SHEET_DESTINATION_LIST.map((destination) => (
           <Link
             key={destination.key}
@@ -81,7 +87,7 @@ function MoreSheetBody({ onClose }: { onClose: () => void }) {
             onClick={onClose}
             className={clsx("text-body", rowClasses)}
           >
-            {destination.label}
+            {t(destination.labelKey)}
           </Link>
         ))}
         {signedIn ? (
@@ -90,22 +96,22 @@ function MoreSheetBody({ onClose }: { onClose: () => void }) {
             onClick={onClose}
             className={clsx("text-body", rowClasses)}
           >
-            Profile
+            {t("profile")}
           </Link>
         ) : (
           <Link
-            href="/login"
+            href={signInHref}
             onClick={onClose}
             className={clsx("text-ocean-blue", rowClasses)}
           >
-            Sign in
+            {t("signIn")}
           </Link>
         )}
       </nav>
 
       <div className="border-hairline mt-1.5 flex items-center gap-2 border-t pt-2.5">
         <ContributeAction className="flex-1" onClick={onClose} />
-        <LanguageChip className="w-11 shrink-0" />
+        <LanguageSwitcher className="min-w-11 shrink-0" onChoose={onClose} />
         <ThemeToggle showContainer={false} shape="square" />
       </div>
 
@@ -117,7 +123,7 @@ function MoreSheetBody({ onClose }: { onClose: () => void }) {
             onClick={onClose}
             className="text-muted px-1.5 py-2.5 text-[12.5px] transition-colors duration-150"
           >
-            {destination.label}
+            {t(destination.labelKey)}
           </Link>
         ))}
       </div>

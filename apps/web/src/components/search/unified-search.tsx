@@ -3,6 +3,7 @@
 import { useRef, useEffect, useCallback } from "react";
 import { Search, ArrowRight, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useUnifiedSearch } from "@/hooks/queries/useUnifiedSearch";
 import { UnifiedSearchResults } from "./unified-search-results";
 
@@ -20,12 +21,14 @@ interface UnifiedSearchProps {
 }
 
 export function UnifiedSearch({
-  placeholder = "Search places and articles...",
+  placeholder,
   className = "",
   variant = "default",
   onFocusChange,
   onSearchSubmit,
 }: UnifiedSearchProps) {
+  const t = useTranslations("common.search");
+  const inputPlaceholder = placeholder ?? t("placeholder");
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -130,13 +133,13 @@ export function UnifiedSearch({
           onChange={(e) => setQuery(e.target.value)}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          placeholder={placeholder}
+          placeholder={inputPlaceholder}
           className={`w-full flex-1 border-none bg-transparent px-3 py-4 text-sm outline-none focus:ring-0 ${
             isHero
               ? "text-stone-200 placeholder-stone-400"
               : "text-body placeholder-muted"
           }`}
-          aria-label={placeholder}
+          aria-label={inputPlaceholder}
           role="combobox"
           aria-expanded={isOpen}
           aria-haspopup="listbox"
@@ -157,7 +160,7 @@ export function UnifiedSearch({
                 ? "text-stone-400 hover:text-white"
                 : "text-muted hover:text-body"
             }`}
-            aria-label="Clear search"
+            aria-label={t("clear")}
           >
             <X size={16} />
           </button>
@@ -172,7 +175,7 @@ export function UnifiedSearch({
               ? "text-stone-400 hover:text-white"
               : "text-muted hover:text-body"
           }`}
-          aria-label="Submit search"
+          aria-label={t("submit")}
         >
           <ArrowRight size={16} />
         </motion.button>
@@ -183,7 +186,7 @@ export function UnifiedSearch({
         <div
           id="unified-search-results"
           role="listbox"
-          aria-label="Search results"
+          aria-label={t("results")}
           className={`absolute bottom-full z-50 mb-2 w-full rounded-xl border shadow-xl ${
             isHero
               ? "border-white/20 bg-stone-900/95 backdrop-blur-md"

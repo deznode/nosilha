@@ -1,11 +1,17 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
 import { LEGACY_REDIRECTS } from "./src/lib/legacy-redirects";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const isDev = process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Explicit false keeps pre-16.4 prefetching and silences the 16.4 warning.
+  // Partial Prefetching becomes the default in Next 17; adopt it on its own.
+  partialPrefetching: false,
   cacheLife: {
     content: {
       stale: 300,
@@ -125,4 +131,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

@@ -8,6 +8,9 @@ import {
   tileImageUrl,
   type InstagramPost,
 } from "@/lib/instagram";
+import { getTranslations } from "next-intl/server";
+
+const t = await getTranslations("archiveHome.instagram");
 
 const mockPosts: InstagramPost[] = [
   {
@@ -223,9 +226,9 @@ describe("tileImageUrl", () => {
 
 describe("badgeLabel", () => {
   it("labels videos and albums, not images", () => {
-    expect(badgeLabel(mockPosts[0])).toBeNull();
-    expect(badgeLabel(mockPosts[1])).toBe("Video");
-    expect(badgeLabel(mockPosts[2])).toBe("Album");
+    expect(badgeLabel(t, mockPosts[0])).toBeNull();
+    expect(badgeLabel(t, mockPosts[1])).toBe("Video");
+    expect(badgeLabel(t, mockPosts[2])).toBe("Album");
   });
 });
 
@@ -286,11 +289,13 @@ describe("relativeAge", () => {
     ["2026-07-19T12:00:00+0000", "2 months ago"],
     ["2025-03-01T12:00:00+0000", "1 year ago"],
   ])("%s → %s", (timestamp, expected) => {
-    expect(relativeAge(timestamp, now)).toBe(expected);
+    expect(relativeAge(t, timestamp, now, "en")).toBe(expected);
   });
 
   it("does not go negative for a clock-skewed future timestamp", () => {
-    expect(relativeAge("2026-09-19T12:05:00+0000", now)).toBe("just now");
+    expect(relativeAge(t, "2026-09-19T12:05:00+0000", now, "en")).toBe(
+      "just now"
+    );
   });
 });
 
@@ -300,14 +305,14 @@ describe("tileAccessibleName", () => {
 
   it("names the post by date and the first 80 characters of its caption", () => {
     const caption = `${"a".repeat(78)}\n\nbcdef`;
-    expect(tileAccessibleName(post({ caption, timestamp }), now)).toBe(
+    expect(tileAccessibleName(t, post({ caption, timestamp }), now, "en")).toBe(
       `Instagram post, 3 days ago: ${"a".repeat(78)} b`
     );
   });
 
   it("falls back to the date alone without a caption", () => {
     expect(
-      tileAccessibleName(post({ caption: undefined, timestamp }), now)
+      tileAccessibleName(t, post({ caption: undefined, timestamp }), now, "en")
     ).toBe("Instagram post, 3 days ago");
   });
 });

@@ -163,7 +163,7 @@ vi.mock("@/features/contribute/components/sign-in-sheet", () => ({
     ) : null,
 }));
 
-import MediaContributionPage from "@/app/(main)/contribute/media/page";
+import MediaContributionPage from "@/app/[locale]/(main)/contribute/media/page";
 import { Confirmation } from "@/features/contribute/components/confirmation";
 
 const PRINT = new File(["x"], "avo-maria-1962.jpg", { type: "image/jpeg" });

@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { ShareArrivalLine } from "@/components/share/share-arrival";
 import { ShareAction } from "@/components/ui/archive-actions";
+import { RecordText } from "@/components/ui/record-text";
 import { photographsHref } from "@/lib/archive-photographs";
 import {
   canPlay,
@@ -44,12 +45,14 @@ export function FilmTheatre({
   /** Whether the film's settlement has photographs to link to. */
   hasPlacePhotos: boolean;
 }) {
+  const t = useTranslations("films");
+  const tShare = useTranslations("share");
   const router = useRouter();
   const [autoNext, setAutoNext] = useState(true);
   const ordered = films === null ? null : upNext(film, films);
   const next = ordered?.find(canPlay) ?? null;
-  const source = filmSourceLine(film);
-  const arrival = filmArrivalLine(film, films);
+  const source = filmSourceLine(t, film);
+  const arrival = filmArrivalLine(film, films, tShare);
 
   const playNext = useCallback(
     (target: Film) => router.push(filmHref(target.id, { play: true })),
@@ -77,31 +80,40 @@ export function FilmTheatre({
             href="/films"
             className="text-muted hover:text-body hit-area self-start text-[13px] transition-colors"
           >
-            ← All films
+            {t("theatre.allFilms")}
           </Link>
           <span className="text-ocean-blue text-[10px] tracking-[.18em] uppercase">
-            {filmEyebrow(film)}
+            {filmEyebrow(t, film)}
           </span>
-          <h1 className="text-body m-0 font-serif text-[30px] leading-[1.08] font-normal tracking-[-0.02em] text-pretty md:text-[42px]">
+          <RecordText
+            as="h1"
+            when={!!film.title}
+            className="text-body m-0 font-serif text-[30px] leading-[1.08] font-normal tracking-[-0.02em] text-pretty md:text-[42px]"
+          >
             {film.displayTitle}
-          </h1>
+          </RecordText>
           {film.place && (
             <div className="flex flex-wrap items-baseline gap-3.5">
-              <span className="text-body text-[15px]">{filmedNear(film)}</span>
+              <span className="text-body text-[15px]">
+                {filmedNear(t, film)}
+              </span>
               {hasPlacePhotos && (
                 <Link
                   href={photographsHref(film.place.slug)}
                   className="text-ocean-blue hover:text-brand text-[13px]"
                 >
-                  Photographs from here →
+                  {t("theatre.photographsFromHere")}
                 </Link>
               )}
             </div>
           )}
           {film.description && (
-            <p className="text-body m-0 max-w-[62ch] text-base leading-[1.6] text-pretty">
+            <RecordText
+              as="p"
+              className="text-body m-0 max-w-[62ch] text-base leading-[1.6] text-pretty"
+            >
               {film.description}
-            </p>
+            </RecordText>
           )}
           {source && (
             <div className="text-muted font-mono text-[11.5px] leading-normal break-words">
@@ -109,7 +121,9 @@ export function FilmTheatre({
             </div>
           )}
           <div className="border-border-subtle mt-1 flex flex-wrap items-baseline gap-3 border-t pt-3.5">
-            <span className="text-muted text-[13px]">{filmHelpLine(film)}</span>
+            <span className="text-muted text-[13px]">
+              {filmHelpLine(t, film)}
+            </span>
             <IdentifyQuestion
               contentType="media"
               contentId={film.id}
@@ -118,11 +132,11 @@ export function FilmTheatre({
               pageTitle={film.displayTitle}
               variant="link"
             >
-              Help complete this record
+              {t("theatre.helpComplete")}
             </IdentifyQuestion>
             <ShareAction
               title={film.displayTitle}
-              text={filmShareText(film)}
+              text={filmShareText(film, tShare)}
               moment="film"
               itemId={film.id}
               className="hit-area focus-ring"

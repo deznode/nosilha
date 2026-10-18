@@ -1,4 +1,6 @@
-import { countSentence, plural } from "@/lib/copy/number-words";
+import type { Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
+import { capitalise, toWords, type Gender } from "@/lib/copy/number-words";
 import type { Town, TownStatusSummary } from "@/types/town";
 
 /**
@@ -8,38 +10,37 @@ import type { Town, TownStatusSummary } from "@/types/town";
  * of them carries a photograph, and how many photographs the archive already holds
  * whose coordinates fall inside the settlement but which nobody has confirmed. Three
  * facts, three live numbers.
+ *
+ * Each sentence shape is one message in the `town` namespace (spec 041), with counts
+ * as plurals and number words passed in, so a language can agree and reorder them.
  */
+
+export type TownTranslator = Translator<"town">;
 
 function recorded(value: string | null | undefined): boolean {
   return !!value?.trim();
 }
 
-function records(count: number): string {
-  return countSentence(count, {
-    one: "{n} record",
-    many: "{n} records",
-    zero: "No record",
-  });
+function words(n: number, locale: Locale, gender: Gender = "masculine") {
+  return toWords(n, { locale, gender });
+}
+
+function openingWords(n: number, locale: Locale, gender: Gender = "masculine") {
+  return capitalise(words(n, locale, gender), locale);
 }
 
 /** "Five place records · no photograph of the town itself" */
-export function settlementSubLine(summary: TownStatusSummary): string {
-  const placeRecords = countSentence(summary.entryCount, {
-    one: "{n} place record",
-    many: "{n} place records",
-    zero: "No place record",
+export function settlementSubLine(
+  t: TownTranslator,
+  locale: Locale,
+  summary: TownStatusSummary
+): string {
+  return t("subLine", {
+    records: summary.entryCount,
+    recordWords: openingWords(summary.entryCount, locale),
+    photos: summary.photographCount,
+    photoWords: words(summary.photographCount, locale, "feminine"),
   });
-
-  const photographs =
-    summary.photographCount > 0
-      ? countSentence(summary.photographCount, {
-          one: "{n} photograph",
-          many: "{n} photographs",
-          zero: "",
-        }).toLowerCase()
-      : "no photograph of the town itself";
-
-  return `${placeRecords} · ${photographs}`;
 }
 
 export interface PhotographPanel {
@@ -51,64 +52,51 @@ export interface PhotographPanel {
   unconfirmedLabel: string | null;
 }
 
-export function photographPanel(summary: TownStatusSummary): PhotographPanel {
+export function photographPanel(
+  t: TownTranslator,
+  locale: Locale,
+  summary: TownStatusSummary
+): PhotographPanel {
   const { name, entryCount, photographCount, unconfirmedPhotographCount } =
     summary;
-
-  const heading =
-    photographCount > 0
-      ? countSentence(photographCount, {
-          one: "{n} photograph",
-          many: "{n} photographs",
-          zero: "",
-        })
-      : "None yet";
+  const recordArgs = {
+    records: entryCount,
+    recordWords: openingWords(entryCount, locale),
+  };
 
   const sentences: string[] = [];
   if (entryCount === 0) {
-    sentences.push("No record sits in this town yet.");
+    sentences.push(t("panel.noRecords"));
   } else if (photographCount === 0) {
-    const sit = plural(entryCount, "sits", "sit");
-    const carries =
-      entryCount === 1
-        ? "it does not carry a photograph"
-        : "not one of them carries a photograph";
-    sentences.push(
-      `${records(entryCount)} ${sit} in this town and ${carries}.`
-    );
+    sentences.push(t("panel.recordsWithoutPhotograph", recordArgs));
   } else {
-    sentences.push(
-      `${records(entryCount)} ${plural(entryCount, "sits", "sit")} in this town.`
-    );
+    sentences.push(t("panel.records", recordArgs));
   }
 
   if (unconfirmedPhotographCount > 0) {
-    const opening = countSentence(unconfirmedPhotographCount, {
-      one: `{n} photograph in the archive has coordinates that fall inside ${name}`,
-      many: `{n} photographs in the archive have coordinates that fall inside ${name}`,
-      zero: "",
-    });
     sentences.push(
-      `${opening}, but nobody has confirmed the place, so ${plural(
-        unconfirmedPhotographCount,
-        "it is",
-        "they are"
-      )} not attached here.`
+      t("panel.unconfirmed", {
+        count: unconfirmedPhotographCount,
+        words: openingWords(unconfirmedPhotographCount, locale, "feminine"),
+        name,
+      })
     );
   }
 
   return {
-    eyebrow: `Photographs of ${name}`,
-    heading,
+    eyebrow: t("panel.eyebrow", { name }),
+    heading: t("panel.heading", {
+      count: photographCount,
+      words: openingWords(photographCount, locale, "feminine"),
+    }),
     body: sentences.join(" "),
-    giveLabel: `Give a photograph of ${name}`,
+    giveLabel: t("panel.give", { name }),
     unconfirmedLabel:
       unconfirmedPhotographCount > 0
-        ? `${countSentence(unconfirmedPhotographCount, {
-            one: "See the {n} unconfirmed photograph",
-            many: "See the {n} unconfirmed photographs",
-            zero: "",
-          })}`
+        ? t("panel.seeUnconfirmed", {
+            count: unconfirmedPhotographCount,
+            words: words(unconfirmedPhotographCount, locale, "feminine"),
+          })
         : null,
   };
 }
@@ -132,6 +120,7 @@ export interface SettlementQuestion {
  * `elevation` live on the status summary, the rest on the settlement itself.
  */
 export function settlementQuestions(
+  t: TownTranslator,
   town: Town,
   summary: TownStatusSummary
 ): SettlementQuestion[] {
@@ -140,25 +129,25 @@ export function settlementQuestions(
   if (!recorded(summary.population)) {
     questions.push({
       field: "population",
-      question: `How many people live in ${summary.name}?`,
+      question: t("questions.population", { name: summary.name }),
     });
   }
   if (!recorded(summary.elevation)) {
     questions.push({
       field: "elevation",
-      question: "How high above the sea is it?",
+      question: t("questions.elevation"),
     });
   }
   if (!recorded(town.founded)) {
     questions.push({
       field: "founded",
-      question: "When was the town founded?",
+      question: t("questions.founded"),
     });
   }
   if (town.highlights.filter((h) => recorded(h)).length === 0) {
     questions.push({
       field: "highlights",
-      question: "What should a visitor walk to first?",
+      question: t("questions.highlights"),
     });
   }
 

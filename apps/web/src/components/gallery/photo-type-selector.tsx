@@ -8,6 +8,7 @@
  */
 
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { MapPin, Users, Lock } from "lucide-react";
 import type { PhotoType } from "@/types/media";
 
@@ -17,34 +18,15 @@ interface PhotoTypeSelectorProps {
   disabled?: boolean;
 }
 
+/** Each type's label and description are `photographs.photoType.<value>`. */
 const PHOTO_TYPES: {
   value: PhotoType;
-  label: string;
-  description: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   color: string;
 }[] = [
-  {
-    value: "CULTURAL_SITE",
-    label: "Cultural Site",
-    description: "Full GPS for heritage locations",
-    icon: MapPin,
-    color: "text-valley-green",
-  },
-  {
-    value: "COMMUNITY_EVENT",
-    label: "Community Event",
-    description: "Location rounded to ~100m",
-    icon: Users,
-    color: "text-ocean-blue",
-  },
-  {
-    value: "PERSONAL",
-    label: "Personal",
-    description: "Location removed entirely",
-    icon: Lock,
-    color: "text-bougainvillea-pink",
-  },
+  { value: "CULTURAL_SITE", icon: MapPin, color: "text-valley-green" },
+  { value: "COMMUNITY_EVENT", icon: Users, color: "text-ocean-blue" },
+  { value: "PERSONAL", icon: Lock, color: "text-bougainvillea-pink" },
 ];
 
 export function PhotoTypeSelector({
@@ -52,10 +34,11 @@ export function PhotoTypeSelector({
   onChange,
   disabled = false,
 }: PhotoTypeSelectorProps) {
+  const t = useTranslations("photographs.photoType");
   return (
     <div className="space-y-2">
       <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
-        Photo Type
+        {t("label")}
       </label>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         {PHOTO_TYPES.map((type) => {
@@ -88,10 +71,10 @@ export function PhotoTypeSelector({
                     isSelected ? type.color : "text-body"
                   )}
                 >
-                  {type.label}
+                  {t(`${type.value}.label`)}
                 </div>
                 <div className="text-muted truncate text-xs">
-                  {type.description}
+                  {t(`${type.value}.description`)}
                 </div>
               </div>
             </button>

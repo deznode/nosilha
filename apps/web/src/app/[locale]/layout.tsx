@@ -1,0 +1,230 @@
+import type { Metadata } from "next";
+import clsx from "clsx";
+import Script from "next/script";
+import { ThemeSync } from "@/components/theme-sync";
+import { buildThemeInitScript } from "@/lib/theme/initial-theme";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { locale as rootLocale } from "next/root-params";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, getTranslations } from "next-intl/server";
+
+import { AuthProvider } from "@/components/providers/auth-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
+import { ToastProvider } from "@/components/providers/toast-provider";
+import {
+  siteConfig,
+  generateOrganizationSchema,
+  createStructuredDataScript,
+} from "@/lib/metadata";
+import {
+  DEFAULT_LOCALE,
+  enabledLocales,
+  HTML_LANG,
+  isEnabledLocale,
+  OG_LOCALES,
+} from "@/i18n/config";
+import { pickMessages, ROOT_MESSAGES } from "@/i18n/client-messages";
+import { AnalyticsListener } from "../analytics-listener";
+import { fraunces, outfit } from "../fonts";
+import { reportWebVitalsToGA } from "../web-vitals";
+import "../globals.css";
+import "@/styles/print.css";
+// import { pl } from "zod/v4/locales";
+
+/**
+ * Cache Components needs a value for every root param at build time. Only enabled
+ * locales are listed, so `/pt` is not prerendered while Portuguese is off.
+ */
+export function generateStaticParams() {
+  return enabledLocales().map((locale) => ({ locale }));
+}
+
+// 2. Define comprehensive metadata for the site with proper metadataBase
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await rootLocale();
+  if (!isEnabledLocale(locale)) notFound();
+  const t = await getTranslations("metadata.site");
+  const title = t("title");
+  const description = t("description");
+
+  return {
+    ...baseMetadata,
+    title: { template: t("titleTemplate"), default: title },
+    description,
+    openGraph: {
+      ...baseMetadata.openGraph,
+      locale: OG_LOCALES[locale],
+      title,
+      description,
+      images: [{ ...OG_IMAGE, alt: t("ogImageAlt") }],
+    },
+    twitter: { ...baseMetadata.twitter, title, description },
+    // The English home address is only the right default for English pages.
+    alternates: locale === DEFAULT_LOCALE ? baseMetadata.alternates : undefined,
+  };
+}
+
+const OG_IMAGE = {
+  url: siteConfig.ogImage,
+  width: 1200,
+  height: 630,
+  type: "image/jpeg",
+};
+
+/** Everything but the words, which come from the `metadata.site` messages. */
+const baseMetadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
+  keywords: siteConfig.keywords,
+  authors: [{ name: "Nos Ilha Team" }],
+  creator: "Nos Ilha",
+  publisher: "Nos Ilha",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: siteConfig.twitterHandle,
+    creator: siteConfig.twitterHandle,
+    images: [siteConfig.ogImage],
+  },
+  alternates: {
+    canonical: siteConfig.url,
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: {
+      "facebook-domain-verification": ["ob59zhsrsmp1gdw3yr79itdbz0itxh"],
+    },
+  },
+};
+
+// Analytics configuration
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID!;
+const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || "";
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // `dynamicParams = false` does not work with Cache Components, so an unknown or
+  // switched-off locale is refused here, at runtime.
+  const locale = await rootLocale();
+  if (!isEnabledLocale(locale)) notFound();
+
+  const messages = await getMessages();
+  const t = await getTranslations("chrome");
+
+  const tSite = await getTranslations("metadata.site");
+
+  // Generate organization structured data
+  const organizationSchema = generateOrganizationSchema(tSite("description"));
+
+  return (
+    <html lang={HTML_LANG[locale]} suppressHydrationWarning>
+      <head>
+        {/*
+          Theme initialization — runs before first paint so a stored dark choice
+          never flashes light, and a first visit on a dark OS never flashes dark.
+          The rule itself is injected from `resolveInitialTheme`'s own source: an
+          inline script cannot import a module, and duplicating the rule in a string
+          is how first paint and the hydrated render drifted apart before.
+          Spec 034 FR-001.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: buildThemeInitScript() }} />
+        {/* Organization structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: createStructuredDataScript([organizationSchema]),
+          }}
+        />
+      </head>
+      <body
+        className={clsx(
+          "bg-background-primary min-h-screen font-sans antialiased transition-all duration-300 ease-in-out",
+          outfit.variable,
+          fraunces.variable
+        )}
+      >
+        {/* Keeps the .dark class in step with uiStore on every route (FR-001) */}
+        <ThemeSync />
+        <a
+          href="#main-content"
+          className="focus:bg-background-primary focus:text-text-primary focus:ring-ocean-blue focus:shadow-elevated sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:ring-2 focus:ring-offset-2 focus:outline-none"
+        >
+          {t("skipToContent")}
+        </a>
+        <Suspense fallback={null}>
+          <AnalyticsListener />
+        </Suspense>
+        {/*
+          Only what the layouts and chrome read is passed: with no `messages` prop the
+          provider serialises the whole message file into every page. Pages that read
+          more send it themselves through `PageMessages`. Outermost, so toasts and
+          dialogs rendered by the providers can translate too.
+        */}
+        <NextIntlClientProvider
+          messages={pickMessages(messages, ROOT_MESSAGES)}
+        >
+          <QueryProvider>
+            <AuthProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </NextIntlClientProvider>
+
+        {/* Google Analytics 4 - Optimized loading */}
+        <GoogleAnalytics gaId={GA_ID} />
+
+        {/* Microsoft Clarity - Session replay and heatmaps */}
+        {CLARITY_PROJECT_ID && (
+          <Script
+            id="microsoft-clarity"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function(c,l,a,r,i,t,y){
+                    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+                })(window, document, "clarity", "script", "${CLARITY_PROJECT_ID}");
+              `,
+            }}
+          />
+        )}
+      </body>
+    </html>
+  );
+}
+
+/**
+ * Web Vitals Reporting
+ *
+ * Next.js automatically calls this function with Core Web Vitals metrics.
+ * We send these metrics to Google Analytics 4 for performance monitoring.
+ *
+ * @see https://nextjs.org/docs/app/guides/analytics
+ */
+export function reportWebVitals(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metric: any
+) {
+  reportWebVitalsToGA(metric);
+}

@@ -10,6 +10,9 @@
  *
  * `tests/unit/lib/reserved-slugs.test.ts` reads `app/` and fails if this list falls
  * behind a route someone adds.
+ *
+ * `en` and `pt` are the locale prefixes (spec 041). They are a dynamic `[locale]`
+ * segment, which that scan cannot see, so the test names them explicitly.
  */
 export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   "about",
@@ -20,6 +23,7 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   "contribute",
   "design-system",
   "directory",
+  "en",
   "films",
   "gallery",
   "history",
@@ -29,6 +33,7 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   "photographs",
   "privacy",
   "profile",
+  "pt",
   "settings",
   "settlements",
   "signup",

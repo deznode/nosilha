@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { ChipRow } from "@/components/ui/chip-row";
 import type { PlaceChip } from "@/lib/archive-photographs";
 
@@ -16,12 +18,13 @@ export function PlaceChips({
   active: string;
   onSelect: (key: string) => void;
 }) {
+  const t = useTranslations("photographs");
   return (
     <ChipRow
       chips={chips}
       active={active}
       onSelect={onSelect}
-      label="Filter by place"
+      label={t("chips.label")}
       className="pb-0.5"
     />
   );

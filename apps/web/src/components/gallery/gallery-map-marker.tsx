@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { Camera, Play } from "lucide-react";
 import type { MediaType } from "@/types/media";
 
@@ -24,6 +25,7 @@ export function GalleryMapMarker({
   onClick,
   mediaType,
 }: GalleryMapMarkerProps) {
+  const t = useTranslations("photographs.gallery.map");
   return (
     <button
       type="button"
@@ -36,7 +38,11 @@ export function GalleryMapMarker({
         "ease-calm transition-transform duration-200",
         isSelected ? "z-50 scale-110" : "z-10 hover:z-40 hover:scale-105"
       )}
-      aria-label={`View ${mediaType === "VIDEO" ? "video" : "photo"}: ${title}`}
+      aria-label={
+        mediaType === "VIDEO"
+          ? t("viewVideo", { title })
+          : t("viewPhoto", { title })
+      }
     >
       {/* Thumbnail circle */}
       <div

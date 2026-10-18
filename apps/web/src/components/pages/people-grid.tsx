@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { motion } from "framer-motion";
+import { useFormatter } from "next-intl";
 
 interface PersonPage {
   slug: string;
@@ -19,6 +20,7 @@ interface PeopleGridProps {
 }
 
 export function PeopleGrid({ people }: PeopleGridProps) {
+  const format = useFormatter();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -93,11 +95,7 @@ export function PeopleGrid({ people }: PeopleGridProps) {
         >
           <div className="p-4">
             <span className="text-muted text-xs">
-              {new Date(page.publishDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
+              {format.dateTime(new Date(page.publishDate), "mediumDate")}
             </span>
             <h3 className="text-body group-hover:text-ocean-blue mt-2 line-clamp-2 font-serif font-semibold transition-colors">
               {page.title}

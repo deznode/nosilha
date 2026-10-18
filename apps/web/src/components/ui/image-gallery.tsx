@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ZoomIn } from "lucide-react";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
@@ -11,15 +12,14 @@ interface ImageGalleryProps {
 }
 
 export function ImageGallery({ photos }: ImageGalleryProps) {
+  const t = useTranslations("common.gallery");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   if (!photos || photos.length === 0) {
     return (
       <div className="border-border-primary bg-background-secondary flex h-48 items-center justify-center rounded-lg border-2 border-dashed">
-        <p className="text-text-tertiary text-center text-sm">
-          No images have been uploaded for this location yet.
-        </p>
+        <p className="text-text-tertiary text-center text-sm">{t("empty")}</p>
       </div>
     );
   }
@@ -36,7 +36,7 @@ export function ImageGallery({ photos }: ImageGalleryProps) {
               setLightboxOpen(true);
             }}
             className="focus-ring group relative aspect-square w-full cursor-pointer overflow-hidden rounded-lg"
-            aria-label={`View ${photo.alt}`}
+            aria-label={t("view", { alt: photo.alt })}
           >
             <Image
               src={photo.src}

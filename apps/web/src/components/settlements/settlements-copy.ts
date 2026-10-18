@@ -1,9 +1,6 @@
-import {
-  capitalise,
-  countSentence,
-  plural,
-  toWords,
-} from "@/lib/copy/number-words";
+import type { Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
+import { capitalise, toWords, type Gender } from "@/lib/copy/number-words";
 import type { TownStatusSummary } from "@/types/town";
 
 /**
@@ -12,20 +9,40 @@ import type { TownStatusSummary } from "@/types/town";
  * Every number here is counted from the status summary the backend derives, never
  * written down: the archive's whole argument is that the gaps are real, and a
  * hard-coded total would be the first thing to go stale.
+ *
+ * The wording lives in the `settlements` messages (spec 041), one message per
+ * sentence, with number words passed in as arguments.
  */
+
+export type SettlementsTranslator = Translator<"settlements">;
+
+function words(n: number, locale: Locale, gender: Gender = "masculine") {
+  return toWords(n, { locale, gender });
+}
+
+function openingWords(n: number, locale: Locale, gender: Gender = "masculine") {
+  return capitalise(words(n, locale, gender), locale);
+}
 
 export type SettlementFilterKey = "all" | "has" | "none";
 
 export interface SettlementFilter {
   key: SettlementFilterKey;
-  label: string;
 }
 
 export const SETTLEMENT_FILTERS: readonly SettlementFilter[] = [
-  { key: "all", label: "All settlements" },
-  { key: "has", label: "Has records" },
-  { key: "none", label: "Nothing yet" },
+  { key: "all" },
+  { key: "has" },
+  { key: "none" },
 ] as const;
+
+/** A filter chip's label. */
+export function settlementFilterLabel(
+  t: SettlementsTranslator,
+  key: SettlementFilterKey
+): string {
+  return t(`filters.${key}`);
+}
 
 const FILTER_KEYS = new Set<string>(SETTLEMENT_FILTERS.map((f) => f.key));
 
@@ -64,26 +81,30 @@ export function settlementChipCounts(
  * The standfirst: how many names the island carries, then how the three states
  * divide them.
  */
-export function settlementStandfirst(towns: TownStatusSummary[]): string {
-  if (towns.length === 0) return "No settlement carries a name on Brava yet.";
+export function settlementStandfirst(
+  t: SettlementsTranslator,
+  locale: Locale,
+  towns: TownStatusSummary[]
+): string {
+  if (towns.length === 0) return t("standfirst.empty");
 
-  const documented = towns.filter((t) => t.status === "DOCUMENTED").length;
-  const partial = towns.filter((t) => t.status === "PARTIAL").length;
-  const nameOnly = towns.filter((t) => t.status === "NAME_ONLY").length;
+  const count = (status: TownStatusSummary["status"]) =>
+    towns.filter((town) => town.status === status).length;
+  const documented = count("DOCUMENTED");
+  const partial = count("PARTIAL");
+  const nameOnly = count("NAME_ONLY");
 
-  const opening = countSentence(towns.length, {
-    one: "{n} place carries a name on Brava",
-    many: "{n} places carry a name on Brava",
-    zero: "",
+  // Every count here is of settlements: `localidade` is feminine in Portuguese.
+  return t("standfirst.counts", {
+    total: towns.length,
+    totalWords: openingWords(towns.length, locale, "feminine"),
+    documented,
+    documentedWords: openingWords(documented, locale, "feminine"),
+    partial,
+    partialWords: words(partial, locale, "feminine"),
+    nameOnly,
+    nameOnlyWords: words(nameOnly, locale, "feminine"),
   });
-
-  const split = [
-    `${capitalise(toWords(documented))} ${plural(documented, "is", "are")} documented`,
-    `${toWords(partial)} ${plural(partial, "holds", "hold")} records without a photograph`,
-    `and ${toWords(nameOnly)} ${plural(nameOnly, "is", "are")} a name and a coordinate`,
-  ].join(", ");
-
-  return `${opening}. ${split}.`;
 }
 
 export interface SettlementStatusLine {
@@ -100,39 +121,39 @@ export interface SettlementStatusLine {
  * a count. That case says "a photograph" rather than inventing a number.
  */
 export function settlementStatusLine(
+  t: SettlementsTranslator,
+  locale: Locale,
   town: TownStatusSummary
 ): SettlementStatusLine {
   if (town.entryCount === 0) {
-    return { text: "a name and a coordinate, nothing else", ochre: true };
+    return { text: t("statusLine.nameOnly"), ochre: true };
   }
 
-  const records = countSentence(town.entryCount, {
-    one: "{n} record",
-    many: "{n} records",
-    zero: "",
-  });
-
-  let photographs: string;
-  if (town.photographCount > 0) {
-    photographs = countSentence(town.photographCount, {
-      one: "{n} photograph",
-      many: "{n} photographs",
-      zero: "",
-    }).toLowerCase();
-  } else if (town.hasPhotograph) {
-    photographs = "a photograph";
-  } else {
-    photographs = "no photograph";
-  }
-
-  return { text: `${records} · ${photographs}`, ochre: false };
+  return {
+    text: t("statusLine.records", {
+      records: town.entryCount,
+      recordWords: openingWords(town.entryCount, locale),
+      photoState:
+        town.photographCount > 0
+          ? "counted"
+          : town.hasPhotograph
+            ? "hero"
+            : "none",
+      photos: town.photographCount,
+      photoWords: words(town.photographCount, locale, "feminine"),
+    }),
+    ochre: false,
+  };
 }
 
 /** Population and elevation as recorded, or the sentence saying they are not. */
-export function settlementMetaRow(town: TownStatusSummary): [string, string] {
+export function settlementMetaRow(
+  t: SettlementsTranslator,
+  town: TownStatusSummary
+): [string, string] {
   return [
-    town.population?.trim() || "population not recorded",
-    town.elevation?.trim() || "elevation not recorded",
+    town.population?.trim() || t("meta.populationNotRecorded"),
+    town.elevation?.trim() || t("meta.elevationNotRecorded"),
   ];
 }
 

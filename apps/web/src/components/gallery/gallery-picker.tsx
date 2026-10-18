@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { X, Search, Check, ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
@@ -32,9 +33,13 @@ export function GalleryPicker({
   onClose,
   onSelect,
 }: GalleryPickerProps) {
+  const t = useTranslations("photographs.gallery.picker");
+  const tPhotographs = useTranslations("photographs");
+  const tCommon = useTranslations("common");
   const [items, setItems] = useState<GalleryMedia[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Whether the last load failed; the message is written at render.
+  const [error, setError] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<GalleryMedia | null>(null);
   const [page, setPage] = useState(0);
@@ -43,7 +48,7 @@ export function GalleryPicker({
 
   const fetchGalleryItems = useCallback(async (pageNum: number) => {
     setLoading(true);
-    setError(null);
+    setError(false);
     try {
       // Fetch only ACTIVE (approved) gallery items
       const response = await getAdminGallery("ACTIVE", pageNum, 20);
@@ -51,7 +56,7 @@ export function GalleryPicker({
       setHasMore(response.hasMore);
       setTotal(response.total);
     } catch (err) {
-      setError("Failed to load gallery images");
+      setError(true);
       console.error("Gallery fetch error:", err);
     } finally {
       setLoading(false);
@@ -123,10 +128,10 @@ export function GalleryPicker({
               <div className="flex items-center gap-2">
                 <ImageIcon className="text-ocean-blue h-5 w-5" />
                 <DialogTitle className="text-body text-lg font-semibold">
-                  Select from Gallery
+                  {t("title")}
                 </DialogTitle>
               </div>
-              <Button plain onClick={onClose} aria-label="Close modal">
+              <Button plain onClick={onClose} aria-label={t("close")}>
                 <X data-slot="icon" />
               </Button>
             </div>
@@ -140,7 +145,7 @@ export function GalleryPicker({
                 />
                 <Input
                   type="text"
-                  placeholder="Search by title, description, or category..."
+                  placeholder={t("search")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
@@ -158,9 +163,9 @@ export function GalleryPicker({
 
               {error && (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <p className="text-status-error mb-4">{error}</p>
+                  <p className="text-status-error mb-4">{t("loadFailed")}</p>
                   <Button onClick={() => fetchGalleryItems(page)}>
-                    Try Again
+                    {t("tryAgain")}
                   </Button>
                 </div>
               )}
@@ -169,9 +174,7 @@ export function GalleryPicker({
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <ImageIcon className="text-muted mb-4 h-12 w-12" />
                   <p className="text-muted">
-                    {searchQuery
-                      ? "No images match your search"
-                      : "No approved images available"}
+                    {searchQuery ? t("noMatch") : t("noImages")}
                   </p>
                 </div>
               )}
@@ -198,7 +201,7 @@ export function GalleryPicker({
                       >
                         <Image
                           src={imageUrl}
-                          alt={item.title || "Gallery image"}
+                          alt={item.title || tPhotographs("gallery.imageAlt")}
                           fill
                           className="object-cover transition-transform group-hover:scale-105"
                           unoptimized
@@ -235,17 +238,20 @@ export function GalleryPicker({
                     disabled={page === 0}
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
                   >
-                    Previous
+                    {t("previous")}
                   </Button>
                   <span className="text-muted text-sm">
-                    Page {page + 1} ({total} total)
+                    {t("page", {
+                      page: String(page + 1),
+                      total: String(total),
+                    })}
                   </span>
                   <Button
                     plain
                     disabled={!hasMore}
                     onClick={() => setPage((p) => p + 1)}
                   >
-                    Next
+                    {t("next")}
                   </Button>
                 </div>
               )}
@@ -256,18 +262,20 @@ export function GalleryPicker({
               <div className="text-muted text-sm">
                 {selectedItem ? (
                   <span>
-                    Selected:{" "}
-                    <strong className="text-body">
-                      {selectedItem.title || "Untitled"}
-                    </strong>
+                    {t.rich("selected", {
+                      title: selectedItem.title || tPhotographs("untitled"),
+                      strong: (chunks) => (
+                        <strong className="text-body">{chunks}</strong>
+                      ),
+                    })}
                   </span>
                 ) : (
-                  <span>Click an image to select it</span>
+                  <span>{t("clickToSelect")}</span>
                 )}
               </div>
               <div className="flex gap-3">
                 <Button plain onClick={onClose}>
-                  Cancel
+                  {tCommon("cancel")}
                 </Button>
                 <Button
                   color="blue"
@@ -275,7 +283,7 @@ export function GalleryPicker({
                   onClick={handleConfirm}
                 >
                   <Check data-slot="icon" />
-                  Use Selected Image
+                  {t("use")}
                 </Button>
               </div>
             </div>

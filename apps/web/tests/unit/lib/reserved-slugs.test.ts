@@ -6,6 +6,9 @@ import { RESERVED_SLUGS, isReservedSlug } from "@/lib/reserved-slugs";
 
 const APP_DIR = path.resolve(__dirname, "../../../src/app");
 
+/** The public tree sits under this segment; its children are still first segments. */
+const LOCALE_SEGMENT = "[locale]";
+
 /** A route group contributes its children to its parent's URL, not a segment. */
 function isRouteGroup(name: string): boolean {
   return name.startsWith("(") && name.endsWith(")");
@@ -36,7 +39,7 @@ function staticTopLevelSegments(dir: string): string[] {
     const full = path.join(dir, entry);
     if (!statSync(full).isDirectory()) continue;
 
-    if (isRouteGroup(entry)) {
+    if (isRouteGroup(entry) || entry === LOCALE_SEGMENT) {
       found.push(...staticTopLevelSegments(full));
     } else if (!isDynamic(entry) && servesRoutes(full)) {
       found.push(entry);
@@ -57,6 +60,12 @@ describe("RESERVED_SLUGS", () => {
       .sort();
 
     expect(missing).toEqual([]);
+  });
+
+  // Spec 041 T-05 — the locale prefixes are a dynamic segment the scan above skips.
+  it("reserves the locale prefixes", () => {
+    expect(RESERVED_SLUGS.has("en")).toBe(true);
+    expect(RESERVED_SLUGS.has("pt")).toBe(true);
   });
 
   it("is sorted and free of duplicates, so a reader can scan it", () => {

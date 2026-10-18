@@ -3,41 +3,52 @@
 import * as React from "react";
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { ZoomIn, Play, Camera, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
 import { CreditDisplay } from "@/components/ui/credit-display";
+import type { Translator } from "@/i18n/types";
 import type { MediaItem, MediaCategory } from "@/types/media";
+
+type PhotographsTranslator = Translator<"photographs">;
 
 /** Returns the heading text for the empty state based on active filters. */
 function getEmptyStateHeading(
+  t: PhotographsTranslator,
   searchQuery?: string,
   categoryFilter?: string
 ): string {
   if (searchQuery) {
-    return `No results for \u201c${searchQuery}\u201d`;
+    return t("gallery.grid.emptySearch", { query: searchQuery });
   }
   if (categoryFilter === "All" || !categoryFilter) {
-    return "No photos yet";
+    return t("gallery.grid.emptyAll");
   }
-  return `No ${categoryFilter} photos yet`;
+  return t("gallery.grid.emptyCategory", { category: categoryFilter });
 }
 
 /** Static shimmer gradient used as blur placeholder while images load. */
 const SHIMMER_BLUR_DATA_URL =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZTJlOGYwIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiNmMWY1ZjkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlMmU4ZjAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+";
 
-/** Maps a MediaItem to the Photo shape expected by ImageLightbox. */
-export function mediaItemToPhoto(item: MediaItem): Photo {
+/**
+ * Maps a MediaItem to the Photo shape expected by ImageLightbox. `t` names the island
+ * when the record names no place.
+ */
+export function mediaItemToPhoto(
+  item: MediaItem,
+  t: PhotographsTranslator
+): Photo {
   return {
     id: item.id,
     src:
       item.type === "VIDEO" && item.thumbnailUrl ? item.thumbnailUrl : item.url,
     alt: item.altText || item.title,
-    location: item.locationName || "Brava Island",
+    location: item.locationName || t("gallery.bravaIsland"),
     date: item.date || "",
     description: item.description || "",
     title: item.title,
@@ -92,8 +103,9 @@ export const MasonryPhotoGrid = React.forwardRef<
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(0);
     const shouldReduceMotion = useReducedMotion();
+    const t = useTranslations("photographs");
 
-    const lightboxPhotos = photos.map(mediaItemToPhoto);
+    const lightboxPhotos = photos.map((photo) => mediaItemToPhoto(photo, t));
 
     const openLightbox = (index: number) => {
       setLightboxIndex(index);
@@ -203,7 +215,7 @@ export const MasonryPhotoGrid = React.forwardRef<
                     )}
                     <div className="border-hairline mt-3 border-t pt-3">
                       <CreditDisplay
-                        credit={photo.author || "Anonymous"}
+                        credit={photo.author || t("gallery.anonymous")}
                         creditPlatform={photo.creditPlatform}
                         creditHandle={photo.creditHandle}
                         variant="card"
@@ -245,19 +257,19 @@ export const MasonryPhotoGrid = React.forwardRef<
               aria-hidden="true"
             />
             <h3 className="text-body mb-2 text-lg font-semibold">
-              {getEmptyStateHeading(searchQuery, categoryFilter)}
+              {getEmptyStateHeading(t, searchQuery, categoryFilter)}
             </h3>
             <p className="text-muted mb-6 max-w-sm text-sm">
               {searchQuery
-                ? "Try a different search term or clear your filters."
-                : "Help preserve Brava\u2019s visual heritage by sharing your photographs with the community."}
+                ? t("gallery.grid.emptySearchHint")
+                : t("gallery.grid.emptyHint")}
             </p>
             {!searchQuery && (
               <Link
                 href="/contribute/media"
                 className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
               >
-                Be the first to share
+                {t("gallery.grid.beFirst")}
               </Link>
             )}
           </div>
@@ -281,16 +293,22 @@ export const MasonryPhotoGrid = React.forwardRef<
                     className="animate-spin"
                     aria-hidden="true"
                   />
-                  Loading more photos...
+                  {t("gallery.grid.loadingMore")}
                 </span>
               ) : (
-                `Load More Photos (showing ${photos.length} of ${totalItems ?? photos.length})`
+                t("gallery.grid.loadMore", {
+                  shown: String(photos.length),
+                  total: String(totalItems ?? photos.length),
+                })
               )}
             </button>
             <div role="status" aria-live="polite" className="sr-only">
               {isFetchingNextPage
-                ? "Loading more photos..."
-                : `Showing ${photos.length} of ${totalItems ?? photos.length} photos`}
+                ? t("gallery.grid.loadingMore")
+                : t("gallery.grid.showing", {
+                    shown: String(photos.length),
+                    total: String(totalItems ?? photos.length),
+                  })}
             </div>
           </div>
         )}

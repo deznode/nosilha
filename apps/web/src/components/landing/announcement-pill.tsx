@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useSyncExternalStore, useCallback } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { ArrowRight, X, Trophy, Megaphone, Sparkles, Bell } from "lucide-react";
 
 /** Available icons for the announcement badge */

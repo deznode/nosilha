@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { clsx } from "clsx";
 
 import { promotableFilms, type Film } from "@/lib/films";
@@ -19,6 +20,7 @@ const STRIP_SIZE = 3;
 export function FilmsStrip({ films }: { films: Film[] }) {
   // A promotional slot: a film flagged as showing an unvouched-for person is left out
   // (spec 034 FR-022). With nothing showable the strip is absent, as with no films.
+  const t = useTranslations("films.strip");
   const shown = promotableFilms(films).slice(0, STRIP_SIZE);
   if (shown.length === 0) return null;
 
@@ -29,18 +31,16 @@ export function FilmsStrip({ films }: { films: Film[] }) {
           id="films-strip-heading"
           className="text-body m-0 font-serif text-[30px] font-normal tracking-[-0.015em]"
         >
-          Films
+          {t("heading")}
         </h2>
         <Link
           href="/films"
           className="text-ocean-blue hover:text-brand ml-auto text-[13px]"
         >
-          See all films →
+          {t("seeAll")}
         </Link>
       </div>
-      <p className="text-muted mt-0 mb-5 text-sm">
-        Footage of Brava contributed to the archive.
-      </p>
+      <p className="text-muted mt-0 mb-5 text-sm">{t("intro")}</p>
       <div
         className={clsx(
           "scrollbar-hide -mx-[22px] flex snap-x snap-mandatory scroll-px-[22px] gap-3.5 overflow-x-auto px-[22px] pb-1",

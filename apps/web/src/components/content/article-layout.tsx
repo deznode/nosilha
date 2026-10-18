@@ -1,7 +1,8 @@
 "use client";
 
 import { ReactNode } from "react";
-import Link from "next/link";
+import { useFormatter } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -44,6 +45,7 @@ export function ArticleLayout({
   requestedLanguage,
   relatedArticles = [],
 }: ArticleLayoutProps) {
+  const format = useFormatter();
   return (
     <PrintPageWrapper>
       <article
@@ -69,12 +71,7 @@ export function ArticleLayout({
         {/* Article metadata */}
         <div className="text-muted mb-8 flex flex-wrap gap-4 text-sm">
           <span>
-            Published:{" "}
-            {new Date(publishDate).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+            Published: {format.dateTime(new Date(publishDate), "longDate")}
           </span>
           <span>By {author}</span>
           <span className="capitalize">{category}</span>

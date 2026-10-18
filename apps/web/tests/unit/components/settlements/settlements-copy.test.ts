@@ -10,6 +10,9 @@ import {
   settlementStatusLine,
   filterSettlements,
 } from "@/components/settlements/settlements-copy";
+import { getTranslations } from "next-intl/server";
+
+const t = await getTranslations("settlements");
 import type { TownStatusSummary } from "@/types/town";
 
 function town(overrides: Partial<TownStatusSummary> = {}): TownStatusSummary {
@@ -63,7 +66,7 @@ function archive(): TownStatusSummary[] {
 /** Spec 034 T-26 / FR-007 — every number on the screen is a live aggregate. */
 describe("settlementStandfirst", () => {
   it("counts the three states in words", () => {
-    expect(settlementStandfirst(archive())).toBe(
+    expect(settlementStandfirst(t, "en", archive())).toBe(
       "Twenty-five places carry a name on Brava. One is documented, two hold " +
         "records without a photograph, and twenty-two are a name and a coordinate."
     );
@@ -81,14 +84,14 @@ describe("settlementStandfirst", () => {
       town({ slug: "c" }),
     ];
 
-    expect(settlementStandfirst(towns)).toBe(
+    expect(settlementStandfirst(t, "en", towns)).toBe(
       "Three places carry a name on Brava. One is documented, one holds records " +
         "without a photograph, and one is a name and a coordinate."
     );
   });
 
   it("says so when the archive holds nothing", () => {
-    expect(settlementStandfirst([])).toBe(
+    expect(settlementStandfirst(t, "en", [])).toBe(
       "No settlement carries a name on Brava yet."
     );
   });
@@ -111,6 +114,8 @@ describe("settlementChipCounts", () => {
 describe("settlementStatusLine", () => {
   it("names the records and the photograph count", () => {
     const line = settlementStatusLine(
+      t,
+      "en",
       town({
         entryCount: 5,
         status: "DOCUMENTED",
@@ -127,13 +132,16 @@ describe("settlementStatusLine", () => {
 
   it("says no photograph when the records carry none", () => {
     expect(
-      settlementStatusLine(town({ entryCount: 5, status: "PARTIAL" })).text
+      settlementStatusLine(t, "en", town({ entryCount: 5, status: "PARTIAL" }))
+        .text
     ).toBe("Five records · no photograph");
   });
 
   it("calls a record's hero a photograph without inventing a count", () => {
     expect(
       settlementStatusLine(
+        t,
+        "en",
         town({
           entryCount: 1,
           status: "DOCUMENTED",
@@ -145,7 +153,7 @@ describe("settlementStatusLine", () => {
   });
 
   it("marks a name-only settlement in ochre", () => {
-    expect(settlementStatusLine(town())).toEqual({
+    expect(settlementStatusLine(t, "en", town())).toEqual({
       text: "a name and a coordinate, nothing else",
       ochre: true,
     });
@@ -154,7 +162,7 @@ describe("settlementStatusLine", () => {
 
 describe("settlementMetaRow", () => {
   it("says what is not recorded", () => {
-    expect(settlementMetaRow(town())).toEqual([
+    expect(settlementMetaRow(t, town())).toEqual([
       "population not recorded",
       "elevation not recorded",
     ]);
@@ -163,6 +171,7 @@ describe("settlementMetaRow", () => {
   it("shows the recorded values as written", () => {
     expect(
       settlementMetaRow(
+        t,
         town({ population: "271 (2010 census)", elevation: "642m" })
       )
     ).toEqual(["271 (2010 census)", "642m"]);

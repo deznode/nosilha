@@ -110,9 +110,13 @@ describe("SettlementDetail", () => {
     useIdentifyStore.setState({ context: null });
   });
 
-  it("heads the page and links back to the index", () => {
+  it("heads the page and links back to the index", async () => {
     render(
-      <SettlementDetail town={town()} summary={summary()} entries={ENTRIES} />
+      await SettlementDetail({
+        town: town(),
+        summary: summary(),
+        entries: ENTRIES,
+      })
     );
 
     expect(
@@ -126,9 +130,13 @@ describe("SettlementDetail", () => {
     ).toBeInTheDocument();
   });
 
-  it("names the unconfirmed photographs and links them to the region filter", () => {
+  it("names the unconfirmed photographs and links them to the region filter", async () => {
     render(
-      <SettlementDetail town={town()} summary={summary()} entries={ENTRIES} />
+      await SettlementDetail({
+        town: town(),
+        summary: summary(),
+        entries: ENTRIES,
+      })
     );
 
     expect(screen.getByText("Photographs of Nova Sintra")).toBeInTheDocument();
@@ -142,13 +150,13 @@ describe("SettlementDetail", () => {
     ).toHaveAttribute("href", "/photographs?region=nova-sintra");
   });
 
-  it("hides the unconfirmed action when there are none", () => {
+  it("hides the unconfirmed action when there are none", async () => {
     render(
-      <SettlementDetail
-        town={town()}
-        summary={summary({ unconfirmedPhotographCount: 0 })}
-        entries={ENTRIES}
-      />
+      await SettlementDetail({
+        town: town(),
+        summary: summary({ unconfirmedPhotographCount: 0 }),
+        entries: ENTRIES,
+      })
     );
 
     expect(
@@ -159,7 +167,11 @@ describe("SettlementDetail", () => {
   it("opens the identify sheet for a photograph of the town", async () => {
     const user = userEvent.setup();
     render(
-      <SettlementDetail town={town()} summary={summary()} entries={ENTRIES} />
+      await SettlementDetail({
+        town: town(),
+        summary: summary(),
+        entries: ENTRIES,
+      })
     );
 
     await user.click(
@@ -177,7 +189,11 @@ describe("SettlementDetail", () => {
   it("asks each missing field with the town as the subject", async () => {
     const user = userEvent.setup();
     render(
-      <SettlementDetail town={town()} summary={summary()} entries={ENTRIES} />
+      await SettlementDetail({
+        town: town(),
+        summary: summary(),
+        entries: ENTRIES,
+      })
     );
 
     await user.click(
@@ -191,21 +207,25 @@ describe("SettlementDetail", () => {
     });
   });
 
-  it("drops the Not recorded panel once every field is recorded", () => {
+  it("drops the Not recorded panel once every field is recorded", async () => {
     render(
-      <SettlementDetail
-        town={town({ founded: "1573", highlights: ["The praça"] })}
-        summary={summary({ population: "1,069", elevation: "530m" })}
-        entries={ENTRIES}
-      />
+      await SettlementDetail({
+        town: town({ founded: "1573", highlights: ["The praça"] }),
+        summary: summary({ population: "1,069", elevation: "530m" }),
+        entries: ENTRIES,
+      })
     );
 
     expect(screen.queryByText("Not recorded")).not.toBeInTheDocument();
   });
 
-  it("lists each record with its category and marks the ones with no photograph", () => {
+  it("lists each record with its category and marks the ones with no photograph", async () => {
     render(
-      <SettlementDetail town={town()} summary={summary()} entries={ENTRIES} />
+      await SettlementDetail({
+        town: town(),
+        summary: summary(),
+        entries: ENTRIES,
+      })
     );
 
     const row = screen.getByRole("link", { name: /Praça Eugénio Tavares/ });
@@ -219,21 +239,25 @@ describe("SettlementDetail", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("drops the Recorded here section when the settlement holds nothing", () => {
+  it("drops the Recorded here section when the settlement holds nothing", async () => {
     render(
-      <SettlementDetail
-        town={town()}
-        summary={summary({ entryCount: 0, unconfirmedPhotographCount: 0 })}
-        entries={[]}
-      />
+      await SettlementDetail({
+        town: town(),
+        summary: summary({ entryCount: 0, unconfirmedPhotographCount: 0 }),
+        entries: [],
+      })
     );
 
     expect(screen.queryByText("Recorded here")).not.toBeInTheDocument();
   });
 
-  it("locates the settlement and offers the full map", () => {
+  it("locates the settlement and offers the full map", async () => {
     render(
-      <SettlementDetail town={town()} summary={summary()} entries={ENTRIES} />
+      await SettlementDetail({
+        town: town(),
+        summary: summary(),
+        entries: ENTRIES,
+      })
     );
 
     const map = screen.getByTestId("mini-map");
@@ -245,9 +269,13 @@ describe("SettlementDetail", () => {
     ).toHaveAttribute("href", "/map?mode=settlements&sel=s%3Anova-sintra");
   });
 
-  it("offers to share the village", () => {
+  it("offers to share the village", async () => {
     render(
-      <SettlementDetail town={town()} summary={summary()} entries={ENTRIES} />
+      await SettlementDetail({
+        town: town(),
+        summary: summary(),
+        entries: ENTRIES,
+      })
     );
 
     expect(

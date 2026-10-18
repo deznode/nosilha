@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import type { FilmLookupResult } from "../hooks/use-film-lookup";
 import type { ContributionForm } from "../lib/contribution-form";
@@ -42,6 +43,7 @@ export function FilmForm({
   onNeedsSignIn,
   footer,
 }: FilmFormProps) {
+  const t = useTranslations("contribute.film");
   const typed = form.filmUrl.trim() !== "";
   const unrecognised = typed && !link;
   const duplicate =
@@ -58,8 +60,8 @@ export function FilmForm({
             name="url"
             type="url"
             inputMode="url"
-            label="Link to the film"
-            placeholder="Paste a YouTube or Vimeo link"
+            label={t("urlLabel")}
+            placeholder={t("urlPlaceholder")}
             value={form.filmUrl}
             onChange={(e) => onChange("filmUrl", e.target.value)}
             invalid={unrecognised}
@@ -72,13 +74,12 @@ export function FilmForm({
                   id="f-film-url-note"
                   className="text-status-error mt-[7px] text-[13px] leading-[1.5]"
                 >
-                  This doesn&apos;t look like a YouTube or Vimeo link. Copy the
-                  address from the video&apos;s Share button and paste it here.
+                  {t("urlUnrecognised")}
                 </p>
               ) : (
                 !typed && (
                   <p id="f-film-url-note" className={HINT}>
-                    YouTube or Vimeo only, for now.
+                    {t("urlHint")}
                   </p>
                 )
               )
@@ -109,25 +110,25 @@ export function FilmForm({
               <TextField
                 id="f-film-title"
                 name="title"
-                label="Title of the film"
-                placeholder="As it is known, or a short description"
+                label={t("titleLabel")}
+                placeholder={t("titlePlaceholder")}
                 value={form.title}
                 onChange={(e) => onChange("title", e.target.value)}
               />
               <TextField
                 id="f-photographer"
                 name="author"
-                label="Who made this film?"
-                placeholder="A name, or “not known”"
+                label={t("authorLabel")}
+                placeholder={t("authorPlaceholder")}
                 value={form.photographer}
                 onChange={(e) => onChange("photographer", e.target.value)}
               />
               <TextAreaField
                 id="f-description"
                 name="description"
-                label="What does it show?"
-                placeholder="Who is in it, the occasion, anything you know"
-                hint="Optional."
+                label={t("descriptionLabel")}
+                placeholder={t("descriptionPlaceholder")}
+                hint={t("descriptionHint")}
                 minHeight={80}
                 value={form.description}
                 onChange={(e) => onChange("description", e.target.value)}
@@ -141,15 +142,15 @@ export function FilmForm({
           <>
             <TownField
               kind="film"
-              label="Where was it filmed?"
+              label={t("placeLabel")}
               value={form.place}
               onChange={(place) => onChange("place", place)}
             />
             <TextField
               id="f-date"
               name="approximate_date"
-              label="Roughly when?"
-              placeholder="1984 — or “sometime in the sixties”"
+              label={t("dateLabel")}
+              placeholder={t("datePlaceholder")}
               value={form.date}
               onChange={(e) => onChange("date", e.target.value)}
             />

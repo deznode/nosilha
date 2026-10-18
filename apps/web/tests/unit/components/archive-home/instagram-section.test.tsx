@@ -37,14 +37,16 @@ const FOUR = [
   post("d", { caption: "Fajã d’Água. Nos terra, nos gente." }),
 ];
 
-function renderView(feed: Parameters<typeof InstagramSectionView>[0]["feed"]) {
-  return render(<InstagramSectionView feed={feed} now={NOW} />);
+async function renderView(
+  feed: Parameters<typeof InstagramSectionView>[0]["feed"]
+) {
+  return render(await InstagramSectionView({ feed, now: NOW }));
 }
 
 /** Spec 036 — "From Instagram" on the archive home. */
 describe("InstagramSectionView", () => {
-  it("names the section and links out to the account in a new tab", () => {
-    renderView({ status: "ok", posts: FOUR });
+  it("names the section and links out to the account in a new tab", async () => {
+    await renderView({ status: "ok", posts: FOUR });
 
     expect(
       screen.getByRole("heading", { level: 2, name: "From Instagram" })
@@ -61,8 +63,8 @@ describe("InstagramSectionView", () => {
     }
   });
 
-  it("renders four tiles, the fourth hidden on wide screens", () => {
-    renderView({ status: "ok", posts: FOUR });
+  it("renders four tiles, the fourth hidden on wide screens", async () => {
+    await renderView({ status: "ok", posts: FOUR });
 
     const tiles = screen.getAllByRole("link", { name: /^Instagram post/ });
     expect(tiles).toHaveLength(4);
@@ -72,8 +74,8 @@ describe("InstagramSectionView", () => {
     expect(tiles[1]).toHaveAttribute("target", "_blank");
   });
 
-  it("gives each tile an accessible name from its date and caption", () => {
-    renderView({ status: "ok", posts: FOUR });
+  it("gives each tile an accessible name from its date and caption", async () => {
+    await renderView({ status: "ok", posts: FOUR });
 
     expect(
       screen.getByRole("link", {
@@ -85,8 +87,8 @@ describe("InstagramSectionView", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows a caption only when its first line fits", () => {
-    renderView({ status: "ok", posts: FOUR });
+  it("shows a caption only when its first line fits", async () => {
+    await renderView({ status: "ok", posts: FOUR });
 
     expect(
       screen.getByText("Fajã d’Água. Nos terra, nos gente.")
@@ -98,8 +100,8 @@ describe("InstagramSectionView", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("badges videos and albums with text, described on the tile", () => {
-    renderView({ status: "ok", posts: FOUR });
+  it("badges videos and albums with text, described on the tile", async () => {
+    await renderView({ status: "ok", posts: FOUR });
 
     const video = screen.getByRole("link", { name: /1 week ago/ });
     expect(within(video).getByText("Video")).toBeInTheDocument();
@@ -109,8 +111,8 @@ describe("InstagramSectionView", () => {
     expect(image).not.toHaveAttribute("aria-describedby");
   });
 
-  it("uses the video's poster frame, and hides every image from assistive tech", () => {
-    const { container } = renderView({ status: "ok", posts: FOUR });
+  it("uses the video's poster frame, and hides every image from assistive tech", async () => {
+    const { container } = await renderView({ status: "ok", posts: FOUR });
 
     const images = container.querySelectorAll("img");
     expect(images).toHaveLength(4);
@@ -121,8 +123,8 @@ describe("InstagramSectionView", () => {
     }
   });
 
-  it("carries the standfirst and the closing ask to the contribute flow", () => {
-    renderView({ status: "ok", posts: FOUR });
+  it("carries the standfirst and the closing ask to the contribute flow", async () => {
+    await renderView({ status: "ok", posts: FOUR });
 
     expect(
       screen.getByText(
@@ -134,8 +136,8 @@ describe("InstagramSectionView", () => {
     ).toHaveAttribute("href", "/contribute/media");
   });
 
-  it("does not hide when Instagram is unreachable", () => {
-    renderView({ status: "unavailable" });
+  it("does not hide when Instagram is unreachable", async () => {
+    await renderView({ status: "unavailable" });
 
     expect(
       screen.getByText(
@@ -150,8 +152,8 @@ describe("InstagramSectionView", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("says so when the account has no posts", () => {
-    renderView({ status: "ok", posts: [] });
+  it("says so when the account has no posts", async () => {
+    await renderView({ status: "ok", posts: [] });
 
     expect(screen.getByText("Nothing posted yet.")).toBeInTheDocument();
     expect(
@@ -159,8 +161,8 @@ describe("InstagramSectionView", () => {
     ).toBeInTheDocument();
   });
 
-  it("lays a single post out beside its full caption", () => {
-    renderView({ status: "ok", posts: [FOUR[0]] });
+  it("lays a single post out beside its full caption", async () => {
+    await renderView({ status: "ok", posts: [FOUR[0]] });
 
     expect(screen.getByText("One post so far.")).toBeInTheDocument();
     // The whole caption, not the fitted first line.
@@ -174,8 +176,8 @@ describe("InstagramSectionView", () => {
 });
 
 describe("InstagramSectionLoading", () => {
-  it("renders the header at once, without the link out", () => {
-    render(<InstagramSectionLoading />);
+  it("renders the header at once, without the link out", async () => {
+    render(await InstagramSectionLoading());
 
     expect(
       screen.getByRole("heading", { name: "From Instagram" })

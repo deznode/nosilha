@@ -1,0 +1,124 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { cacheLife, cacheTag } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
+
+import { PageMessages } from "@/i18n/page-messages";
+import { FilmTheatre } from "@/components/films/theatre/film-theatre";
+import {
+  getGalleryMedia,
+  getGalleryMediaById,
+  getTownStatusSummary,
+} from "@/lib/api";
+import { FILMS_FETCH_SIZE, toFilm, toFilms } from "@/lib/films";
+import { isMediaId } from "@/lib/gallery-mappers";
+import { getArchivePhotographs } from "@/lib/get-archive-photographs";
+import { generatePageMetadata } from "@/lib/metadata";
+import { sharePreviewImage } from "@/lib/share";
+import { excerpt } from "@/lib/text";
+
+/**
+ * Blocking rather than streaming a shell, so an unknown id answers 404 rather than 200
+ * with a 404 page inside it.
+ */
+export const instant = false;
+
+interface FilmRouteProps {
+  params: Promise<{ id: string }>;
+}
+
+/** Gallery ids are UUIDs; anything else is not a film and should not reach the API. */
+function getFilmMedia(id: string) {
+  return isMediaId(id) ? getGalleryMediaById(id) : Promise.resolve(null);
+}
+
+export async function generateMetadata({
+  params,
+}: FilmRouteProps): Promise<Metadata> {
+  const { id } = await params;
+  const media = await getFilmMedia(id).catch(() => null);
+  const [tFilms, t] = await Promise.all([
+    getTranslations("films"),
+    getTranslations("metadata.film"),
+  ]);
+  const film = media ? toFilm(media, [], tFilms) : null;
+  if (!film) return {};
+
+  const image = sharePreviewImage(film.thumbnailUrl, film.displayTitle);
+
+  return generatePageMetadata({
+    title: film.displayTitle,
+    description: film.description
+      ? excerpt(film.description)
+      : t("description"),
+    path: `/films/${film.id}`,
+    locale: await getLocale(),
+    keywords: ["Brava Island", "Cape Verde", "archive film"],
+    images: image ? [image] : [],
+  });
+}
+
+/**
+ * `?play=1` is read by the player from the live URL, not here, so it stays out of the
+ * cache key and a page Next re-shows (Activity) still starts when asked to.
+ */
+export default async function FilmRoute({ params }: FilmRouteProps) {
+  const { id } = await params;
+  const page = await cachedFilm(id);
+  return (
+    <PageMessages namespaces={["common", "films", "share"]}>
+      {page}
+    </PageMessages>
+  );
+}
+
+/** Spec 038 FR-040 to FR-043. */
+async function cachedFilm(id: string) {
+  "use cache";
+  cacheLife("entry");
+  cacheTag("gallery");
+  cacheTag("towns");
+
+  // Every request starts together, but the 404 is settled on the film alone.
+  //
+  // The settlements name the film's place, and a record that has one must not be
+  // cached as missing it ("Not yet recorded: where it was filmed"), so they are not
+  // caught: a failure is an error the next request retries. The film list is optional:
+  // a failed request leaves Up next out rather than claiming there are no other films.
+  // The photograph dataset only decides the optional "Photographs from here" link.
+  const mediaPromise = getFilmMedia(id);
+  const settlementsPromise = getTownStatusSummary();
+  const othersPromise = getGalleryMedia({
+    mediaType: "VIDEO",
+    size: FILMS_FETCH_SIZE,
+  })
+    .then((list) => list.items)
+    .catch(() => null);
+  const archivePromise = getArchivePhotographs().catch(() => null);
+  // `notFound()` leaves this scope before the settlements are awaited, so give the
+  // rejection a handler now rather than letting it surface as unhandled.
+  settlementsPromise.catch(() => undefined);
+
+  const [media, t] = await Promise.all([
+    mediaPromise,
+    getTranslations("films"),
+  ]);
+  if (!media || !toFilm(media, [], t)) notFound();
+
+  const [settlements, others, archive] = await Promise.all([
+    settlementsPromise,
+    othersPromise,
+    archivePromise,
+  ]);
+  const film = toFilm(media, settlements, t);
+  if (!film) notFound();
+
+  const films = others === null ? null : toFilms(others, settlements, t);
+  const hasPlacePhotos =
+    !!film.place &&
+    !!archive?.photos.some((p) => p.near?.slug === film.place?.slug);
+
+  return (
+    <FilmTheatre film={film} films={films} hasPlacePhotos={hasPlacePhotos} />
+  );
+}

@@ -1,6 +1,8 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 
 import { FilterChip } from "@/components/ui/filter-chip";
 import type { TownStatusSummary } from "@/types/town";
@@ -11,6 +13,7 @@ import {
   filterSettlements,
   parseSettlementFilter,
   settlementChipCounts,
+  settlementFilterLabel,
   settlementStandfirst,
   type SettlementFilterKey,
 } from "./settlements-copy";
@@ -35,6 +38,8 @@ export function SettlementsContent({
   towns: TownStatusSummary[];
   initialFilter: SettlementFilterKey;
 }) {
+  const t = useTranslations("settlements");
+  const locale = useLocale();
   const router = useRouter();
   const params = useSearchParams();
   const filter = params.has("filter")
@@ -70,7 +75,7 @@ export function SettlementsContent({
           letterSpacing: "-0.02em",
         }}
       >
-        Settlements
+        {t("heading")}
       </h1>
       <p
         style={{
@@ -81,7 +86,7 @@ export function SettlementsContent({
           lineHeight: 1.55,
         }}
       >
-        {settlementStandfirst(towns)}
+        {settlementStandfirst(t, locale, towns)}
       </p>
 
       <div
@@ -95,7 +100,7 @@ export function SettlementsContent({
         {SETTLEMENT_FILTERS.map((chip) => (
           <FilterChip
             key={chip.key}
-            label={chip.label}
+            label={settlementFilterLabel(t, chip.key)}
             count={counts[chip.key]}
             // Zero is the answer on an archive this sparse, so the chip shows it
             // rather than looking like a chip whose count failed to load.

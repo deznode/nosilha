@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { BookOpen, ArrowRight } from "lucide-react";
 import type { KrioluProverb } from "@/types/landing";
 

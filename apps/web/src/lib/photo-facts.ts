@@ -1,3 +1,6 @@
+import { createFormatter } from "next-intl";
+
+import type { Translator } from "@/i18n/types";
 import { trimmed } from "@/lib/text";
 import {
   isPublicUserUploadMedia,
@@ -23,46 +26,62 @@ export const ASPECT_FALLBACK = "388 / 300";
 /** A credit that answers the question without naming anyone. */
 const CREDIT_NOT_KNOWN = "not known";
 
+/** The `photographs` messages: the placeholder title and the missing pills. */
+export type PhotoFactsTranslator = Translator<"photographs">;
+
+/** The ochre pills, in the prototype's order; each has a `photographs.pills` message. */
+type MissingPill = "title" | "photographer" | "place" | "date" | "category";
+
+function pill(key: MissingPill, t: PhotoFactsTranslator): string {
+  return t(`pills.${key}`);
+}
+
 export interface PhotoTitle {
   text: string;
   /** Renders italic and in secondary ink, so a placeholder never reads as a name. */
   untitled: boolean;
 }
 
-/** A record's title, or the placeholder that says it has none. */
-export function photoTitle(media: PublicGalleryMedia): PhotoTitle {
+/** A record's title, or the placeholder that says it has none, in `t`'s language. */
+export function photoTitle(
+  media: PublicGalleryMedia,
+  t: PhotoFactsTranslator
+): PhotoTitle {
   const title = trimmed(media.title);
   return title
     ? { text: title, untitled: false }
-    : { text: "Untitled", untitled: true };
+    : { text: t("untitled"), untitled: true };
 }
 
 /**
- * Formatted in `en-US` at UTC, not the reader's locale: the label is a fact read off
- * the file, and it must not shift a day because of where it is read.
+ * The part of a next-intl formatter that dates need: `await getFormatter()` on the
+ * server, `useFormatter()` in the browser. Its time zone is UTC (`i18n/formats.ts`),
+ * so a date read off the file does not shift a day because of where it is read.
  */
-const DATE_FORMAT = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "UTC",
-});
+export type DateFormatter = Pick<
+  ReturnType<typeof createFormatter>,
+  "dateTime"
+>;
+
+/** How a file date reads: "July 12, 2024" or "July 2024" in English. */
+export type PhotoDateStyle = "longDate" | "monthYear";
 
 /**
  * When the photograph was taken: the date read from the file, else the approximate
- * date exactly as a person wrote it ("sometime in the sixties"), else null. `format`
+ * date exactly as a person wrote it ("sometime in the sixties"), else null. `style`
  * sets how a file date reads; it defaults to "July 12, 2024".
  */
 export function photoDateLabel(
   media: PublicGalleryMedia,
-  format: Intl.DateTimeFormat = DATE_FORMAT
+  format: DateFormatter,
+  style: PhotoDateStyle = "longDate"
 ): string | null {
   if (!isPublicUserUploadMedia(media)) return null;
 
   const taken = trimmed(media.dateTaken);
   if (taken) {
     const parsed = new Date(taken);
-    if (!Number.isNaN(parsed.getTime())) return format.format(parsed);
+    if (!Number.isNaN(parsed.getTime())) return format.dateTime(parsed, style);
   }
   return trimmed(media.approximateDate);
 }
@@ -123,20 +142,24 @@ export interface PhotoFacts {
  * A film is never asked for a place — films carry no coordinates by design, so
  * "no place" would be a gap that can never be filled rather than a question.
  */
-export function photoFacts(media: PublicGalleryMedia): PhotoFacts {
-  const title = photoTitle(media);
-  const date = photoDateLabel(media);
+export function photoFacts(
+  media: PublicGalleryMedia,
+  format: DateFormatter,
+  t: PhotoFactsTranslator
+): PhotoFacts {
+  const title = photoTitle(media, t);
+  const date = photoDateLabel(media, format);
   const credit = photoCredit(media);
   const located = photoIsLocated(media);
   const category = trimmed(media.category);
   const isUpload = isPublicUserUploadMedia(media);
 
   const missing: string[] = [];
-  if (title.untitled) missing.push("no title");
-  if (!credit) missing.push("no photographer");
-  if (isUpload && !located) missing.push("no place");
-  if (isUpload && !date) missing.push("no date");
-  if (!category) missing.push("no category");
+  if (title.untitled) missing.push(pill("title", t));
+  if (!credit) missing.push(pill("photographer", t));
+  if (isUpload && !located) missing.push(pill("place", t));
+  if (isUpload && !date) missing.push(pill("date", t));
+  if (!category) missing.push(pill("category", t));
 
   const known: string[] = [];
   if (date) known.push(date);

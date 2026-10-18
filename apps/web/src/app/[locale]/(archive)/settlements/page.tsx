@@ -1,0 +1,72 @@
+import { Suspense } from "react";
+import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
+
+import { PageMessages } from "@/i18n/page-messages";
+import { SettlementsContent } from "@/components/settlements/settlements-content";
+import { parseSettlementFilter } from "@/components/settlements/settlements-copy";
+import { ArchiveSkeleton } from "@/components/ui/archive-skeleton";
+import { getTownStatusSummary } from "@/lib/api";
+import { generatePageMetadata } from "@/lib/metadata";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata.settlements");
+  return generatePageMetadata({
+    title: t("title"),
+    description: t("description"),
+    path: "/settlements",
+    locale: await getLocale(),
+    keywords: [
+      "Brava Island settlements",
+      "Cape Verde villages",
+      "Nova Sintra",
+      "Fajã d'Água",
+      "Brava towns",
+    ],
+  });
+}
+
+interface SettlementsPageProps {
+  searchParams: Promise<{ filter?: string }>;
+}
+
+/**
+ * The `searchParams` read happens below a boundary, so everything above it — the
+ * chrome, the footer — still prerenders as a static shell.
+ */
+export default function SettlementsPage({
+  searchParams,
+}: SettlementsPageProps) {
+  return (
+    <PageMessages namespaces={["common.filters", "settlements", "status"]}>
+      <Suspense fallback={<ArchiveSkeleton />}>
+        <SettlementsForFilter searchParams={searchParams} />
+      </Suspense>
+    </PageMessages>
+  );
+}
+
+async function SettlementsForFilter({ searchParams }: SettlementsPageProps) {
+  const { filter } = await searchParams;
+  return cachedSettlements(filter);
+}
+
+/**
+ * The list is the same for everyone; only the chosen chip differs, and that is a
+ * primitive, so it can safely key the cache.
+ */
+async function cachedSettlements(filter: string | undefined) {
+  "use cache";
+  cacheLife("content");
+  cacheTag("towns");
+
+  const towns = await getTownStatusSummary();
+
+  return (
+    <SettlementsContent
+      towns={towns}
+      initialFilter={parseSettlementFilter(filter)}
+    />
+  );
+}

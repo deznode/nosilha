@@ -8,6 +8,7 @@
  */
 
 import { clsx } from "clsx";
+import { useFormatter, useTranslations } from "next-intl";
 import {
   Calendar,
   Camera,
@@ -52,34 +53,19 @@ function Badge({ icon: Icon, label, variant }: BadgeProps) {
   );
 }
 
+/** The badge for each privacy level; its label is `photographs.metadataBadges.gps`. */
 function getGpsBadgeProps(
   privacyLevel: GpsPrivacyLevel
-): Pick<BadgeProps, "icon" | "label" | "variant"> {
+): Pick<BadgeProps, "icon" | "variant"> {
   switch (privacyLevel) {
     case "FULL":
-      return {
-        icon: MapPin,
-        label: "Full location",
-        variant: "success",
-      };
+      return { icon: MapPin, variant: "success" };
     case "APPROXIMATE":
-      return {
-        icon: MapPin,
-        label: "~100m accuracy",
-        variant: "warning",
-      };
+      return { icon: MapPin, variant: "warning" };
     case "STRIPPED":
-      return {
-        icon: MapPinOff,
-        label: "Location removed",
-        variant: "muted",
-      };
+      return { icon: MapPinOff, variant: "muted" };
     case "NONE":
-      return {
-        icon: AlertCircle,
-        label: "No location data",
-        variant: "muted",
-      };
+      return { icon: AlertCircle, variant: "muted" };
   }
 }
 
@@ -87,22 +73,27 @@ export function MetadataBadges({
   metadata,
   showManualPrompt = false,
 }: MetadataBadgesProps) {
+  const format = useFormatter();
+  const t = useTranslations("photographs.metadataBadges");
   if (!metadata) {
     return null;
   }
 
-  // Format date for display
+  // EXIF dates carry no zone and are read as the uploader's local time, so they are
+  // written out in the browser's zone rather than the site's UTC. This preview only
+  // renders in the browser, so the zone cannot differ from a server render.
   const dateLabel = metadata.dateTimeOriginal
-    ? metadata.dateTimeOriginal.toLocaleDateString(undefined, {
+    ? format.dateTime(metadata.dateTimeOriginal, {
         year: "numeric",
         month: "short",
         day: "numeric",
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       })
-    : metadata.approximateDate || "Date unknown";
+    : metadata.approximateDate || t("dateUnknown");
 
   // Format camera info
   const cameraLabel =
-    formatCameraInfo(metadata.make, metadata.model) || "Unknown camera";
+    formatCameraInfo(metadata.make, metadata.model) || t("unknownCamera");
 
   // Get GPS badge props
   const gpsBadge = getGpsBadgeProps(metadata.gpsPrivacyLevel);
@@ -130,13 +121,13 @@ export function MetadataBadges({
       {/* GPS status badge */}
       <Badge
         icon={gpsBadge.icon}
-        label={gpsBadge.label}
+        label={t(`gps.${metadata.gpsPrivacyLevel}`)}
         variant={gpsBadge.variant}
       />
 
       {/* Manual entry prompt */}
       {showManualPrompt && !metadata.hasExifData && (
-        <Badge icon={FileEdit} label="Add details" variant="info" />
+        <Badge icon={FileEdit} label={t("addDetails")} variant="info" />
       )}
     </div>
   );

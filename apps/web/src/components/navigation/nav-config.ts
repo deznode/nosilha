@@ -1,6 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import { BookOpen, Grid3X3, Home, Map, Users } from "lucide-react";
 
+import type { Locale } from "@/i18n/config";
+
 /**
  * Shared public navigation config — the one place the site's destinations live.
  *
@@ -16,15 +18,27 @@ import { BookOpen, Grid3X3, Home, Map, Users } from "lucide-react";
  */
 
 export type DropdownItem = {
-  name: string;
+  /** Message key in `chrome.header`. */
+  nameKey: "historyOfBrava" | "historicalFigures";
   href: string;
   icon: LucideIcon;
-  description: string;
+  /** Message key in `chrome.header`. */
+  descriptionKey: "historyDescription" | "figuresDescription";
 };
 
 export type NavItem =
-  | { name: string; href: string; type?: "link" }
-  | { name: string; type: "dropdown"; items: DropdownItem[] };
+  | {
+      key: string;
+      labelKey: `nav.${DestinationKey}`;
+      href: string;
+      type?: "link";
+    }
+  | {
+      key: string;
+      labelKey: `nav.${DestinationKey}`;
+      type: "dropdown";
+      items: DropdownItem[];
+    };
 
 export type DestinationKey =
   | "home"
@@ -41,7 +55,11 @@ export type DestinationKey =
 
 export type Destination = {
   key: DestinationKey;
-  label: string;
+  /**
+   * Message key in the `chrome` namespace, never a label: every surface resolves it
+   * in the page's language with `t(destination.labelKey)`. Spec 041 FR-004.
+   */
+  labelKey: `nav.${DestinationKey}`;
   href: string;
   /** Only the bottom-bar destinations render an icon. */
   icon?: LucideIcon;
@@ -56,64 +74,74 @@ export type Destination = {
 export const DESTINATIONS: Record<DestinationKey, Destination> = {
   home: {
     key: "home",
-    label: "Home",
+    labelKey: "nav.home",
     href: "/",
     icon: Home,
     activeMatch: "exact",
   },
   settlements: {
     key: "settlements",
-    label: "Settlements",
+    labelKey: "nav.settlements",
     href: "/settlements",
     icon: Grid3X3,
     activeMatch: ["/settlements"],
   },
   culture: {
     key: "culture",
-    label: "Culture",
+    labelKey: "nav.culture",
     href: "/history",
     icon: BookOpen,
     activeMatch: ["/history", "/people"],
   },
   map: {
     key: "map",
-    label: "Map",
+    labelKey: "nav.map",
     href: "/map",
     icon: Map,
     activeMatch: "exact",
   },
   photographs: {
     key: "photographs",
-    label: "Photographs",
+    labelKey: "nav.photographs",
     href: "/photographs",
     activeMatch: ["/photographs"],
   },
   films: {
     key: "films",
-    label: "Films",
+    labelKey: "nav.films",
     href: "/films",
     activeMatch: ["/films"],
   },
-  stay: { key: "stay", label: "Stay", href: "/stay", activeMatch: ["/stay"] },
+  stay: {
+    key: "stay",
+    labelKey: "nav.stay",
+    href: "/stay",
+    activeMatch: ["/stay"],
+  },
   about: {
     key: "about",
-    label: "About",
+    labelKey: "nav.about",
     href: "/about",
     activeMatch: "exact",
   },
   contact: {
     key: "contact",
-    label: "Contact",
+    labelKey: "nav.contact",
     href: "/contact",
     activeMatch: "exact",
   },
   privacy: {
     key: "privacy",
-    label: "Privacy",
+    labelKey: "nav.privacy",
     href: "/privacy",
     activeMatch: "exact",
   },
-  terms: { key: "terms", label: "Terms", href: "/terms", activeMatch: "exact" },
+  terms: {
+    key: "terms",
+    labelKey: "nav.terms",
+    href: "/terms",
+    activeMatch: "exact",
+  },
 };
 
 /** Phone thumb zone. `More` is synthetic and appended by the component. */
@@ -225,39 +253,50 @@ export function isDestinationActive(
  * chrome. `Culture` keeps its dropdown shape, which only this surface uses.
  */
 export const navigation: NavItem[] = [
-  { name: DESTINATIONS.home.label, href: DESTINATIONS.home.href },
   {
-    name: DESTINATIONS.culture.label,
+    key: "home",
+    labelKey: DESTINATIONS.home.labelKey,
+    href: DESTINATIONS.home.href,
+  },
+  {
+    key: "culture",
+    labelKey: DESTINATIONS.culture.labelKey,
     type: "dropdown",
     items: [
       {
-        name: "History of Brava",
+        nameKey: "historyOfBrava",
         href: "/history",
         icon: BookOpen,
-        description: "The island's rich past",
+        descriptionKey: "historyDescription",
       },
       {
-        name: "Historical Figures",
+        nameKey: "historicalFigures",
         href: "/people",
         icon: Users,
-        description: "People who shaped Brava",
+        descriptionKey: "figuresDescription",
       },
     ],
   },
   ...resolve(["settlements", "photographs", "films", "map"]).map((d) => ({
-    name: d.label,
+    key: d.key,
+    labelKey: d.labelKey,
     href: d.href,
   })),
 ];
 
-export const languages = [
-  { code: "EN", label: "English", flag: "🇺🇸", disabled: false },
-  { code: "PT", label: "Português", flag: "🇵🇹", disabled: true },
-  { code: "CV", label: "Kriolu", flag: "🇨🇻", disabled: true },
-];
-
 /**
- * The locale the chrome shows. One place, because four surfaces were each
- * reaching for `languages[0]` to decide the same thing.
+ * The languages the language control offers, in display order. Spec 041 FR-003.
+ *
+ * Each is named in itself (an endonym), so these labels are the same on every page
+ * and are not messages. `lang` is the language of the label itself, so a screen
+ * reader pronounces "Português" as Portuguese on an English page.
  */
-export const currentLanguage = languages[0];
+export const LANGUAGES: readonly {
+  locale: Locale;
+  code: string;
+  label: string;
+  lang: string;
+}[] = [
+  { locale: "en", code: "EN", label: "English", lang: "en" },
+  { locale: "pt-PT", code: "PT", label: "Português", lang: "pt-PT" },
+];

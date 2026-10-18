@@ -1,11 +1,14 @@
 import Image from "next/image";
-import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
+
+import { Link } from "@/i18n/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
+import { RecordText } from "@/components/ui/record-text";
 import { statusVar } from "@/lib/status";
 import type { DirectoryEntry } from "@/types/directory";
 
-import { stayRating, stayStandfirst } from "./stay-copy";
+import { stayRating, stayStandfirst, type StayTranslator } from "./stay-copy";
 
 /**
  * Everywhere a visitor can stay. Spec 034 FR-014.
@@ -13,7 +16,7 @@ import { stayRating, stayStandfirst } from "./stay-copy";
  * Every card carries the same two admissions: whether there is a photograph and
  * whether anyone has rated it. "Stayed here?" is the way in for the second.
  */
-export function StayContent({
+export async function StayContent({
   stays,
   townSlugs,
 }: {
@@ -21,6 +24,8 @@ export function StayContent({
   /** Settlement id to slug, so a card can link at its record without guessing. */
   townSlugs: Record<string, string>;
 }) {
+  const [t, locale] = await Promise.all([getTranslations("stay"), getLocale()]);
+
   return (
     <div
       style={{
@@ -38,7 +43,7 @@ export function StayContent({
           letterSpacing: "-0.02em",
         }}
       >
-        Stay
+        {t("heading")}
       </h1>
       <p
         style={{
@@ -49,7 +54,7 @@ export function StayContent({
           lineHeight: 1.55,
         }}
       >
-        {stayStandfirst(stays)}
+        {stayStandfirst(t, locale, stays)}
       </p>
 
       <div
@@ -61,6 +66,7 @@ export function StayContent({
             key={entry.id}
             entry={entry}
             townSlug={entry.townId ? townSlugs[entry.townId] : undefined}
+            t={t}
           />
         ))}
       </div>
@@ -71,11 +77,13 @@ export function StayContent({
 function StayCard({
   entry,
   townSlug,
+  t,
 }: {
   entry: DirectoryEntry;
   townSlug?: string;
+  t: StayTranslator;
 }) {
-  const rating = stayRating(entry);
+  const rating = stayRating(t, entry);
   // No link rather than a guessed one: a record whose settlement has not resolved has
   // no address under `/[town]/[entry]`, and inventing a slug would 404.
   const href = townSlug ? `/${townSlug}/${entry.slug}` : null;
@@ -99,7 +107,7 @@ function StayCard({
         {entry.imageUrl ? (
           <Image
             src={entry.imageUrl}
-            alt={`${entry.name}, ${entry.town}`}
+            alt={t("photoAlt", { name: entry.name, town: String(entry.town) })}
             fill
             sizes="(max-width: 768px) 100vw, 320px"
             className="object-cover"
@@ -108,7 +116,7 @@ function StayCard({
           <span
             style={{ fontSize: "12px", color: "var(--foreground-secondary)" }}
           >
-            no photograph recorded
+            {t("noPhotographRecorded")}
           </span>
         )}
       </div>
@@ -136,7 +144,8 @@ function StayCard({
         </div>
 
         {entry.description?.trim() && (
-          <p
+          <RecordText
+            as="p"
             style={{
               margin: 0,
               fontSize: "13px",
@@ -145,7 +154,7 @@ function StayCard({
             }}
           >
             {entry.description}
-          </p>
+          </RecordText>
         )}
 
         <div
@@ -171,7 +180,7 @@ function StayCard({
             pageTitle={entry.name}
             variant="quiet"
           >
-            Stayed here?
+            {t("stayedHere")}
           </IdentifyQuestion>
         </div>
       </div>

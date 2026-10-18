@@ -1,9 +1,12 @@
 import Image from "next/image";
-import Link from "next/link";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+
+import { Link } from "@/i18n/navigation";
 
 import { IdentifyQuestion } from "@/components/identify/identify-question";
 import { MiniMap } from "@/features/map/components/mini-map";
 import { MissingPills } from "@/components/ui/missing-pills";
+import { RecordText } from "@/components/ui/record-text";
 import { CopyLinkAction, ShareAction } from "@/components/ui/archive-actions";
 import { formatCoordinates } from "@/lib/coordinates";
 import {
@@ -12,8 +15,13 @@ import {
   placeFields,
 } from "@/lib/field-questions";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
-import { photoFacts } from "@/lib/photo-facts";
-import { getEntryStatus, statusTint, statusVar } from "@/lib/status";
+import { photoFacts, type PhotoFacts } from "@/lib/photo-facts";
+import {
+  entryStatus,
+  getEntryStatus,
+  statusTint,
+  statusVar,
+} from "@/lib/status";
 import type { DirectoryEntry } from "@/types/directory";
 import type { PublicGalleryMedia } from "@/types/gallery";
 
@@ -26,13 +34,27 @@ import {
 } from "./place-record-copy";
 
 /**
+ * Grid rows whose recorded value is free text written in English, marked `lang="en"`
+ * off English (spec 041 FR-005). The others hold names (settlement, festival,
+ * architect, photographer), an interface label (category), or values with no
+ * language (coordinates, rating, phone, email, website).
+ */
+const RECORD_TEXT_FIELDS = new Set([
+  "established",
+  "conditionStatus",
+  "openingHours",
+  "cuisine",
+  "amenities",
+]);
+
+/**
  * One place record. Spec 034 FR-013.
  *
  * The "This record" card is the screen's argument: a sentence counting what is
  * recorded, a bar with one segment per field, and a grid where every empty row asks
  * its own question rather than showing a dash.
  */
-export function PlaceRecord({
+export async function PlaceRecord({
   entry,
   townSlug,
   photographs,
@@ -43,21 +65,32 @@ export function PlaceRecord({
   photographs: PublicGalleryMedia[];
   siblings: DirectoryEntry[];
 }) {
-  const fields = placeFields(entry);
+  const [t, tStatus, tCategories, tIdentify, tPhotographs, locale, format] =
+    await Promise.all([
+      getTranslations("entry"),
+      getTranslations("status"),
+      getTranslations("categories"),
+      getTranslations("identify"),
+      getTranslations("photographs"),
+      getLocale(),
+      getFormatter(),
+    ]);
+  const fieldCopy = { t: tIdentify, categories: tCategories, locale };
+  const fields = placeFields(entry, fieldCopy);
   // One segment per counted row, so the bar and the sentence above it agree with the
   // API's denominator even where the grid shows more than the denominator counts.
-  const segments = countedFields(entry);
-  const status = getEntryStatus(entry);
-  const credit = heroCredit(entry);
+  const segments = countedFields(entry, fieldCopy);
+  const status = getEntryStatus(entry, tStatus);
+  const credit = heroCredit(t, entry);
   // Same guard the field grid applies: 0,0 is an unplaced submission's default, and
   // printing it under the locator map would assert a position the record lacks.
   const placed = !(entry.latitude === 0 && entry.longitude === 0);
   const coordinates = placed
     ? formatCoordinates(entry.latitude, entry.longitude)
     : null;
-  const photographs_ = photographsNote(entry, photographs.length);
-  const siblingSection = alsoRecorded(entry, siblings.length);
-  const rating = ratingNote(entry);
+  const photographs_ = photographsNote(t, locale, entry, photographs.length);
+  const siblingSection = alsoRecorded(t, entry, siblings.length);
+  const rating = ratingNote(t, tCategories, entry);
   const identify = {
     contentType: "entry",
     contentId: entry.id,
@@ -74,7 +107,7 @@ export function PlaceRecord({
           {entry.imageUrl ? (
             <Image
               src={entry.imageUrl}
-              alt={`${entry.name}, ${entry.town}`}
+              alt={t("heroAlt", { name: entry.name, town: String(entry.town) })}
               fill
               priority
               sizes="100vw"
@@ -92,7 +125,7 @@ export function PlaceRecord({
                   color: "var(--foreground-secondary)",
                 }}
               >
-                no photograph recorded
+                {t("noPhotographRecorded")}
               </span>
             </div>
           )}
@@ -115,7 +148,7 @@ export function PlaceRecord({
                 marginBottom: "8px",
               }}
             >
-              {heroEyebrow(entry)}
+              {heroEyebrow(tCategories, entry)}
             </div>
             <h1
               className="font-serif"
@@ -163,7 +196,8 @@ export function PlaceRecord({
       >
         <div className="flex min-w-0 flex-col" style={{ gap: "30px" }}>
           {entry.description?.trim() && (
-            <p
+            <RecordText
+              as="p"
               className="text-pretty"
               style={{
                 margin: 0,
@@ -173,7 +207,7 @@ export function PlaceRecord({
               }}
             >
               {entry.description}
-            </p>
+            </RecordText>
           )}
 
           <section
@@ -198,7 +232,7 @@ export function PlaceRecord({
                   fontWeight: 400,
                 }}
               >
-                This record
+                {t("thisRecord")}
               </h2>
               <div
                 style={{
@@ -206,7 +240,7 @@ export function PlaceRecord({
                   color: "var(--foreground-secondary)",
                 }}
               >
-                {completenessSentence(entry)}
+                {completenessSentence(entry, fieldCopy)}
               </div>
             </div>
 
@@ -256,7 +290,11 @@ export function PlaceRecord({
                   >
                     {field.label}
                   </dt>
-                  <dd
+                  <RecordText
+                    as="dd"
+                    when={
+                      field.value !== null && RECORD_TEXT_FIELDS.has(field.key)
+                    }
                     className={field.mono ? "font-mono" : undefined}
                     style={{
                       margin: 0,
@@ -267,8 +305,8 @@ export function PlaceRecord({
                           : statusVar("name"),
                     }}
                   >
-                    {field.value ?? "not recorded"}
-                  </dd>
+                    {field.value ?? t("notRecorded")}
+                  </RecordText>
                   {field.value === null && (
                     <IdentifyQuestion
                       {...identify}
@@ -289,7 +327,7 @@ export function PlaceRecord({
               className="font-serif"
               style={{ fontWeight: 400, fontSize: "25px", margin: "0 0 6px" }}
             >
-              Photographs of this place
+              {t("photographs.heading")}
             </h2>
             {photographs_.note && (
               <p
@@ -326,7 +364,7 @@ export function PlaceRecord({
                   field="photograph"
                   variant="primary"
                 >
-                  Give a photograph to the archive
+                  {t("photographs.give")}
                 </IdentifyQuestion>
               </div>
             ) : (
@@ -337,7 +375,11 @@ export function PlaceRecord({
                 }}
               >
                 {photographs.map((media) => (
-                  <PlacePhotographTile key={media.id} media={media} />
+                  <PlacePhotographTile
+                    key={media.id}
+                    media={media}
+                    facts={photoFacts(media, format, tPhotographs)}
+                  />
                 ))}
               </div>
             )}
@@ -379,7 +421,7 @@ export function PlaceRecord({
                       style={{
                         width: "8px",
                         height: "8px",
-                        background: statusVar(getEntryStatus(sibling).status),
+                        background: statusVar(entryStatus(sibling)),
                       }}
                     />
                     <span
@@ -409,7 +451,7 @@ export function PlaceRecord({
               variant="quiet"
               className="!text-[13px]"
             >
-              Suggest a correction
+              {t("suggestCorrection")}
             </IdentifyQuestion>
           </div>
         </div>
@@ -474,7 +516,7 @@ export function PlaceRecord({
                   color: "var(--foreground)",
                 }}
               >
-                Open in the map explorer
+                {t("openInMap")}
               </Link>
             </div>
           </div>
@@ -497,7 +539,7 @@ export function PlaceRecord({
                   marginBottom: "10px",
                 }}
               >
-                Nothing here yet
+                {t("nothingHereYet")}
               </div>
               <p
                 style={{
@@ -517,8 +559,13 @@ export function PlaceRecord({
   );
 }
 
-function PlacePhotographTile({ media }: { media: PublicGalleryMedia }) {
-  const facts = photoFacts(media);
+function PlacePhotographTile({
+  media,
+  facts,
+}: {
+  media: PublicGalleryMedia;
+  facts: PhotoFacts;
+}) {
   const url = resolvePublicImageUrl(media);
 
   return (
@@ -542,7 +589,9 @@ function PlacePhotographTile({ media }: { media: PublicGalleryMedia }) {
         )}
       </div>
       <div style={{ padding: "10px 11px 11px" }}>
-        <div
+        <RecordText
+          as="div"
+          when={!facts.title.untitled}
           className="font-serif"
           style={{
             fontWeight: 400,
@@ -555,7 +604,7 @@ function PlacePhotographTile({ media }: { media: PublicGalleryMedia }) {
           }}
         >
           {facts.title.text}
-        </div>
+        </RecordText>
         <MissingPills missing={facts.missing} />
       </div>
     </Link>

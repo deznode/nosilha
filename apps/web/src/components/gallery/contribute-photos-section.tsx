@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -13,6 +14,7 @@ interface ContributePhotosSectionProps {
 export function ContributePhotosSection({
   entryId,
 }: ContributePhotosSectionProps) {
+  const t = useTranslations("photographs.gallery.contributePhotos");
   const { user, loading: authLoading } = useAuth();
   const pathname = usePathname();
 
@@ -33,8 +35,8 @@ export function ContributePhotosSection({
     if (requiresAuth) {
       return (
         <InlineAuthPrompt
-          title="Sign in to Contribute Photos"
-          description="Photo contributions require an account to ensure proper attribution and moderation."
+          title={t("signInTitle")}
+          description={t("signInDescription")}
           returnUrl={pathname}
         />
       );
@@ -43,14 +45,12 @@ export function ContributePhotosSection({
     if (uploadComplete) {
       return (
         <div className="space-y-4 text-center">
-          <p className="text-text-secondary text-sm">
-            Thank you for contributing to our community.
-          </p>
+          <p className="text-text-secondary text-sm">{t("thanks")}</p>
           <button
             onClick={handleUploadAnother}
             className="text-ocean-blue hover:text-ocean-blue/80 font-medium underline"
           >
-            Upload another photo
+            {t("uploadAnother")}
           </button>
         </div>
       );
@@ -69,10 +69,10 @@ export function ContributePhotosSection({
   return (
     <div className="mx-auto max-w-2xl">
       <h2 className="text-text-primary text-center font-serif text-3xl font-bold">
-        Contribute Photos
+        {t("title")}
       </h2>
       <p className="text-text-secondary mt-2 text-center text-lg leading-8">
-        Have a photo of this location? Share it with the community!
+        {t("intro")}
       </p>
       <div className="mt-8 flex justify-center">{renderContent()}</div>
     </div>

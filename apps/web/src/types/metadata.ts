@@ -1,3 +1,5 @@
+import type { Locale } from "@/i18n/config";
+
 /**
  * SEO Metadata Types for Nos Ilha Cultural Heritage Platform
  *
@@ -275,7 +277,15 @@ export interface ImageObjectSchema extends BaseSchema {
 export interface PageMetadataOptions {
   title: string;
   description: string;
+  /** The page's address without a locale prefix, e.g. `/settlements`. */
   path: string;
+  /** The language the page is rendered in; decides its canonical and `og:locale`. */
+  locale: Locale;
+  /**
+   * False for a page shown in English under `/pt` (legal pages, an untranslated
+   * article), which keeps it out of the language alternates. Defaults to true.
+   */
+  hasPortuguese?: boolean;
   keywords?: string[];
   images?: OpenGraphImage[];
   structuredData?: StructuredData[];

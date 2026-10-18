@@ -1,10 +1,12 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 import { FilmCard } from "@/components/films/film-card";
 import type { Film } from "@/lib/films";
 
 /** Four films below the photographs, as cards. Spec 038 FR-013. */
 export function FilmsBand({ films }: { films: readonly Film[] }) {
+  const t = useTranslations("photographs");
   if (films.length === 0) return null;
   return (
     <section aria-labelledby="films-band-heading" className="mt-9">
@@ -13,13 +15,13 @@ export function FilmsBand({ films }: { films: readonly Film[] }) {
           id="films-band-heading"
           className="text-body m-0 font-serif text-[27px] font-normal"
         >
-          Films
+          {t("index.films")}
         </h2>
         <Link
           href="/films"
           className="text-ocean-blue hover:text-brand ml-auto text-[13px]"
         >
-          See all films →
+          {t("index.seeAllFilms")}
         </Link>
       </div>
       <div className="grid grid-cols-2 gap-[18px] md:grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">

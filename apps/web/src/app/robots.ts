@@ -1,4 +1,6 @@
 import { MetadataRoute } from "next";
+import { DEFAULT_LOCALE, enabledLocales } from "@/i18n/config";
+import { withLocale } from "@/i18n/paths";
 import { siteConfig } from "@/lib/metadata";
 
 /**
@@ -38,10 +40,28 @@ const DISALLOWED_PATHS = [
   "/_next/",
 ];
 
+/** Route handlers and Next internals have no address under a locale prefix. */
+const UNPREFIXED_ONLY = ["/api/", "/_next/"];
+
+/** Each enabled language beyond English repeats the page paths under its prefix. */
+function disallowedPaths(): string[] {
+  const translated = enabledLocales()
+    .filter((locale) => locale !== DEFAULT_LOCALE)
+    .flatMap((locale) =>
+      DISALLOWED_PATHS.filter((path) => !UNPREFIXED_ONLY.includes(path)).map(
+        (path) => withLocale(path, locale)
+      )
+    );
+
+  return [...DISALLOWED_PATHS, ...translated];
+}
+
 /** Named crawlers get the same rules; only the catch-all also hides dotfiles. */
 const USER_AGENTS = ["*", "Googlebot", "Bingbot"];
 
 export default function robots(): MetadataRoute.Robots {
+  const disallowed = disallowedPaths();
+
   return {
     rules: USER_AGENTS.map((userAgent) => ({
       userAgent,
@@ -49,8 +69,8 @@ export default function robots(): MetadataRoute.Robots {
       disallow:
         userAgent === "*"
           ? // Disallow hidden files and folders
-            [...DISALLOWED_PATHS, "/.*"]
-          : DISALLOWED_PATHS,
+            [...disallowed, "/.*"]
+          : disallowed,
     })),
     sitemap: `${siteConfig.url}/sitemap.xml`,
     host: siteConfig.url,

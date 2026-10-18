@@ -1,9 +1,11 @@
+import { getTranslations } from "next-intl/server";
 import { describe, expect, it } from "vitest";
 
 import {
   completenessSentence,
   countedFields,
   placeFields,
+  type PlaceFieldCopy,
 } from "@/lib/field-questions";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -44,10 +46,17 @@ function base(overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
   } as DirectoryEntry;
 }
 
+/** Spec 041 FR-004: the grid's words come from the page's messages. */
+const copy: PlaceFieldCopy = {
+  t: await getTranslations("identify"),
+  categories: await getTranslations("categories"),
+  locale: "en",
+};
+
 /** Spec 034 T-28 / FR-013, FR-016 — the field grid is the completeness denominator. */
 describe("placeFields", () => {
   it("renders the prototype's heritage grid in order", () => {
-    expect(placeFields(base()).map((f) => f.label)).toEqual([
+    expect(placeFields(base(), copy).map((f) => f.label)).toEqual([
       "Settlement",
       "Category",
       "Established",
@@ -61,7 +70,7 @@ describe("placeFields", () => {
   });
 
   it("matches the completeness the backend derived", () => {
-    const fields = placeFields(base());
+    const fields = placeFields(base(), copy);
 
     expect(fields).toHaveLength(9);
     expect(fields.filter((f) => f.value !== null)).toHaveLength(6);
@@ -69,7 +78,7 @@ describe("placeFields", () => {
 
   it("shows the recorded values and their source", () => {
     const byKey = Object.fromEntries(
-      placeFields(base()).map((f) => [f.key, f])
+      placeFields(base(), copy).map((f) => [f.key, f])
     );
 
     expect(byKey.settlement.value).toBe("Nossa Senhora do Monte");
@@ -84,7 +93,7 @@ describe("placeFields", () => {
 
   it("asks the prototype's question for each missing field", () => {
     const byKey = Object.fromEntries(
-      placeFields(base()).map((f) => [f.key, f])
+      placeFields(base(), copy).map((f) => [f.key, f])
     );
 
     expect(byKey.photographer).toMatchObject({
@@ -104,21 +113,22 @@ describe("placeFields", () => {
           photographerCredit: "not known",
           archiveSource: null,
         },
-      })
+      }),
+      copy
     );
 
     expect(fields.find((f) => f.key === "photographer")?.value).toBeNull();
   });
 
   it("drops the photographer row when the record has no hero to credit", () => {
-    const fields = placeFields(base({ heroImage: null, imageUrl: null }));
+    const fields = placeFields(base({ heroImage: null, imageUrl: null }), copy);
 
     expect(fields.map((f) => f.key)).not.toContain("photographer");
     expect(fields).toHaveLength(8);
   });
 
   it("treats the unplaced default of 0,0 as no coordinates", () => {
-    const fields = placeFields(base({ latitude: 0, longitude: 0 }));
+    const fields = placeFields(base({ latitude: 0, longitude: 0 }), copy);
 
     expect(fields.find((f) => f.key === "coordinates")).toMatchObject({
       value: null,
@@ -135,7 +145,8 @@ describe("placeFields", () => {
         details: { amenities: ["wifi"] },
         heroImage: null,
         completeness: undefined,
-      }) as DirectoryEntry
+      }) as DirectoryEntry,
+      copy
     );
 
     expect(fields.map((f) => f.key)).toEqual([
@@ -166,7 +177,8 @@ describe("placeFields", () => {
           category,
           rating: 4.5,
           details: null,
-        } as Partial<DirectoryEntry>)
+        } as Partial<DirectoryEntry>),
+        copy
       );
       expect(fields.map((f) => f.key)).not.toContain("rating");
     }
@@ -174,7 +186,8 @@ describe("placeFields", () => {
 
   it("gives a Beach nothing but the structural rows", () => {
     const fields = placeFields(
-      base({ category: "Beach", details: null, heroImage: null })
+      base({ category: "Beach", details: null, heroImage: null }),
+      copy
     );
 
     expect(fields.map((f) => f.key)).toEqual([
@@ -194,7 +207,8 @@ describe("placeFields", () => {
           openingHours: "9 to 6",
           cuisine: ["Cachupa"],
         },
-      } as Partial<DirectoryEntry>)
+      } as Partial<DirectoryEntry>),
+      copy
     );
 
     const byKey = Object.fromEntries(fields.map((f) => [f.key, f]));
@@ -242,7 +256,7 @@ describe("shown but not counted", () => {
 
   it("shows a heritage record's real contact details", () => {
     const byKey = Object.fromEntries(
-      placeFields(casaEugenioTavares()).map((f) => [f.key, f])
+      placeFields(casaEugenioTavares(), copy).map((f) => [f.key, f])
     );
 
     expect(byKey.phoneNumber.value).toBe("+238 2623385");
@@ -251,11 +265,11 @@ describe("shown but not counted", () => {
   });
 
   it("keeps them out of the denominator, which stays the API's eight", () => {
-    const counted = countedFields(casaEugenioTavares());
+    const counted = countedFields(casaEugenioTavares(), copy);
 
     expect(counted).toHaveLength(8);
     expect(counted.map((f) => f.key)).not.toContain("phoneNumber");
-    expect(completenessSentence(casaEugenioTavares())).toBe(
+    expect(completenessSentence(casaEugenioTavares(), copy)).toBe(
       "four of eight fields recorded"
     );
   });
@@ -269,7 +283,8 @@ describe("shown but not counted", () => {
         phoneNumber: null,
         email: null,
         website: null,
-      })
+      }),
+      copy
     ).map((f) => f.key);
 
     expect(keys).not.toContain("phoneNumber");
@@ -282,7 +297,8 @@ describe("shown but not counted", () => {
         heroImage: null,
         phoneNumber: null,
         details: { phoneNumber: "", openingHours: "", cuisine: [] },
-      } as Partial<DirectoryEntry>)
+      } as Partial<DirectoryEntry>),
+      copy
     );
 
     expect(counted.map((f) => f.key)).toContain("phoneNumber");
@@ -291,11 +307,13 @@ describe("shown but not counted", () => {
 
 describe("completenessSentence", () => {
   it("reads the backend's own count", () => {
-    expect(completenessSentence(base())).toBe("six of nine fields recorded");
+    expect(completenessSentence(base(), copy)).toBe(
+      "six of nine fields recorded"
+    );
   });
 
   it("falls back to the rendered grid when the API sent no completeness", () => {
-    expect(completenessSentence(base({ completeness: undefined }))).toBe(
+    expect(completenessSentence(base({ completeness: undefined }), copy)).toBe(
       "six of nine fields recorded"
     );
   });
@@ -303,7 +321,8 @@ describe("completenessSentence", () => {
   it("agrees in number for a single field", () => {
     expect(
       completenessSentence(
-        base({ completeness: { documented: 1, total: 1, missingFields: [] } })
+        base({ completeness: { documented: 1, total: 1, missingFields: [] } }),
+        copy
       )
     ).toBe("one of one field recorded");
   });
@@ -317,7 +336,8 @@ describe("completenessSentence", () => {
             total: 9,
             missingFields: [],
           },
-        })
+        }),
+        copy
       )
     ).toBe("nothing recorded yet");
   });

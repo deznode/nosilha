@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Camera, ExternalLink } from "lucide-react";
 import type { MediaItem } from "@/types/media";
 
@@ -19,6 +20,8 @@ export function GalleryMapPopup({
   onOpenInGallery,
   onClose,
 }: GalleryMapPopupProps) {
+  const t = useTranslations("photographs.gallery.map");
+  const tCommon = useTranslations("common");
   return (
     <div className="bg-surface border-hairline rounded-card shadow-elevated w-56 overflow-hidden border">
       {/* Photo preview */}
@@ -59,14 +62,14 @@ export function GalleryMapPopup({
             className="bg-brand/10 text-brand hover:bg-brand/20 rounded-button flex flex-1 items-center justify-center gap-1 px-2 py-1.5 text-xs font-medium transition-colors"
           >
             <ExternalLink className="h-3 w-3" />
-            Open in Gallery
+            {t("openInGallery")}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="text-muted hover:bg-surface-alt rounded-button px-2 py-1.5 text-xs transition-colors"
           >
-            Close
+            {tCommon("close")}
           </button>
         </div>
       </div>

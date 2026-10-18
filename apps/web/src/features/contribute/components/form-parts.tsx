@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 import type {
   InputHTMLAttributes,
   ReactNode,
@@ -106,9 +107,10 @@ export function KindSwitch({
   /** While sending: the panels under the button belong to one kind. */
   disabled?: boolean;
 }) {
+  const t = useTranslations("contribute.form");
   const options = [
-    { value: "photo", label: "Photograph" },
-    { value: "film", label: "Film link" },
+    { value: "photo", label: t("kindPhoto") },
+    { value: "film", label: t("kindFilm") },
   ] as const;
   return (
     <div className="bg-surface flex max-w-[340px] rounded-[9px] p-[3px]">
@@ -165,6 +167,7 @@ export function PermissionBox({
   checked: boolean;
   onChange: (checked: boolean) => void;
 }) {
+  const t = useTranslations("contribute.form");
   return (
     <label className="bg-surface flex cursor-pointer gap-3 rounded-[10px] px-[15px] py-3.5">
       <span className="relative mt-px flex h-5 w-5 flex-none">
@@ -182,23 +185,21 @@ export function PermissionBox({
         </span>
       </span>
       <span className="text-muted text-[13px] leading-[1.55]">
-        I have the right to share this, and I am happy for it to appear in the
-        public archive under CC BY-SA 4.0 with the credit above.
+        {t("permission")}
       </span>
     </label>
   );
 }
 
 export function WhatHappensNext() {
+  const t = useTranslations("contribute.form");
   return (
     <div className="border-hairline rounded-[10px] border px-[17px] py-[15px]">
       <div className="text-muted mb-2 font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase">
-        What happens next
+        {t("nextTitle")}
       </div>
       <div className="text-muted text-[13px] leading-[1.65]">
-        A person reviews it before it is published · it is credited to the name
-        you gave, and we will not publish it without that credit attached · you
-        can ask for it to be taken down at any time
+        {t("nextBody")}
       </div>
     </div>
   );
@@ -242,10 +243,12 @@ export function PageNotice({
   );
 }
 
-/** "about 10 minutes", from the seconds `Retry-After` gave. */
-export function waitPhrase(seconds: number): string {
-  const minutes = Math.max(1, Math.ceil(seconds / 60));
-  return `about ${minutes} minute${minutes === 1 ? "" : "s"}`;
+/**
+ * Whole minutes to wait, from the seconds `Retry-After` gave: the `minutes`
+ * argument of the "about 10 minutes" messages.
+ */
+export function waitMinutes(seconds: number): number {
+  return Math.max(1, Math.ceil(seconds / 60));
 }
 
 /**
@@ -269,6 +272,7 @@ export function SubmitArea({
   sending: boolean;
   progress: number | null;
 }) {
+  const t = useTranslations("contribute.form");
   if (sending) {
     return (
       <div className="flex flex-col gap-[9px]">
@@ -277,12 +281,14 @@ export function SubmitArea({
           aria-disabled="true"
           className="bg-primary text-primary-foreground flex h-12 items-center justify-center rounded-lg text-[15px] font-medium opacity-75"
         >
-          {progress === null ? "Sending…" : `Sending · ${progress}%`}
+          {progress === null
+            ? t("sending")
+            : t("sendingProgress", { progress })}
         </button>
         {progress !== null && (
           <div
             role="progressbar"
-            aria-label="Upload progress"
+            aria-label={t("uploadProgress")}
             aria-valuenow={progress}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -294,10 +300,7 @@ export function SubmitArea({
             />
           </div>
         )}
-        <p className="text-muted text-center text-[12.5px]">
-          Keep this page open until it finishes. On a slow connection this can
-          take a minute.
-        </p>
+        <p className="text-muted text-center text-[12.5px]">{t("keepOpen")}</p>
       </div>
     );
   }

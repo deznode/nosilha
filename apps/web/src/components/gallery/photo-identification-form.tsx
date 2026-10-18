@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,39 +17,36 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitSuggestion } from "@/lib/api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useToast } from "@/hooks/use-toast";
+import type { Translator } from "@/i18n/types";
 
-const photoIdentificationSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(255, "Name is too long"),
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
-  suggestedTitle: z
-    .string()
-    .max(255, "Title is too long")
-    .optional()
-    .or(z.literal("")),
-  suggestedLocation: z
-    .string()
-    .max(255, "Location is too long")
-    .optional()
-    .or(z.literal("")),
-  approximateDate: z
-    .string()
-    .max(100, "Date is too long")
-    .optional()
-    .or(z.literal("")),
-  notes: z
-    .string()
-    .min(10, "Please provide at least 10 characters")
-    .max(5000, "Notes are too long"),
-  honeypot: z.string().max(0, "Invalid submission").optional(),
-});
+/** A factory taking a `validation` translator, so messages follow the page's language. */
+function createPhotoIdentificationSchema(t: Translator<"validation">) {
+  return z.object({
+    name: z.string().min(2, t("nameMin")).max(255, t("nameTooLong")),
+    email: z.string().min(1, t("emailRequired")).email(t("emailInvalid")),
+    suggestedTitle: z
+      .string()
+      .max(255, t("titleTooLong"))
+      .optional()
+      .or(z.literal("")),
+    suggestedLocation: z
+      .string()
+      .max(255, t("locationTooLong"))
+      .optional()
+      .or(z.literal("")),
+    approximateDate: z
+      .string()
+      .max(100, t("dateTooLong"))
+      .optional()
+      .or(z.literal("")),
+    notes: z.string().min(10, t("notesMin")).max(5000, t("notesTooLong")),
+    honeypot: z.string().max(0, t("invalidSubmission")).optional(),
+  });
+}
 
-type PhotoIdentificationInput = z.infer<typeof photoIdentificationSchema>;
+type PhotoIdentificationInput = z.infer<
+  ReturnType<typeof createPhotoIdentificationSchema>
+>;
 
 interface PhotoIdentificationFormProps {
   mediaId: string;
@@ -72,6 +70,12 @@ export function PhotoIdentificationForm({
   onClose,
   inline = false,
 }: PhotoIdentificationFormProps) {
+  const t = useTranslations("contribute.photoIdentification");
+  const tv = useTranslations("validation");
+  const photoIdentificationSchema = useMemo(
+    () => createPhotoIdentificationSchema(tv),
+    [tv]
+  );
   const { user, session } = useAuth();
   const isAuthenticated = !!session;
   const toast = useToast();
@@ -148,16 +152,11 @@ export function PhotoIdentificationForm({
       });
 
       setSubmitSuccess(true);
-      toast
-        .success("Thank you! Your identification has been submitted.")
-        .show();
+      toast.success(t("submitted")).show();
       reset();
       setTimeout(() => onClose(), 1500);
     } catch (error) {
-      const errorMsg =
-        error instanceof Error
-          ? error.message
-          : "An error occurred. Please try again later.";
+      const errorMsg = error instanceof Error ? error.message : t("error");
       toast.error(errorMsg).show();
     } finally {
       setIsSubmitting(false);
@@ -174,16 +173,15 @@ export function PhotoIdentificationForm({
       <div className="mt-6">
         <div className="bg-valley-green/10 rounded-md p-4">
           <p className="text-valley-green text-sm font-medium">
-            Thank you for helping identify this photo!
+            {t("successTitle")}
           </p>
           <p className="text-valley-green/90 mt-2 text-sm">
-            Your contribution will be reviewed by our team and used to enrich
-            the archive.
+            {t("successBody")}
           </p>
         </div>
       </div>
       <div className="mt-8 flex flex-col-reverse items-center justify-end gap-3 *:w-full sm:flex-row sm:*:w-auto">
-        <Button onClick={handleClose}>Close</Button>
+        <Button onClick={handleClose}>{t("close")}</Button>
       </div>
     </>
   ) : (
@@ -203,11 +201,11 @@ export function PhotoIdentificationForm({
 
         <div className="space-y-4">
           <Field>
-            <Label>Your Name *</Label>
+            <Label>{t("nameLabel")}</Label>
             <Input
               {...register("name")}
               type="text"
-              placeholder="Enter your name"
+              placeholder={t("namePlaceholder")}
               disabled={isSubmitting}
               data-invalid={errors.name ? "" : undefined}
             />
@@ -216,11 +214,11 @@ export function PhotoIdentificationForm({
 
           {!isAuthenticated && (
             <Field>
-              <Label>Your Email *</Label>
+              <Label>{t("emailLabel")}</Label>
               <Input
                 {...register("email")}
                 type="email"
-                placeholder="your.email@example.com"
+                placeholder={t("emailPlaceholder")}
                 disabled={isSubmitting}
                 data-invalid={errors.email ? "" : undefined}
               />
@@ -232,51 +230,54 @@ export function PhotoIdentificationForm({
 
           {isAuthenticated && user?.email && (
             <div className="text-muted text-sm">
-              Submitting as: <strong>{user.email}</strong>
+              {t.rich("submittingAs", {
+                email: user.email,
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </div>
           )}
 
           <Field>
-            <Label>Suggested Title</Label>
+            <Label>{t("titleLabel")}</Label>
             <Input
               {...register("suggestedTitle")}
               type="text"
-              placeholder="What do you think this photo shows?"
+              placeholder={t("titlePlaceholder")}
               disabled={isSubmitting}
             />
           </Field>
 
           <Field>
-            <Label>Suggested Location</Label>
+            <Label>{t("locationLabel")}</Label>
             <Input
               {...register("suggestedLocation")}
               type="text"
-              placeholder="Where was this taken? (e.g., Nova Sintra, Fajã d'Água)"
+              placeholder={t("locationPlaceholder")}
               disabled={isSubmitting}
             />
           </Field>
 
           <Field>
-            <Label>Approximate Date</Label>
+            <Label>{t("dateLabel")}</Label>
             <Input
               {...register("approximateDate")}
               type="text"
-              placeholder="When was this taken? (e.g., 1960s, Summer 1985)"
+              placeholder={t("datePlaceholder")}
               disabled={isSubmitting}
             />
           </Field>
 
           <Field>
-            <Label>Notes *</Label>
+            <Label>{t("notesLabel")}</Label>
             <Textarea
               {...register("notes")}
               rows={4}
-              placeholder="Share what you know about this photo..."
+              placeholder={t("notesPlaceholder")}
               disabled={isSubmitting}
               data-invalid={errors.notes ? "" : undefined}
             />
             <p className="text-muted mt-1 text-sm">
-              {(notesValue || "").length}/5000 characters (minimum 10)
+              {t("notesCount", { count: String((notesValue || "").length) })}
             </p>
             {errors.notes && (
               <ErrorMessage>{errors.notes.message}</ErrorMessage>
@@ -287,18 +288,17 @@ export function PhotoIdentificationForm({
 
       <div className="mt-8 flex flex-col-reverse items-center justify-end gap-3 *:w-full sm:flex-row sm:*:w-auto">
         <Button plain onClick={handleClose} disabled={isSubmitting}>
-          Cancel
+          {t("cancel")}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Submitting..." : "Submit Identification"}
+          {isSubmitting ? t("submitting") : t("submit")}
         </Button>
       </div>
     </form>
   );
 
-  const title = "Help Identify This Photo";
-  const description =
-    "Know something about this photo? Help us identify the location, date, or subject. Any details you can share will help preserve this piece of Brava\u2019s history.";
+  const title = t("title");
+  const description = t("description");
 
   // Inline mode: render as a fixed overlay within the parent DOM tree.
   // Used inside native <dialog> (showModal) where Headless UI portals

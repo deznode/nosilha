@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { Film } from "lucide-react";
 import { formatDuration } from "@/lib/format-duration";
 import {
@@ -32,6 +33,7 @@ export const FeaturedVideoHero = React.forwardRef<
     { video, isPromoted, deactivateRef, nativePlayer, className, ...props },
     ref
   ) => {
+    const t = useTranslations("photographs.gallery.video");
     if (!video) return null;
 
     const iframeSrc = video.url
@@ -50,7 +52,7 @@ export const FeaturedVideoHero = React.forwardRef<
         {nativePlayer ? (
           <iframe
             src={iframeSrc}
-            title={video.title || "Video player"}
+            title={video.title || t("player")}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="absolute inset-0 h-full w-full"
@@ -72,7 +74,7 @@ export const FeaturedVideoHero = React.forwardRef<
           <div className="mb-2 flex items-center gap-1.5">
             <Film size={14} className="text-bougainvillea-pink" />
             <span className="text-bougainvillea-pink text-[13px] font-bold tracking-wider uppercase">
-              {isPromoted ? "Now Playing" : "Featured Video"}
+              {isPromoted ? t("nowPlaying") : t("featured")}
             </span>
           </div>
           <h2 className="line-clamp-2 text-lg font-bold text-white sm:text-xl">

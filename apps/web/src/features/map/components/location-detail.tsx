@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { clsx } from "clsx";
+import { useLocale, useTranslations } from "next-intl";
+import { RecordText } from "@/components/ui/record-text";
 import { statusVar } from "@/lib/status";
 import { selectionCard } from "../data/map-copy";
 import type { MapItem } from "../data/types";
@@ -16,11 +18,12 @@ export function DetailCloseButton({
   onClose: () => void;
   className?: string;
 }) {
+  const t = useTranslations("map");
   return (
     <button
       type="button"
       onClick={onClose}
-      aria-label="Close"
+      aria-label={t("selection.close")}
       className={clsx(
         "focus-ring grid size-11 flex-none cursor-pointer place-items-center rounded-full text-[15px]",
         className
@@ -44,7 +47,9 @@ interface LocationDetailBodyProps {
  * Spec 034 FR-011, Spec 039 (M1).
  */
 export function LocationDetailBody({ item, onClose }: LocationDetailBodyProps) {
-  const copy = selectionCard(item);
+  const t = useTranslations("map");
+  const locale = useLocale();
+  const copy = selectionCard(t, locale, item);
   const regionHref = item.regionSlug
     ? `/photographs?region=${encodeURIComponent(item.regionSlug)}`
     : null;
@@ -90,12 +95,14 @@ export function LocationDetailBody({ item, onClose }: LocationDetailBodyProps) {
         </span>
       </div>
       {/* The full text stays in the DOM for screen readers; the page holds it in full. */}
-      <p
+      <RecordText
+        as="p"
+        when={!!item.description.trim()}
         className="mb-3.5 line-clamp-3 text-[13px] leading-[1.55] text-pretty"
         style={{ color: "var(--foreground-secondary)" }}
       >
         {copy.description}
-      </p>
+      </RecordText>
 
       <div className="flex flex-wrap gap-2">
         {item.href && (
@@ -115,7 +122,7 @@ export function LocationDetailBody({ item, onClose }: LocationDetailBodyProps) {
               color: "var(--foreground)",
             }}
           >
-            Filter photographs to this area
+            {t("selection.filterPhotographs")}
           </Link>
         )}
       </div>

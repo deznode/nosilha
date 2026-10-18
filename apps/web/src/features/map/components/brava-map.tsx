@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { clsx } from "clsx";
+import { useLocale, useTranslations } from "next-intl";
 import { useNarrow } from "@/hooks/use-narrow";
 import { useMapStore, useModeItems } from "@/stores/mapStore";
 import { EXPLORER_VIEW } from "../data/constants";
 import { statusCounts } from "../data/locations-adapter";
-import { legendRows, photographsNote } from "../data/map-copy";
+import { itemEyebrow, legendRows, photographsNote } from "../data/map-copy";
 import type { MapItem } from "../data/types";
 import {
   useApplyPendingSelection,
@@ -39,6 +40,22 @@ const NARROW_EASE_BOTTOM_SHARE = 0.6;
  * in render, not by a CSS breakpoint.
  */
 export default function BravaMap() {
+  const t = useTranslations("map");
+  const tStatus = useTranslations("status");
+  const tCategories = useTranslations("categories");
+  const tPhotographs = useTranslations("photographs");
+  // Read by the load below, which runs once per visit rather than per translator.
+  const itemCopyRef = useRef({
+    categories: tCategories,
+    photographs: tPhotographs,
+  });
+  useEffect(() => {
+    itemCopyRef.current = {
+      categories: tCategories,
+      photographs: tPhotographs,
+    };
+  }, [tCategories, tPhotographs]);
+  const locale = useLocale();
   const mapRef = useRef<MapRef>(null);
   const [mapReady, setMapReady] = useState(false);
   const [userLocation, setUserLocation] = useState<{
@@ -66,7 +83,7 @@ export default function BravaMap() {
     // Activity keeps this component's state across a hide; an open sheet or fan from
     // the last visit should not greet the next one.
     store.resetTransient();
-    store.fetchData();
+    store.fetchData(itemCopyRef.current);
 
     // Prevent iOS Safari body bounce scrolling behind the full-screen map
     const prevOverflow = document.body.style.overflow;
@@ -165,19 +182,19 @@ export default function BravaMap() {
     () => [
       {
         label: "◐",
-        title: "Satellite",
+        title: t("controls.satellite"),
         pressed: satellite,
         onClick: () => useMapStore.getState().toggleSatellite(),
       },
       {
         label: "3D",
-        title: "3D terrain",
+        title: t("controls.terrain"),
         pressed: is3D,
         onClick: () => useMapStore.getState().toggle3D(),
       },
       {
         label: "⟲",
-        title: "Reset view",
+        title: t("controls.reset"),
         onClick: () => {
           useMapStore.getState().clearSelection();
           mapRef.current?.easeTo({
@@ -193,7 +210,7 @@ export default function BravaMap() {
       },
       {
         label: "⌖",
-        title: "My location",
+        title: t("controls.myLocation"),
         onClick: () => {
           if (!("geolocation" in navigator)) return;
           navigator.geolocation.getCurrentPosition(
@@ -211,14 +228,18 @@ export default function BravaMap() {
         },
       },
     ],
-    [satellite, is3D]
+    [satellite, is3D, t]
   );
 
   const counts = useMemo(() => statusCounts(modeItems), [modeItems]);
   const ready = !isLoading && !fetchError;
   const note =
-    ready && mode === "photographs" ? photographsNote(unlocatedCount) : null;
-  const rows = ready ? legendRows(mode, counts, photos, unlocatedCount) : null;
+    ready && mode === "photographs"
+      ? photographsNote(t, locale, unlocatedCount)
+      : null;
+  const rows = ready
+    ? legendRows(t, mode, counts, photos, unlocatedCount, tStatus)
+    : null;
   const clearSelection = () => useMapStore.getState().clearSelection();
   const sheetView: SheetView = sheetOpen
     ? "open"
@@ -253,7 +274,12 @@ export default function BravaMap() {
         />
       )}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {selected ? `Selected ${selected.name}, ${selected.eyebrow}.` : ""}
+        {selected
+          ? t("selection.announcement", {
+              name: selected.name,
+              eyebrow: itemEyebrow(t, selected),
+            })
+          : ""}
       </div>
     </div>
   );
@@ -271,7 +297,7 @@ export default function BravaMap() {
     >
       {narrow ? null : (
         <aside
-          aria-label="Filters and list"
+          aria-label={t("sidebar.label")}
           className="flex h-full max-w-full min-w-[280px] flex-[0_0_348px] flex-col overflow-hidden border-r"
           style={{
             background: "var(--background)",

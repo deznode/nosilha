@@ -1,6 +1,44 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Session } from "@supabase/supabase-js";
+import createIntlProxy from "next-intl/middleware";
+
+import {
+  LOCALE_COOKIE,
+  LOCALE_SEGMENTS,
+  PORTUGUESE_ENABLED,
+} from "@/i18n/config";
+import { routing } from "@/i18n/routing";
+
+const intlProxy = createIntlProxy(routing);
+
+/** The areas behind the Supabase guard. Whole segments: `/administrator` is not one. */
+const GUARDED = /^\/(admin|sandbox)(\/|$)/;
+
+/** A guarded address with a locale in front of it: `/pt/admin/x` → `/admin/x`. */
+const PREFIXED_GUARDED = new RegExp(
+  `^/(?:${Object.values(LOCALE_SEGMENTS).join("|")})(/(?:admin|sandbox)(?:/.*)?)$`
+);
+
+/** `/en` and `/en/...`; English is served unprefixed. */
+const ENGLISH_PREFIX = /^\/en(\/.*)?$/;
+
+/**
+ * `/pt-PT/...`, the internal tree Portuguese is served from. Its public addresses
+ * are `/pt/...`; without this the same page would answer at two addresses.
+ */
+const PORTUGUESE_TAG_PREFIX = /^\/pt-pt(\/.*)?$/i;
+
+/** Redirects are built from `nextUrl`: on Cloud Run `request.url` is the bind address. */
+function redirectTo(
+  request: NextRequest,
+  pathname: string,
+  status: 307 | 308 = 307
+) {
+  const url = request.nextUrl.clone();
+  url.pathname = pathname;
+  return NextResponse.redirect(url, status);
+}
 
 /**
  * Extracts user role from JWT access token.
@@ -25,17 +63,56 @@ function extractUserRole(session: Session | null): string | undefined {
 }
 
 /**
- * Next.js Proxy for Route Protection (Next.js 16+)
+ * Next.js Proxy (Next.js 16+): locale routing and route protection.
  *
- * Protects routes at the edge before they render:
- * - /admin/* - Admin dashboard (requires ADMIN role)
- * - /contribute/directory - Directory submissions
- * - /contribute/story - Story submissions
+ * In order:
+ * 1. `/pt/admin/*`, `/pt/sandbox/*` (and `/en/...`) redirect to the unprefixed
+ *    address. The admin area is English only and has no locale prefix.
+ * 2. `/admin/*` requires the ADMIN role and `/sandbox/*` a session. Nothing below
+ *    runs for them, and nothing above or below calls Supabase.
+ * 3. `/en` and `/en/*` redirect permanently to the unprefixed address, and
+ *    `/pt-PT/*` (the internal Portuguese tree) to `/pt/*`.
+ * 4. `/` redirects to `/pt` for a visitor who chose Portuguese (the `nosilha-lang`
+ *    cookie), while Portuguese is enabled. No other address redirects.
+ * 5. Everything else goes to the next-intl proxy, which serves unprefixed
+ *    addresses from the English tree.
  *
  * Unauthenticated users are redirected to login with a return URL.
  * Non-admin users accessing /admin/* are redirected to home.
  */
 export async function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  const prefixedGuarded = pathname.match(PREFIXED_GUARDED);
+  if (prefixedGuarded) return redirectTo(request, prefixedGuarded[1]);
+
+  if (GUARDED.test(pathname)) return guard(request);
+
+  const portugueseTagPrefixed = pathname.match(PORTUGUESE_TAG_PREFIX);
+  if (portugueseTagPrefixed)
+    return redirectTo(
+      request,
+      `/${LOCALE_SEGMENTS["pt-PT"]}${portugueseTagPrefixed[1] ?? ""}`,
+      308
+    );
+
+  const englishPrefixed = pathname.match(ENGLISH_PREFIX);
+  if (englishPrefixed)
+    return redirectTo(request, englishPrefixed[1] ?? "/", 308);
+
+  if (
+    PORTUGUESE_ENABLED &&
+    pathname === "/" &&
+    request.cookies.get(LOCALE_COOKIE)?.value === LOCALE_SEGMENTS["pt-PT"]
+  ) {
+    return redirectTo(request, `/${LOCALE_SEGMENTS["pt-PT"]}`);
+  }
+
+  return intlProxy(request);
+}
+
+/** The Supabase session and role check for `/admin` and `/sandbox`. */
+async function guard(request: NextRequest) {
   const response = NextResponse.next({ request });
 
   // Skip middleware if Supabase is not configured (dev/test environments)
@@ -64,33 +141,22 @@ export async function proxy(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // Define paths requiring authentication
-  // Note: Contribution pages (/contribute/*) use inline auth prompts instead of redirects
-  const authRequiredPaths = ["/admin", "/sandbox"];
-
-  // Define paths requiring ADMIN role
-  const adminRequiredPaths = ["/admin"];
-
   const pathname = request.nextUrl.pathname;
-  const requiresAuth = authRequiredPaths.some((path) =>
-    pathname.startsWith(path)
-  );
-  const requiresAdmin = adminRequiredPaths.some((path) =>
-    pathname.startsWith(path)
-  );
 
   // Redirect unauthenticated users to login
-  if (requiresAuth && !session) {
-    const redirectUrl = new URL("/login", request.url);
+  if (!session) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/login";
+    redirectUrl.search = "";
     redirectUrl.searchParams.set("returnUrl", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
   // Redirect non-admin users from admin routes
-  if (requiresAdmin && session) {
+  if (/^\/admin(\/|$)/.test(pathname)) {
     const role = extractUserRole(session);
     if (role?.toUpperCase() !== "ADMIN") {
-      return NextResponse.redirect(new URL("/", request.url));
+      return redirectTo(request, "/");
     }
   }
 
@@ -98,6 +164,16 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Note: Contribution pages use inline auth prompts instead of middleware redirects
-  matcher: ["/admin/:path*", "/sandbox/:path*"],
+  matcher: [
+    // The guard. These stay explicit entries: the general entry below skips any
+    // address with a file extension, and `/admin/x.json` must not skip the guard.
+    "/admin/:path*",
+    "/sandbox/:path*",
+    "/:locale(en|pt)/admin/:path*",
+    "/:locale(en|pt)/sandbox/:path*",
+    // Every other page. Left out: Next internals, route handlers, the legacy
+    // `/directory` redirects, the search index, the sitemap, robots and files.
+    // Prefixes are whole segments, so `/apiary` is still a page.
+    "/((?!(?:_next|api|auth/callback|directory|pagefind|admin|sandbox)(?:/|$)|sitemap\\.xml$|robots\\.txt$|.*\\.[^/]+$).*)",
+  ],
 };

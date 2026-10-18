@@ -1,5 +1,7 @@
 import { clsx } from "clsx";
-import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { RecordText } from "@/components/ui/record-text";
 import type { ReactNode } from "react";
 
 import {
@@ -13,6 +15,7 @@ import {
   tileImageUrl,
   type InstagramFeed,
   type InstagramPost,
+  type InstagramTranslator,
 } from "@/lib/instagram";
 
 import { InstagramTileImage } from "./instagram-tile-image";
@@ -39,27 +42,32 @@ const TILE_GRID =
 const lastTileOnly = (index: number) =>
   clsx(index === INSTAGRAM_FEED_SIZE - 1 && "min-[700px]:hidden");
 
-export function InstagramSectionView({
+export async function InstagramSectionView({
   feed,
   now,
 }: {
   feed: InstagramFeed;
   now: number;
 }) {
+  const [t, locale] = await Promise.all([
+    getTranslations("archiveHome.instagram"),
+    getLocale(),
+  ]);
+  const tile = { t, locale, now };
   const posts: InstagramPost[] = feed.status === "ok" ? feed.posts : [];
 
   // One shell for every state: the section never hides, so the header, the closing
   // ask and the link out are written once and only the middle varies.
   const body =
     posts.length === 0 ? null : posts.length === 1 ? (
-      <SinglePost post={posts[0]} now={now} />
+      <SinglePost post={posts[0]} {...tile} />
     ) : (
       <div className={TILE_GRID}>
         {posts.slice(0, INSTAGRAM_FEED_SIZE).map((post, index) => (
           <InstagramTile
             key={post.id}
             post={post}
-            now={now}
+            {...tile}
             className={lastTileOnly(index)}
           />
         ))}
@@ -68,9 +76,9 @@ export function InstagramSectionView({
 
   return (
     <SectionFrame compact={posts.length <= 1}>
-      <SectionHeader followLink />
+      <SectionHeader t={t} followLink />
       {posts.length > 1 ? (
-        <Standfirst />
+        <Standfirst t={t} />
       ) : (
         <SecondLine
           className={
@@ -78,15 +86,15 @@ export function InstagramSectionView({
           }
         >
           {posts.length === 1
-            ? "One post so far."
+            ? t("onePost")
             : feed.status === "unavailable"
-              ? "We could not reach Instagram just now. The posts are still there."
-              : "Nothing posted yet."}
+              ? t("unavailable")
+              : t("empty")}
         </SecondLine>
       )}
       {body}
-      <ClosingAsk rule={body !== null} />
-      <FollowLink className="mt-[14px] inline-block min-[700px]:hidden" />
+      <ClosingAsk t={t} rule={body !== null} />
+      <FollowLink t={t} className="mt-[14px] inline-block min-[700px]:hidden" />
     </SectionFrame>
   );
 }
@@ -94,12 +102,13 @@ export function InstagramSectionView({
 /**
  * The cold-fetch fallback. Header and standfirst render at once; the tiles pulse.
  */
-export function InstagramSectionLoading() {
+export async function InstagramSectionLoading() {
+  const t = await getTranslations("archiveHome.instagram");
   return (
     <SectionFrame>
-      <SectionHeader />
+      <SectionHeader t={t} />
       <SecondLine className="mb-[16px] min-[700px]:mb-[22px]">
-        The account, not the archive.
+        {t("loadingLine")}
       </SecondLine>
       <div aria-hidden className={TILE_GRID}>
         {Array.from({ length: INSTAGRAM_FEED_SIZE }, (_, index) => (
@@ -148,7 +157,13 @@ function SectionFrame({
   );
 }
 
-function SectionHeader({ followLink = false }: { followLink?: boolean }) {
+function SectionHeader({
+  t,
+  followLink = false,
+}: {
+  t: InstagramTranslator;
+  followLink?: boolean;
+}) {
   return (
     <div className="min-[700px]:mb-[6px] min-[700px]:flex min-[700px]:flex-wrap min-[700px]:items-baseline min-[700px]:gap-[14px]">
       <h2
@@ -156,7 +171,7 @@ function SectionHeader({ followLink = false }: { followLink?: boolean }) {
         className="mb-[2px] font-serif text-[24px] min-[700px]:mb-0 min-[700px]:text-[30px]"
         style={{ fontWeight: 400, marginTop: 0, letterSpacing: "-0.015em" }}
       >
-        From Instagram
+        {t("heading")}
       </h2>
       <span
         className="mb-[10px] block text-[12.5px] min-[700px]:mb-0 min-[700px]:inline min-[700px]:text-[13px]"
@@ -166,13 +181,19 @@ function SectionHeader({ followLink = false }: { followLink?: boolean }) {
       </span>
       {/* On mobile the link sits below the closing ask instead. */}
       {followLink && (
-        <FollowLink className="ml-auto hidden min-[700px]:inline" />
+        <FollowLink t={t} className="ml-auto hidden min-[700px]:inline" />
       )}
     </div>
   );
 }
 
-function FollowLink({ className }: { className: string }) {
+function FollowLink({
+  t,
+  className,
+}: {
+  t: InstagramTranslator;
+  className: string;
+}) {
   return (
     <a
       href={INSTAGRAM_PROFILE_URL}
@@ -181,7 +202,7 @@ function FollowLink({ className }: { className: string }) {
       className={clsx("text-[13px] hover:underline", className)}
       style={{ color: "var(--brand-ocean-blue)" }}
     >
-      Follow on Instagram →
+      {t("follow")}
     </a>
   );
 }
@@ -210,23 +231,23 @@ function SecondLine({
  * Load-bearing copy: it is what stops a visitor reading these tiles as archive
  * records. The 390 artboard carries its own, shorter wording.
  */
-function Standfirst() {
+function Standfirst({ t }: { t: InstagramTranslator }) {
   return (
     <SecondLine className="mb-[16px] max-w-[62ch] min-[700px]:mb-[22px]">
-      <span className="min-[700px]:hidden">
-        The account, not the archive: notices, festas, and what we are working
-        on.
-      </span>
-      <span className="hidden min-[700px]:inline">
-        The account, not the archive: notices, festas, and whatever we are
-        working on that week.
-      </span>
+      <span className="min-[700px]:hidden">{t("standfirstShort")}</span>
+      <span className="hidden min-[700px]:inline">{t("standfirstLong")}</span>
     </SecondLine>
   );
 }
 
 /** Why the section is allowed on the page; it survives an empty feed. */
-function ClosingAsk({ rule = false }: { rule?: boolean }) {
+function ClosingAsk({
+  t,
+  rule = false,
+}: {
+  t: InstagramTranslator;
+  rule?: boolean;
+}) {
   return (
     <p
       className={clsx(
@@ -240,20 +261,31 @@ function ClosingAsk({ rule = false }: { rule?: boolean }) {
         borderColor: "var(--border-subtle)",
       }}
     >
-      Have a photograph of Brava? Tag{" "}
-      <strong style={{ fontWeight: 500, color: "var(--foreground)" }}>
-        @nosilha
-      </strong>
-      , or{" "}
-      <Link
-        href="/contribute/media"
-        className="hover:underline"
-        style={{ color: "var(--brand-ocean-blue)" }}
-      >
-        send it to the archive →
-      </Link>
+      {t.rich("closingAsk", {
+        strong: (chunks) => (
+          <strong style={{ fontWeight: 500, color: "var(--foreground)" }}>
+            {chunks}
+          </strong>
+        ),
+        link: (chunks) => (
+          <Link
+            href="/contribute/media"
+            className="hover:underline"
+            style={{ color: "var(--brand-ocean-blue)" }}
+          >
+            {chunks}
+          </Link>
+        ),
+      })}
     </p>
   );
+}
+
+/** What every tile needs to name its post: the words, the locale and "now". */
+interface TileCopy {
+  t: InstagramTranslator;
+  locale: string;
+  now: number;
 }
 
 /** The badge is described by the anchor, so both derive its id from the post. */
@@ -265,12 +297,13 @@ const badgeElementId = (post: InstagramPost) => `instagram-badge-${post.id}`;
  */
 function PostLink({
   post,
+  t,
+  locale,
   now,
   className,
   children,
-}: {
+}: TileCopy & {
   post: InstagramPost;
-  now: number;
   className: string;
   children: ReactNode;
 }) {
@@ -279,8 +312,8 @@ function PostLink({
       href={post.permalink}
       target="_blank"
       rel="noopener"
-      aria-label={tileAccessibleName(post, now)}
-      aria-describedby={badgeLabel(post) ? badgeElementId(post) : undefined}
+      aria-label={tileAccessibleName(t, post, now, locale)}
+      aria-describedby={badgeLabel(t, post) ? badgeElementId(post) : undefined}
       className={clsx("group focus-ring", className)}
     >
       {children}
@@ -290,11 +323,10 @@ function PostLink({
 
 function InstagramTile({
   post,
-  now,
   className,
-}: {
+  ...copy
+}: TileCopy & {
   post: InstagramPost;
-  now: number;
   className?: string;
 }) {
   const caption = fittingCaption(post);
@@ -302,23 +334,29 @@ function InstagramTile({
   return (
     <PostLink
       post={post}
-      now={now}
+      {...copy}
       className={clsx(
         "block rounded-[9px] min-[700px]:rounded-[10px]",
         className
       )}
     >
-      <TileImage post={post} sizes="(max-width: 699px) 50vw, 380px" compact />
+      <TileImage
+        t={copy.t}
+        post={post}
+        sizes="(max-width: 699px) 50vw, 380px"
+        compact
+      />
       {caption && (
-        <div
+        <RecordText
+          as="div"
           className="mt-[10px] hidden truncate text-[13px] leading-[1.45] min-[700px]:block"
           style={{ color: "var(--foreground)" }}
         >
           {caption}
-        </div>
+        </RecordText>
       )}
       <PostAge
-        now={now}
+        {...copy}
         post={post}
         className={clsx("mt-[8px]", caption && "min-[700px]:mt-[5px]")}
       />
@@ -327,24 +365,25 @@ function InstagramTile({
 }
 
 /** A lone post: the tile on the left, its whole caption and date beside it. */
-function SinglePost({ post, now }: { post: InstagramPost; now: number }) {
+function SinglePost({ post, ...copy }: TileCopy & { post: InstagramPost }) {
   return (
     <PostLink
       post={post}
-      now={now}
+      {...copy}
       className="grid grid-cols-[140px_minmax(0,1fr)] items-center gap-[16px] rounded-[10px] min-[700px]:grid-cols-[180px_minmax(0,1fr)] min-[700px]:gap-[20px]"
     >
-      <TileImage post={post} sizes="180px" />
+      <TileImage t={copy.t} post={post} sizes="180px" />
       <div>
         {post.caption && (
-          <div
+          <RecordText
+            as="div"
             className="text-[14px] leading-[1.5] break-words whitespace-pre-line"
             style={{ color: "var(--foreground)" }}
           >
             {post.caption}
-          </div>
+          </RecordText>
         )}
-        <PostAge post={post} now={now} className="mt-[6px]" />
+        <PostAge post={post} {...copy} className="mt-[6px]" />
       </div>
     </PostLink>
   );
@@ -352,11 +391,12 @@ function SinglePost({ post, now }: { post: InstagramPost; now: number }) {
 
 function PostAge({
   post,
+  t,
+  locale,
   now,
   className,
-}: {
+}: TileCopy & {
   post: InstagramPost;
-  now: number;
   className: string;
 }) {
   return (
@@ -364,22 +404,24 @@ function PostAge({
       className={clsx("text-[11.5px]", className)}
       style={{ color: "var(--foreground-secondary)" }}
     >
-      {relativeAge(post.timestamp, now)}
+      {relativeAge(t, post.timestamp, now, locale)}
     </div>
   );
 }
 
 function TileImage({
+  t,
   post,
   sizes,
   compact = false,
 }: {
+  t: InstagramTranslator;
   post: InstagramPost;
   sizes: string;
   /** A grid tile steps its badge down on mobile; the lone post does not. */
   compact?: boolean;
 }) {
-  const badge = badgeLabel(post);
+  const badge = badgeLabel(t, post);
   // `fetchInstagramPosts` drops the imageless, but the view is also rendered
   // directly in tests: without an image the frame stands in for the tile.
   const src = tileImageUrl(post);

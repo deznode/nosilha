@@ -1,6 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 
 import { useToast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/ga";
@@ -89,11 +90,12 @@ export function ShareAction({
   text,
   moment = "entry",
   itemId,
-  label = "Share",
+  label,
   className,
   variant = "text",
 }: ArchiveActionProps) {
   const toast = useToast();
+  const t = useTranslations("common");
 
   async function share() {
     const target = buildShareLink(currentUrl(), moment);
@@ -113,10 +115,10 @@ export function ShareAction({
 
     const copied = await copyToClipboard(text ? `${text}\n${target}` : target);
     if (copied) {
-      toast.success(text ? "Message and link copied" : "Link copied").show();
+      toast.success(text ? t("messageAndLinkCopied") : t("linkCopied")).show();
       trackShare(moment, itemId, "copy");
     } else {
-      toast.error("Could not copy the link").show();
+      toast.error(t("copyFailed")).show();
     }
   }
 
@@ -127,7 +129,7 @@ export function ShareAction({
       className={clsx("cursor-pointer", className)}
       style={variant === "pill" ? PILL : TEXT}
     >
-      {label}
+      {label ?? t("share")}
     </button>
   );
 }
@@ -139,14 +141,15 @@ export function CopyLinkAction({
   variant = "text",
 }: Omit<ArchiveActionProps, "title" | "text" | "label">) {
   const toast = useToast();
+  const t = useTranslations("common");
 
   async function copy() {
     const target = buildShareLink(currentUrl(), moment);
     if (await copyToClipboard(target)) {
-      toast.success("Link copied").show();
+      toast.success(t("linkCopied")).show();
       trackShare(moment, itemId, "copy");
     } else {
-      toast.error("Could not copy the link").show();
+      toast.error(t("copyFailed")).show();
     }
   }
 
@@ -157,7 +160,7 @@ export function CopyLinkAction({
       className={clsx("cursor-pointer", className)}
       style={variant === "pill" ? PILL : TEXT}
     >
-      Copy link
+      {t("copyLink")}
     </button>
   );
 }

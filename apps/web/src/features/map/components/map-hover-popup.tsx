@@ -1,6 +1,7 @@
 "use client";
 
 import { Popup } from "react-map-gl/maplibre";
+import { useTranslations } from "next-intl";
 import { statusVar } from "@/lib/status";
 import { popupContent } from "../data/map-copy";
 import type { MapItem } from "../data/types";
@@ -30,7 +31,9 @@ export function MapHoverPopup({ item }: { item: MapItem }) {
 
 /** The popup's body, separate so it can be rendered without a map. */
 export function MapHoverCard({ item }: { item: MapItem }) {
-  const copy = popupContent(item);
+  const t = useTranslations("map");
+  const tStatus = useTranslations("status");
+  const copy = popupContent(t, item, tStatus);
 
   return (
     <div

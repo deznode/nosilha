@@ -1,6 +1,8 @@
+import type { Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
 import { categoryLabel } from "@/lib/category-label";
 import { formatCoordinates } from "@/lib/coordinates";
-import { plural, toWords } from "@/lib/copy/number-words";
+import { toWords } from "@/lib/copy/number-words";
 import { trimmed } from "@/lib/text";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -58,41 +60,33 @@ export interface PlaceField {
   counted: boolean;
 }
 
-const QUESTIONS: Record<string, string> = {
-  settlement: "Which settlement is this in?",
-  category: "What kind of place is this?",
-  established: "When was it established?",
-  coordinates: "Where exactly is it?",
-  conditionStatus: "What condition is it in now?",
-  festival: "Does a festival happen here?",
-  photographer: "Who took the photograph above?",
-  openingHours: "When can a visitor go in?",
-  architect: "Who built it?",
-  rating: "Have you stayed here?",
-  phoneNumber: "Is there a telephone number?",
-  email: "Is there an email address?",
-  website: "Is there a website?",
-  cuisine: "What do they cook?",
-  amenities: "What does a room come with?",
-};
+/**
+ * What the grid's labels, questions and sentence are written from (spec 041 FR-004):
+ * the `identify.placeFields` messages, the category labels, and the page's locale for
+ * number words.
+ */
+export interface PlaceFieldCopy {
+  t: Translator<"identify">;
+  categories: Translator<"categories">;
+  locale: Locale;
+}
 
-const LABELS: Record<string, string> = {
-  settlement: "Settlement",
-  category: "Category",
-  established: "Established",
-  coordinates: "Coordinates",
-  conditionStatus: "Status",
-  festival: "Festival",
-  photographer: "Photographer",
-  openingHours: "Opening hours",
-  architect: "Architect",
-  rating: "Rating",
-  phoneNumber: "Phone",
-  email: "Email",
-  website: "Website",
-  cuisine: "Cuisine",
-  amenities: "Amenities",
-};
+type PlaceFieldKey =
+  | "settlement"
+  | "category"
+  | "established"
+  | "coordinates"
+  | "conditionStatus"
+  | "festival"
+  | "photographer"
+  | "openingHours"
+  | "architect"
+  | "rating"
+  | "phoneNumber"
+  | "email"
+  | "website"
+  | "cuisine"
+  | "amenities";
 
 function text(value: unknown): string | null {
   if (typeof value === "number") return String(value);
@@ -107,27 +101,29 @@ function list(value: unknown): string | null {
   return items.length ? items.join(", ") : null;
 }
 
-function field(
-  key: string,
-  value: string | null,
-  { mono = false, counted = true }: { mono?: boolean; counted?: boolean } = {}
-): PlaceField {
-  return {
+/** Builds rows with labels and questions in `copy`'s language. */
+function rowsIn(copy: PlaceFieldCopy) {
+  const field = (
+    key: PlaceFieldKey,
+    value: string | null,
+    { mono = false, counted = true }: { mono?: boolean; counted?: boolean } = {}
+  ): PlaceField => ({
     key,
-    label: LABELS[key],
+    label: copy.t(`placeFields.labels.${key}`),
     value,
     mono,
-    question: QUESTIONS[key],
+    question: copy.t(`placeFields.questions.${key}`),
     counted,
-  };
-}
+  });
 
-/**
- * A row the category is not counted on, present only because the record holds a
- * value. Empty means nothing to show and nothing to ask.
- */
-function shownOnly(key: string, value: string | null): PlaceField[] {
-  return value === null ? [] : [field(key, value, { counted: false })];
+  /**
+   * A row the category is not counted on, present only because the record holds a
+   * value. Empty means nothing to show and nothing to ask.
+   */
+  const shownOnly = (key: PlaceFieldKey, value: string | null): PlaceField[] =>
+    value === null ? [] : [field(key, value, { counted: false })];
+
+  return { field, shownOnly };
 }
 
 /**
@@ -137,7 +133,11 @@ function shownOnly(key: string, value: string | null): PlaceField[] {
  * knowable per category, so the reads go through a widened view rather than a cast
  * per branch.
  */
-export function placeFields(entry: DirectoryEntry): PlaceField[] {
+export function placeFields(
+  entry: DirectoryEntry,
+  copy: PlaceFieldCopy
+): PlaceField[] {
+  const { field, shownOnly } = rowsIn(copy);
   const category = entry.category;
   const details = (entry.details ?? {}) as Record<string, unknown>;
 
@@ -146,7 +146,7 @@ export function placeFields(entry: DirectoryEntry): PlaceField[] {
   rows.push(field("settlement", text(entry.town)));
   // The label the archive uses, not the raw category: a Stay record's hero says
   // "Stay", and its field grid must not say "Hotel".
-  rows.push(field("category", text(categoryLabel(category))));
+  rows.push(field("category", text(categoryLabel(category, copy.categories))));
 
   if (HERITAGE_CATEGORIES.has(category)) {
     rows.push(field("established", text(details.established)));
@@ -230,26 +230,35 @@ export function placeFields(entry: DirectoryEntry): PlaceField[] {
  * Prefers the API's own count so the sentence states what the backend derived, and
  * falls back to the rendered grid when a cached older response carries none.
  */
-export function completenessSentence(entry: DirectoryEntry): string {
-  const rows = placeFields(entry);
+export function completenessSentence(
+  entry: DirectoryEntry,
+  copy: PlaceFieldCopy
+): string {
+  const rows = placeFields(entry, copy);
   const documented =
     entry.completeness?.documented ??
     rows.filter((f) => f.value !== null).length;
   const total = entry.completeness?.total ?? rows.length;
 
-  if (documented === 0) return "nothing recorded yet";
-
-  return `${toWords(documented)} of ${toWords(total)} ${plural(
+  if (documented === 0) return copy.t("placeFields.nothingRecorded");
+  // `campo` is masculine in Portuguese.
+  return copy.t("placeFields.completeness", {
     total,
-    "field",
-    "fields"
-  )} recorded`;
+    documentedWords: toWords(documented, {
+      locale: copy.locale,
+      gender: "masculine",
+    }),
+    totalWords: toWords(total, { locale: copy.locale, gender: "masculine" }),
+  });
 }
 
 /**
  * The rows the completeness bar and sentence count — the API's denominator, not
  * everything the page renders.
  */
-export function countedFields(entry: DirectoryEntry): PlaceField[] {
-  return placeFields(entry).filter((row) => row.counted);
+export function countedFields(
+  entry: DirectoryEntry,
+  copy: PlaceFieldCopy
+): PlaceField[] {
+  return placeFields(entry, copy).filter((row) => row.counted);
 }

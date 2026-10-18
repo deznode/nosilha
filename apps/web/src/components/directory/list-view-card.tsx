@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { MapPin, Star } from "lucide-react";
 import { BookmarkButton } from "./bookmark-button";
 import { usePlaceRecordHref } from "@/hooks/queries/useTownSummaries";

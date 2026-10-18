@@ -1,3 +1,4 @@
+import { splitLocalePath, withLocale } from "@/i18n/paths";
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town, TownStatusSummary } from "@/types/town";
 import type {
@@ -200,12 +201,15 @@ export class BackendApiClient implements ApiClient {
 
       // Validate and sanitize return URL (prevent open redirect attacks)
       // Only allow safe internal paths: alphanumeric, hyphens, underscores, and slashes
-      const currentPath =
-        typeof window !== "undefined" ? window.location.pathname : "";
+      // The return path is kept without its locale prefix: the login form sends the
+      // reader back through the locale-aware router, which adds it again.
+      const { locale, pathname: currentPath } = splitLocalePath(
+        typeof window !== "undefined" ? window.location.pathname : ""
+      );
       const safePathPattern = /^\/[a-zA-Z0-9\-_\/]*$/;
 
       // Build login URL with optional safe returnUrl
-      let loginUrl = "/login";
+      let loginUrl = withLocale("/login", locale);
       if (
         currentPath &&
         safePathPattern.test(currentPath) &&
@@ -213,7 +217,7 @@ export class BackendApiClient implements ApiClient {
         currentPath !== "/login" && // Don't redirect back to login
         currentPath !== "/register" // Don't redirect to auth pages
       ) {
-        loginUrl = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
+        loginUrl = `${loginUrl}?returnUrl=${encodeURIComponent(currentPath)}`;
       }
 
       // A plain class, not a component: useRouter() and redirect() are unavailable here, and a

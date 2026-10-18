@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useFormatter, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Star } from "lucide-react";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import type { PublicGalleryMedia } from "@/types/gallery";
@@ -12,19 +13,17 @@ interface FeaturedPhotoCardProps {
 }
 
 export function FeaturedPhotoCard({ photo }: FeaturedPhotoCardProps) {
+  const format = useFormatter();
+  const t = useTranslations("photographs.gallery");
   const imageUrl = resolvePublicImageUrl(photo);
   if (!imageUrl) return null;
 
-  const altText = photo.altText ?? photo.title ?? "Gallery photo";
+  const altText = photo.altText ?? photo.title ?? t("photoAlt");
   const location = isPublicUserUploadMedia(photo)
     ? (photo.locationName ?? null)
     : null;
   const formattedDate = photo.createdAt
-    ? new Intl.DateTimeFormat("en-US", {
-        month: "long",
-        year: "numeric",
-        timeZone: "UTC",
-      }).format(new Date(photo.createdAt))
+    ? format.dateTime(new Date(photo.createdAt), "monthYear")
     : null;
 
   return (
@@ -45,7 +44,7 @@ export function FeaturedPhotoCard({ photo }: FeaturedPhotoCardProps) {
         <div className="mb-2 flex items-center gap-1.5">
           <Star size={14} className="fill-sunny-yellow text-sunny-yellow" />
           <span className="text-sunny-yellow text-xs font-bold tracking-wider uppercase">
-            Photo of the Day
+            {t("photoOfTheDay")}
           </span>
         </div>
         <h2 className="text-lg font-bold text-white sm:text-xl">

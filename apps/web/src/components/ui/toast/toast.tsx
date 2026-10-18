@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 import type { Toast as ToastType } from "@/types/toast";
 import { useToastAnimation } from "@/hooks/use-toast-animation";
 import { ToastContent } from "./toast-content";
@@ -55,6 +56,7 @@ export function Toast({
   onMouseLeave,
 }: ToastProps) {
   const { variants } = useToastAnimation();
+  const t = useTranslations("common");
   const toastRef = useRef<HTMLDivElement>(null);
   const ariaConfig = getAriaConfig(toast.variant);
 
@@ -77,9 +79,10 @@ export function Toast({
   // Focus the toast for keyboard accessibility when it has an action
   useEffect(() => {
     if (toast.action && toastRef.current) {
-      // Focus the action button when toast appears
+      // Focus the action button when toast appears. Matched by attribute, not by
+      // its label, which changes with the page's language.
       const actionButton = toastRef.current.querySelector(
-        "button:not([aria-label='Dismiss notification'])"
+        "button:not([data-toast-dismiss])"
       );
       if (actionButton instanceof HTMLElement) {
         actionButton.focus();
@@ -111,7 +114,8 @@ export function Toast({
       <button
         onClick={onDismiss}
         className="ml-2 flex-shrink-0 rounded-md p-1 transition-colors duration-150 hover:bg-white/20 focus:ring-2 focus:ring-white/50 focus:outline-none"
-        aria-label="Dismiss notification"
+        aria-label={t("dismissNotification")}
+        data-toast-dismiss
       >
         <X className="h-4 w-4" aria-hidden="true" />
       </button>

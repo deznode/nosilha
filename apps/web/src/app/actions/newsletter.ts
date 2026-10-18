@@ -2,7 +2,10 @@
 
 import { Resend } from "resend";
 import crypto from "crypto";
-import { newsletterSchema } from "@/lib/validation/newsletter-schema";
+import { getTranslations } from "next-intl/server";
+import { DEFAULT_LOCALE, isEnabledLocale, type Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
+import { createNewsletterSchema } from "@/lib/validation/newsletter-schema";
 import type {
   NewsletterActionResponse,
   NewsletterResponse,
@@ -20,7 +23,11 @@ import type {
  * - Logging with hashed emails (30-day retention tracking)
  * - Duplicate email detection via Resend API
  *
- * @param formData - Form data containing email and optional honeypot field
+ * A server action can't read the page's locale from the route, so the form
+ * sends it as `locale`. Anything that isn't an enabled locale falls back to
+ * the default, and the messages come from that locale.
+ *
+ * @param formData - Form data containing email, locale and optional honeypot field
  * @returns NewsletterActionResponse - Success or error response
  *
  * @see frontend/src/lib/validation/newsletter-schema.ts - Validation schema
@@ -30,6 +37,15 @@ import type {
 export async function subscribeToNewsletter(
   formData: FormData
 ): Promise<NewsletterActionResponse> {
+  const rawLocale = formData.get("locale");
+  const locale: Locale = isEnabledLocale(rawLocale)
+    ? rawLocale
+    : DEFAULT_LOCALE;
+  const [t, tv] = await Promise.all([
+    getTranslations({ locale, namespace: "contribute.newsletter" }),
+    getTranslations({ locale, namespace: "validation" }),
+  ]);
+
   try {
     // 1. Extract and parse FormData
     // Note: FormData.get() returns null for missing fields, but Zod .optional() expects undefined
@@ -39,13 +55,13 @@ export async function subscribeToNewsletter(
     };
 
     // 2. Validate input with Zod
-    const validationResult = newsletterSchema.safeParse(rawData);
+    const validationResult = createNewsletterSchema(tv).safeParse(rawData);
 
     if (!validationResult.success) {
       const errors = validationResult.error.flatten().fieldErrors;
       return {
         success: false,
-        message: "Validation failed",
+        message: t("validationFailed"),
         errors,
       } as NewsletterErrorResponse;
     }
@@ -69,19 +85,19 @@ export async function subscribeToNewsletter(
       // Return fake success to avoid revealing honeypot
       return {
         success: true,
-        message: "Thank you for subscribing!",
+        message: t("thanks"),
       } as NewsletterResponse;
     }
 
     // 4. Call Resend API with retry logic
-    const result = await subscribeWithRetry(email);
+    const result = await subscribeWithRetry(email, t);
 
     return result;
   } catch (error: unknown) {
     console.error("[Newsletter] Unexpected error:", error);
     return {
       success: false,
-      message: "An unexpected error occurred. Please try again later.",
+      message: t("unexpectedError"),
     } as NewsletterErrorResponse;
   }
 }
@@ -93,10 +109,12 @@ export async function subscribeToNewsletter(
  * Does not retry on client errors (4xx) like rate limiting or invalid email.
  *
  * @param email - Validated email address
+ * @param t - Messages for the form's locale
  * @returns NewsletterActionResponse - Success or error response
  */
 async function subscribeWithRetry(
-  email: string
+  email: string,
+  t: Translator<"contribute.newsletter">
 ): Promise<NewsletterActionResponse> {
   const TIMEOUT_MS = 5000;
   const MAX_RETRIES = 1;
@@ -136,7 +154,7 @@ async function subscribeWithRetry(
 
       return {
         success: true,
-        message: "Thank you for subscribing!",
+        message: t("thanks"),
       } as NewsletterResponse;
     } catch (error: unknown) {
       const err = error as {
@@ -159,7 +177,7 @@ async function subscribeWithRetry(
         // Return identical message as new subscription to prevent enumeration
         return {
           success: true,
-          message: "Thank you for subscribing!",
+          message: t("thanks"),
         } as NewsletterResponse;
       }
 
@@ -167,7 +185,7 @@ async function subscribeWithRetry(
       if (err.statusCode === 429) {
         return {
           success: false,
-          message: "Too many requests. Please try again in a few minutes.",
+          message: t("tooManyRequests"),
         } as NewsletterErrorResponse;
       }
 
@@ -201,7 +219,7 @@ async function subscribeWithRetry(
 
       return {
         success: false,
-        message: "Failed to subscribe. Please try again later.",
+        message: t("failed"),
       } as NewsletterErrorResponse;
     }
   }
@@ -209,7 +227,7 @@ async function subscribeWithRetry(
   // Fallback (should never reach here due to loop logic)
   return {
     success: false,
-    message: "Failed to subscribe. Please try again later.",
+    message: t("failed"),
   } as NewsletterErrorResponse;
 }
 

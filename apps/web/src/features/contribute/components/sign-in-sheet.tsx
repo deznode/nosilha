@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
@@ -10,6 +11,8 @@ import {
   type SignedInInfo,
   type SignInFlow,
 } from "../hooks/use-sign-in-flow";
+import type { Translator } from "@/i18n/types";
+
 import type { ContributionDraft } from "../lib/contribution-draft";
 import { CodeInput } from "./code-input";
 import { DESKTOP_QUERY, ResponsiveSheet } from "./responsive-sheet";
@@ -42,13 +45,6 @@ export interface SignInSheetProps {
   initialView?: "start" | "cancelled";
 }
 
-const RATE_LIMITED = "Too many codes sent. Please wait a few minutes.";
-const CODE_ERRORS = {
-  codeWrong:
-    "That code doesn't match. Check it's from the newest email, or send a new code.",
-  codeExpired: "That code has expired. Each code works for 10 minutes.",
-} as const;
-
 /**
  * Sign-in at "Send to the archive" (spec 039, S1–S8 and S10–S12): a bottom
  * sheet on phones, a dialog from `md` up. Google, a 6-digit email code, or a
@@ -62,8 +58,9 @@ export function SignInSheet({
   getDraft,
   initialView = "start",
 }: SignInSheetProps) {
+  const t = useTranslations("contribute.signIn");
   return (
-    <ResponsiveSheet open={open} onClose={onClose} label="Confirm it's you">
+    <ResponsiveSheet open={open} onClose={onClose} label={t("label")}>
       <SignInContent
         held={held}
         getDraft={getDraft}
@@ -87,7 +84,7 @@ function SignInContent({
   const flow = useSignInFlow({ initialView, getDraft, onSignedIn });
   const desktop = useMediaQuery(DESKTOP_QUERY);
   const { view } = flow.state;
-  const noun = held.kind === "film" ? "film link" : "photograph";
+  const kind = held.kind;
 
   // A view change unmounts the control that had focus. Put focus back inside
   // the sheet, on the view's own autofocus target or else its heading.
@@ -106,14 +103,14 @@ function SignInContent({
   return (
     <div ref={rootRef} className="contents">
       {view !== "leaving" && <HeldCard held={held} />}
-      {renderView(flow, noun, desktop ? "computer" : "phone")}
+      {renderView(flow, kind, desktop ? "computer" : "phone")}
     </div>
   );
 }
 
 function renderView(
   flow: SignInFlow,
-  noun: string,
+  kind: HeldItem["kind"],
   device: "phone" | "computer"
 ) {
   const { state } = flow;
@@ -122,7 +119,7 @@ function renderView(
     case "cancelled":
     case "googleBlocked":
     case "noSave":
-      return <StartView flow={flow} noun={noun} />;
+      return <StartView flow={flow} kind={kind} />;
     case "password":
       return (
         <PasswordPanel
@@ -143,26 +140,30 @@ function renderView(
     case "noEmail":
       return <NoEmailView flow={flow} />;
     case "leaving":
-      return <LeavingPanel device={device} noun={noun} />;
+      return <LeavingPanel device={device} kind={kind} />;
   }
 }
 
-function startNotice(view: string, noun: string) {
+function startNotice(
+  t: Translator<"contribute.signIn">,
+  view: string,
+  kind: HeldItem["kind"]
+) {
   switch (view) {
     case "cancelled":
       return {
-        title: "You didn't finish signing in with Google",
-        text: `Nothing was sent, and your ${noun} is still here. Try again, or use an email code.`,
+        title: t("cancelledTitle"),
+        text: t("cancelledText", { kind }),
       };
     case "googleBlocked":
       return {
-        title: "Google sign-in didn't open",
-        text: "Some apps open links in their own browser, and it blocks Google. Use an email code, or open this page in Safari or Chrome.",
+        title: t("blockedTitle"),
+        text: t("blockedText"),
       };
     case "noSave":
       return {
-        title: `This browser can't keep your ${noun} while you're away`,
-        text: "Private browsing does this. Use an email code instead. It works without leaving this page.",
+        title: t("noSaveTitle", { kind }),
+        text: t("noSaveText"),
       };
     default:
       return null;
@@ -170,9 +171,16 @@ function startNotice(view: string, noun: string) {
 }
 
 /** S1 / S1b, and with a notice S10, S11, S12. */
-function StartView({ flow, noun }: { flow: SignInFlow; noun: string }) {
+function StartView({
+  flow,
+  kind,
+}: {
+  flow: SignInFlow;
+  kind: HeldItem["kind"];
+}) {
+  const t = useTranslations("contribute.signIn");
   const { state } = flow;
-  const notice = startNotice(state.view, noun);
+  const notice = startNotice(t, state.view, kind);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -186,9 +194,7 @@ function StartView({ flow, noun }: { flow: SignInFlow; noun: string }) {
           {notice.text}
         </Notice>
       )}
-      <SheetIntro title="Confirm it's you">
-        So we can credit you, and so you can ask for it to be taken down later.
-      </SheetIntro>
+      <SheetIntro title={t("startTitle")}>{t("startLead")}</SheetIntro>
       <GoogleButton
         disabled={state.googleDisabledReason !== null}
         busy={flow.busy}
@@ -202,12 +208,14 @@ function StartView({ flow, noun }: { flow: SignInFlow; noun: string }) {
           error={flow.sendError}
         />
         <PrimaryButton type="submit" disabled={flow.busy} aria-busy={flow.busy}>
-          Email me a code
+          {t("emailMeCode")}
         </PrimaryButton>
       </form>
       <div className="flex flex-wrap justify-between gap-2.5 text-[13px]">
-        <span className="text-muted">New here? This makes your account.</span>
-        <LinkButton onClick={flow.choosePassword}>Use a password</LinkButton>
+        <span className="text-muted">{t("newHere")}</span>
+        <LinkButton onClick={flow.choosePassword}>
+          {t("usePassword")}
+        </LinkButton>
       </div>
     </>
   );
@@ -215,28 +223,25 @@ function StartView({ flow, noun }: { flow: SignInFlow; noun: string }) {
 
 /** S3, S4, S5 and S6. */
 function CodeView({ flow }: { flow: SignInFlow }) {
+  const t = useTranslations("contribute.signIn");
   const { state, resendIn } = flow;
-  const view = state.view as keyof typeof CODE_ERRORS | "code" | "codeResent";
-  const error =
-    view === "codeWrong" || view === "codeExpired" ? CODE_ERRORS[view] : null;
+  const view = state.view;
+  const error = view === "codeWrong" || view === "codeExpired" ? t(view) : null;
   const expired = view === "codeExpired";
   const locked = resendIn > 0;
 
   return (
     <>
-      <SheetIntro title="Check your email">
-        We sent a 6-digit code to{" "}
-        <span className="text-body">{state.email}</span>. Type it here. You
-        don&apos;t need to leave this page.
+      <SheetIntro title={t("codeTitle")}>
+        {t.rich("codeLead", {
+          address: state.email,
+          email: (chunks) => <span className="text-body">{chunks}</span>,
+        })}
       </SheetIntro>
       {state.sendRateLimited ? (
-        <Notice tone="ochre">{RATE_LIMITED}</Notice>
+        <Notice tone="ochre">{t("rateLimited")}</Notice>
       ) : (
-        view === "codeResent" && (
-          <Notice tone="green">
-            A new code is on its way. Only the newest one works.
-          </Notice>
-        )
+        view === "codeResent" && <Notice tone="green">{t("codeResent")}</Notice>
       )}
       <CodeInput
         value={expired ? flow.lastCode : state.digits}
@@ -261,12 +266,12 @@ function CodeView({ flow }: { flow: SignInFlow }) {
           onClick={() => void flow.resend()}
           disabled={locked || flow.busy}
         >
-          Send a new code
+          {t("sendNewCode")}
         </PrimaryButton>
       )}
       {view === "code" && !state.sendRateLimited && (
         <p className="text-muted m-0 text-[13px] leading-[1.55]">
-          The email also has a link. On a phone, the code is more reliable.
+          {t("linkNote")}
         </p>
       )}
       <div className="border-hairline flex flex-col gap-[9px] border-t pt-[13px] text-[13.5px]">
@@ -275,17 +280,17 @@ function CodeView({ flow }: { flow: SignInFlow }) {
             <span />
           ) : locked ? (
             <span className="text-muted">
-              Send a new code in {formatCountdown(resendIn)}
+              {t("sendNewCodeIn", { time: formatCountdown(resendIn) })}
             </span>
           ) : (
             <LinkButton onClick={() => void flow.resend()} disabled={flow.busy}>
-              Send a new code
+              {t("sendNewCode")}
             </LinkButton>
           )}
-          <LinkButton onClick={flow.changeEmail}>Wrong email?</LinkButton>
+          <LinkButton onClick={flow.changeEmail}>{t("wrongEmail")}</LinkButton>
         </div>
         <div>
-          <LinkButton onClick={flow.noEmail}>Didn&apos;t get it?</LinkButton>
+          <LinkButton onClick={flow.noEmail}>{t("didntGetIt")}</LinkButton>
         </div>
       </div>
     </>
@@ -294,13 +299,14 @@ function CodeView({ flow }: { flow: SignInFlow }) {
 
 /** S7. */
 function NoEmailView({ flow }: { flow: SignInFlow }) {
+  const t = useTranslations("contribute.signIn");
   const { state, resendIn } = flow;
   const locked = resendIn > 0;
   return (
     <>
-      <BackLink onClick={flow.back}>Back to the code</BackLink>
+      <BackLink onClick={flow.back}>{t("backToCode")}</BackLink>
       <h2 className={SHEET_HEADING} tabIndex={-1}>
-        No email yet?
+        {t("noEmailTitle")}
       </h2>
       <NoEmailChecklist email={state.email} onChangeEmail={flow.changeEmail} />
       <SecondaryButton
@@ -308,15 +314,15 @@ function NoEmailView({ flow }: { flow: SignInFlow }) {
         disabled={locked || flow.busy}
       >
         {locked
-          ? `Send a new code in ${formatCountdown(resendIn)}`
-          : "Send a new code"}
+          ? t("sendNewCodeIn", { time: formatCountdown(resendIn) })
+          : t("sendNewCode")}
       </SecondaryButton>
       {state.googleDisabledReason === null && (
         <SecondaryButton
           onClick={() => void flow.continueWithGoogle()}
           disabled={flow.busy}
         >
-          Continue with Google instead
+          {t("googleInstead")}
         </SecondaryButton>
       )}
     </>

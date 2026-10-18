@@ -1,3 +1,5 @@
+import { useLocale, useTranslations } from "next-intl";
+
 import { filmsCountWords, type Film } from "@/lib/films";
 
 import { AllFilmsGrid } from "./all-films-grid";
@@ -15,6 +17,8 @@ export function FilmsCinema({
   films: readonly Film[];
   featured: Film | null;
 }) {
+  const t = useTranslations("films");
+  const locale = useLocale();
   const rest = films.filter((f) => f.id !== featured?.id);
 
   return (
@@ -22,7 +26,7 @@ export function FilmsCinema({
       {featured ? (
         <CinemaHero film={featured} />
       ) : (
-        <h1 className="sr-only">Films</h1>
+        <h1 className="sr-only">{t("cinema.heading")}</h1>
       )}
 
       <section
@@ -34,10 +38,10 @@ export function FilmsCinema({
             id="all-films-heading"
             className="text-body m-0 font-serif text-[27px] font-normal"
           >
-            All films
+            {t("cinema.allFilms")}
           </h2>
           <span className="text-muted text-[13px]">
-            {filmsCountWords(films.length)}
+            {filmsCountWords(t, locale, films.length)}
           </span>
         </div>
         <AllFilmsGrid films={rest} />
