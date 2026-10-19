@@ -1,12 +1,8 @@
 import type { MetadataRoute } from "next";
 
-import {
-  BCP47_TAGS,
-  CONTENT_LANGUAGES,
-  DEFAULT_LOCALE,
-  type Locale,
-} from "@/i18n/config";
-import { localizedUrl } from "@/lib/metadata";
+import { CONTENT_LANGUAGES, DEFAULT_LOCALE, type Locale } from "@/i18n/config";
+import { hasHistoryLanguage } from "@/lib/content/history";
+import { alternateLanguages, localizedUrl } from "@/lib/metadata";
 import { placeRecordPath } from "@/lib/place-path";
 import type { DirectoryEntry } from "@/types/directory";
 import type { TownStatusSummary } from "@/types/town";
@@ -31,8 +27,20 @@ const STATIC_PAGES: readonly StaticPage[] = [
   { path: "/photographs", changeFrequency: "weekly", priority: 0.8 },
   { path: "/films", changeFrequency: "weekly", priority: 0.8 },
   { path: "/stay", changeFrequency: "weekly", priority: 0.8 },
-  { path: "/history", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/people", changeFrequency: "monthly", priority: 0.7 },
+  // The same test the page's own metadata uses (`history/page.tsx`).
+  {
+    path: "/history",
+    changeFrequency: "monthly",
+    priority: 0.7,
+    hasPortuguese: hasHistoryLanguage("pt"),
+  },
+  // Lists English articles under an English heading in every locale.
+  {
+    path: "/people",
+    changeFrequency: "monthly",
+    priority: 0.7,
+    hasPortuguese: false,
+  },
   { path: "/contact", changeFrequency: "monthly", priority: 0.5 },
   { path: "/contribute", changeFrequency: "monthly", priority: 0.5 },
   {
@@ -65,15 +73,7 @@ function entriesFor(
 ): MetadataRoute.Sitemap {
   const languages =
     locales.length > 1
-      ? {
-          ...Object.fromEntries(
-            locales.map((locale) => [
-              locale === DEFAULT_LOCALE ? locale : BCP47_TAGS[locale],
-              sitemapUrl(path, locale),
-            ])
-          ),
-          "x-default": sitemapUrl(path, DEFAULT_LOCALE),
-        }
+      ? alternateLanguages(locales, (locale) => sitemapUrl(path, locale))
       : undefined;
 
   return locales.map((locale) => ({

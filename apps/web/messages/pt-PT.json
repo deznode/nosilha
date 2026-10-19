@@ -561,14 +561,10 @@
       }
     },
     "gallery": {
-      "photoAlt": "Fotografia da galeria",
       "imageAlt": "Imagem da galeria",
       "bravaIsland": "Ilha Brava",
       "communityContributor": "Membro da comunidade",
       "anonymous": "Anónimo",
-      "photoOfTheDay": "Fotografia do dia",
-      "weeklyDiscoveries": "Descobertas da semana",
-      "identifyButton": "Ajuda a identificar",
       "video": {
         "player": "Leitor de vídeo",
         "thumbnail": "Miniatura do vídeo",
@@ -1434,13 +1430,7 @@
     "emailRequired": "O e-mail é obrigatório",
     "emailInvalid": "Introduz um endereço de e-mail válido",
     "passwordMin6": "A palavra-passe tem de ter pelo menos 6 caracteres",
-    "passwordMin8": "A palavra-passe tem de ter pelo menos 8 caracteres",
     "passwordTooLong": "A palavra-passe é demasiado longa",
-    "passwordStrength": "A palavra-passe tem de ter pelo menos uma letra maiúscula, uma letra minúscula e um número",
-    "confirmPassword": "Confirma a tua palavra-passe",
-    "displayNameMin": "O nome a apresentar tem de ter pelo menos 2 caracteres",
-    "displayNameTooLong": "O nome a apresentar é demasiado longo",
-    "passwordsMismatch": "As palavras-passe não coincidem",
     "nameMin": "O nome tem de ter pelo menos 2 caracteres",
     "nameTooLong": "O nome é demasiado longo",
     "suggestionType": "Escolhe um tipo de sugestão",

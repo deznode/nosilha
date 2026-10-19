@@ -94,7 +94,6 @@
     "Textarea": "src/components/ui/textarea.tsx",
     "MasonryPhotoGrid": "src/components/gallery/masonry-photo-grid.tsx",
     "MasonryPhotoGridSkeleton": "src/components/gallery/masonry-photo-grid.tsx",
-    "FeaturedPhotoCard": "src/components/gallery/featured-photo-card.tsx",
     "MetadataBadges": "src/components/gallery/metadata-badges.tsx",
     "CompactVideoCard": "src/components/gallery/compact-video-card.tsx",
     "VideoGrid": "src/components/gallery/video-grid.tsx",

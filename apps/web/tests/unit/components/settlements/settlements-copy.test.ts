@@ -214,7 +214,7 @@ describe("parseSettlementFilter", () => {
 
   it("accepts the filters the chips offer", () => {
     for (const filter of SETTLEMENT_FILTERS) {
-      expect(parseSettlementFilter(filter.key)).toBe(filter.key);
+      expect(parseSettlementFilter(filter)).toBe(filter);
     }
   });
 });

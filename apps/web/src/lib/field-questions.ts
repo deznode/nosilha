@@ -2,7 +2,7 @@ import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
 import { categoryLabel } from "@/lib/category-label";
 import { formatCoordinates } from "@/lib/coordinates";
-import { toWords } from "@/lib/copy/number-words";
+import { words } from "@/lib/copy/number-words";
 import { trimmed } from "@/lib/text";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -244,11 +244,8 @@ export function completenessSentence(
   // `campo` is masculine in Portuguese.
   return copy.t("placeFields.completeness", {
     total,
-    documentedWords: toWords(documented, {
-      locale: copy.locale,
-      gender: "masculine",
-    }),
-    totalWords: toWords(total, { locale: copy.locale, gender: "masculine" }),
+    documentedWords: words(documented, copy.locale),
+    totalWords: words(total, copy.locale),
   });
 }
 

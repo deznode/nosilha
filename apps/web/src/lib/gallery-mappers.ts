@@ -6,16 +6,12 @@
  * useGalleryInfiniteQuery hook (subsequent pages).
  */
 
-import type {
-  PublicGalleryMedia,
-  PublicUserUploadMedia,
-} from "@/types/gallery";
+import type { PublicGalleryMedia } from "@/types/gallery";
 import {
   isPublicUserUploadMedia,
   isPublicExternalMedia,
 } from "@/types/gallery";
 import type { MediaItem, MediaCategory, MediaType } from "@/types/media";
-import type { Photo } from "@/components/ui/image-lightbox";
 import type { GeoPointFeature } from "@/features/map/shared";
 import type { DateFormatter } from "@/lib/photo-facts";
 import type { Translator } from "@/i18n/types";
@@ -213,41 +209,6 @@ export function mapGalleryMediaToMediaItem(
     archiveSource: media.archiveSource,
     latitude: media.latitude,
     longitude: media.longitude,
-  };
-}
-
-/**
- * Maps a PublicUserUploadMedia (from the entry media endpoint) to a Photo
- * for use in ImageLightbox.
- */
-export function publicUserUploadToPhoto(
-  media: PublicUserUploadMedia,
-  format: DateFormatter,
-  t: GalleryTranslator
-): Photo {
-  return {
-    id: media.id,
-    src: media.publicUrl || "",
-    alt: media.altText || media.title || t("gallery.photoAlt"),
-    location: media.locationName || t("gallery.bravaIsland"),
-    date: media.dateTaken
-      ? format.dateTime(new Date(media.dateTaken), "shortMonthYear")
-      : media.approximateDate || "",
-    description: media.description || "",
-    title: media.title || undefined,
-    cameraMake: media.cameraMake,
-    cameraModel: media.cameraModel,
-    dateTaken: media.dateTaken,
-    approximateDate: media.approximateDate,
-    locationName: media.locationName,
-    photographerCredit: media.photographerCredit,
-    archiveSource: media.archiveSource,
-    creditPlatform: media.creditPlatform,
-    creditHandle: media.creditHandle,
-    author: media.photographerCredit || media.uploaderDisplayName || undefined,
-    latitude: media.latitude,
-    longitude: media.longitude,
-    type: "IMAGE",
   };
 }
 

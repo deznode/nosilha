@@ -1,7 +1,7 @@
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
 import { categoryLabel, type CategoryTranslator } from "@/lib/category-label";
-import { capitalise, toWords } from "@/lib/copy/number-words";
+import { openingWords } from "@/lib/copy/number-words";
 import type { DirectoryEntry } from "@/types/directory";
 
 export { categoryLabel };
@@ -79,10 +79,7 @@ export function photographsNote(
       note: t("photographs.count", {
         count,
         // `fotografia` is feminine in Portuguese.
-        words: capitalise(
-          toWords(count, { locale, gender: "feminine" }),
-          locale
-        ),
+        words: openingWords(count, locale, "feminine"),
       }),
       showEmptyState: false,
       prompt: t("photographs.promptAnother", { name: entry.name }),

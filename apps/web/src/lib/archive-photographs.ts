@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
-import { capitalise, joinList, toWords } from "@/lib/copy/number-words";
+import { joinList, openingWords, words } from "@/lib/copy/number-words";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { nearestSettlement } from "@/lib/nearest-settlement";
 import { formatCameraInfo } from "@/lib/exif-utils";
@@ -452,26 +452,24 @@ export function indexHelpLine(
   const uncredited = photos.filter((p) => p.missing.photographer).length;
   const unplaced = photos.filter((p) => !p.near).length;
   // Photographs are feminine in Portuguese (`uma fotografia`).
-  const words = (n: number) => toWords(n, { locale, gender: "feminine" });
-
   if (uncredited === total) {
     return t("indexHelp.everyUncredited", {
       unplaced,
-      unplacedWords: words(unplaced),
+      unplacedWords: words(unplaced, locale, "feminine"),
     });
   }
   if (uncredited > 0) {
     return t("indexHelp.someUncredited", {
       uncredited,
-      uncreditedWords: capitalise(words(uncredited), locale),
+      uncreditedWords: openingWords(uncredited, locale, "feminine"),
       unplaced,
-      unplacedWords: words(unplaced),
+      unplacedWords: words(unplaced, locale, "feminine"),
     });
   }
   if (unplaced > 0) {
     return t("indexHelp.unplaced", {
       unplaced,
-      unplacedWords: capitalise(words(unplaced), locale),
+      unplacedWords: openingWords(unplaced, locale, "feminine"),
     });
   }
   return null;

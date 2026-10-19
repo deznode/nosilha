@@ -14,7 +14,7 @@ interface StatusDotProps extends React.HTMLAttributes<HTMLSpanElement> {
  *
  * Shared by the settlement cards, the map legend and the photograph tiles, so the
  * three states look the same everywhere they appear. The colour comes only from
- * `STATUS_CONFIG`, as a theme-following variable. Dot and label share it: green, ocean
+ * `STATUS_TOKENS`, as a theme-following variable. Dot and label share it: green, ocean
  * blue and ochre all pass AA as text in both themes, which sunny yellow never did.
  * Spec 033 FR-005, spec 034 FR-002.
  */

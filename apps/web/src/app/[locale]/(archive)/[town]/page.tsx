@@ -47,14 +47,12 @@ export async function generateMetadata({
   if (!town) return {};
 
   const summary = summaries.find((item) => item.slug === slug);
-  const src = summary?.id
-    ? await cachedTownPreviewSource(summary.id).catch(() => null)
-    : null;
-  const image = sharePreviewImage(src, town.name);
-  const [t, tShare] = await Promise.all([
+  const [src, t, tShare] = await Promise.all([
+    summary?.id ? cachedTownPreviewSource(summary.id).catch(() => null) : null,
     getTranslations("metadata.town"),
     getTranslations("share"),
   ]);
+  const image = sharePreviewImage(src, town.name);
   const holdings = summary ? townHoldings(summary, tShare) : null;
   const about = town.description?.trim() || t("about", { name: town.name });
 

@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 import { DEFAULT_LOCALE, enabledLocales } from "@/i18n/config";
-import { withLocale } from "@/i18n/paths";
+import { getPathname } from "@/i18n/navigation";
 import { siteConfig } from "@/lib/metadata";
 
 /**
@@ -49,7 +49,7 @@ function disallowedPaths(): string[] {
     .filter((locale) => locale !== DEFAULT_LOCALE)
     .flatMap((locale) =>
       DISALLOWED_PATHS.filter((path) => !UNPREFIXED_ONLY.includes(path)).map(
-        (path) => withLocale(path, locale)
+        (path) => getPathname({ href: path, locale })
       )
     );
 

@@ -1,10 +1,12 @@
 /**
- * Counts in prose, in the handoff's sentence forms ("Twenty-five settlements").
+ * Counts in prose: the number words of the handoff's sentence forms ("Twenty-five
+ * settlements"). The sentence around them, noun included, is a message.
  * Spec 034 FR-005: every number in copy is a live aggregate, never a literal.
  *
- * Every function takes a locale (spec 041) and defaults to English, so English
- * output is unchanged. Portuguese number words agree in gender with the noun they
- * count (`um registo`, `uma fotografia`), so the caller passes the noun's gender.
+ * Every function takes a locale (spec 041). `words` and `openingWords` require it;
+ * the rest default to English, so English output is unchanged. Portuguese number
+ * words agree in gender with the noun they count (`um registo`, `uma fotografia`),
+ * so the caller passes the noun's gender.
  */
 
 import { BCP47_TAGS, DEFAULT_LOCALE, type Locale } from "@/i18n/config";
@@ -100,7 +102,7 @@ function ptUnit(n: number, gender: Gender): string {
  * A whole number from 0 to 99 in lowercase words; anything else in digits.
  *
  * Zero is "zero", not "none": zero phrasing belongs to the sentence ("None carries a
- * photographer"), so callers supply it through `countSentence`.
+ * photographer"), so callers supply it in the message.
  */
 export function toWords(
   n: number,
@@ -120,23 +122,6 @@ export function toWords(
   const tens = TENS[Math.floor(n / 10)];
   const ones = n % 10;
   return ones === 0 ? tens : `${tens}-${ONES[ones]}`;
-}
-
-/**
- * The form that agrees with `n` — "photograph"/"photographs", "is"/"are", "holds"/"hold".
- *
- * Here rather than in each screen's copy module: agreement is a formatting primitive,
- * not a per-screen editorial choice, and every copy module was rewriting it inline.
- */
-export function plural(
-  n: number,
-  one: string,
-  many: string,
-  locale: Locale = DEFAULT_LOCALE
-): string {
-  return new Intl.PluralRules(BCP47_TAGS[locale]).select(n) === "one"
-    ? one
-    : many;
 }
 
 /**
@@ -168,29 +153,20 @@ export function capitalise(
   return text.charAt(0).toLocaleUpperCase(BCP47_TAGS[locale]) + text.slice(1);
 }
 
-export interface CountForms {
-  /** Singular template; `{n}` becomes the number in words. */
-  one: string;
-  /** Plural template; `{n}` becomes the number in words. */
-  many: string;
-  /** The whole sentence for zero, as written. */
-  zero: string;
+/** A count in words, agreeing with its noun where the language asks (`uma fotografia`). */
+export function words(
+  n: number,
+  locale: Locale,
+  gender: Gender = "masculine"
+): string {
+  return toWords(n, { locale, gender });
 }
 
-/**
- * A count as the opening of a sentence: `countSentence(25, { many: "{n} settlements" })`
- * gives "Twenty-five settlements". Zero returns `forms.zero` unchanged.
- */
-export function countSentence(
+/** The same, capitalised to open a sentence. */
+export function openingWords(
   n: number,
-  forms: CountForms,
-  options: WordOptions = {}
+  locale: Locale,
+  gender: Gender = "masculine"
 ): string {
-  if (n === 0) return forms.zero;
-
-  const template = plural(n, forms.one, forms.many, options.locale);
-  return capitalise(
-    template.replace(/\{n\}/g, toWords(n, options)),
-    options.locale
-  );
+  return capitalise(words(n, locale, gender), locale);
 }

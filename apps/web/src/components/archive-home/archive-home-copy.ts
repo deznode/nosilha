@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
-import { capitalise, toWords, type Gender } from "@/lib/copy/number-words";
+import { openingWords, words } from "@/lib/copy/number-words";
 import {
   photoCredit,
   photoIsIdentifiablePerson,
@@ -25,16 +25,6 @@ import type { TownStatusSummary } from "@/types/town";
  */
 
 export type ArchiveHomeTranslator = Translator<"archiveHome">;
-
-/** A count in words, agreeing with its noun where the language asks (`uma fotografia`). */
-function words(n: number, locale: Locale, gender: Gender = "masculine") {
-  return toWords(n, { locale, gender });
-}
-
-/** The same, capitalised to open a sentence. */
-function openingWords(n: number, locale: Locale, gender: Gender = "masculine") {
-  return capitalise(words(n, locale, gender), locale);
-}
 
 /** How many tiles the "what each one is missing" row shows. */
 export const PHOTOGRAPH_ROW_SIZE = 4;

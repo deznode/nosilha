@@ -8,11 +8,14 @@ import { formats, TIME_ZONE } from "./formats";
 /**
  * The locale comes from the `[locale]` root segment, not from headers, so this can
  * run inside `"use cache"` and the locale joins the cache key.
+ *
+ * An explicit locale (`getTranslations({ locale })`) wins and the root param is not
+ * read: a Server Action has no route, and Next throws if it reads root params.
  */
-export default getRequestConfig(async () => {
+export default getRequestConfig(async ({ locale: requested }) => {
   // `(admin)` is a root layout of its own with no `[locale]` segment, so the param
   // is undefined there. The admin area is English.
-  const locale = (await rootLocale()) ?? DEFAULT_LOCALE;
+  const locale = requested ?? (await rootLocale()) ?? DEFAULT_LOCALE;
   if (!isEnabledLocale(locale)) notFound();
 
   return {

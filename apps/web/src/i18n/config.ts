@@ -54,13 +54,16 @@ export const CONTENT_LANGUAGES: Record<Locale, string> = {
   "pt-PT": "pt",
 };
 
-/** BCP 47 tags for `Intl` formatting and `hreflang`. */
+/** BCP 47 tags for `Intl` formatting. `hreflang` keys come from `HTML_LANG`. */
 export const BCP47_TAGS: Record<Locale, string> = {
   en: "en-US",
   "pt-PT": "pt-PT",
 };
 
-/** The `<html lang>` value. English stays `en`, as it was before the locale segment. */
+/**
+ * The `<html lang>` value, and the `hreflang` key of each alternate. English stays
+ * `en`, as it was before the locale segment.
+ */
 export const HTML_LANG: Record<Locale, string> = {
   en: "en",
   "pt-PT": "pt-PT",

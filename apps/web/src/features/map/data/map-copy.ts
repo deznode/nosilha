@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
-import { capitalise, toWords } from "@/lib/copy/number-words";
+import { openingWords, words } from "@/lib/copy/number-words";
 import {
   statusLabel,
   statusLine,
@@ -21,15 +21,6 @@ import type { MapItem, MapMode } from "./types";
  */
 
 export type MapTranslator = Translator<"map">;
-
-/** Number words for a count. Photographs are feminine in Portuguese (`uma fotografia`). */
-function words(
-  n: number,
-  locale: Locale,
-  gender: "masculine" | "feminine" = "masculine"
-): string {
-  return toWords(n, { locale, gender });
-}
 
 /**
  * The word above a name: a settlement and a photograph are named by the map; a
@@ -82,7 +73,7 @@ export function listStatusLine(
       if (n === 0) return statusLine("name", tStatus);
       return t("copy.settlementLine", {
         records: n,
-        recordWords: capitalise(words(n, locale), locale),
+        recordWords: openingWords(n, locale),
         ...settlementPhotoArgs(item, locale),
       });
     }
@@ -116,7 +107,7 @@ function selectionStatus(
       const n = item.recordCount ?? 0;
       return t("copy.settlementStatus", {
         records: n,
-        recordWords: capitalise(words(n, locale), locale),
+        recordWords: openingWords(n, locale),
         ...settlementPhotoArgs(item, locale),
       });
     }
@@ -258,13 +249,13 @@ function recordsFooter(
   if (shared.length === 0) {
     return t("copy.recordsFooter", {
       count: total,
-      words: capitalise(words(total, locale), locale),
+      words: openingWords(total, locale),
     });
   }
 
   const sharing = shared.reduce((sum, group) => sum + group.length, 0);
   const args = {
-    sharingWords: capitalise(words(sharing, locale), locale),
+    sharingWords: openingWords(sharing, locale),
     totalWords: words(total, locale),
   };
   const town = shared.length === 1 ? shared[0][0].townName : undefined;
@@ -286,14 +277,14 @@ export function listFooter(
       // `localidade` is feminine in Portuguese.
       const recorded = t("copy.settlementsRecorded", {
         count: items.length,
-        words: capitalise(words(items.length, locale, "feminine"), locale),
+        words: openingWords(items.length, locale, "feminine"),
       });
       if (items.length === 0) return recorded;
 
       const holding = items.filter((item) => item.hasRecords).length;
       const records = t("copy.settlementsHolding", {
         count: holding,
-        words: capitalise(words(holding, locale, "feminine"), locale),
+        words: openingWords(holding, locale, "feminine"),
       });
       return `${recorded} ${records}`;
     }
@@ -302,7 +293,7 @@ export function listFooter(
     case "photographs":
       return t("copy.photographsFooter", {
         count: items.length,
-        words: capitalise(words(items.length, locale, "feminine"), locale),
+        words: openingWords(items.length, locale, "feminine"),
       });
   }
 }
@@ -316,6 +307,6 @@ export function photographsNote(
   if (unlocated === 0) return null;
   return t("copy.photographsNote", {
     count: unlocated,
-    words: capitalise(words(unlocated, locale, "feminine"), locale),
+    words: openingWords(unlocated, locale, "feminine"),
   });
 }

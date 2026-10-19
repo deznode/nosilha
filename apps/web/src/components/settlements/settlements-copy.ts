@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
-import { capitalise, toWords, type Gender } from "@/lib/copy/number-words";
+import { openingWords, words } from "@/lib/copy/number-words";
 import type { TownStatusSummary } from "@/types/town";
 
 /**
@@ -16,35 +16,12 @@ import type { TownStatusSummary } from "@/types/town";
 
 export type SettlementsTranslator = Translator<"settlements">;
 
-function words(n: number, locale: Locale, gender: Gender = "masculine") {
-  return toWords(n, { locale, gender });
-}
+/** The filter chips, in order; each label is `filters.<key>` in the messages. */
+export const SETTLEMENT_FILTERS = ["all", "has", "none"] as const;
 
-function openingWords(n: number, locale: Locale, gender: Gender = "masculine") {
-  return capitalise(words(n, locale, gender), locale);
-}
+export type SettlementFilterKey = (typeof SETTLEMENT_FILTERS)[number];
 
-export type SettlementFilterKey = "all" | "has" | "none";
-
-export interface SettlementFilter {
-  key: SettlementFilterKey;
-}
-
-export const SETTLEMENT_FILTERS: readonly SettlementFilter[] = [
-  { key: "all" },
-  { key: "has" },
-  { key: "none" },
-] as const;
-
-/** A filter chip's label. */
-export function settlementFilterLabel(
-  t: SettlementsTranslator,
-  key: SettlementFilterKey
-): string {
-  return t(`filters.${key}`);
-}
-
-const FILTER_KEYS = new Set<string>(SETTLEMENT_FILTERS.map((f) => f.key));
+const FILTER_KEYS = new Set<string>(SETTLEMENT_FILTERS);
 
 /** An unknown or absent `?filter=` shows everything rather than nothing. */
 export function parseSettlementFilter(
@@ -64,11 +41,7 @@ export function filterSettlements(
   return towns;
 }
 
-export interface SettlementChipCounts {
-  all: number;
-  has: number;
-  none: number;
-}
+export type SettlementChipCounts = Record<SettlementFilterKey, number>;
 
 export function settlementChipCounts(
   towns: TownStatusSummary[]

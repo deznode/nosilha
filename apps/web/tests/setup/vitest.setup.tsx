@@ -83,19 +83,26 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/i18n/navigation", async () => {
   const navigation = await import("next/navigation");
   const { default: NextLink } = await import("next/link");
-  const { withLocale } = await import("@/i18n/paths");
+  const config = await import("@/i18n/config");
   return {
     Link: NextLink,
     useRouter: () => navigation.useRouter(),
     usePathname: () => navigation.usePathname(),
     redirect: ({ href }: { href: string }) => navigation.redirect(href),
+    // A stand-in for next-intl's prefixing, for the absolute paths the app passes;
+    // `tests/unit/i18n/paths.test.ts` checks the real one. The config is read when
+    // called, so a test's partial mock of `@/i18n/config` need not define it.
     getPathname: ({
       href,
       locale,
     }: {
       href: string;
       locale: import("@/i18n/config").Locale;
-    }) => withLocale(href, locale),
+    }) => {
+      if (locale === config.DEFAULT_LOCALE) return href;
+      const segment = config.LOCALE_SEGMENTS[locale];
+      return href === "/" ? `/${segment}` : `/${segment}${href}`;
+    },
   };
 });
 

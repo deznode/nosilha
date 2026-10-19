@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MiniMap } from "@/features/map/components/mini-map";
 import { MiniMapCanvas } from "@/features/map/components/mini-map-canvas";
-import { STATUS_CONFIG } from "@/lib/status";
+import { STATUS_TOKENS } from "@/lib/status";
 import { useUiStore } from "@/stores/uiStore";
 import { mockMatchMedia } from "../../../setup/match-media-mock";
 
@@ -136,7 +136,7 @@ describe("MiniMapCanvas", () => {
 
         const dot = screen.getByTestId("mini-map-marker");
         expect(dot).toHaveStyle({
-          background: `var(${STATUS_CONFIG[status].token})`,
+          background: `var(${STATUS_TOKENS[status]})`,
         });
       }
     );
@@ -147,7 +147,7 @@ describe("MiniMapCanvas", () => {
       const dot = screen.getByTestId("mini-map-marker");
       // color-mix keeps the ring on the same token, so it follows the theme too
       expect(dot.style.boxShadow).toContain("color-mix");
-      expect(dot.style.boxShadow).toContain(STATUS_CONFIG.partial.token);
+      expect(dot.style.boxShadow).toContain(STATUS_TOKENS.partial);
     });
   });
 

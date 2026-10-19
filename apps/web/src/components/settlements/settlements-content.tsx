@@ -13,7 +13,6 @@ import {
   filterSettlements,
   parseSettlementFilter,
   settlementChipCounts,
-  settlementFilterLabel,
   settlementStandfirst,
   type SettlementFilterKey,
 } from "./settlements-copy";
@@ -97,16 +96,16 @@ export function SettlementsContent({
           marginBottom: "24px",
         }}
       >
-        {SETTLEMENT_FILTERS.map((chip) => (
+        {SETTLEMENT_FILTERS.map((key) => (
           <FilterChip
-            key={chip.key}
-            label={settlementFilterLabel(t, chip.key)}
-            count={counts[chip.key]}
+            key={key}
+            label={t(`filters.${key}`)}
+            count={counts[key]}
             // Zero is the answer on an archive this sparse, so the chip shows it
             // rather than looking like a chip whose count failed to load.
             showZero
-            active={filter === chip.key}
-            onClick={() => choose(chip.key)}
+            active={filter === key}
+            onClick={() => choose(key)}
           />
         ))}
       </div>

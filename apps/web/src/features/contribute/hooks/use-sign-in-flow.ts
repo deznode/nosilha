@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { useLocale } from "next-intl";
 
-import { splitLocalePath, withLocale } from "@/i18n/paths";
+import { getPathname } from "@/i18n/navigation";
 import { formatDuration } from "@/lib/format-duration";
 import { supabase } from "@/lib/supabase-client";
 
@@ -79,6 +80,7 @@ export function useSignInFlow({
   const [sendError, setSendError] = useState<SignInError | null>(null);
   /** The code last submitted, still drawn in the boxes on S5. */
   const [lastCode, setLastCode] = useState("");
+  const locale = useLocale();
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const signedInRef = useRef(false);
@@ -274,8 +276,7 @@ export function useSignInFlow({
 
       // The callback is a route handler with no locale of its own, so the path it
       // sends the reader back to carries the prefix of the page they left.
-      const { locale } = splitLocalePath(window.location.pathname);
-      const resumePath = withLocale(GOOGLE_RESUME_PATH, locale);
+      const resumePath = getPathname({ href: GOOGLE_RESUME_PATH, locale });
       const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(resumePath)}`;
       let failed = false;
       try {
@@ -294,7 +295,7 @@ export function useSignInFlow({
     } finally {
       setBusy(false);
     }
-  }, [busy, getDraft, state.googleDisabledReason]);
+  }, [busy, getDraft, locale, state.googleDisabledReason]);
 
   return {
     state,

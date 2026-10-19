@@ -83,10 +83,7 @@ export function MetadataBadges({
   // written out in the browser's zone rather than the site's UTC. This preview only
   // renders in the browser, so the zone cannot differ from a server render.
   const dateLabel = metadata.dateTimeOriginal
-    ? format.dateTime(metadata.dateTimeOriginal, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
+    ? format.dateTime(metadata.dateTimeOriginal, "mediumDate", {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       })
     : metadata.approximateDate || t("dateUnknown");

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import {
-  BCP47_TAGS,
   DEFAULT_LOCALE,
+  enabledLocales,
+  HTML_LANG,
   OG_LOCALES,
   PORTUGUESE_ENABLED,
   type Locale,
@@ -53,6 +54,22 @@ export function localizedUrl(path: string, locale: Locale): string {
   return `${siteConfig.url}${getPathname({ href: path, locale })}`;
 }
 
+/**
+ * The `hreflang` alternates of a page that exists in `locales`, plus `x-default` for
+ * English. Shared by page metadata and the sitemap, which differ only in `url`.
+ */
+export function alternateLanguages(
+  locales: readonly Locale[],
+  url: (locale: Locale) => string
+): Record<string, string> {
+  return {
+    ...Object.fromEntries(
+      locales.map((locale) => [HTML_LANG[locale], url(locale)])
+    ),
+    "x-default": url(DEFAULT_LOCALE),
+  };
+}
+
 interface LocaleMetadataOptions {
   /** The page's address without a locale prefix. */
   path: string;
@@ -78,14 +95,11 @@ export function localeAlternates({
   const canonical = localizedUrl(path, locale);
   if (!portugueseEnabled || !hasPortuguese) return { canonical };
 
-  const english = localizedUrl(path, DEFAULT_LOCALE);
   return {
     canonical,
-    languages: {
-      [DEFAULT_LOCALE]: english,
-      [BCP47_TAGS["pt-PT"]]: localizedUrl(path, "pt-PT"),
-      "x-default": english,
-    },
+    languages: alternateLanguages(enabledLocales(portugueseEnabled), (l) =>
+      localizedUrl(path, l)
+    ),
   };
 }
 

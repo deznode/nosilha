@@ -102,7 +102,7 @@ function LanguageLinks({
   size = "block",
   onChoose,
 }: LanguageSwitcherProps) {
-  const locale = useLocale() as Locale;
+  const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("chrome");

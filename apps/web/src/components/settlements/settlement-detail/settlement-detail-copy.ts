@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
-import { capitalise, toWords, type Gender } from "@/lib/copy/number-words";
+import { openingWords, words } from "@/lib/copy/number-words";
 import type { Town, TownStatusSummary } from "@/types/town";
 
 /**
@@ -19,14 +19,6 @@ export type TownTranslator = Translator<"town">;
 
 function recorded(value: string | null | undefined): boolean {
   return !!value?.trim();
-}
-
-function words(n: number, locale: Locale, gender: Gender = "masculine") {
-  return toWords(n, { locale, gender });
-}
-
-function openingWords(n: number, locale: Locale, gender: Gender = "masculine") {
-  return capitalise(words(n, locale, gender), locale);
 }
 
 /** "Five place records · no photograph of the town itself" */

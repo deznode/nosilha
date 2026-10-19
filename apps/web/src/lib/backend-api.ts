@@ -1,4 +1,5 @@
-import { splitLocalePath, withLocale } from "@/i18n/paths";
+import { getPathname } from "@/i18n/navigation";
+import { splitLocalePath } from "@/i18n/paths";
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town, TownStatusSummary } from "@/types/town";
 import type {
@@ -209,13 +210,13 @@ export class BackendApiClient implements ApiClient {
       const safePathPattern = /^\/[a-zA-Z0-9\-_\/]*$/;
 
       // Build login URL with optional safe returnUrl
-      let loginUrl = withLocale("/login", locale);
+      let loginUrl = getPathname({ href: "/login", locale });
       if (
         currentPath &&
         safePathPattern.test(currentPath) &&
         !currentPath.includes("//") && // Prevent protocol-relative URLs
         currentPath !== "/login" && // Don't redirect back to login
-        currentPath !== "/register" // Don't redirect to auth pages
+        currentPath !== "/signup" // Don't redirect to auth pages
       ) {
         loginUrl = `${loginUrl}?returnUrl=${encodeURIComponent(currentPath)}`;
       }
