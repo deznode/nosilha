@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
-import { withLocale } from "@/i18n/paths";
+import { getPathname, usePathname, useRouter } from "@/i18n/navigation";
 import { clsx } from "clsx";
 
 import { ShareArrivalLine } from "@/components/share/share-arrival";
@@ -108,7 +107,7 @@ function ViewingRoom({
       window.history.replaceState(
         null,
         "",
-        withLocale(photographHref(photo.id, place), locale)
+        getPathname({ href: photographHref(photo.id, place), locale })
       );
       document.title = t("documentTitle", {
         heading: photoHeading(photo, tPhotographs),

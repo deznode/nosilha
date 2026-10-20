@@ -6,9 +6,8 @@ import {
 } from "./config";
 
 /**
- * Address helpers for the few places that cannot use the `Link` or router wrappers:
- * `history.replaceState`, a full-page `location` change, and paths handed to a route
- * handler. Everything else should go through `@/i18n/navigation`.
+ * Reads the locale back out of an address, for code that only has `location.pathname`.
+ * Building a prefixed address goes through `getPathname` in `@/i18n/navigation`.
  */
 
 /** `/pt/map` → `{ locale: "pt-PT", pathname: "/map" }`. Unprefixed addresses are English. */
@@ -25,11 +24,4 @@ export function splitLocalePath(
     }
   }
   return { locale: DEFAULT_LOCALE, pathname };
-}
-
-/** `/map?mode=records` → `/pt/map?mode=records` for Portuguese; unchanged for English. */
-export function withLocale(href: string, locale: Locale): string {
-  if (locale === DEFAULT_LOCALE) return href;
-  const segment = LOCALE_SEGMENTS[locale];
-  return href === "/" ? `/${segment}` : `/${segment}${href}`;
 }

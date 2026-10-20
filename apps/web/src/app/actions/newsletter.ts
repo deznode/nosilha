@@ -143,6 +143,10 @@ async function subscribeWithRetry(
         timeoutPromise,
       ]);
 
+      // The SDK reports API failures in `error` rather than throwing, so hand them
+      // to the catch below: it carries the `statusCode`, `message` and `name` read there.
+      if (response.error) throw response.error;
+
       // Log success event
       const successEvent = {
         event: "newsletter_subscription_success",

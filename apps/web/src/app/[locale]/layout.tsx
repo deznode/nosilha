@@ -5,10 +5,8 @@ import { ThemeSync } from "@/components/theme-sync";
 import { buildThemeInitScript } from "@/lib/theme/initial-theme";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
-import { locale as rootLocale } from "next/root-params";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
@@ -18,20 +16,13 @@ import {
   generateOrganizationSchema,
   createStructuredDataScript,
 } from "@/lib/metadata";
-import {
-  DEFAULT_LOCALE,
-  enabledLocales,
-  HTML_LANG,
-  isEnabledLocale,
-  OG_LOCALES,
-} from "@/i18n/config";
+import { enabledLocales, HTML_LANG, OG_LOCALES } from "@/i18n/config";
 import { pickMessages, ROOT_MESSAGES } from "@/i18n/client-messages";
 import { AnalyticsListener } from "../analytics-listener";
 import { fraunces, outfit } from "../fonts";
 import { reportWebVitalsToGA } from "../web-vitals";
 import "../globals.css";
 import "@/styles/print.css";
-// import { pl } from "zod/v4/locales";
 
 /**
  * Cache Components needs a value for every root param at build time. Only enabled
@@ -43,9 +34,10 @@ export function generateStaticParams() {
 
 // 2. Define comprehensive metadata for the site with proper metadataBase
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await rootLocale();
-  if (!isEnabledLocale(locale)) notFound();
-  const t = await getTranslations("metadata.site");
+  const [locale, t] = await Promise.all([
+    getLocale(),
+    getTranslations("metadata.site"),
+  ]);
   const title = t("title");
   const description = t("description");
 
@@ -61,8 +53,6 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [{ ...OG_IMAGE, alt: t("ogImageAlt") }],
     },
     twitter: { ...baseMetadata.twitter, title, description },
-    // The English home address is only the right default for English pages.
-    alternates: locale === DEFAULT_LOCALE ? baseMetadata.alternates : undefined,
   };
 }
 
@@ -73,7 +63,13 @@ const OG_IMAGE = {
   type: "image/jpeg",
 };
 
-/** Everything but the words, which come from the `metadata.site` messages. */
+/**
+ * Everything but the words, which come from the `metadata.site` messages.
+ *
+ * No canonical and no `og:url`: a page without metadata of its own inherits both,
+ * and the home address would tell search engines that page is the home page. Each
+ * page sets its own (`generatePageMetadata`, `withLocaleMetadata`).
+ */
 const baseMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   keywords: siteConfig.keywords,
@@ -94,7 +90,6 @@ const baseMetadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: siteConfig.url,
     siteName: siteConfig.name,
   },
   twitter: {
@@ -102,9 +97,6 @@ const baseMetadata: Metadata = {
     site: siteConfig.twitterHandle,
     creator: siteConfig.twitterHandle,
     images: [siteConfig.ogImage],
-  },
-  alternates: {
-    canonical: siteConfig.url,
   },
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION,
@@ -124,14 +116,13 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // `dynamicParams = false` does not work with Cache Components, so an unknown or
-  // switched-off locale is refused here, at runtime.
-  const locale = await rootLocale();
-  if (!isEnabledLocale(locale)) notFound();
-
-  const messages = await getMessages();
-  const t = await getTranslations("chrome");
-
-  const tSite = await getTranslations("metadata.site");
+  // switched-off locale is refused at runtime, by the request config (`i18n/request.ts`).
+  const [locale, messages, t, tSite] = await Promise.all([
+    getLocale(),
+    getMessages(),
+    getTranslations("chrome"),
+    getTranslations("metadata.site"),
+  ]);
 
   // Generate organization structured data
   const organizationSchema = generateOrganizationSchema(tSite("description"));

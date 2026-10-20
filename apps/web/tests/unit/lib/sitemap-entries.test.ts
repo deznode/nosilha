@@ -94,10 +94,11 @@ describe("staticSitemapEntries", () => {
     expect(urls(entries)).toContain(`${BASE}/pt`);
   });
 
-  it("lists the legal pages in English only", () => {
+  it("lists the pages whose body stays English in English only", () => {
     const entries = staticSitemapEntries(LOCALES, NOW);
 
-    for (const path of ["/privacy", "/terms"]) {
+    // `/history` has no Portuguese text yet, and `/people` lists English articles.
+    for (const path of ["/privacy", "/terms", "/history", "/people"]) {
       expect(urls(entries)).toContain(`${BASE}${path}`);
       expect(urls(entries)).not.toContain(`${BASE}/pt${path}`);
       expect(

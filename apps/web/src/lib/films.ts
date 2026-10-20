@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
-import { capitalise, toWords } from "@/lib/copy/number-words";
+import { openingWords } from "@/lib/copy/number-words";
 import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { trimmed } from "@/lib/text";
 import {
@@ -340,6 +340,6 @@ export function filmsCountWords(
   return t("countWords", {
     count,
     // `filme` is masculine in Portuguese (`um filme`).
-    words: capitalise(toWords(count, { locale, gender: "masculine" }), locale),
+    words: openingWords(count, locale),
   });
 }

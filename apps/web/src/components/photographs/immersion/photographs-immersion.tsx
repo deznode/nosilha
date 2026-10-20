@@ -3,8 +3,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
-import { withLocale } from "@/i18n/paths";
+import { getPathname, useRouter } from "@/i18n/navigation";
 
 import {
   ALL_PLACES,
@@ -73,7 +72,7 @@ export function PhotographsImmersion({
     window.history.replaceState(
       null,
       "",
-      withLocale(photographsHref(key), locale)
+      getPathname({ href: photographsHref(key), locale })
     );
   };
 

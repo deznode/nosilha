@@ -24,20 +24,16 @@ export interface DocumentationState {
   label: string;
 }
 
-export interface StatusConfig {
-  /** Brand token carrying the colour. Resolves per theme, so never read its value. */
-  token: `--brand-${string}`;
-}
-
 /**
- * The one status table. It carries tokens, never resolved colours: a pin painted from
- * `statusVar` repaints itself when the theme changes. Pins, legend, status chips, the coincident ring, list rows,
- * settlement cards, the settlement-detail dot and both mini-map markers read from it.
+ * The one status table: the brand token carrying each state's colour. It holds tokens,
+ * never resolved colours: a pin painted from `statusVar` repaints itself when the theme
+ * changes. Pins, legend, status chips, the coincident ring, list rows, settlement
+ * cards, the settlement-detail dot and both mini-map markers read from it.
  */
-export const STATUS_CONFIG: Record<DocumentationStatus, StatusConfig> = {
-  documented: { token: "--brand-valley-green" },
-  partial: { token: "--brand-ocean-blue" },
-  name: { token: "--brand-sobrado-ochre" },
+export const STATUS_TOKENS: Record<DocumentationStatus, `--brand-${string}`> = {
+  documented: "--brand-valley-green",
+  partial: "--brand-ocean-blue",
+  name: "--brand-sobrado-ochre",
 };
 
 /**
@@ -65,7 +61,7 @@ export function statusLine(
 
 /** The status colour as a CSS value that follows the active theme. */
 export function statusVar(status: DocumentationStatus): string {
-  return `var(${STATUS_CONFIG[status].token})`;
+  return `var(${STATUS_TOKENS[status]})`;
 }
 
 /** The status colour at `pct` percent over transparency, still following the theme. */

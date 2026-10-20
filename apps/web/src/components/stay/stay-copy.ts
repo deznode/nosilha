@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
-import { capitalise, toWords } from "@/lib/copy/number-words";
+import { openingWords, words } from "@/lib/copy/number-words";
 import type { DirectoryEntry } from "@/types/directory";
 
 /**
@@ -24,16 +24,14 @@ export function stayStandfirst(
   if (total === 0) return t("standfirst.empty");
 
   const rated = stays.filter((entry) => entry.rating != null).length;
-  const totalWords = toWords(total, { locale });
-
   // "none of the one has been rated" is technically true and unreadable; a single
   // record gets a pronoun instead of a fraction. The message carries both shapes.
   return t("standfirst.counts", {
     total,
-    totalWords,
-    openingWords: capitalise(totalWords, locale),
+    totalWords: words(total, locale),
+    openingWords: openingWords(total, locale),
     rated,
-    ratedWords: toWords(rated, { locale }),
+    ratedWords: words(rated, locale),
   });
 }
 

@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 
 import { PageMessages } from "@/i18n/page-messages";
 import { PhotoViewer } from "@/components/photographs/viewer/photo-viewer";
 import { getGalleryMediaById } from "@/lib/api";
 import { toArchivePhoto } from "@/lib/archive-photographs";
 import { isMediaId } from "@/lib/gallery-mappers";
-import {
-  archiveDateFormatter,
-  archiveTranslator,
-  getArchivePhotographs,
-} from "@/lib/get-archive-photographs";
+import { getArchivePhotographs } from "@/lib/get-archive-photographs";
 import { generatePageMetadata } from "@/lib/metadata";
 import { photoTitle } from "@/lib/photo-facts";
 import { isAskLink, sharePreviewImage } from "@/lib/share";
@@ -38,20 +34,16 @@ export async function generateMetadata({
   const media = await getGalleryMediaById(id).catch(() => undefined);
   if (!media) return {};
 
-  const [t, tShare, tPhotographs, locale] = await Promise.all([
+  const [t, tShare, tPhotographs, locale, format] = await Promise.all([
     getTranslations("metadata.photograph"),
     getTranslations("share"),
     getTranslations("photographs"),
     getLocale(),
+    getFormatter(),
   ]);
   const title = photoTitle(media, tPhotographs);
   // No settlements: the preview needs what is missing and the image, not "Near X".
-  const photo = toArchivePhoto(
-    media,
-    [],
-    await archiveDateFormatter(),
-    tPhotographs
-  );
+  const photo = toArchivePhoto(media, [], format, tPhotographs);
   // An ask link to a record that has since been completed is a plain link.
   const asking = isAskLink(ask) ? askDescription(photo, tShare, locale) : null;
   const image = sharePreviewImage(photo.src, photo.alt);
@@ -115,8 +107,8 @@ async function cachedPhoto(id: string) {
   // Not caught: a missing dataset would be cached as an archive of one photograph.
   const { photos, settlements } = await archivePromise;
   const [format, t] = await Promise.all([
-    archiveDateFormatter(),
-    archiveTranslator(),
+    getFormatter(),
+    getTranslations("photographs"),
   ]);
 
   // A record outside the image list (an external still, say) is still viewable, on

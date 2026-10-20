@@ -561,14 +561,10 @@
       }
     },
     "gallery": {
-      "photoAlt": "Gallery photo",
       "imageAlt": "Gallery image",
       "bravaIsland": "Brava Island",
       "communityContributor": "Community Contributor",
       "anonymous": "Anonymous",
-      "photoOfTheDay": "Photo of the Day",
-      "weeklyDiscoveries": "This Week's Discoveries",
-      "identifyButton": "Help Identify",
       "video": {
         "player": "Video player",
         "thumbnail": "Video thumbnail",
@@ -1434,13 +1430,7 @@
     "emailRequired": "Email is required",
     "emailInvalid": "Please enter a valid email address",
     "passwordMin6": "Password must be at least 6 characters",
-    "passwordMin8": "Password must be at least 8 characters",
     "passwordTooLong": "Password is too long",
-    "passwordStrength": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-    "confirmPassword": "Please confirm your password",
-    "displayNameMin": "Display name must be at least 2 characters",
-    "displayNameTooLong": "Display name is too long",
-    "passwordsMismatch": "Passwords do not match",
     "nameMin": "Name must be at least 2 characters",
     "nameTooLong": "Name is too long",
     "suggestionType": "Please select a suggestion type",

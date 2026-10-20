@@ -1,9 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
+  openingWords,
   capitalise,
-  countSentence,
   joinList,
-  plural,
   toWords,
 } from "@/lib/copy/number-words";
 
@@ -46,46 +45,6 @@ describe("capitalise", () => {
   });
 });
 
-describe("countSentence", () => {
-  const settlements = {
-    one: "{n} settlement",
-    many: "{n} settlements",
-    zero: "No settlements",
-  };
-
-  it("reproduces the prototype's settlement count", () => {
-    expect(countSentence(25, settlements)).toBe("Twenty-five settlements");
-  });
-
-  it("reproduces the prototype's place record count", () => {
-    expect(
-      countSentence(5, {
-        one: "{n} place record",
-        many: "{n} place records",
-        zero: "No place records",
-      })
-    ).toBe("Five place records");
-  });
-
-  it("uses the singular form for one", () => {
-    expect(countSentence(1, settlements)).toBe("One settlement");
-  });
-
-  it("uses the caller's zero phrasing instead of a number", () => {
-    expect(
-      countSentence(0, {
-        one: "{n} carries a photographer",
-        many: "{n} carry a photographer",
-        zero: "None carries a photographer",
-      })
-    ).toBe("None carries a photographer");
-  });
-
-  it("keeps digits for counts of a hundred or more", () => {
-    expect(countSentence(140, settlements)).toBe("140 settlements");
-  });
-});
-
 describe("joinList", () => {
   it("keeps the English join, with no comma before the last word", () => {
     expect(joinList(["a", "b", "c"], "and")).toBe("a, b and c");
@@ -100,21 +59,6 @@ describe("joinList", () => {
   it("returns a single item or nothing unchanged", () => {
     expect(joinList(["a"], "and", "pt-PT")).toBe("a");
     expect(joinList([], "and")).toBe("");
-  });
-});
-
-describe("plural", () => {
-  it.each([
-    [0, "many"],
-    [1, "one"],
-    [2, "many"],
-  ])("picks the English form for %i", (n, form) => {
-    expect(plural(n, "one", "many")).toBe(form);
-  });
-
-  it("treats zero as plural in European Portuguese", () => {
-    expect(plural(0, "registo", "registos", "pt-PT")).toBe("registos");
-    expect(plural(1, "registo", "registos", "pt-PT")).toBe("registo");
   });
 });
 
@@ -140,31 +84,18 @@ describe("toWords in Portuguese", () => {
   });
 });
 
-describe("countSentence in Portuguese", () => {
-  const photographs = {
-    one: "{n} fotografia",
-    many: "{n} fotografias",
-    zero: "Nenhuma fotografia",
-  };
-
-  it("agrees the number with a feminine noun", () => {
-    expect(
-      countSentence(1, photographs, { locale: "pt-PT", gender: "feminine" })
-    ).toBe("Uma fotografia");
-    expect(
-      countSentence(21, photographs, { locale: "pt-PT", gender: "feminine" })
-    ).toBe("Vinte e uma fotografias");
-  });
-
-  it("returns the zero sentence as written", () => {
-    expect(countSentence(0, photographs, { locale: "pt-PT" })).toBe(
-      "Nenhuma fotografia"
-    );
-  });
-});
-
 describe("capitalise in Portuguese", () => {
   it("upper-cases an accented first letter", () => {
     expect(capitalise("três registos", "pt-PT")).toBe("Três registos");
+  });
+});
+
+describe("openingWords", () => {
+  it("capitalises the count to open a sentence", () => {
+    expect(openingWords(25, "en")).toBe("Twenty-five");
+  });
+
+  it("agrees with a feminine noun in Portuguese", () => {
+    expect(openingWords(21, "pt-PT", "feminine")).toBe("Vinte e uma");
   });
 });

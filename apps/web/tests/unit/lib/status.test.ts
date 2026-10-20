@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { beforeAll, describe, it, expect } from "vitest";
 import {
-  STATUS_CONFIG,
+  STATUS_TOKENS,
   entryStatus,
   getEntryStatus,
   getTownStatus,
@@ -36,26 +36,18 @@ function town(
   };
 }
 
-describe("STATUS_CONFIG", () => {
+describe("STATUS_TOKENS", () => {
   it("encodes the three states with three separable brand hues", () => {
-    expect(STATUS_CONFIG).toEqual({
-      documented: { token: "--brand-valley-green" },
-      partial: { token: "--brand-ocean-blue" },
-      name: { token: "--brand-sobrado-ochre" },
+    expect(STATUS_TOKENS).toEqual({
+      documented: "--brand-valley-green",
+      partial: "--brand-ocean-blue",
+      name: "--brand-sobrado-ochre",
     });
   });
 
   it("never encodes a state in sunny yellow", () => {
-    for (const config of Object.values(STATUS_CONFIG)) {
-      expect(config.token).not.toContain("yellow");
-    }
-  });
-
-  it("holds no resolved colour, only the token that follows the theme", () => {
-    // Spec 034 T-32 retired the light hex values once no pin site read them.
-    for (const config of Object.values(STATUS_CONFIG)) {
-      // The words are messages (spec 041 FR-004), so the table holds only the token.
-      expect(Object.keys(config)).toEqual(["token"]);
+    for (const token of Object.values(STATUS_TOKENS)) {
+      expect(token).not.toContain("yellow");
     }
   });
 });
