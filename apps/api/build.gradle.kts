@@ -3,7 +3,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 plugins {
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.spring") version "2.4.10"
-    id("org.springframework.boot") version "4.1.1"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.4.10"
     jacoco
@@ -47,7 +47,7 @@ dependencyManagement {
         mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
         mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
         // Override Jackson 2.x to fix CVE in async parser DoS (transitive via AWS SDK)
-        mavenBom("com.fasterxml.jackson:jackson-bom:2.22.3")
+        mavenBom("com.fasterxml.jackson:jackson-bom:2.22.4")
     }
 }
 
@@ -61,7 +61,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocOpenApiVersion")}")
-    implementation("tools.jackson.module:jackson-module-kotlin:3.2.3")
+    implementation("tools.jackson.module:jackson-module-kotlin:3.2.4")
     implementation("io.github.oshai:kotlin-logging-jvm:${property("kotlinLogging")}")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-database-postgresql")
@@ -71,7 +71,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     // Cloudflare R2 (S3-compatible) integration
-    implementation(platform("software.amazon.awssdk:bom:2.55.16"))
+    implementation(platform("software.amazon.awssdk:bom:2.57.5"))
     implementation("software.amazon.awssdk:s3")
 
     // OWASP HTML Sanitizer for XSS prevention
@@ -88,7 +88,7 @@ dependencies {
     implementation("com.bucket4j:bucket4j_jdk17-core:8.21.0")
 
     // Google Cloud Vision SDK for image analysis (labels, OCR, landmarks)
-    implementation("com.google.cloud:google-cloud-vision:3.97.0")
+    implementation("com.google.cloud:google-cloud-vision:3.98.0")
 
     // Spring AI for Gemini cultural context generation (native structured output)
     implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
