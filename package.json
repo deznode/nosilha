@@ -16,7 +16,7 @@
     "graph": "nx graph"
   },
   "devDependencies": {
-    "nx": "^23.3.0"
+    "nx": "^24.0.4"
   },
   "pnpm": {
     "overrides": {
